@@ -2,10 +2,15 @@ package com.mukmuk.todori.ui.screen.todo
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,11 +18,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.mukmuk.todori.ui.screen.todo.component.TodoTopBar
-import com.mukmuk.todori.ui.screen.todo.component.WeekCalendar
+import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.ui.screen.todo.component.GoalTodoList
 import com.mukmuk.todori.ui.screen.todo.component.StudyTodoList
 import com.mukmuk.todori.ui.screen.todo.component.TodoList
+import com.mukmuk.todori.ui.screen.todo.component.TodoTopBar
+import com.mukmuk.todori.ui.screen.todo.component.WeekCalendar
+import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.UserPrimary
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -57,12 +66,23 @@ fun TodoScreen() {
 
 
 
-        TabRow(selectedTabIndex = selectedTabIndex) {
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            indicator = { tabPositions ->
+                Box(
+                    modifier = Modifier
+                        .tabIndicatorOffset(tabPositions[selectedTabIndex])
+                        .fillMaxWidth()
+                        .height(2.dp)
+                        .background(UserPrimary)
+                )
+            }
+        ) {
             tabs.forEachIndexed { index, title ->
                 Tab(
                     selected = selectedTabIndex == index,
                     onClick = { selectedTabIndex = index },
-                    text = { Text(title) }
+                    text = { Text(title, style = AppTextStyle.Body.copy(color = Black)) }
                 )
             }
         }
