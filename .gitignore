@@ -1,0 +1,49 @@
+# ========== 일반 Android 프로젝트 ==========
+*.iml
+.gradle/
+local.properties
+
+# ========== 빌드 관련 ==========
+/build/
+*/build/
+.cxx/
+.externalNativeBuild/
+captures/
+outputs/
+
+# ========== IntelliJ / Android Studio 설정 ==========
+.idea/
+*.log
+*.lock
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/gradle.xml
+.idea/codeStyles/*
+!.idea/codeStyles
+
+# ========== Firebase 관련 ==========
+**/google-services.json
+**/GoogleService-Info.plist
+.firebase/
+.firebaseproject
+.firebaserc
+
+# ========== OS 무시 파일 ==========
+.DS_Store
+Thumbs.db
+
+# ========== 테스트 결과 ==========
+/test-results/
+*.hprof
+
+# ========== 기타 ==========
+*.apk
+*.ap_
+*.dex
+*.class
+*.keystore
+*.jks
