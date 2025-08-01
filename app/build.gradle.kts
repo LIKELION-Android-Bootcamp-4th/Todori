@@ -88,5 +88,11 @@ dependencies {
 
     // 기타
     implementation(libs.kalendar)
+    implementation(libs.kalendar.foundation)
+
+
+
     implementation(libs.lottie)
+    implementation(libs.kotlinx.datetime)
+
 }
