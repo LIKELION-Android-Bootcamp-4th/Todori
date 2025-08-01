@@ -2,10 +2,33 @@ package com.mukmuk.todori.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// 개인 포인트 컬러
+val UserPrimary = Color(0xFF22B282)
+val UserHalf = Color(0x2B22B282)
+val UserTenth = Color(0x1A22B282)
+
+// 목표 포인트 컬러
+val GoalPrimary = Color(0xFFFFCB47)
+
+// 스터디 포인트 컬러
+val GroupPrimary = Color(0xFF847260)
+val GroupSecondary = Color(0xFFD0BBA5)
+
+// 공통 색상
+val White = Color(0xFFFFFFFF)
+val Black = Color(0xFF000000)
+val UnselectedText = Color(0x2B000000)
+val DarkGray = Color(0xFF717171)
+val Gray = Color(0xFFD9D9D9)
+val LightGray = Color(0xFFF2F2F2)
+val Red = Color(0xFFD22938)
+val Background = Color(0xFFFAF9F6)
+val CalendarSelectDay = Color(0xFF305C4C)
+val MyPageCard = Color(0xFFFFF5E5)
+
+// 버튼 색상 (명확히 구분)
+val ButtonPrimary = Color(0xFF22B282)
+val ButtonGoogle = Color(0xFFF2F2F2)
+val ButtonNaver = Color(0xFFE7FFE5)
+val ButtonKakao = Color(0xFFFAE100)
