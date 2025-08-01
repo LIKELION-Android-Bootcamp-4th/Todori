@@ -15,6 +15,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.mukmuk.todori.ui.screen.todo.component.TodoTopBar
 import com.mukmuk.todori.ui.screen.todo.component.WeekCalendar
+import com.mukmuk.todori.ui.screen.todo.component.GoalTodoList
+import com.mukmuk.todori.ui.screen.todo.component.StudyTodoList
+import com.mukmuk.todori.ui.screen.todo.component.TodoList
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -66,9 +69,9 @@ fun TodoScreen() {
 
         when (selectedTabIndex) {
 //            //todo : 탭 전환
-//            0 -> PersonalTodoList()
-//            1 -> GoalTodoList()
-//            2 -> StudyTodoList()
+            0 -> TodoList(selectedDate)
+            1 -> GoalTodoList()
+            2 -> StudyTodoList()
         }
     }
 
