@@ -14,7 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.mukmuk.todori.ui.screen.todo.component.TodoTopBar
+import com.mukmuk.todori.ui.screen.todo.component.WeekCalendar
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import java.time.YearMonth
@@ -38,6 +40,18 @@ fun TodoScreen() {
 //                //todo : route 처리
 //            }
         }
+
+
+        WeekCalendar(
+            selectedDate = selectedDate,
+            onDateSelected = { selectedDate = it },
+            studyRecords = mapOf(
+                LocalDate.parse("2025-07-29") to 260,
+                LocalDate.parse("2025-07-30") to 150,
+                LocalDate.parse("2025-07-31") to 30,
+            )
+        )
+
 
 
         TabRow(selectedTabIndex = selectedTabIndex) {
