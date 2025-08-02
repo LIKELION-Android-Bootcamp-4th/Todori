@@ -1,6 +1,9 @@
 package com.mukmuk.todori.data.remote.goal
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.security.Timestamp
 
+@Parcelize
 data class Goal(
     val goalId: String = "",              // 문서 ID
     val uid: String = "",                 // 사용자 ID
@@ -13,4 +16,4 @@ data class Goal(
     val isCompleted: Boolean = false,     // 전체 목표 완료 여부
     val createdAt: Timestamp? = null,     // 생성 시간
     val updatedAt: Timestamp? = null      // 수정 시간
-)
+) : Parcelable

@@ -133,6 +133,7 @@ fun GoalCard(
                 progress = completed / total.toFloat(),
                 completed = completed,
                 total = total,
+                progressColor = GoalPrimary,
                 modifier = Modifier.fillMaxWidth(),
                 cornerRadius = Dimens.Nano
             )
