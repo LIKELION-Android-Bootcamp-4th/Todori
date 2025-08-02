@@ -1,7 +1,10 @@
 package com.mukmuk.todori.data.remote.todo
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.security.Timestamp
 
+@Parcelize
 data class TodoCategory(
     val categoryId: String = "",           // 카테고리 ID
     val uid: String = "",                  // 사용자 ID
@@ -9,4 +12,4 @@ data class TodoCategory(
     val description: String? = null,       // 카테고리 설명
     val colorHex: String = "",             // 사용자 지정 색상
     val createdAt: Timestamp? = null
-)
+): Parcelable

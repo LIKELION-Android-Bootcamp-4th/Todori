@@ -3,13 +3,14 @@ package com.mukmuk.todori.ui.screen.todo.component
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.screen.todo.component.card.TodoCard
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun TodoList(selectedDate: LocalDate) {
+fun TodoList(selectedDate: LocalDate, navController: NavHostController) {
     val todoCategories = listOf(
         TodoCategory(
             categoryId = "cat1",
@@ -65,7 +66,7 @@ fun TodoList(selectedDate: LocalDate) {
                 total = total,
                 todos = taskList.map { it.title to it.isCompleted }
             ) {
-                //TODO : 상세 화면 이동
+                navController.navigate("todo/detail/${todoCategories[index].categoryId}")
             }
         }
     }
