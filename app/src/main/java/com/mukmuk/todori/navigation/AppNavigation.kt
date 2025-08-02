@@ -10,6 +10,7 @@ import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.CreateCategoryScreen
+import com.mukmuk.todori.ui.screen.todo.CreateStudyScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
 
 @Composable
@@ -37,7 +38,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             )
         }
         composable("study/create") {
-            CreateCategoryScreen(
+            CreateStudyScreen(
                 onDone = { navController.popBackStack() },
                 onBack = { navController.popBackStack() }
             )
