@@ -52,14 +52,15 @@ fun TodoList(selectedDate: LocalDate) {
 
     LazyColumn {
         items(todoCategories.indices.toList()) { index ->
-            val (categoryTitle, categorySubTitle) = todoCategories[index]
+            val categoryTitle = todoCategories[index].name
+            val categorySubTitle = todoCategories[index].description
             val taskList = todos[index]
             val total = taskList.size
             val progress = taskList.count { it.isCompleted }
 
             TodoCard(
                 categoryTitle = categoryTitle,
-                subtitle = categorySubTitle,
+                subtitle = categorySubTitle.toString(),
                 progress = progress,
                 total = total,
                 todos = taskList.map { it.title to it.isCompleted }
