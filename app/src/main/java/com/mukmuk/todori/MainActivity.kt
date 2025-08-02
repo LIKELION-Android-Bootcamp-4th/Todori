@@ -3,7 +3,6 @@ package com.mukmuk.todori
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -22,35 +21,39 @@ import com.mukmuk.todori.ui.theme.White
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // 선택: 상태바 침범 여부
         setContent {
             TodoriTheme {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
+                val bottomNavRoutes = BottomNavItem.items.map { it.route }
+                val showBottomBar = currentRoute in bottomNavRoutes
+
                 Scaffold(
                     bottomBar = {
-                        NavigationBar(
-                            containerColor = White
-                        ) {
-                            BottomNavItem.items.forEach { item ->
-                                NavigationBarItem(
-                                    icon = { Icon(item.icon, contentDescription = item.label) },
-                                    label = { Text(item.label) },
-                                    selected = currentRoute == item.route,
-                                    onClick = {
-                                        if (currentRoute != item.route) {
-                                            navController.navigate(item.route) {
-                                                popUpTo(navController.graph.startDestinationId) {
-                                                    saveState = true
+                        if (showBottomBar) {
+                            NavigationBar(
+                                containerColor = White
+                            ) {
+                                BottomNavItem.items.forEach { item ->
+                                    NavigationBarItem(
+                                        icon = { Icon(item.icon, contentDescription = item.label) },
+                                        label = { Text(item.label) },
+                                        selected = currentRoute == item.route,
+                                        onClick = {
+                                            if (currentRoute != item.route) {
+                                                navController.navigate(item.route) {
+                                                    popUpTo(navController.graph.startDestinationId) {
+                                                        saveState = true
+                                                    }
+                                                    launchSingleTop = true
+                                                    restoreState = true
                                                 }
-                                                launchSingleTop = true
-                                                restoreState = true
                                             }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
                     }
