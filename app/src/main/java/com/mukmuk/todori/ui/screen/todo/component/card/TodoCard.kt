@@ -14,7 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.ui.component.CustomLinearProgressBar
@@ -61,7 +62,7 @@ fun TodoCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = categoryTitle, style = AppTextStyle.Body)
+                Text(text = categoryTitle, style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
             }
 
@@ -91,7 +92,7 @@ fun TodoCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = if (isDone) Icons.Outlined.CheckCircle else Icons.Outlined.Info,
+                        imageVector = if (isDone) Icons.Outlined.CheckCircle else Icons.Outlined.RadioButtonUnchecked,
                         contentDescription = null,
                         tint = if (isDone) UserPrimary else DarkGray
                     )
