@@ -88,7 +88,6 @@ fun TodoScreen() {
         }
 
         when (selectedTabIndex) {
-//            //todo : 탭 전환
             0 -> TodoList(selectedDate)
             1 -> GoalTodoList()
             2 -> StudyTodoList()
