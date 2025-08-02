@@ -27,28 +27,33 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
+                val bottomNavRoutes = BottomNavItem.items.map { it.route }
+                val showBottomBar = currentRoute in bottomNavRoutes
+
                 Scaffold(
                     bottomBar = {
-                        NavigationBar(
-                            containerColor = White
-                        ) {
-                            BottomNavItem.items.forEach { item ->
-                                NavigationBarItem(
-                                    icon = { Icon(item.icon, contentDescription = item.label) },
-                                    label = { Text(item.label) },
-                                    selected = currentRoute == item.route,
-                                    onClick = {
-                                        if (currentRoute != item.route) {
-                                            navController.navigate(item.route) {
-                                                popUpTo(navController.graph.startDestinationId) {
-                                                    saveState = true
+                        if (showBottomBar) {
+                            NavigationBar(
+                                containerColor = White
+                            ) {
+                                BottomNavItem.items.forEach { item ->
+                                    NavigationBarItem(
+                                        icon = { Icon(item.icon, contentDescription = item.label) },
+                                        label = { Text(item.label) },
+                                        selected = currentRoute == item.route,
+                                        onClick = {
+                                            if (currentRoute != item.route) {
+                                                navController.navigate(item.route) {
+                                                    popUpTo(navController.graph.startDestinationId) {
+                                                        saveState = true
+                                                    }
+                                                    launchSingleTop = true
+                                                    restoreState = true
                                                 }
-                                                launchSingleTop = true
-                                                restoreState = true
                                             }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
                     }
