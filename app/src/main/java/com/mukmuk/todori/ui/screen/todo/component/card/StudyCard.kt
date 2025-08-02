@@ -6,7 +6,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,12 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.PeopleAlt
-import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -34,16 +30,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
-import com.mukmuk.todori.ui.component.CustomLinearProgressBar
+import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
+import com.mukmuk.todori.ui.screen.todo.component.ProgressWithText
+import com.mukmuk.todori.ui.screen.todo.component.TodoItemRow
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
-import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
@@ -91,17 +87,7 @@ fun StudyCard(
         Column(modifier = Modifier.padding(Dimens.Medium)) {
 
             // 제목 & 설명
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(study.studyName, style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
-            }
-
-            Spacer(modifier = Modifier.height(Dimens.Nano))
-            Text(study.description, style = AppTextStyle.BodySmall.copy(color = DarkGray))
+            CardHeaderSection(title = study.title, subtitle = study.description)
             Spacer(modifier = Modifier.height(Dimens.Tiny))
             // 스터디 정보
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -136,7 +122,7 @@ fun StudyCard(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .border(1.dp, Gray, RoundedCornerShape(DefaultCornerRadius))
-                        .padding(Dimens.Nano)
+                        .padding(vertical = Dimens.Nano, horizontal = Dimens.Tiny)
                 ) {
                     Icon(Icons.Outlined.PeopleAlt, contentDescription = null, modifier = Modifier.size(16.dp), tint = Black)
                     Spacer(modifier = Modifier.width(Dimens.Nano))
@@ -150,7 +136,7 @@ fun StudyCard(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .border(1.dp, Gray, RoundedCornerShape(DefaultCornerRadius))
-                        .padding(Dimens.Nano)
+                        .padding(vertical = Dimens.Nano, horizontal = Dimens.Tiny)
                 ) {
                     Icon(Icons.Default.Repeat, contentDescription = null,modifier = Modifier.size(16.dp), tint = Black)
                     Spacer(modifier = Modifier.width(Dimens.Nano))
@@ -164,14 +150,11 @@ fun StudyCard(
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            // 진행률
-            Text("진행률 $completed / $total", style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold, color = DarkGray))
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
-            CustomLinearProgressBar(
+            ProgressWithText(
                 progress = progress,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimens.Tiny),
+                completed = completed,
+                total = total,
+                modifier = Modifier.fillMaxWidth(),
                 cornerRadius = Dimens.Nano
             )
 
@@ -179,21 +162,7 @@ fun StudyCard(
 
             studyTodos.take(3).forEach { todo ->
                 val isDone = myProgressMap[todo.studyTodoId]?.isDone == true
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = if (isDone) Icons.Default.CheckCircle else Icons.Outlined.RadioButtonUnchecked,
-                        contentDescription = null,
-                        tint = if (isDone) UserPrimary else Gray
-                    )
-                    Spacer(modifier = Modifier.width(Dimens.Tiny))
-                    Text(
-                        text = todo.title,
-                        style = AppTextStyle.BodySmall.copy(
-                            color = if (isDone) DarkGray else Black,
-                            textDecoration = if (isDone) TextDecoration.LineThrough else TextDecoration.None
-                        )
-                    )
-                }
+                TodoItemRow(title = todo.title, isDone = isDone)
             }
         }
     }

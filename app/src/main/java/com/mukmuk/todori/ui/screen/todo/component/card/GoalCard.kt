@@ -6,7 +6,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,11 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Adjust
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -32,16 +28,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.goal.GoalTodo
-import com.mukmuk.todori.ui.component.CustomLinearProgressBar
+import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
+import com.mukmuk.todori.ui.screen.todo.component.ProgressWithText
+import com.mukmuk.todori.ui.screen.todo.component.TodoItemRow
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
-import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.GoalPrimary
@@ -95,20 +90,8 @@ fun GoalCard(
         )
     ) {
         Column(modifier = Modifier.padding(Dimens.Medium)) {
-            // 제목과 아이콘
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column {
-                    Text(text = goal.title, style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
-                    Text(text = goal.description ?: "", style = AppTextStyle.BodySmall)
-                }
-                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
-            }
-
-            Spacer(modifier = Modifier.height(Dimens.Nano))
+            CardHeaderSection(title = goal.title, subtitle = goal.description)
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
 
             // 기간 + 상태
             Row(
@@ -134,7 +117,7 @@ fun GoalCard(
                 ) {
                     Text(
                         text = if (dDay < 0) "종료" else "D-$dDay",
-                        style = AppTextStyle.ButtonText.copy(fontWeight = FontWeight.Bold, color = if (dDay < 10) White else Black),
+                        style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold, color = White),
 
                     )
                 }
@@ -146,14 +129,11 @@ fun GoalCard(
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            // 진행률
-            Text("진행률 $completed / $total", style = AppTextStyle.BodySmall.copy(color = DarkGray))
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
-            CustomLinearProgressBar(
+            ProgressWithText(
                 progress = completed / total.toFloat(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimens.Tiny),
+                completed = completed,
+                total = total,
+                modifier = Modifier.fillMaxWidth(),
                 cornerRadius = Dimens.Nano
             )
 
@@ -161,21 +141,7 @@ fun GoalCard(
 
             // 세부 할 일 일부 표시
             goalTodos.take(3).forEach { todo ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = if (todo.isCompleted) Icons.Default.CheckCircle else Icons.Outlined.RadioButtonUnchecked,
-                        contentDescription = null,
-                        tint = if (todo.isCompleted) UserPrimary else Color.Gray
-                    )
-                    Spacer(modifier = Modifier.width(Dimens.Tiny))
-                    Text(
-                        text = todo.title,
-                        style = AppTextStyle.BodySmall.copy(
-                            color = if (todo.isCompleted) DarkGray else Black,
-                            textDecoration = if (todo.isCompleted) TextDecoration.LineThrough else TextDecoration.None
-                        )
-                    )
-                }
+                TodoItemRow(title = todo.title, isDone = todo.isCompleted)
             }
         }
     }
