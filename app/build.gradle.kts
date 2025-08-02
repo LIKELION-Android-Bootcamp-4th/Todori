@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("org.jetbrains.kotlin.kapt")
     alias(libs.plugins.hilt)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -88,5 +89,15 @@ dependencies {
 
     // 기타
     implementation(libs.kalendar)
+    implementation(libs.kalendar.foundation)
+
+    // icons (filled, outlined, rounded 등)
+    implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.material:material-icons-extended")
+
+
+
     implementation(libs.lottie)
+    implementation(libs.kotlinx.datetime)
+
 }
