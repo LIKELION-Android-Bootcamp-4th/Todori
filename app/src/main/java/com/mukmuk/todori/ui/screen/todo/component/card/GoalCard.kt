@@ -36,8 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.data.remote.Goal
-import com.mukmuk.todori.data.remote.GoalTodo
+import com.mukmuk.todori.data.remote.goal.Goal
+import com.mukmuk.todori.data.remote.goal.GoalTodo
 import com.mukmuk.todori.ui.component.CustomLinearProgressBar
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black

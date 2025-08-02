@@ -4,8 +4,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
-import com.mukmuk.todori.data.remote.Goal
-import com.mukmuk.todori.data.remote.GoalTodo
+import com.mukmuk.todori.data.remote.goal.Goal
+import com.mukmuk.todori.data.remote.goal.GoalTodo
 import com.mukmuk.todori.ui.screen.todo.component.card.GoalCard
 
 

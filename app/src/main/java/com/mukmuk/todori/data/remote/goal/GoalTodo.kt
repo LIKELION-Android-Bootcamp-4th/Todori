@@ -1,4 +1,4 @@
-package com.mukmuk.todori.data.remote
+package com.mukmuk.todori.data.remote.goal
 
 import java.security.Timestamp
 
