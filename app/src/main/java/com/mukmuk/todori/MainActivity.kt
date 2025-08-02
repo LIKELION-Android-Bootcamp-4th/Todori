@@ -22,7 +22,7 @@ import com.mukmuk.todori.ui.theme.White
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // 선택: 상태바 침범 여부
+        //enableEdgeToEdge() // 선택: 상태바 침범 여부
         setContent {
             TodoriTheme {
                 val navController = rememberNavController()
