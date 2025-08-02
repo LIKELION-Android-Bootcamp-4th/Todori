@@ -19,7 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.mukmuk.todori.ui.screen.todo.component.GoalTodoList
+import com.mukmuk.todori.ui.screen.todo.component.MenuAction
 import com.mukmuk.todori.ui.screen.todo.component.StudyTodoList
 import com.mukmuk.todori.ui.screen.todo.component.TodoList
 import com.mukmuk.todori.ui.screen.todo.component.TodoTopBar
@@ -36,7 +38,7 @@ import java.time.YearMonth
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TodoScreen() {
+fun TodoScreen(navController: NavHostController) {
     var selectedDate by remember {
         mutableStateOf(Clock.System.todayIn(TimeZone.currentSystemDefault()))
     }
@@ -48,9 +50,14 @@ fun TodoScreen() {
         modifier = Modifier.fillMaxSize()
     ) {
         TodoTopBar(selectedYearMonth = YearMonth.of(selectedDate.year, selectedDate.month)) { action ->
-//            when (action) {
-//                //todo : route 처리
-//            }
+            when (action) {
+                MenuAction.CreatePersonalCategory -> {
+                    navController.navigate("category/create")
+                }
+                else -> {
+                    //todo
+                }
+            }
         }
 
 
