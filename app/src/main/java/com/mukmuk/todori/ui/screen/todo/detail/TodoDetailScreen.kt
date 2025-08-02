@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
@@ -40,6 +41,7 @@ import com.mukmuk.todori.ui.theme.White
 @Composable
 fun TodoDetailScreen(
     categoryId: String,
+    navController: NavHostController,
     onBack: () -> Unit
 ) {
     val todoCategories = listOf(
@@ -121,6 +123,10 @@ fun TodoDetailScreen(
                         onClick = {
                             dropdownExpanded = false
 
+                            navController.currentBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("editCategory", category)
+                            navController.navigate("category/create")
                         }
                     )
                     DropdownMenuItem(
