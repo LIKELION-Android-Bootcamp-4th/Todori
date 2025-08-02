@@ -54,6 +54,12 @@ fun TodoScreen(navController: NavHostController) {
                 MenuAction.CreatePersonalCategory -> {
                     navController.navigate("category/create")
                 }
+                MenuAction.CreateGoalRoadmap -> {
+                    navController.navigate("goal/create")
+                }
+                MenuAction.CreateStudy -> {
+                    navController.navigate("study/create")
+                }
                 else -> {
                     //todo
                 }
