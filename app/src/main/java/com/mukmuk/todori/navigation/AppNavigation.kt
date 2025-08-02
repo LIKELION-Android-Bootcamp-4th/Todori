@@ -11,6 +11,7 @@ import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.CreateCategoryScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
+import com.mukmuk.todori.ui.screen.todo.detail.TodoDetailScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier) {
@@ -42,5 +43,10 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 onBack = { navController.popBackStack() }
             )
         }
+        composable("todo/detail/{categoryId}") { backStackEntry ->
+            val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
+            TodoDetailScreen(categoryId = categoryId, onBack = { navController.popBackStack() })
+        }
+
     }
 }
