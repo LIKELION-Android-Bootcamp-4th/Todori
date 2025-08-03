@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
@@ -14,7 +15,7 @@ import java.util.Date
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun StudyTodoList() {
+fun StudyTodoList(navController: NavHostController) {
     val myUid = "myUid"
     val now = Date()
 
@@ -75,7 +76,7 @@ fun StudyTodoList() {
                 memberCount = 5,
                 joinedAt = myMember.joinedAt!!,
                 onClick = {
-                    //todo : 상세 화면 연결
+                    navController.navigate("study/detail")
                 }
             )
         }

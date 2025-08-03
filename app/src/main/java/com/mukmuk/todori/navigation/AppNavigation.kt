@@ -17,6 +17,7 @@ import com.mukmuk.todori.ui.screen.todo.CreateCategoryScreen
 import com.mukmuk.todori.ui.screen.todo.CreateGoalScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.detail.GoalDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.StudyDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.TodoDetailScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -67,6 +68,12 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 GoalDetailScreen(goal = it, navController = navController,
                     onBack = {navController.popBackStack()})
             }
+        }
+        composable("study/detail") {
+            StudyDetailScreen(
+                navController,
+                onBack = { navController.popBackStack() }
+            )
         }
 
     }
