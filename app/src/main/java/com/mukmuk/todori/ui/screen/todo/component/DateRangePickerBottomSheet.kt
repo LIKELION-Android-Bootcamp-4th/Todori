@@ -35,6 +35,7 @@ import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.UserHalf
 import com.mukmuk.todori.ui.theme.UserPrimary
+import com.mukmuk.todori.ui.theme.White
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -64,7 +65,8 @@ fun DateRangePickerBottomSheet(
     if (show) {
         ModalBottomSheet(
             onDismissRequest = onDismissRequest,
-            sheetState = sheetState
+            sheetState = sheetState,
+            containerColor = White
         ) {
             Column(Modifier.padding(Dimens.Medium)) {
                 Text("기간 선택", style = AppTextStyle.TitleMedium, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)

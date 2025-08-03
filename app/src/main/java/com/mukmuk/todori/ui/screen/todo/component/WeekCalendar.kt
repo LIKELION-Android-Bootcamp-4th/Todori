@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,7 +44,7 @@ fun WeekCalendar(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
-    studyRecords: Map<LocalDate, Int> // 공부 시간 기록 -> 시간 단위
+    studyRecords: Map<LocalDate, Int>
 ) {
     val startPage = 10_000
     val pagerState = rememberPagerState(pageCount = { Int.MAX_VALUE })
@@ -54,11 +53,6 @@ fun WeekCalendar(
 
     LaunchedEffect(Unit) {
         pagerState.scrollToPage(startPage)
-    }
-
-    val currentWeekStart = remember(pagerState.currentPage) {
-        today.startOfWeek()
-            .plus((pagerState.currentPage - startPage) * 7, DateTimeUnit.DAY)
     }
 
     Box(

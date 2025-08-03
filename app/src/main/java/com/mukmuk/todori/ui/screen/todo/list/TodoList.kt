@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.remote.todo.TodoCategory
-import com.mukmuk.todori.ui.screen.todo.component.card.TodoCard
+import com.mukmuk.todori.ui.screen.todo.component.TodoCard
 import kotlinx.datetime.LocalDate
 
 @Composable

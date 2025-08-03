@@ -51,7 +51,7 @@ fun TodoTopBar(
                 modifier = Modifier.background(White),
                 onDismissRequest = { expanded = false }
             ) {
-                DropdownMenuItem(text = { Text("개인 카테고리 생성") }, onClick = {
+                DropdownMenuItem(text = { Text("카테고리 생성") }, onClick = {
                     expanded = false
                     onMenuClick(MenuAction.CreatePersonalCategory)
                 })

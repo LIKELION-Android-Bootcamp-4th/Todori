@@ -4,13 +4,19 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -19,6 +25,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,9 +41,12 @@ import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
+import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
+import com.mukmuk.todori.ui.screen.todo.component.ProgressWithText
 import com.mukmuk.todori.ui.screen.todo.component.TodoDetailHeader
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Red
+import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -142,6 +152,56 @@ fun TodoDetailScreen(
                 }
             }
         )
+        CardHeaderSection(
+            title = categoryTitle,
+            subtitle = categorySubTitle,
+            showArrowIcon = false
+        )
+        Spacer(modifier = Modifier.height(Dimens.Small))
+        ProgressWithText(
+            progress = progress / total.toFloat(),
+            completed = progress,
+            total = total,
+        )
+        Spacer(modifier = Modifier.height(Dimens.Small))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Dimens.Medium)
+        ) {
+            OutlinedTextField(
+                value = newTodoText,
+                onValueChange = { newTodoText = it },
+                placeholder = { Text("Todo 입력") },
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(Dimens.Small))
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(color = UserPrimary)
+            ) {
+                IconButton(
+                    onClick = {
+                        if (newTodoText.isNotBlank()) {
+                            taskList.add(
+                                Todo(title = newTodoText.trim(), isCompleted = false)
+                            )
+                            newTodoText = ""
+                            focusManager.clearFocus()
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "할 일 추가",
+                        tint = White
+                    )
+                }
+            }
+        }
+
         TodoDetailHeader(
             categoryTitle, categorySubTitle, progress, total,
             newTodoText,

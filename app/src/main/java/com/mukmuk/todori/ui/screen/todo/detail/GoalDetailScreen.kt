@@ -46,8 +46,8 @@ import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.goal.GoalTodo
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
-import com.mukmuk.todori.ui.screen.todo.component.GoalPeriodStatus
-import com.mukmuk.todori.ui.screen.todo.component.GoalProgressSection
+import com.mukmuk.todori.ui.screen.todo.component.GoalMetaInfoRow
+import com.mukmuk.todori.ui.screen.todo.component.ProgressWithText
 import com.mukmuk.todori.ui.screen.todo.component.SingleDatePickerBottomSheet
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -89,6 +89,9 @@ fun GoalDetailScreen(
         )
     }
 
+
+    val total = goalTodos.size
+    val completed = goalTodos.count { it.isCompleted }
 
     var showDatePicker by remember { mutableStateOf(false) }
     var newTodoDueDate by remember { mutableStateOf<LocalDate?>(null) }
@@ -143,7 +146,6 @@ fun GoalDetailScreen(
             Column(
                 modifier = Modifier.background(color = White).padding(Dimens.Medium)
             ) {
-                // 헤더
                 CardHeaderSection(
                     title = goal.title,
                     subtitle = goal.description,
@@ -152,17 +154,21 @@ fun GoalDetailScreen(
 
                 Spacer(modifier = Modifier.height(Dimens.Small))
 
-                // 기간 + 디데이 + 진행상태
-                GoalPeriodStatus(goal)
+                GoalMetaInfoRow(goal)
 
                 Spacer(modifier = Modifier.height(Dimens.Small))
 
-                // 진행률
-                GoalProgressSection(goal)
+                ProgressWithText(
+                    progress = if (total == 0) 0f else completed / total.toFloat(),
+                    completed = completed,
+                    total = total,
+                    progressColor = GoalPrimary,
+                    modifier = Modifier.fillMaxWidth(),
+                    cornerRadius = Dimens.Nano
+                )
 
                 Spacer(modifier = Modifier.height(Dimens.Medium))
 
-                // 세부 목표 리스트 추가 영역 (생성용 + 리스트)
                 Text("세부 목표", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
                 Spacer(modifier = Modifier.height(Dimens.Small))
 
@@ -193,7 +199,9 @@ fun GoalDetailScreen(
                             newTodoDueDate = selectedDate.toKotlinLocalDate()
                         }
                     )
+
                     Spacer(modifier = Modifier.width(Dimens.Nano))
+
                     Box(
                         modifier = Modifier
                             .size(56.dp)
@@ -223,7 +231,6 @@ fun GoalDetailScreen(
 
             Spacer(modifier = Modifier.height(Dimens.Small))
 
-            // 리스트
             goalTodos.forEachIndexed { index, todo ->
                 TodoItemEditableRow(
                     title = todo.title,

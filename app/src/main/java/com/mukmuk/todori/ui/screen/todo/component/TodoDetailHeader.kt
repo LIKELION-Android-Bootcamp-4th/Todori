@@ -41,7 +41,6 @@ fun TodoDetailHeader(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = White)
-//            .border(1.dp, Black, RectangleShape)
             .padding(Dimens.Medium)
     ) {
         Text(

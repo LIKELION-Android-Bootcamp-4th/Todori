@@ -61,12 +61,13 @@ fun TodoScreen(navController: NavHostController) {
                     navController.navigate("study/create")
                 }
                 else -> {
-                    //todo
+                    // todo: DeepLink 처리
                 }
             }
         }
 
 
+        //주 캘린더
         WeekCalendar(
             selectedDate = selectedDate,
             onDateSelected = { selectedDate = it },
@@ -77,8 +78,7 @@ fun TodoScreen(navController: NavHostController) {
             )
         )
 
-
-
+        //탭 생성
         TabRow(
             selectedTabIndex = selectedTabIndex,
             indicator = { tabPositions ->

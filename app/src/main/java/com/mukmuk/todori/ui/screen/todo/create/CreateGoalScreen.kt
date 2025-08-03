@@ -3,17 +3,25 @@ package com.mukmuk.todori.ui.screen.todo.create
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,11 +36,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
-import com.mukmuk.todori.ui.screen.todo.component.DateRangePicker
 import com.mukmuk.todori.ui.screen.todo.component.DateRangePickerBottomSheet
 import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Red
@@ -147,10 +156,20 @@ fun CreateGoalScreen(
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            DateRangePicker(
-                dateRangeText = dateRangeText,
-                onClick = { showDatePicker = true }
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {  showDatePicker = true }
+                    .background(White, RoundedCornerShape(DefaultCornerRadius))
+                    .border(1.dp, DarkGray, RoundedCornerShape(DefaultCornerRadius))
+                    .padding(Dimens.Medium)
+            ) {
+                Row {
+                    Icon(Icons.Default.DateRange, contentDescription = null)
+                    Spacer(Modifier.width(Dimens.Small))
+                    Text(dateRangeText)
+                }
+            }
 
             DateRangePickerBottomSheet(
                 show = showDatePicker,
