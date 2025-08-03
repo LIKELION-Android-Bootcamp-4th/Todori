@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -111,129 +112,156 @@ fun StudyDetailScreen(
     val totalCount = taskList.size
     val progress = if (totalCount > 0) completedCount / totalCount.toFloat() else 0f
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        CenterAlignedTopAppBar(
-            title = { Text("스터디") },
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item {
+            CenterAlignedTopAppBar(
+                title = { Text("스터디") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = { dropdownExpanded = true }
+                    ) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                    }
+                    DropdownMenu(
+                        expanded = dropdownExpanded,
+                        onDismissRequest = { dropdownExpanded = false },
+                        modifier = Modifier.background(White)
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    "수정",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            onClick = {
+                                dropdownExpanded = false
+                                navController.currentBackStackEntry
+                                    ?.savedStateHandle
+                                    ?.set("editStudy", dummyStudy)
+                                navController.navigate("study/create")
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    "삭제",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            onClick = {
+                                dropdownExpanded = false
+                                // TODO: 삭제
+                            }
+                        )
+                    }
                 }
-            },
-            actions = {
-                IconButton(
-                    onClick = { dropdownExpanded = true }
-                ) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More")
-                }
-                DropdownMenu(
-                    expanded = dropdownExpanded,
-                    onDismissRequest = { dropdownExpanded = false },
-                    modifier = Modifier.background(White)
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("수정", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                        onClick = {
-                            dropdownExpanded = false
-                            navController.currentBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("editStudy", dummyStudy)
-                            navController.navigate("study/create")
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("삭제", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                        onClick = {
-                            dropdownExpanded = false
-                            // TODO: 삭제
-                        }
-                    )
-                }
-            }
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(White)
-                .padding(Dimens.Small)
-        ) {
-            CardHeaderSection(
-                title = dummyStudy.title,
-                subtitle = dummyStudy.description,
-                showArrowIcon = false
-            )
-            Spacer(modifier = Modifier.height(Dimens.Small))
-            StudyMetaInfoRow(
-                createdAt = dummyStudy.createdAt,
-                joinedAt = myJoinedAt,
-                memberCount = dummyMembers.size,
-                activeDays = dummyStudy.activeDays
-            )
-            Spacer(modifier = Modifier.height(Dimens.Small))
-            ProgressWithText(
-                progress = progress,
-                completed = completedCount,
-                progressColor = GroupPrimary,
-                total = totalCount,
-                modifier = Modifier.fillMaxWidth()
             )
         }
-        StudyTodoInputCard(
-            taskList = taskList,
-            newTodoText = newTodoText,
-            onTodoTextChange = { newTodoText = it },
-            onAddClick = {
-                if (newTodoText.isNotBlank()) {
-                    val newId = UUID.randomUUID().toString()
-                    taskList.add(
-                        StudyTodo(
-                            studyTodoId = newId,
-                            title = newTodoText.trim(),
-                            createdBy = currentUid,
-                            createdAt = Timestamp.now()
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(White)
+                    .padding(Dimens.Small)
+            ) {
+                CardHeaderSection(
+                    title = dummyStudy.title,
+                    subtitle = dummyStudy.description,
+                    showArrowIcon = false
+                )
+                Spacer(modifier = Modifier.height(Dimens.Small))
+                StudyMetaInfoRow(
+                    createdAt = dummyStudy.createdAt,
+                    joinedAt = myJoinedAt,
+                    memberCount = dummyMembers.size,
+                    activeDays = dummyStudy.activeDays
+                )
+                Spacer(modifier = Modifier.height(Dimens.Small))
+                ProgressWithText(
+                    progress = progress,
+                    completed = completedCount,
+                    progressColor = GroupPrimary,
+                    total = totalCount,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        item {
+            StudyTodoInputCard(
+                taskList = taskList,
+                newTodoText = newTodoText,
+                onTodoTextChange = { newTodoText = it },
+                onAddClick = {
+                    if (newTodoText.isNotBlank()) {
+                        val newId = UUID.randomUUID().toString()
+                        taskList.add(
+                            StudyTodo(
+                                studyTodoId = newId,
+                                title = newTodoText.trim(),
+                                createdBy = currentUid,
+                                createdAt = Timestamp.now()
+                            )
                         )
-                    )
-                    // 1️⃣ 반드시 새 객체 할당
-                    dummyMembers.forEach { member ->
-                        val oldMap = progressMap[member.uid]?.toMutableMap() ?: mutableMapOf()
-                        oldMap[newId] = TodoProgress(
-                            uid = member.uid,
-                            studyTodoId = newId,
-                            isDone = false,
-                            completedAt = null
-                        )
-                        progressMap[member.uid] = oldMap
+                        dummyMembers.forEach { member ->
+                            val oldMap = progressMap[member.uid]?.toMutableMap() ?: mutableMapOf()
+                            oldMap[newId] = TodoProgress(
+                                uid = member.uid,
+                                studyTodoId = newId,
+                                isDone = false,
+                                completedAt = null
+                            )
+                            progressMap[member.uid] = oldMap
+                        }
+                        newTodoText = ""
                     }
-                    newTodoText = ""
-                }
-            },
-            onToggleChecked = { todoId, checked ->
-                val oldMap = progressMap[currentUid]?.toMutableMap() ?: mutableMapOf()
-                val old = oldMap[todoId]
-                oldMap[todoId] =
-                    old?.copy(isDone = checked, completedAt = if (checked) Timestamp.now() else null)
-                        ?: TodoProgress(
-                            uid = currentUid,
-                            studyTodoId = todoId,
+                },
+                onToggleChecked = { todoId, checked ->
+                    val oldMap = progressMap[currentUid]?.toMutableMap() ?: mutableMapOf()
+                    val old = oldMap[todoId]
+                    oldMap[todoId] =
+                        old?.copy(
                             isDone = checked,
                             completedAt = if (checked) Timestamp.now() else null
                         )
-                progressMap[currentUid] = oldMap
-            },
-            onDelete = { todoId ->
-                taskList.removeAll { it.studyTodoId == todoId }
-                dummyMembers.forEach { member ->
-                    val oldMap = progressMap[member.uid]?.toMutableMap() ?: mutableMapOf()
-                    oldMap.remove(todoId)
-                    progressMap[member.uid] = oldMap
-                }
-            },
-            progressMap = progressMap[currentUid] ?: mutableMapOf(),
-        )
+                            ?: TodoProgress(
+                                uid = currentUid,
+                                studyTodoId = todoId,
+                                isDone = checked,
+                                completedAt = if (checked) Timestamp.now() else null
+                            )
+                    progressMap[currentUid] = oldMap
+                },
+                onDelete = { todoId ->
+                    taskList.removeAll { it.studyTodoId == todoId }
+                    dummyMembers.forEach { member ->
+                        val oldMap = progressMap[member.uid]?.toMutableMap() ?: mutableMapOf()
+                        oldMap.remove(todoId)
+                        progressMap[member.uid] = oldMap
+                    }
+                },
+                progressMap = progressMap[currentUid] ?: mutableMapOf(),
+            )
+        }
 
-        MemberProgressCard(
-            members = dummyMembers,
-            todos = taskList,
-            progresses = progressMap
-        ) { /* onClick */ }
+        item {
+            MemberProgressCard(
+                members = dummyMembers,
+                todos = taskList,
+                progresses = progressMap
+            ) {
+                navController.navigate("member_progress_detail/${dummyStudy.studyId}")
+            }
+            Spacer(modifier = Modifier.height(Dimens.Small))
+        }
+
+
     }
 }

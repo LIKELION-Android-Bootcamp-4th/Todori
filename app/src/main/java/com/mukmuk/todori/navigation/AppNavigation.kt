@@ -19,6 +19,7 @@ import com.mukmuk.todori.ui.screen.todo.CreateGoalScreen
 import com.mukmuk.todori.ui.screen.todo.CreateStudyScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.detail.GoalDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.MemberProgressDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.StudyDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.TodoDetailScreen
 
@@ -80,6 +81,14 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 onBack = { navController.popBackStack() }
             )
         }
+        composable("member_progress_detail/{studyId}") { backStackEntry ->
+            val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
+            MemberProgressDetailScreen(
+                navController = navController,
+                studyId = studyId,
+            )
+        }
+
 
     }
 }
