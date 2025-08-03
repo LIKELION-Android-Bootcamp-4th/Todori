@@ -32,7 +32,7 @@ fun GoalTodoList(navController: NavHostController) {
             goalId = "android-ui",
             title = "안드로이드 UI 마스터",
             startDate = "2025-07-20",
-            endDate = "2025-08-15",
+            endDate = "2025-08-07",
             description = "Compose UI에 익숙해지기"
         )
     )

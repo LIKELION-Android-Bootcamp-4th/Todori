@@ -15,13 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.DeleteForever
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,15 +30,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
+import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
 import com.mukmuk.todori.ui.screen.todo.component.ProgressWithText
-import com.mukmuk.todori.ui.screen.todo.component.TodoDetailHeader
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.UserPrimary
@@ -97,7 +91,6 @@ fun TodoDetailScreen(
     )
 
     val focusManager = LocalFocusManager.current
-    var dropdownExpanded by remember { mutableStateOf(false) }
     val index = todoCategories.indexOfFirst { it.categoryId == categoryId }
     val category = todoCategories.getOrNull(index)
     val categoryTitle = category?.name.orEmpty()
@@ -111,111 +104,75 @@ fun TodoDetailScreen(
 
 
     Column(modifier = Modifier.fillMaxSize()) {
-        CenterAlignedTopAppBar(
-            title = { Text("카테고리 상세") },
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                }
+        CommonDetailAppBar(
+            title = categoryTitle,
+            onBack = onBack,
+            onEdit = {
+                navController.currentBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("editCategory", category)
+                navController.navigate("category/create")
             },
-            actions = {
-                IconButton(
-                    onClick = {
-                        dropdownExpanded = true
-                    }
-                ) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More")
-                }
-                DropdownMenu(
-                    expanded = dropdownExpanded,
-                    onDismissRequest = { dropdownExpanded = false },
-                    modifier = Modifier.background(White)
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("수정", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                        onClick = {
-                            dropdownExpanded = false
-
-                            navController.currentBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("editCategory", category)
-                            navController.navigate("category/create")
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("삭제", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                        onClick = {
-                            dropdownExpanded = false
-                            // TODO: 삭제
-                        }
-                    )
-                }
+            onDelete = {
+                // todo:
             }
         )
-        CardHeaderSection(
-            title = categoryTitle,
-            subtitle = categorySubTitle,
-            showArrowIcon = false
-        )
-        Spacer(modifier = Modifier.height(Dimens.Small))
-        ProgressWithText(
-            progress = progress / total.toFloat(),
-            completed = progress,
-            total = total,
-        )
-        Spacer(modifier = Modifier.height(Dimens.Small))
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = Dimens.Medium)
+                .background(White)
+                .padding(Dimens.Small)
         ) {
-            OutlinedTextField(
-                value = newTodoText,
-                onValueChange = { newTodoText = it },
-                placeholder = { Text("Todo 입력") },
-                modifier = Modifier.weight(1f)
+            CardHeaderSection(
+                title = categoryTitle,
+                subtitle = categorySubTitle,
+                showArrowIcon = false
             )
-            Spacer(modifier = Modifier.width(Dimens.Small))
-            Box(
+            Spacer(modifier = Modifier.height(Dimens.Small))
+            ProgressWithText(
+                progress = progress / total.toFloat(),
+                completed = progress,
+                total = total,
+            )
+            Spacer(modifier = Modifier.height(Dimens.Small))
+            Row(
                 modifier = Modifier
-                    .size(56.dp)
-                    .background(color = UserPrimary)
+                    .fillMaxWidth()
+                    .padding(top = Dimens.Medium)
             ) {
-                IconButton(
-                    onClick = {
-                        if (newTodoText.isNotBlank()) {
-                            taskList.add(
-                                Todo(title = newTodoText.trim(), isCompleted = false)
-                            )
-                            newTodoText = ""
-                            focusManager.clearFocus()
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize()
+                OutlinedTextField(
+                    value = newTodoText,
+                    onValueChange = { newTodoText = it },
+                    placeholder = { Text("Todo 입력") },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(Dimens.Small))
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(color = UserPrimary)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "할 일 추가",
-                        tint = White
-                    )
+                    IconButton(
+                        onClick = {
+                            if (newTodoText.isNotBlank()) {
+                                taskList.add(
+                                    Todo(title = newTodoText.trim(), isCompleted = false)
+                                )
+                                newTodoText = ""
+                                focusManager.clearFocus()
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "할 일 추가",
+                            tint = White
+                        )
+                    }
                 }
             }
         }
-
-        TodoDetailHeader(
-            categoryTitle, categorySubTitle, progress, total,
-            newTodoText,
-            onTodoTextChange = {newTodoText = it},
-            onAddClick = {
-                if (newTodoText.isNotBlank()) {
-                    taskList.add(
-                        Todo(title = newTodoText.trim(), isCompleted = false)
-                    )
-                    newTodoText = ""
-                    focusManager.clearFocus()
-                }
-            }
-        )
 
         taskList.forEachIndexed { i, todo ->
             TodoItemEditableRow(
