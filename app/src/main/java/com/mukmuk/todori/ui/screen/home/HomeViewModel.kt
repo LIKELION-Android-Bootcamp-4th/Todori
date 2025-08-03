@@ -40,20 +40,25 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
             is TimerEvent.Resume -> resumeTimer()
             is TimerEvent.Stop -> stopTimer()
             is TimerEvent.Reset -> resetTimer()
+            is TimerEvent.Record -> enterRecordMode()
         }
     }
 
     private fun startTimer() {
-        if (_state.value.isRunning) return
-        _state.update { it.copy(isRunning = true) } // update 사용
+        if (_state.value.status == TimerStatus.RUNNING) return
+
+        _state.update { it.copy(status = TimerStatus.RUNNING) }
 
         timerJob = viewModelScope.launch {
             while (_state.value.timeLeftInMillis > 0) {
                 delay(1000)
-                _state.update { it.copy(timeLeftInMillis = it.timeLeftInMillis - 1000) }
-                _state.update { it.copy(totalStudyTimeMills = it.totalStudyTimeMills + 1000) }
+                _state.update {
+                    it.copy(
+                        timeLeftInMillis = it.timeLeftInMillis - 1000,
+                        totalStudyTimeMills = it.totalStudyTimeMills + 1000
+                    )
+                }
             }
-            // 타이머가 0이 되었을 때 다음 모드 처리
             handleTimerCompletion()
         }
     }
@@ -64,30 +69,42 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
     private fun stopTimer() {
         timerJob?.cancel()
-        _state.value = _state.value.copy(isRunning = false)
+        _state.update { it.copy(status = TimerStatus.IDLE) }
     }
 
     private fun resetTimer() {
         timerJob?.cancel()
-        _state.value = _state.value.copy(
-            timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
-            pomodoroMode = PomodoroTimerMode.FOCUSED,
-            completedFocusCycles = 0,
-            isRunning = false
-        )
+        _state.update {
+            it.copy(
+                timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
+                totalStudyTimeMills = 0L,
+                completedFocusCycles = 0,
+                status = TimerStatus.IDLE
+            )
+        }
     }
+
+    private fun enterRecordMode() {
+        timerJob?.cancel()
+        _state.update { it.copy(status = TimerStatus.RECORDING) }
+    }
+
+    fun setTotalRecordTimeMills(recordTime: Long) {
+        _state.update { it.copy(totalRecordTimeMills = _state.value.totalRecordTimeMills + recordTime) }
+
+    }
+
 
     // HomeSettingScreen에서 전달받은 설정으로 타이머 상태를 업데이트하는 함수
     fun updateInitialTimerSettings(settings: HomeSettingState) {
         currentSettings = settings // 새 설정 저장
 
-        if (!_state.value.isRunning) {
+        if (state.value.status == TimerStatus.RUNNING) {
             _state.value = _state.value.copy(
                 timeLeftInMillis = (settings.focusMinutes * 60 + settings.focusSeconds) * 1000L,
                 pomodoroMode = PomodoroTimerMode.FOCUSED,
                 completedFocusCycles = 0,
                 isPomodoroEnabled = settings.isPomodoroEnabled
-
             )
         }
     }
@@ -96,7 +113,7 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
         timerJob?.cancel()
         _state.update {
             it.copy(
-                isRunning = false,
+                status = TimerStatus.IDLE,
             )
         }
 
