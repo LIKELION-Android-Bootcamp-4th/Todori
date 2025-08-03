@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -44,52 +45,52 @@ fun MyLevelScreen(
         },
         containerColor = White
     ){ innerPadding ->
-        Column(
-            Modifier
+        LazyColumn(
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(top = innerPadding.calculateTopPadding())
-                .padding(Dimens.Medium).background(color = White)
+                .padding(Dimens.Medium).background(color = White),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             //val levelInfo = getLevelInfo(user.level)
+            item {
+                Spacer(modifier = Modifier.height(Dimens.Medium))
 
-            Spacer(modifier = Modifier.height(Dimens.Medium))
+                Text(
+                    text = "나의 레벨",
+                    style = AppTextStyle.Title,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
 
-            Text(
-                text = "나의 레벨",
-                style = AppTextStyle.Title,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+                Text(
+                    text = "꾸준이", //"${levelInfo.name}",
+                    style = AppTextStyle.Timer,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
 
-            Text(
-                text = "꾸준이", //"${levelInfo.name}",
-                style = AppTextStyle.Timer,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_level3), //(id = levelInfo.imageRes),
+                    contentDescription = "레벨 이미지",
+                    modifier = Modifier
+                        .size(228.dp)
+                )
 
-            Image(
-                painter = painterResource(id = R.drawable.ic_level3), //(id = levelInfo.imageRes),
-                contentDescription = "레벨 이미지",
-                modifier = Modifier
-                    .size(228.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
+                Spacer(modifier = Modifier.height(Dimens.Large))
 
-            Spacer(modifier = Modifier.height(Dimens.Large))
+                PointProgressBar(// 데이터 일단 더미로..
+                    level = 3,
+                    currentPoint = 80,
+                    maxPoint = 100
+                )
 
-            PointProgressBar(// 데이터 일단 더미로..
-                level = 3,
-                currentPoint = 80,
-                maxPoint = 100
-            )
+                Spacer(modifier = Modifier.height(Dimens.Large))
 
-            Spacer(modifier = Modifier.height(Dimens.Large))
-
-            QuestSection(quests = QuestDummy.questSample)
-
+                QuestSection(quests = QuestDummy.questSample)
+            }
         }
     }
 }
