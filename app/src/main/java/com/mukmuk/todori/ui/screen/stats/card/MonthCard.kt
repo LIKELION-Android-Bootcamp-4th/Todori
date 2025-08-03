@@ -64,7 +64,7 @@ fun MonthCard() {
                 }
             }
 
-            //TODO 달성률
+            //투두 달성률
             Card(
                 modifier = Modifier
                     .weight(1f)

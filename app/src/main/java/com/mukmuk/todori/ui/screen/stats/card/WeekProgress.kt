@@ -1,6 +1,8 @@
 package com.mukmuk.todori.ui.screen.stats.card
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,7 +36,15 @@ fun WeekProgress(
             Column(modifier = Modifier.padding(Dimens.Medium)) {
                 Text("주간 TODO 통계", style = AppTextStyle.TitleSmall)
                 Spacer(modifier = Modifier.height(Dimens.XLarge))
-                Text("프로그레스바..")
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("월", style = AppTextStyle.BodyLarge)
+                    Text("8/10", style = AppTextStyle.Body)
+                }
+                Spacer(modifier = Modifier.height(Dimens.Tiny))
+                Text("프로그레스바..") //나중에 합치기
             }
         }
     }
