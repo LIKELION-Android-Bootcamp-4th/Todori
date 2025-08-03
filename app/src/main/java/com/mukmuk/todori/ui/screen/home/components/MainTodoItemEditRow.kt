@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -56,16 +57,22 @@ fun MainTodoItemEditableRow(
                 }, shape = RoundedCornerShape(DefaultCornerRadius)
             )
             .padding(Dimens.Small)
-            .clickable { onCheckedChange(!isDone)
+            .clickable {
                        onItemClick()},
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = if (isDone) Icons.Outlined.CheckCircle else Icons.Outlined.RadioButtonUnchecked,
-            contentDescription = null,
-            tint = if (isDone) UserPrimary else Gray,
-            modifier = Modifier.size(24.dp)
-        )
+        IconButton(
+            onClick = {
+                onCheckedChange(!isDone)
+            }
+        ) {
+            Icon(
+                imageVector = if (isDone) Icons.Outlined.CheckCircle else Icons.Outlined.RadioButtonUnchecked,
+                contentDescription = null,
+                tint = if (isDone) UserPrimary else Gray,
+                modifier = Modifier.size(24.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.width(Dimens.Small))
 
