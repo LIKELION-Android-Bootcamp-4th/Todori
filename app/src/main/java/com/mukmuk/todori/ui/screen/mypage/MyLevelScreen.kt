@@ -22,9 +22,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.R
+import com.mukmuk.todori.data.dummy.QuestDummy
 import com.mukmuk.todori.data.remote.User
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.screen.mypage.component.PointProgressBar
+import com.mukmuk.todori.ui.screen.mypage.component.QuestSection
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
@@ -84,7 +86,9 @@ fun MyLevelScreen(
                 maxPoint = 100
             )
 
+            Spacer(modifier = Modifier.height(Dimens.Large))
 
+            QuestSection(quests = QuestDummy.questSample)
 
         }
     }
