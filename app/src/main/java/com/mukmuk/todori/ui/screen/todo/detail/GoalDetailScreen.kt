@@ -197,7 +197,7 @@ fun GoalDetailScreen(
                     Box(
                         modifier = Modifier
                             .size(56.dp)
-                            .background(color = GoalPrimary)
+                            .background(color = GoalPrimary,shape = RoundedCornerShape(DefaultCornerRadius))
                     ) {
                         IconButton(
                             onClick = {

@@ -30,7 +30,7 @@ import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
-import com.mukmuk.todori.ui.theme.UserPrimary
+import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.White
 import java.time.LocalDate
 import java.time.ZoneId
@@ -75,7 +75,7 @@ fun StudyMetaInfoRow(
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(6.dp))
-                .background(UserPrimary)
+                .background(GroupPrimary)
                 .padding(vertical = Dimens.Nano, horizontal = Dimens.Tiny)
         ) {
             Text("D+$dDay", style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold, color = White))
