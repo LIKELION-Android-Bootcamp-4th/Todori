@@ -75,8 +75,11 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
 
     LaunchedEffect(state.status == TimerStatus.RECORDING) {
         if (state.status != TimerStatus.RECORDING) {
-            delay(300L)
+            delay(100L)
             selectedIndex = -1
+            recordButtonText = "기록"
+        } else {
+            recordButtonText = "취소"
         }
     }
 
@@ -151,10 +154,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                         if (state.status == TimerStatus.RUNNING) {
                             viewModel.onEvent(TimerEvent.Record)
                             recordTime = state.totalStudyTimeMills - state.totalRecordTimeMills
-                            recordButtonText = "취소"
                         } else {
                             viewModel.onEvent(TimerEvent.Stop)
-                            recordButtonText = "기록"
                         }
                     },
                     modifier = Modifier.size(76.dp),
