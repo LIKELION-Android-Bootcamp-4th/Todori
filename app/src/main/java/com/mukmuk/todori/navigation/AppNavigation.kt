@@ -14,9 +14,9 @@ import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
-import com.mukmuk.todori.ui.screen.todo.CreateCategoryScreen
-import com.mukmuk.todori.ui.screen.todo.CreateGoalScreen
-import com.mukmuk.todori.ui.screen.todo.CreateStudyScreen
+import com.mukmuk.todori.ui.screen.todo.create.CreateCategoryScreen
+import com.mukmuk.todori.ui.screen.todo.create.CreateGoalScreen
+import com.mukmuk.todori.ui.screen.todo.create.CreateStudyScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.detail.GoalDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.MemberProgressDetailScreen

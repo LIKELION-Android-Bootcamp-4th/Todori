@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.todo.component
+package com.mukmuk.todori.ui.screen.todo.list
 
 import android.os.Build
 import androidx.annotation.RequiresApi
