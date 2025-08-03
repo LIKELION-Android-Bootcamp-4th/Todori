@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
-import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.White
 
