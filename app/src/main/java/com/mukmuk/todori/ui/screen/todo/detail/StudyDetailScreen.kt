@@ -90,11 +90,9 @@ fun StudyDetailScreen(
     val currentUid = "user1"
     val myJoinedAt = dummyMembers.find { it.uid == currentUid }?.joinedAt
 
-    // 1. taskList: 실제 Todo 리스트
     val taskList = remember { mutableStateListOf(*dummyTodos.toTypedArray()) }
     var newTodoText by remember { mutableStateOf("") }
 
-    // 2. 모든 멤버의 TodoProgress Map
     val progressMap = remember {
         mutableStateMapOf<String, MutableMap<String, TodoProgress>>().apply {
             dummyMembers.forEach { member ->
@@ -108,7 +106,6 @@ fun StudyDetailScreen(
 
     var dropdownExpanded by remember { mutableStateOf(false) }
 
-    // 3. 내 todo 진행상황만 계산!
     val myProgresses = progressMap[currentUid]?.values ?: emptyList()
     val completedCount = myProgresses.count { it.isDone }
     val totalCount = taskList.size
@@ -135,7 +132,13 @@ fun StudyDetailScreen(
                 ) {
                     DropdownMenuItem(
                         text = { Text("수정", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                        onClick = { dropdownExpanded = false }
+                        onClick = {
+                            dropdownExpanded = false
+                            navController.currentBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("editStudy", dummyStudy)
+                            navController.navigate("study/create")
+                        }
                     )
                     DropdownMenuItem(
                         text = { Text("삭제", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
@@ -230,7 +233,7 @@ fun StudyDetailScreen(
         MemberProgressCard(
             members = dummyMembers,
             todos = taskList,
-            progresses = progressMap // Map<userId, Map<todoId, TodoProgress>>
+            progresses = progressMap
         ) { /* onClick */ }
     }
 }

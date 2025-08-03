@@ -8,12 +8,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.mukmuk.todori.data.remote.goal.Goal
+import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.CreateCategoryScreen
+import com.mukmuk.todori.ui.screen.todo.CreateGoalScreen
 import com.mukmuk.todori.ui.screen.todo.CreateStudyScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.detail.GoalDetailScreen
@@ -52,9 +54,12 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             )
         }
         composable("study/create") {
+            val navEntry = navController.previousBackStackEntry
+            val editStudy = navEntry?.savedStateHandle?.get<Study>("editStudy")
             CreateStudyScreen(
                 onDone = { navController.popBackStack() },
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                editStudy = editStudy
             )
         }
         composable("todo/detail/{categoryId}") { backStackEntry ->
