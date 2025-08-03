@@ -90,6 +90,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 actions = {
                     IconButton(onClick = {
                         navController.navigate("home_setting")
+                        viewModel.onEvent(TimerEvent.Stop)
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Settings,

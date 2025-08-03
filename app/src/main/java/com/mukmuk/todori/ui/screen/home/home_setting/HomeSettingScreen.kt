@@ -60,11 +60,13 @@ fun HomeSettingScreen(viewModel: HomeSettingViewModel, navController: NavHostCon
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.previousBackStackEntry?.savedStateHandle?.set(
-                            "homeSetting",
-                            state
-                        )
-                        navController.popBackStack()
+                        val resultState = viewModel.state.value
+
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("homeSetting", resultState)
+
+                        navController.navigateUp()
                     }) {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowLeft,
