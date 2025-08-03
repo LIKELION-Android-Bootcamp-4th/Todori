@@ -252,7 +252,11 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                             onItemClick = {
                                 if (state.status == TimerStatus.RECORDING && !todo.isCompleted) {
                                     selectedIndex = index
-                                    todos[index] = todo.copy(totalFocusTimeMillis = recordTime)
+                                    if (todos[index].totalFocusTimeMillis > 0L) {
+                                        todos[index] = todo.copy(totalFocusTimeMillis = todos[index].totalFocusTimeMillis + recordTime)
+                                    } else {
+                                        todos[index] = todo.copy(totalFocusTimeMillis = recordTime)
+                                    }
                                     viewModel.setTotalRecordTimeMills(recordTime)
                                     viewModel.onEvent(TimerEvent.Stop)
                                 }
