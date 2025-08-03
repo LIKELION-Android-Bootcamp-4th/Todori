@@ -49,6 +49,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     var selectedIndex by remember { mutableStateOf(-1) }
     var recordTime by remember { mutableStateOf(0L) }
+    var recordButtonText by remember { mutableStateOf("기록") }
     val todos = remember {
         mutableStateListOf(
             Todo(title = "스트레칭 하기", isCompleted = true),
@@ -150,6 +151,10 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                         if (state.status == TimerStatus.RUNNING) {
                             viewModel.onEvent(TimerEvent.Record)
                             recordTime = state.totalStudyTimeMills - state.totalRecordTimeMills
+                            recordButtonText = "취소"
+                        } else {
+                            viewModel.onEvent(TimerEvent.Stop)
+                            recordButtonText = "기록"
                         }
                     },
                     modifier = Modifier.size(76.dp),
@@ -160,7 +165,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                     ),
                     shape = CircleShape
                 ) {
-                    Text(text = "기록", style = AppTextStyle.TitleSmall)
+                    Text(text = recordButtonText, style = AppTextStyle.TitleSmall)
                 }
                 Spacer(modifier = Modifier.width(Dimens.XXLarge))
                 if (state.status == TimerStatus.RUNNING) {
