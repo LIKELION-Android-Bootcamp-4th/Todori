@@ -52,6 +52,7 @@ fun CommunityScreen(navController: NavHostController) {
     var selectedCategory by remember { mutableStateOf("전체") }
     var categories = listOf("전체", "개발")
 
+
     val data = listOf(
         StudyPost(
             title = "asd",
@@ -86,7 +87,7 @@ fun CommunityScreen(navController: NavHostController) {
                 actions = {
                     IconButton(
                         onClick = {
-
+                            navController.navigate("community/search")
                         }
                     ) {
                         Icon(Icons.Default.Search, contentDescription = "검색")
