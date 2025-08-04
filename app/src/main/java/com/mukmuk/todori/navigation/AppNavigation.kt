@@ -8,7 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mukmuk.todori.data.remote.User
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory

@@ -1,6 +1,6 @@
 package com.mukmuk.todori.data.dummy
 
-import com.mukmuk.todori.data.remote.DailyUserQuest
+import com.mukmuk.todori.data.remote.quest.DailyUserQuest
 
 object QuestDummy {
     val questSample = listOf(

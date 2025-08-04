@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.data.remote.User
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
