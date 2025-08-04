@@ -8,7 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.mukmuk.todori.data.remote.User
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.ui.mypage.component.ProfileSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageAccountSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageMenuSection
@@ -36,7 +36,7 @@ fun MyPageScreen(navController: NavController) {
             MyPageMenuSection(
                 onLevelClick = {navController.navigate("myLevel")},
                 onGoalClick = {navController.navigate("completedGoals")},
-                onProfileEditClick = {}
+                onProfileEditClick = {navController.navigate("profileManage")}
             )
 
             Spacer(modifier = Modifier.height(Dimens.XXLarge))
