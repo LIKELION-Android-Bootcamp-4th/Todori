@@ -25,6 +25,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
@@ -33,10 +34,14 @@ import com.mukmuk.todori.ui.theme.White
 @Composable
 fun CreateCategoryScreen(
     onDone: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    editCategory: TodoCategory? = null
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    val isEditMode =
+        editCategory !=null
+
+    var title by remember { mutableStateOf(editCategory?.name.orEmpty()) }
+    var description by remember { mutableStateOf(editCategory?.description.orEmpty()) }
 
     val titleFocusRequester = remember { FocusRequester() }
     val descFocusRequester = remember { FocusRequester() }
@@ -51,7 +56,10 @@ fun CreateCategoryScreen(
 
     Scaffold(
         topBar = {
-            SimpleTopAppBar(title = "개인 카테고리 생성", onBackClick = onBack)
+            SimpleTopAppBar(
+                title = if (isEditMode) "카테고리 수정" else "개인 카테고리 생성",
+                onBackClick = onBack
+            )
         },
         containerColor = White
     ) { innerPadding ->
@@ -105,7 +113,14 @@ fun CreateCategoryScreen(
 
             Button(
                 onClick = {
-                    // todo :  추후 todoCategory(title, description) 생성 & 저장 처리
+                    if (isTitleError || isDescError) return@Button
+
+                    if (isEditMode) {
+                        // TODO: 수정
+                    } else {
+                        // TODO: 생성
+                    }
+
                     onDone()
                 },
                 modifier = Modifier.fillMaxWidth()

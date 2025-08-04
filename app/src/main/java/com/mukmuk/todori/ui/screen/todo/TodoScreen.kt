@@ -101,7 +101,7 @@ fun TodoScreen(navController: NavHostController) {
         }
 
         when (selectedTabIndex) {
-            0 -> TodoList(selectedDate)
+            0 -> TodoList(selectedDate,navController)
             1 -> GoalTodoList()
             2 -> StudyTodoList()
         }
