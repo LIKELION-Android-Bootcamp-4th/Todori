@@ -19,6 +19,8 @@ import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
+import com.mukmuk.todori.ui.screen.login.LoginScreen
+import com.mukmuk.todori.ui.screen.login.LoginViewModel
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.mypage.ProfileManagementScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
@@ -70,6 +72,10 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 onBack = { navController.popBackStack() },
                 editCategory = category
             )
+        }
+        composable("login") {
+            val loginViewModel: LoginViewModel = viewModel()
+            LoginScreen(viewModel = loginViewModel, navController = navController)
         }
         composable("goal/create") { backStackEntry ->
             val navEntry = navController.previousBackStackEntry

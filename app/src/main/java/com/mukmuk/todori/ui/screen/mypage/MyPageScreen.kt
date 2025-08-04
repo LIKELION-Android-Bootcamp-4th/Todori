@@ -42,7 +42,9 @@ fun MyPageScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(Dimens.XXLarge))
 
             MyPageAccountSection(
-                onLogoutClick = {},
+                onLogoutClick = {
+                    navController.navigate("login")
+                },
                 onDeleteAccountClick = {}
             )
         }
