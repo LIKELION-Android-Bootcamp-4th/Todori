@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,6 +13,9 @@ import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
+import com.mukmuk.todori.ui.screen.home.HomeViewModel
+import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
+import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateCategoryScreen
@@ -33,7 +37,14 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
     ) {
         composable(BottomNavItem.Todo.route) { TodoScreen(navController) }
         composable(BottomNavItem.Stats.route) { StatsScreen() }
-        composable(BottomNavItem.Home.route) { HomeScreen() }
+        composable(BottomNavItem.Home.route) {
+            val homeViewModel: HomeViewModel = viewModel()
+            HomeScreen(viewModel = homeViewModel, navController = navController)
+        }
+        composable("home_setting") {
+            val homeSettingViewModel: HomeSettingViewModel = viewModel()
+            HomeSettingScreen(viewModel = homeSettingViewModel, navController = navController)
+        }
         composable(BottomNavItem.Study.route) { CommunityScreen() }
         composable(BottomNavItem.MyPage.route) { MyPageScreen() }
         composable("category/create") { backStackEntry ->
