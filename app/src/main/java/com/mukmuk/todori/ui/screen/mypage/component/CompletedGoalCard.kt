@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.mypage.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.UserPrimary
+import com.mukmuk.todori.ui.theme.White
 
 
 @Composable
@@ -38,7 +40,10 @@ fun CompletedGoalCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, color = LightGray, RoundedCornerShape(Dimens.DefaultCornerRadius))
+            .border(2.dp, color = Gray, RoundedCornerShape(Dimens.DefaultCornerRadius)),
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = White
+        )
     ) {
         Column(
             modifier = Modifier
@@ -62,14 +67,23 @@ fun CompletedGoalCard(
                     .border(1.dp,Gray, RoundedCornerShape(DefaultCornerRadius))
                     .padding(Dimens.Nano)
             ) {
-                Icon(Icons.Outlined.CalendarMonth, contentDescription = null, tint = Black, modifier = Modifier.size(16.dp))
+                Icon(
+                    Icons.Outlined.CalendarMonth,
+                    contentDescription = null,
+                    tint = Black,
+                    modifier = Modifier.size(16.dp)
+                )
                 Spacer(modifier = Modifier.width(Dimens.Nano))
-                Text("${goal.startDate} ~ ${goal.endDate}", style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold))
+                Text(
+                    "${goal.startDate} ~ ${goal.endDate}",
+                    style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold)
+                )
+
+                Spacer(modifier = Modifier.width(Dimens.Nano))
+
+                Icon(Icons.Default.Adjust, contentDescription = null, tint = UserPrimary)
+                Text("완료", style = AppTextStyle.BodySmall, modifier = Modifier.padding(Dimens.Nano))
             }
-
-            Icon(Icons.Default.Adjust, contentDescription = null, tint = UserPrimary)
-            Text("완료", style = AppTextStyle.BodySmall, modifier = Modifier.padding(Dimens.Nano))
-
         }
     }
 }

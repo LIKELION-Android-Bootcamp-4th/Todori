@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import com.mukmuk.todori.data.remote.User
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
+import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
 import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
@@ -26,5 +27,6 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         composable(BottomNavItem.Study.route) { CommunityScreen() }
         composable(BottomNavItem.MyPage.route) { MyPageScreen(navController) }
         composable("myLevel") { MyLevelScreen(onBack = {navController.popBackStack()}) }
+        composable("completedGoals") { CompletedGoalsScreen(onBack = {navController.popBackStack()}) }
     }
 }

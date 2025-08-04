@@ -39,7 +39,7 @@ fun MyPageScreen(navController: NavController) {
 
                 MyPageMenuSection(
                     onLevelClick = {navController.navigate("myLevel")},
-                    onGoalClick = {},
+                    onGoalClick = {navController.navigate("completedGoals")},
                     onProfileEditClick = {}
                 )
 
