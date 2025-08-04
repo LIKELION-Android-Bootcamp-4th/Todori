@@ -1,5 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Tab
@@ -39,6 +41,8 @@ val records = listOf(
     DailyRecord(LocalDate.parse("2025-08-03"), 23451, 3, 5, null),
     DailyRecord(LocalDate.parse("2025-08-04"), 12437, 4, 4, "투두 모두 완료!")
 )
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StatsScreen() {
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -57,7 +61,7 @@ fun StatsScreen() {
         }
 
         when (selectedTabIndex) {
-            0 -> DayTab(dayRecords = records[11])
+            0 -> DayTab(dayRecords = records)
             1 -> WeekTab(weekRecords = records)
             2 -> MonthTab(monthRecords = records)
         }

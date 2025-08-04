@@ -1,9 +1,13 @@
 package com.mukmuk.todori.ui.screen.stats.tab
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,19 +21,23 @@ import com.mukmuk.todori.ui.screen.stats.card.DayStatsCard
 import com.mukmuk.todori.ui.theme.Dimens
 import kotlinx.datetime.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DayTab(dayRecords: DailyRecord) {
+fun DayTab(dayRecords: List<DailyRecord>) {
     var selectedDay by remember {
         mutableStateOf(LocalDate.parse("2025-08-04"))
     }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(Dimens.XLarge))
-        CalendarCard()
+        CalendarCard(record = dayRecords)
         Spacer(modifier = Modifier.height(Dimens.Large))
-        DayStatsCard(record = dayRecords)
+        DayStatsCard(record = dayRecords[11])
+        Spacer(modifier = Modifier.height(Dimens.Large))
     }
 }
