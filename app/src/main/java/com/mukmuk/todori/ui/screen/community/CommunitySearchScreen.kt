@@ -1,0 +1,133 @@
+package com.mukmuk.todori.ui.screen.community
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.mukmuk.todori.ui.screen.community.components.CommunitySearchData
+import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.NotoSans
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CommunitySearchScreen(
+    onBack: () -> Unit
+
+) {
+    var query by remember { mutableStateOf("") }
+
+    var searchData = listOf("asd", "asd")
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Gray, shape = RoundedCornerShape(30))
+                    ) {
+                        TextField(
+                            value = query,
+                            onValueChange = { query = it },
+                            colors = TextFieldDefaults.colors(
+                                focusedIndicatorColor = Color.Transparent,
+                                cursorColor = Black
+                            ),
+                            textStyle = TextStyle(
+                                color = Black,
+                                fontSize = 16.sp,
+                                fontFamily = NotoSans,
+                            ),
+                            modifier = Modifier.fillMaxSize(),
+                            placeholder = { Text("검색어를 입력하세요") },
+                            singleLine = true,
+                            maxLines = 1,
+                            trailingIcon = {
+                                IconButton(onClick = { }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Search",
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
+                                }
+                            }
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+
+                }
+            )
+
+
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ){
+
+            Text(
+                text = "최근 검색어",
+                fontSize = 16.sp,
+                fontFamily = NotoSans,
+                color = Black,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(16.dp)
+            )
+
+            FlowRow (
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp)
+                    .fillMaxWidth(),
+
+            ) {
+                searchData.forEach{ data ->
+                    CommunitySearchData(data = data)
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+            }
+        }
+    }
+}
