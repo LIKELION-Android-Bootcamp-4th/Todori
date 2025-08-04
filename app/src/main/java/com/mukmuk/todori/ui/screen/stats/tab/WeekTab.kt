@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mukmuk.todori.ui.screen.stats.DailyRecord
 import com.mukmuk.todori.ui.screen.stats.card.WeekCard
 import com.mukmuk.todori.ui.screen.stats.card.WeekGraph
 import com.mukmuk.todori.ui.screen.stats.card.WeekProgress
@@ -37,11 +38,10 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.DatePeriod
 
 @Composable
-fun WeekTab() {
+fun WeekTab(weekRecords: List<DailyRecord>) {
     var selectedWeek by remember {
         mutableStateOf(LocalDate.parse("2025-08-04"))
     }
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -92,11 +92,11 @@ fun WeekTab() {
                 }
             }
 
-            WeekCard()
+            WeekCard(record = weekRecords)
             Spacer(modifier = Modifier.height(Dimens.Large))
             WeekGraph()
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekProgress(completedTodos = 8, todos = 10)
+            WeekProgress(record = weekRecords)
         }
     }
 }

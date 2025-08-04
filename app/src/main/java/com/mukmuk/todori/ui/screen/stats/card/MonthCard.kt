@@ -21,18 +21,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.R
+import com.mukmuk.todori.ui.screen.stats.DailyRecord
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun MonthCard(
-    studyMinutes: Int = 12345,
-    completedTodo: Int = 50,
-    todoTotal: Int = 100,
-    completedGoal: Int = 3
-) {
+fun MonthCard(record: List<DailyRecord>) {
+    val totalStudySeconds = record.sumOf { it.studySeconds }
+    val totalCompletedTodos = record.sumOf { it.completedTodos }
+    val totalTodos = record.sumOf { it.totalTodos }
+    val TodoTotalPer = (totalCompletedTodos.toFloat() / totalTodos * 100).toInt()
+
+    val avgStudyMinutes = totalStudySeconds / 60 / record.size
+    val avgHours = avgStudyMinutes / 60
+    val avgMinutes = avgStudyMinutes % 60
+
+    val totalStudyMinutes = totalStudySeconds / 60
+    val totalHours = totalStudyMinutes / 60
+    val totalMinutes = totalStudyMinutes % 60
+
+    val completedGoal = 3
+
     Column {
         Row(
             modifier = Modifier
@@ -66,7 +77,7 @@ fun MonthCard(
                     Spacer(modifier = Modifier.height(Dimens.Small))
                     Text("총 공부시간", style = AppTextStyle.MypageButtonText)
                     Text(
-                        "${studyMinutes / 60}시간 ${studyMinutes % 60}분",
+                        "${totalHours}시간 ${totalMinutes}분",
                         style = AppTextStyle.TitleMedium
                     )
                 }
@@ -98,7 +109,7 @@ fun MonthCard(
                     Spacer(modifier = Modifier.height(Dimens.Small))
                     Text("TODO 달성률", style = AppTextStyle.MypageButtonText)
                     Text(
-                        "${(completedTodo.toFloat() / todoTotal * 100).toInt()}%",
+                        "${TodoTotalPer}%",
                         style = AppTextStyle.TitleMedium
                     )
                 }
@@ -139,7 +150,7 @@ fun MonthCard(
                     Spacer(modifier = Modifier.height(Dimens.Small))
                     Text("평균 공부시간", style = AppTextStyle.MypageButtonText)
                     Text(
-                        "${studyMinutes / 30 / 60}시간 ${studyMinutes / 30 % 60}분",
+                        "${avgHours}시간 ${avgMinutes}분",
                         style = AppTextStyle.TitleMedium
                     )
                 }
