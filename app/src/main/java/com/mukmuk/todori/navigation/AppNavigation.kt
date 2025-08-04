@@ -14,6 +14,7 @@ import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
+import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
 import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
@@ -50,6 +51,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         composable(BottomNavItem.Study.route) { CommunityScreen() }
         composable(BottomNavItem.MyPage.route) { MyPageScreen(navController) }
         composable("myLevel") { MyLevelScreen(onBack = {navController.popBackStack()}) }
+        composable("completedGoals") { CompletedGoalsScreen(onBack = {navController.popBackStack()}) }
         composable("category/create") { backStackEntry ->
             val navEntry = navController.previousBackStackEntry
             val category = navEntry?.savedStateHandle?.get<TodoCategory>("editCategory")
