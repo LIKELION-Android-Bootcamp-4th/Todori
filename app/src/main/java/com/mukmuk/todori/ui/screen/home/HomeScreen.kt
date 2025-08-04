@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +36,7 @@ import com.mukmuk.todori.ui.screen.home.components.PomoModeTextBox
 import com.mukmuk.todori.ui.screen.home.components.MainTodoItemEditableRow
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Background
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
@@ -87,6 +89,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
         topBar = {
             TopAppBar(
                 title = { },
+                colors = TopAppBarDefaults.topAppBarColors(Background),
                 actions = {
                     IconButton(onClick = {
                         navController.navigate("home_setting")

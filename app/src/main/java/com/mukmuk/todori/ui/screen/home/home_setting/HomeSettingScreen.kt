@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,6 +59,7 @@ fun HomeSettingScreen(viewModel: HomeSettingViewModel, navController: NavHostCon
                         style = AppTextStyle.AppBar
                     )
                 },
+                colors = TopAppBarDefaults.topAppBarColors(Background),
                 navigationIcon = {
                     IconButton(onClick = {
                         val resultState = viewModel.state.value
