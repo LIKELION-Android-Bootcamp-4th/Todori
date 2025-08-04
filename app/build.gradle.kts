@@ -89,4 +89,9 @@ dependencies {
     // 기타
     implementation(libs.kalendar)
     implementation(libs.lottie)
+
+    // icons (filled, outlined, rounded 등)
+    implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.material:material-icons-extended")
+
 }
