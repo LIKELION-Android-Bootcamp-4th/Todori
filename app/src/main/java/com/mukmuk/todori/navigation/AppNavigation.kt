@@ -8,11 +8,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
+import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
@@ -46,7 +48,8 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             HomeSettingScreen(viewModel = homeSettingViewModel, navController = navController)
         }
         composable(BottomNavItem.Study.route) { CommunityScreen() }
-        composable(BottomNavItem.MyPage.route) { MyPageScreen() }
+        composable(BottomNavItem.MyPage.route) { MyPageScreen(navController) }
+        composable("myLevel") { MyLevelScreen(onBack = {navController.popBackStack()}) }
         composable("category/create") { backStackEntry ->
             val navEntry = navController.previousBackStackEntry
             val category = navEntry?.savedStateHandle?.get<TodoCategory>("editCategory")

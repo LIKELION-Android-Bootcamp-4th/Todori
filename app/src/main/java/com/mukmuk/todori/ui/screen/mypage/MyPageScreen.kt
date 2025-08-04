@@ -7,14 +7,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.mukmuk.todori.data.model.User
+import androidx.navigation.NavController
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.ui.mypage.component.ProfileSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageAccountSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageMenuSection
 import com.mukmuk.todori.ui.theme.Dimens
 
 @Composable
-fun MyPageScreen() {
+fun MyPageScreen(navController: NavController) {
     // 테스트 유저
     val currentUser = User(
         uid = "123",
@@ -33,7 +34,7 @@ fun MyPageScreen() {
             Spacer(modifier = Modifier.height(Dimens.XXLarge))
 
             MyPageMenuSection(
-                onLevelClick = {},
+                onLevelClick = {navController.navigate("myLevel")},
                 onGoalClick = {},
                 onProfileEditClick = {}
             )
