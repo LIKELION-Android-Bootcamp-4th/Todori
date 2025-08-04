@@ -147,7 +147,7 @@ fun CommunityListItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.comment_icon),
+                        painter = painterResource(id = R.drawable.ic_comment),
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
 
