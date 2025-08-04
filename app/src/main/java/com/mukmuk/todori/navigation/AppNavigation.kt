@@ -14,6 +14,7 @@ import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.community.CommunitySearchScreen
+import com.mukmuk.todori.ui.screen.community.CreateCommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
 import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
@@ -55,6 +56,11 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         composable(BottomNavItem.Study.route) { CommunityScreen(navController) }
         composable("community/search"){
             CommunitySearchScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("community/create"){
+            CreateCommunityScreen(
                 onBack = { navController.popBackStack() }
             )
         }
