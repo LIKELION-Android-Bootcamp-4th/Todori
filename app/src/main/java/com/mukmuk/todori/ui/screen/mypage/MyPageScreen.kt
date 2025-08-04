@@ -1,15 +1,50 @@
 package com.mukmuk.todori.ui.screen.mypage
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mukmuk.todori.data.model.User
+import com.mukmuk.todori.ui.mypage.component.ProfileSection
+import com.mukmuk.todori.ui.screen.mypage.component.MyPageAccountSection
+import com.mukmuk.todori.ui.screen.mypage.component.MyPageMenuSection
+import com.mukmuk.todori.ui.theme.Dimens
 
 @Composable
 fun MyPageScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("마이페이지 화면")
+    // 테스트 유저
+    val currentUser = User(
+        uid = "123",
+        nickname = "asd",
+        intro = "asdasd",
+        level = 3,
+        rewardPoint = 1200
+    )
+    Scaffold { padding ->
+        Column(
+            modifier = Modifier
+                .padding(Dimens.Medium)
+        ) {
+            ProfileSection(user = currentUser)
+
+            Spacer(modifier = Modifier.height(Dimens.XXLarge))
+
+            MyPageMenuSection(
+                onLevelClick = {},
+                onGoalClick = {},
+                onProfileEditClick = {}
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.XXLarge))
+
+            MyPageAccountSection(
+                onLogoutClick = {},
+                onDeleteAccountClick = {}
+            )
+        }
     }
 }
+
