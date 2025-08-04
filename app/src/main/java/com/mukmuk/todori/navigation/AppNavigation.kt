@@ -51,7 +51,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             val homeSettingViewModel: HomeSettingViewModel = viewModel()
             HomeSettingScreen(viewModel = homeSettingViewModel, navController = navController)
         }
-        composable(BottomNavItem.Study.route) { CommunityScreen() }
+        composable(BottomNavItem.Study.route) { CommunityScreen(navController) }
         composable(BottomNavItem.MyPage.route) { MyPageScreen(navController) }
         composable("myLevel") { MyLevelScreen(onBack = { navController.popBackStack() }) }
         composable("completedGoals") { CompletedGoalsScreen(onBack = { navController.popBackStack() }) }
