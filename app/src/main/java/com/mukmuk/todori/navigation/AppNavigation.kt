@@ -8,15 +8,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
+import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
+import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
+import com.mukmuk.todori.ui.screen.login.LoginScreen
+import com.mukmuk.todori.ui.screen.login.LoginViewModel
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
+import com.mukmuk.todori.ui.screen.mypage.ProfileManagementScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateCategoryScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateGoalScreen
@@ -45,12 +51,19 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             val homeSettingViewModel: HomeSettingViewModel = viewModel()
             HomeSettingScreen(viewModel = homeSettingViewModel, navController = navController)
         }
-        composable(BottomNavItem.Study.route) { CommunityScreen(navController) }
-
-        composable(BottomNavItem.MyPage.route) {
-            MyPageScreen(
+        composable(BottomNavItem.Study.route) { CommunityScreen() }
+        composable(BottomNavItem.MyPage.route) { MyPageScreen(navController) }
+        composable("myLevel") { MyLevelScreen(onBack = { navController.popBackStack() }) }
+        composable("completedGoals") { CompletedGoalsScreen(onBack = { navController.popBackStack() }) }
+        composable("profileManage") {
+            ProfileManagementScreen(
+                onBack = { navController.popBackStack() },
+                onDone = { nickname, intro -> navController.popBackStack() }
             )
         }
+
+
+
         composable("category/create") { backStackEntry ->
             val navEntry = navController.previousBackStackEntry
             val category = navEntry?.savedStateHandle?.get<TodoCategory>("editCategory")
@@ -59,6 +72,10 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 onBack = { navController.popBackStack() },
                 editCategory = category
             )
+        }
+        composable("login") {
+            val loginViewModel: LoginViewModel = viewModel()
+            LoginScreen(viewModel = loginViewModel, navController = navController)
         }
         composable("goal/create") { backStackEntry ->
             val navEntry = navController.previousBackStackEntry
@@ -80,14 +97,18 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         }
         composable("todo/detail/{categoryId}") { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
-            TodoDetailScreen(categoryId = categoryId, navController = navController, onBack = { navController.popBackStack() })
+            TodoDetailScreen(
+                categoryId = categoryId,
+                navController = navController,
+                onBack = { navController.popBackStack() })
         }
         composable("goal/detail") { backStackEntry ->
             val goal = navController.previousBackStackEntry
                 ?.savedStateHandle?.get<Goal>("goal")
             goal?.let {
-                GoalDetailScreen(goal = it, navController = navController,
-                    onBack = {navController.popBackStack()})
+                GoalDetailScreen(
+                    goal = it, navController = navController,
+                    onBack = { navController.popBackStack() })
             }
         }
         composable("study/detail") {
