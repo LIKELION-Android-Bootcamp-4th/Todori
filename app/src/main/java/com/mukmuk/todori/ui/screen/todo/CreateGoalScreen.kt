@@ -28,6 +28,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.screen.todo.component.DateRangePicker
 import com.mukmuk.todori.ui.screen.todo.component.DateRangePickerBottomSheet
@@ -45,12 +46,29 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun CreateGoalScreen(
     onDone: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    editGoal: Goal? = null
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf<LocalDate?>(null) }
-    var endDate by remember { mutableStateOf<LocalDate?>(null) }
+    val isEditMode = editGoal != null
+
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+    var title by remember { mutableStateOf(editGoal?.title.orEmpty()) }
+    var description by remember { mutableStateOf(editGoal?.description.orEmpty()) }
+    var startDate by remember {
+        mutableStateOf(
+            editGoal?.startDate?.takeIf { it.isNotBlank() }?.let {
+                LocalDate.parse(it, formatter)
+            }
+        )
+    }
+    var endDate by remember {
+        mutableStateOf(
+            editGoal?.endDate?.takeIf { it.isNotBlank() }?.let {
+                LocalDate.parse(it, formatter)
+            }
+        )
+    }
 
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -74,7 +92,10 @@ fun CreateGoalScreen(
 
     Scaffold(
         topBar = {
-            SimpleTopAppBar(title = "목표 로드맵 생성", onBackClick = onBack)
+            SimpleTopAppBar(
+                title = if (isEditMode) "목표 수정" else "목표 생성",
+                onBackClick = onBack
+            )
         },
         containerColor = White
     ) { innerPadding ->
@@ -150,7 +171,11 @@ fun CreateGoalScreen(
 
             Button(
                 onClick = {
-                    // todo :  추후 todoCategory(title, description) 생성 & 저장 처리
+                    if (isEditMode) {
+                        // TODO: 수정 API 호출
+                    } else {
+                        // TODO: 생성 API 호출
+                    }
                     onDone()
                 },
                 modifier = Modifier.fillMaxWidth()

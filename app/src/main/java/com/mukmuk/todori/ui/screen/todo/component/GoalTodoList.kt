@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.goal.GoalTodo
 import com.mukmuk.todori.ui.screen.todo.component.card.GoalCard
@@ -11,7 +12,7 @@ import com.mukmuk.todori.ui.screen.todo.component.card.GoalCard
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun GoalTodoList() {
+fun GoalTodoList(navController: NavHostController) {
     //샘플 데이터
     val goals = listOf(
         Goal(
@@ -62,7 +63,10 @@ fun GoalTodoList() {
                     goal = goal,
                     goalTodos = todos
                 ) {
-                    //todo: 상세 화면 이동
+                    navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("goal", goal)
+                    navController.navigate("goal/detail")
                 }
             }
         }

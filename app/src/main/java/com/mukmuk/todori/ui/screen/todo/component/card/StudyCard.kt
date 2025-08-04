@@ -43,6 +43,7 @@ import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 import java.time.LocalDate
@@ -154,6 +155,7 @@ fun StudyCard(
                 progress = progress,
                 completed = completed,
                 total = total,
+                progressColor = GroupPrimary,
                 modifier = Modifier.fillMaxWidth(),
                 cornerRadius = Dimens.Nano
             )

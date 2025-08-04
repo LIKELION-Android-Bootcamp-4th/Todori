@@ -22,7 +22,8 @@ import com.mukmuk.todori.ui.theme.Dimens
 fun CardHeaderSection(
     title: String,
     subtitle: String? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showArrowIcon: Boolean = true
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -43,9 +44,11 @@ fun CardHeaderSection(
             }
         }
 
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-            contentDescription = null
-        )
+        if (showArrowIcon) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null
+            )
+        }
     }
 }
