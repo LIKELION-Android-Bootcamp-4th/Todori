@@ -32,7 +32,7 @@ fun LoginScreen(
     // 상태 변화 감지 후 이동 처리
     LaunchedEffect(state.status) {
         if (state.status == LoginStatus.SUCCESS) {
-            navController.navigate(BottomNavItem.Home.route) {
+            navController.navigate(BottomNavItem.Todo.route) {
                 popUpTo("login") { inclusive = true }
             }
         }
@@ -65,9 +65,6 @@ fun LoginScreen(
             Button(
                 onClick = {
                     viewModel.onEvent(LoginEvent.KakaoLogin)
-                    if (viewModel.state.status == LoginStatus.SUCCESS) {
-                        navController.navigate(BottomNavItem.Home.route)
-                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -81,9 +78,6 @@ fun LoginScreen(
             Button(
                 onClick = {
                     viewModel.onEvent(LoginEvent.GoogleLogin)
-                    if (viewModel.state.status == LoginStatus.SUCCESS) {
-                        navController.navigate(BottomNavItem.Home.route)
-                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -97,9 +91,6 @@ fun LoginScreen(
             Button(
                 onClick = {
                     viewModel.onEvent(LoginEvent.NaverLogin)
-                    if (viewModel.state.status == LoginStatus.SUCCESS) {
-                        navController.navigate(BottomNavItem.Home.route)
-                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
