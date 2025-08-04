@@ -1,19 +1,15 @@
-package com.mukmuk.todori.ui.screen.community
+package com.mukmuk.todori.ui.screen.community.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -30,32 +26,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mukmuk.todori.ui.screen.community.components.CommunityItem
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.White
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
-fun CommunityListScreen(
-
+fun CommunityListOption(
+    data: List<StudyPost> = emptyList()
 ) {
 
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("인기순") }
     val options = listOf("인기순", "최신순")
 
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 16.dp, end = 16.dp, top = 20.dp)
-    ) {
+
 
         Row (
             modifier = Modifier.wrapContentSize(),
@@ -112,6 +101,9 @@ fun CommunityListScreen(
                             ) },
                             onClick = {
                                 selectedOption = option
+                                if (option == "인기순") {
+
+                                }
                                 expanded = false
                             },
                         )
@@ -120,28 +112,12 @@ fun CommunityListScreen(
             }
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 16.dp)
-        ) {
-            items(10) {
-                CommunityItem(
-                    title = "asd",
-                    description = "asoihdjoiashioasd",
-                    tags = listOf("개발"),
-                    comments = 1,
-                    members = 1
-                )
-            }
-        }
-
 
 
 
         
 
-    }
+
 
 
 }
