@@ -24,7 +24,6 @@ fun MyPageScreen(navController: NavController) {
         level = 3,
         rewardPoint = 1200
     )
-
     Scaffold { padding ->
         Column(
             modifier = Modifier
@@ -49,6 +48,4 @@ fun MyPageScreen(navController: NavController) {
         }
     }
 }
-
-
 
