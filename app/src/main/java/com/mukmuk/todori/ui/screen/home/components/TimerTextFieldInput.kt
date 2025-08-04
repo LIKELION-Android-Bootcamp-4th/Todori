@@ -21,9 +21,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,12 +41,6 @@ fun TimerTextFieldInput(
 ) {
     var minutesText by remember { mutableStateOf(initialMinutes.toString().padStart(2, '0')) }
     var secondsText by remember { mutableStateOf(initialSeconds.toString().padStart(2, '0')) }
-
-    fun sanitizeAndClampInput(text: String, max: Int): String {
-        val digitsOnly = text.filter { it.isDigit() }
-        val number = digitsOnly.toIntOrNull()?.coerceIn(0, max) ?: 0
-        return number.toString().padStart(2, '0')
-    }
 
     Row(
         modifier = Modifier
@@ -81,11 +77,40 @@ fun TimerUnitTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // TextFieldValue를 사용해 커서 위치 제어
+    var textFieldValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = value,
+                selection = TextRange(value.length)
+            )
+        )
+    }
+
+    // 외부에서 value가 업데이트되면 내부 상태도 갱신
+    if (textFieldValue.text != value) {
+        textFieldValue = TextFieldValue(
+            text = value,
+            selection = TextRange(value.length)
+        )
+    }
+
     TextField(
-        value = value,
+        value = textFieldValue,
         onValueChange = { input ->
-            val sanitized = input.filter { it.isDigit() }.toIntOrNull()?.coerceIn(0, 59)
-                ?.toString()?.padStart(2, '0') ?: "00"
+            val rawInput = input.text
+            val sanitized = rawInput.filter { it.isDigit() }
+                .toIntOrNull()
+                ?.coerceIn(0, 59)
+                ?.toString()
+                ?.padStart(2, '0') ?: "00"
+
+            // 상태 업데이트: 커서는 항상 맨 뒤로
+            textFieldValue = TextFieldValue(
+                text = sanitized,
+                selection = TextRange(sanitized.length)
+            )
+
             onValueChange(sanitized)
         },
         modifier = modifier
