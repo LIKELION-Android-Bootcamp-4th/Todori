@@ -27,7 +27,12 @@ import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun MonthCard() {
+fun MonthCard(
+    studyMinutes: Int = 12345,
+    completedTodo: Int = 50,
+    todoTotal: Int = 100,
+    completedGoal: Int = 3
+) {
     Column {
         Row(
             modifier = Modifier
@@ -60,7 +65,10 @@ fun MonthCard() {
                     )
                     Spacer(modifier = Modifier.height(Dimens.Small))
                     Text("총 공부시간", style = AppTextStyle.MypageButtonText)
-                    Text("245시간 30분", style = AppTextStyle.TitleMedium)
+                    Text(
+                        "${studyMinutes / 60}시간 ${studyMinutes % 60}분",
+                        style = AppTextStyle.TitleMedium
+                    )
                 }
             }
 
@@ -89,7 +97,10 @@ fun MonthCard() {
                     )
                     Spacer(modifier = Modifier.height(Dimens.Small))
                     Text("TODO 달성률", style = AppTextStyle.MypageButtonText)
-                    Text("67%", style = AppTextStyle.TitleMedium)
+                    Text(
+                        "${(completedTodo.toFloat() / todoTotal * 100).toInt()}%",
+                        style = AppTextStyle.TitleMedium
+                    )
                 }
             }
         }
@@ -127,7 +138,10 @@ fun MonthCard() {
                     )
                     Spacer(modifier = Modifier.height(Dimens.Small))
                     Text("평균 공부시간", style = AppTextStyle.MypageButtonText)
-                    Text("6시간 10분", style = AppTextStyle.TitleMedium)
+                    Text(
+                        "${studyMinutes / 30 / 60}시간 ${studyMinutes / 30 % 60}분",
+                        style = AppTextStyle.TitleMedium
+                    )
                 }
             }
 
@@ -156,7 +170,7 @@ fun MonthCard() {
                     )
                     Spacer(modifier = Modifier.height(Dimens.Small))
                     Text("완료 목표", style = AppTextStyle.MypageButtonText)
-                    Text("3개", style = AppTextStyle.TitleMedium)
+                    Text("${completedGoal}개", style = AppTextStyle.TitleMedium)
                 }
             }
         }

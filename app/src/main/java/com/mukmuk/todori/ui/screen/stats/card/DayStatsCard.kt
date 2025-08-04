@@ -22,9 +22,16 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.White
+import kotlinx.datetime.LocalDate
 
 @Composable
-fun DayStatsCard() {
+fun DayStatsCard(
+    selectedDay: LocalDate,
+    studySeconds: Int = 12345,
+    completedTodos: Int = 3,
+    totalTodos:Int = 10,
+    reflection: String? = "회고를 작성 해 주세요."
+    ) {
     Card(
         modifier = Modifier
             .fillMaxWidth(1f)
@@ -37,26 +44,32 @@ fun DayStatsCard() {
     ) {
         Column(modifier = Modifier.padding(Dimens.Medium)) {
             //날짜
-            Text("2025년 7월 25일", style = AppTextStyle.TitleSmall)
+            Text(
+                "${selectedDay.year}년 ${selectedDay.monthNumber}월 ${selectedDay.dayOfMonth}일",
+                style = AppTextStyle.TitleSmall
+            )
             Spacer(modifier = Modifier.height(Dimens.XXLarge))
 
             //공부시간
-            Row (
+            Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
-            ){
+            ) {
                 Text("공부시간", style = AppTextStyle.Body)
-                Text("07 : 36 : 48", style = AppTextStyle.BodyLarge)
+                Text(
+                    "${studySeconds / 3600} : ${(studySeconds % 3600) / 60} : ${studySeconds % 60}",
+                    style = AppTextStyle.BodyLarge
+                )
             }
             Spacer(modifier = Modifier.height(Dimens.XLarge))
 
             //달성 투두
-            Row (
+            Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
-            ){
+            ) {
                 Text("달성 TODO", style = AppTextStyle.Body)
-                Text("6 / 7", style = AppTextStyle.BodyLarge)
+                Text("$completedTodos / $totalTodos", style = AppTextStyle.BodyLarge)
             }
             Spacer(modifier = Modifier.height(Dimens.XLarge))
 
@@ -78,7 +91,7 @@ fun DayStatsCard() {
                         .padding(horizontal = Dimens.Medium),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    Text("회고 회고 회고")
+                    Text("$reflection")
                 }
             }
             Spacer(modifier = Modifier.height(Dimens.XLarge))

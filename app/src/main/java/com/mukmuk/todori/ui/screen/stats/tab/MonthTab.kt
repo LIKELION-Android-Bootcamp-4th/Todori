@@ -34,10 +34,10 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 
 @Composable
-fun MonthTab() {
-    val selectedMonth = remember {
-        mutableStateOf(LocalDate.parse("2025-08-04"))
-    }
+fun MonthTab(
+    selectedMonth: LocalDate,
+    onMonthChange: (LocalDate) -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -54,7 +54,9 @@ fun MonthTab() {
             Row(
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
-                IconButton(onClick = {selectedMonth.value = selectedMonth.value.minus(DatePeriod(months = 1))}) {
+                IconButton(onClick = {
+                    onMonthChange(selectedMonth.minus(DatePeriod(months = 1)))
+                }) {
                     Icon(Icons.Default.ArrowBack, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
                 }
             }
@@ -63,20 +65,22 @@ fun MonthTab() {
             Row(
                 modifier = Modifier.align(Alignment.Center)
             ) {
-                Text("${selectedMonth.value.year}년 ${selectedMonth.value.monthNumber}월", style = AppTextStyle.TitleSmall)
+                Text("${selectedMonth.year}년 ${selectedMonth.monthNumber}월", style = AppTextStyle.TitleSmall)
             }
 
             //오른쪽 화살표
             Row(
                 modifier = Modifier.align(Alignment.CenterEnd)
             ) {
-                IconButton(onClick = {selectedMonth.value = selectedMonth.value.plus(DatePeriod(months = 1))}) {
+                IconButton(onClick = {
+                    onMonthChange(selectedMonth.plus(DatePeriod(months = 1)))
+                }) {
                     Icon(Icons.Default.ArrowForward, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
                 }
             }
         }
         MonthCard()
         Spacer(modifier = Modifier.height(Dimens.Large))
-        MonthProgress()
+        MonthProgress(todos = 100, goalTodos = 10, studyTodos = 30)
     }
 }

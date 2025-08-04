@@ -18,9 +18,12 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
+import kotlinx.datetime.LocalDate
 
 @Composable
 fun WeekProgress(
+    completedTodos: Int,
+    todos: Int,
 ) {
     Column() {
         Card(

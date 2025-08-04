@@ -14,10 +14,16 @@ import androidx.compose.ui.Modifier
 import com.mukmuk.todori.ui.screen.stats.tab.DayTab
 import com.mukmuk.todori.ui.screen.stats.tab.MonthTab
 import com.mukmuk.todori.ui.screen.stats.tab.WeekTab
+import kotlinx.datetime.LocalDate
 
 @Composable
 fun StatsScreen() {
     var selectedTabIndex by remember { mutableStateOf(0) }
+
+    var selectedDate by remember {
+        mutableStateOf(LocalDate.parse("2025-08-04"))
+    }
+
 
     val tabs = listOf("DAY", "WEEK", "MONTH")
 
@@ -33,9 +39,9 @@ fun StatsScreen() {
         }
 
         when (selectedTabIndex) {
-            0 -> DayTab()
-            1 -> WeekTab()
-            2 -> MonthTab()
+            0 -> DayTab(selectedDay = selectedDate)
+            1 -> WeekTab(selectedWeek = selectedDate, onWeekChange = {selectedDate = it})
+            2 -> MonthTab(selectedMonth = selectedDate, onMonthChange = {selectedDate = it})
         }
     }
 }

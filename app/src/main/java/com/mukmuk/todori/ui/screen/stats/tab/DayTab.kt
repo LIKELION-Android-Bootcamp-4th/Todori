@@ -10,9 +10,12 @@ import androidx.compose.ui.Modifier
 import com.mukmuk.todori.ui.screen.stats.card.CalendarCard
 import com.mukmuk.todori.ui.screen.stats.card.DayStatsCard
 import com.mukmuk.todori.ui.theme.Dimens
+import kotlinx.datetime.LocalDate
 
 @Composable
-fun DayTab() {
+fun DayTab(
+    selectedDay: LocalDate
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
@@ -20,6 +23,6 @@ fun DayTab() {
         Spacer(modifier = Modifier.height(Dimens.XLarge))
         CalendarCard()
         Spacer(modifier = Modifier.height(Dimens.Large))
-        DayStatsCard()
+        DayStatsCard(selectedDay = selectedDay)
     }
 }
