@@ -35,12 +35,39 @@ fun MonthProgress() {
             Column(modifier = Modifier.padding(Dimens.Medium)) {
                 Text("월간 통계", style = AppTextStyle.TitleSmall)
                 Spacer(modifier = Modifier.height(Dimens.XLarge))
+                //개인
                 Row (
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("개인", style = AppTextStyle.BodyLarge)
                     Text("180/210", style = AppTextStyle.Body)
+                }
+                Spacer(modifier = Modifier.height(Dimens.Tiny))
+                Text("프로그레스바..") //나중에 합치기
+
+
+                Spacer(modifier = Modifier.height(Dimens.Large))
+                //목표
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("목표", style = AppTextStyle.BodyLarge)
+                    Text("8/10", style = AppTextStyle.Body)
+                }
+                Spacer(modifier = Modifier.height(Dimens.Tiny))
+                Text("프로그레스바..") //나중에 합치기
+
+
+                Spacer(modifier = Modifier.height(Dimens.Large))
+                //스터디
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("스터디", style = AppTextStyle.BodyLarge)
+                    Text("80/110", style = AppTextStyle.Body)
                 }
                 Spacer(modifier = Modifier.height(Dimens.Tiny))
                 Text("프로그레스바..") //나중에 합치기
