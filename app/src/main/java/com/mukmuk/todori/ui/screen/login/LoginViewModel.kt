@@ -33,12 +33,12 @@ class LoginViewModel  : ViewModel() {
     }
 
     private fun kakaoLogin() {
-        state = state.copy(status = LoginStatus.SUCCESS)
+
     }
     private fun googleLogin() {
-        state = state.copy(status = LoginStatus.SUCCESS)
+
     }
     private fun naverLogin() {
-        state = state.copy(status = LoginStatus.SUCCESS)
+
     }
 }
