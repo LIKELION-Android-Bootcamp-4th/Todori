@@ -18,10 +18,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,8 +29,10 @@ import com.mukmuk.todori.ui.screen.stats.card.WeekProgress
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
-import java.time.LocalDate
-
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+import kotlinx.datetime.DatePeriod
 
 @Composable
 fun WeekTab() {
@@ -42,8 +42,8 @@ fun WeekTab() {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        var selectedWeek by remember {
-            mutableStateOf(LocalDate.now())
+        val selectedWeek = remember {
+            mutableStateOf(LocalDate.parse("2025-08-04"))
         }
 
         Column(
@@ -59,7 +59,7 @@ fun WeekTab() {
                 Row(
                     modifier = Modifier.align(Alignment.CenterStart)
                 ) {
-                    IconButton(onClick = { selectedWeek = selectedWeek.minusWeeks(1) }) {
+                    IconButton(onClick = { selectedWeek.value = selectedWeek.value.minus(DatePeriod(days = 7)) }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
 
                     }
@@ -70,7 +70,8 @@ fun WeekTab() {
                     modifier = Modifier.align(Alignment.Center)
                 ) {
                     Text(
-                        "${selectedWeek.year}년 ${selectedWeek.monthValue}월 1주차",
+                        "${selectedWeek.value.year}년 ${selectedWeek.value.monthNumber}월" +
+                                " ${(selectedWeek.value.dayOfMonth - 1) / 7 + 1}주차",
                         style = AppTextStyle.TitleSmall
                     )
                 }
@@ -79,7 +80,7 @@ fun WeekTab() {
                 Row(
                     modifier = Modifier.align(Alignment.CenterEnd)
                 ) {
-                    IconButton(onClick = { selectedWeek = selectedWeek.plusWeeks(1) }) {
+                    IconButton(onClick = { selectedWeek.value = selectedWeek.value.plus(DatePeriod(days = 7)) }) {
                         Icon(Icons.Default.ArrowForward, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
                     }
                 }

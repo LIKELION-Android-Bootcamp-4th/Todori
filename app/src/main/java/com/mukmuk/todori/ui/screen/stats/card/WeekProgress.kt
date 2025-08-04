@@ -105,8 +105,9 @@ fun WeekProgress(
                     modifier = Modifier.fillMaxWidth(),
                     cornerRadius = Dimens.Nano,
                     label = "토")
-                Spacer(modifier = Modifier.height(Dimens.Large))
+                Spacer(modifier = Modifier.height(Dimens.Medium))
             }
         }
+        Spacer(modifier = Modifier.height(Dimens.Large))
     }
 }

@@ -14,9 +14,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
+import com.mukmuk.todori.ui.theme.GoalPrimary
+import com.mukmuk.todori.ui.theme.GroupPrimary
+import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
@@ -36,42 +40,39 @@ fun MonthProgress() {
                 Text("월간 통계", style = AppTextStyle.TitleSmall)
                 Spacer(modifier = Modifier.height(Dimens.XLarge))
                 //개인
-                Row (
+                ProgressWithText(
+                    progress = 8/10.toFloat(),
+                    completed = 8,
+                    total = 10,
+                    progressColor = UserPrimary,
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("개인", style = AppTextStyle.BodyLarge)
-                    Text("180/210", style = AppTextStyle.Body)
-                }
-                Spacer(modifier = Modifier.height(Dimens.Tiny))
-                Text("프로그레스바..") //나중에 합치기
-
-
+                    cornerRadius = Dimens.Nano,
+                    label = "개인")
                 Spacer(modifier = Modifier.height(Dimens.Large))
+
                 //목표
-                Row (
+                ProgressWithText(
+                    progress = 8/10.toFloat(),
+                    completed = 8,
+                    total = 10,
+                    progressColor = GoalPrimary,
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("목표", style = AppTextStyle.BodyLarge)
-                    Text("8/10", style = AppTextStyle.Body)
-                }
-                Spacer(modifier = Modifier.height(Dimens.Tiny))
-                Text("프로그레스바..") //나중에 합치기
-
-
+                    cornerRadius = Dimens.Nano,
+                    label = "목표")
                 Spacer(modifier = Modifier.height(Dimens.Large))
+
                 //스터디
-                Row (
+                ProgressWithText(
+                    progress = 8/10.toFloat(),
+                    completed = 8,
+                    total = 10,
+                    progressColor = GroupPrimary,
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("스터디", style = AppTextStyle.BodyLarge)
-                    Text("80/110", style = AppTextStyle.Body)
-                }
-                Spacer(modifier = Modifier.height(Dimens.Tiny))
-                Text("프로그레스바..") //나중에 합치기
+                    cornerRadius = Dimens.Nano,
+                    label = "일")
+                Spacer(modifier = Modifier.height(Dimens.Medium))
             }
         }
+        Spacer(modifier = Modifier.height(Dimens.Large))
     }
 }
