@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Todori</string>
+    <string name="default_web_client_id" translatable="false">
+    419432194712-ae91dua4fhtt4ml8tcvnsoa87knjsjof.apps.googleusercontent.com
+</string>
 </resources>

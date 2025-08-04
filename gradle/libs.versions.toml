@@ -20,6 +20,7 @@ composeBom = "2024.09.00"
 coroutines = "1.10.2"
 compose-compiler = "1.6.10"
 mpandroidchart = "3.1.0"
+play-services-auth = "21.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +44,7 @@ firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx", ve
 firebase-storage = { module = "com.google.firebase:firebase-storage-ktx", version = "20.3.0" }
 firebase-functions = { module = "com.google.firebase:firebase-functions-ktx", version = "20.4.0" }
 
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "play-services-auth" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
