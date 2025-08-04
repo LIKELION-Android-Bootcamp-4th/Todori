@@ -30,6 +30,7 @@ import com.mukmuk.todori.ui.theme.Dimens
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.mukmuk.todori.ui.screen.stats.DailyRecord
+import com.mukmuk.todori.ui.screen.stats.records
 import com.mukmuk.todori.ui.theme.Black
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -85,6 +86,6 @@ fun MonthTab(monthRecords: List<DailyRecord>) {
         }
         MonthCard(record = monthRecords)
         Spacer(modifier = Modifier.height(Dimens.Large))
-        MonthProgress(todos = 100, goalTodos = 10, studyTodos = 30)
+        MonthProgress(record = monthRecords)
     }
 }

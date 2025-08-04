@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.tab
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,14 +20,16 @@ import com.mukmuk.todori.ui.screen.stats.DailyRecord
 import com.mukmuk.todori.ui.screen.stats.card.CalendarCard
 import com.mukmuk.todori.ui.screen.stats.card.DayStatsCard
 import com.mukmuk.todori.ui.theme.Dimens
-import kotlinx.datetime.LocalDate
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayTab(dayRecords: List<DailyRecord>) {
-    var selectedDay by remember {
-        mutableStateOf(LocalDate.parse("2025-08-04"))
-    }
+    var selectedDay by remember { mutableStateOf(LocalDate.now()) }
+
+    Log.d("aa","선택날짜 : $selectedDay")
+
+    val todayRecord = dayRecords.firstOrNull { it.selectedDay == selectedDay }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -35,9 +38,14 @@ fun DayTab(dayRecords: List<DailyRecord>) {
             .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(Dimens.XLarge))
-        CalendarCard(record = dayRecords)
+        CalendarCard(record = dayRecords,
+            selectedDate = selectedDay,
+            onDateSelected = { selectedDay = it })
         Spacer(modifier = Modifier.height(Dimens.Large))
-        DayStatsCard(record = dayRecords[11])
+//        todayRecord?.let {
+//            DayStatsCard(record = it)
+//        }
+        DayStatsCard(dayRecords[11])
         Spacer(modifier = Modifier.height(Dimens.Large))
     }
 }

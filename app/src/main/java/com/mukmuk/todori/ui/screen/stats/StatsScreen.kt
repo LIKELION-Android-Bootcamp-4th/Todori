@@ -39,7 +39,9 @@ val records = listOf(
     DailyRecord(LocalDate.parse("2025-08-01"), 12447, 4, 4, "투두 모두 완료ㅎㅎ"),
     DailyRecord(LocalDate.parse("2025-08-02"), 12345, 2, 4,"복습하자"),
     DailyRecord(LocalDate.parse("2025-08-03"), 23451, 3, 5, null),
-    DailyRecord(LocalDate.parse("2025-08-04"), 12437, 4, 4, "투두 모두 완료!")
+    DailyRecord(LocalDate.parse("2025-08-04"), 12437, 4, 4, "투두 모두 완료!"),
+    DailyRecord(LocalDate.parse("2025-08-05"), 8249, 2, 3, "오류지옥")
+
 )
 
 @RequiresApi(Build.VERSION_CODES.O)

@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -33,13 +34,20 @@ import com.mukmuk.todori.ui.theme.CalendarSelectDay
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
+import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.UserHalf
 import com.mukmuk.todori.ui.theme.UserPrimary
+import com.mukmuk.todori.ui.theme.UserTenth
 import java.time.LocalDate
 import java.time.YearMonth
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CalendarCard(record: List<DailyRecord>) {
+fun CalendarCard(
+    record: List<DailyRecord>,
+    selectedDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -48,7 +56,6 @@ fun CalendarCard(record: List<DailyRecord>) {
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
         val calendarState = rememberCalendarState(
             startMonth = YearMonth.now().minusMonths(12),
@@ -64,12 +71,19 @@ fun CalendarCard(record: List<DailyRecord>) {
             dayContent = { day ->
                 val date = day.date
                 val isSelected = date == selectedDate
+//                val backgroundColor = when {
+//                    date ==
+//                    record[0].studySeconds >= 240 -> UserTenth
+//                    record[0].studySeconds >= in 60..239 -> UserHalf
+//                    record[0].studySeconds >= in 1..59 -> UserPrimary
+//                    else -> Color.Transparent
+//                }
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
-                        .clickable { selectedDate = date },
+                        .clickable { onDateSelected(date) },
                     contentAlignment = Alignment.Center
                 ) {
                     if (isSelected) {

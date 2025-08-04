@@ -16,6 +16,7 @@ import com.mukmuk.todori.data.remote.goal.GoalTodo
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.ui.component.ProgressWithText
+import com.mukmuk.todori.ui.screen.stats.DailyRecord
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
@@ -25,16 +26,17 @@ import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun MonthProgress(
-    todos: Int,
-    goalTodos: Int,
-    studyTodos: Int,
-//    myProgressMap: Map<String, TodoProgress>
-) {
-//    val goalCompleted = goalTodos.count { it.isCompleted }
-//    val studyCompleted = studyTodos.count { myProgressMap[it.studyTodoId]?.isDone == true }
-//    val goalProgress = if (goalTodos.size > 0) goalCompleted / goalTodos.size.toFloat() else 0f
-//    val studyProgress = if (studyTodos.size > 0) studyCompleted / studyTodos.size.toFloat() else 0f
+fun MonthProgress(record: List<DailyRecord>) {
+
+    val totalCompletedTodos = record.sumOf { it.completedTodos }
+    val totalTodos = record.sumOf { it.totalTodos }
+
+    //TODO: todo 분류 필요
+    val totalCompletedGoals = 10
+    val totalGoals = 10
+
+    val totalCompletedStudy = 25
+    val totalStudy = 30
 
     Column {
         Card(
@@ -52,9 +54,9 @@ fun MonthProgress(
                 Spacer(modifier = Modifier.height(Dimens.XLarge))
                 //개인
                 ProgressWithText(
-                    progress = 80/todos.toFloat(), //임시
-                    completed = 80, //임시
-                    total = todos,
+                    progress = totalCompletedTodos/totalTodos.toFloat(),
+                    completed = totalCompletedTodos,
+                    total = totalTodos,
                     progressColor = UserPrimary,
                     modifier = Modifier.fillMaxWidth(),
                     cornerRadius = Dimens.Nano,
@@ -63,9 +65,9 @@ fun MonthProgress(
 
                 //목표
                 ProgressWithText(
-                    progress = 10/goalTodos.toFloat(),
-                    completed = 10,
-                    total = goalTodos,
+                    progress = totalCompletedGoals/totalGoals.toFloat(),
+                    completed = totalCompletedTodos,
+                    total = totalGoals,
                     progressColor = GoalPrimary,
                     modifier = Modifier.fillMaxWidth(),
                     cornerRadius = Dimens.Nano,
@@ -74,9 +76,9 @@ fun MonthProgress(
 
                 //스터디
                 ProgressWithText(
-                    progress = 10/studyTodos.toFloat(),
-                    completed = 10,
-                    total = studyTodos,
+                    progress = totalCompletedStudy/totalStudy.toFloat(),
+                    completed = totalCompletedStudy,
+                    total = totalStudy,
                     progressColor = GroupPrimary,
                     modifier = Modifier.fillMaxWidth(),
                     cornerRadius = Dimens.Nano,
