@@ -42,7 +42,7 @@ import com.mukmuk.todori.ui.component.TodoItemEditableRow
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
 import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
 import com.mukmuk.todori.ui.screen.todo.component.GoalMetaInfoRow
-import com.mukmuk.todori.ui.screen.todo.component.ProgressWithText
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.screen.todo.component.SingleDatePickerBottomSheet
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray

@@ -37,7 +37,7 @@ import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
 import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
-import com.mukmuk.todori.ui.screen.todo.component.ProgressWithText
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.UserPrimary

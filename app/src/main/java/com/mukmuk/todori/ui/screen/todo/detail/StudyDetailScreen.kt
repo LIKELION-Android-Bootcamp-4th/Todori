@@ -29,7 +29,7 @@ import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
 import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
 import com.mukmuk.todori.ui.screen.todo.component.MemberProgressCard
-import com.mukmuk.todori.ui.screen.todo.component.ProgressWithText
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.screen.todo.component.StudyMetaInfoRow
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.GroupPrimary

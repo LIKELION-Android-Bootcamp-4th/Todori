@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.goal.GoalTodo
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.GoalPrimary

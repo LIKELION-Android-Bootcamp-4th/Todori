@@ -19,6 +19,7 @@ import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
