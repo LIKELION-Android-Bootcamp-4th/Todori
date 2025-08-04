@@ -1,4 +1,4 @@
-package com.mukmuk.todori.data.remote
+package com.mukmuk.todori.data.remote.quest
 
 data class Quest(
     val questId: String = "",              // 고유 ID
