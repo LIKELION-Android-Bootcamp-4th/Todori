@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,11 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.mukmuk.todori.ui.screen.community.components.CommunityListItem
+import com.mukmuk.todori.ui.screen.community.components.CommunityListOption
+import com.mukmuk.todori.ui.screen.community.components.StudyPost
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.Gray
@@ -51,6 +52,33 @@ fun CommunityScreen(navController: NavHostController) {
     var selectedCategory by remember { mutableStateOf("전체") }
     var categories = listOf("전체", "개발")
 
+    val data = listOf(
+        StudyPost(
+            title = "asd",
+            content = "asoihdjoiashioasd",
+            tags = listOf("개발"),
+            members = 1,
+            authorId = "asd",
+            createdAt = null
+        ),
+        StudyPost(
+            title = "asd",
+            content = "asoihdjoiashioasd",
+            tags = listOf("개발"),
+            members = 1,
+            authorId = "asd",
+            createdAt = null
+        ),
+        StudyPost(
+            title = "asd",
+            content = "asoihdjoiashioasd",
+            tags = listOf("개발"),
+            members = 1,
+            authorId = "asd",
+            createdAt = null
+        ),
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -58,7 +86,7 @@ fun CommunityScreen(navController: NavHostController) {
                 actions = {
                     IconButton(
                         onClick = {
-                            navController.navigate("communitySearch")
+                            navController.navigate("community/search")
                         }
                     ) {
                         Icon(Icons.Default.Search, contentDescription = "검색")
@@ -87,13 +115,23 @@ fun CommunityScreen(navController: NavHostController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-        ){
-            LazyRow (
+        ) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp, start = 16.dp, end = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CommunityListOption(data)
+            }
+
+            LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ){
+            ) {
                 items(categories) { category ->
                     Box(
                         modifier = Modifier
@@ -117,8 +155,32 @@ fun CommunityScreen(navController: NavHostController) {
                     }
                 }
             }
-            CommunityListScreen()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 16.dp)
+                ) {
+                    items(data) { post ->
+                        CommunityListItem(
+                            title = post.title,
+                            description = post.content,
+                            tags = post.tags,
+                            comments = post.comments,
+                            members = post.members
+                        )
+                    }
+                }
+            }
         }
+
+
 
     }
 }
