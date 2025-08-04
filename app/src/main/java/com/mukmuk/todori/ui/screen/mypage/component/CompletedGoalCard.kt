@@ -1,6 +1,5 @@
 package com.mukmuk.todori.ui.screen.mypage.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,7 +27,6 @@ import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
-import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 
@@ -40,7 +38,7 @@ fun CompletedGoalCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .border(2.dp, color = Gray, RoundedCornerShape(Dimens.DefaultCornerRadius)),
+            .border(2.dp, color = Gray, RoundedCornerShape(DefaultCornerRadius)),
         colors = androidx.compose.material3.CardDefaults.cardColors(
             containerColor = White
         )
@@ -48,7 +46,7 @@ fun CompletedGoalCard(
         Column(
             modifier = Modifier
                 .padding(Dimens.Medium)
-        ){
+        ) {
             Text(
                 text = goal.title,
                 style = AppTextStyle.TitleSmall
@@ -60,26 +58,27 @@ fun CompletedGoalCard(
             )
 
             Spacer(modifier = Modifier.height(Dimens.Medium))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .border(1.dp, Gray, RoundedCornerShape(DefaultCornerRadius))
+                        .padding(Dimens.Nano)
+                ) {
+                    Icon(
+                        Icons.Outlined.CalendarMonth,
+                        contentDescription = null,
+                        tint = Black,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(Dimens.Nano))
+                    Text(
+                        "${goal.startDate} ~ ${goal.endDate}",
+                        style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .border(1.dp,Gray, RoundedCornerShape(DefaultCornerRadius))
-                    .padding(Dimens.Nano)
-            ) {
-                Icon(
-                    Icons.Outlined.CalendarMonth,
-                    contentDescription = null,
-                    tint = Black,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(Dimens.Nano))
-                Text(
-                    "${goal.startDate} ~ ${goal.endDate}",
-                    style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold)
-                )
-
-                Spacer(modifier = Modifier.width(Dimens.Nano))
+                Spacer(modifier = Modifier.width(Dimens.Small))
 
                 Icon(Icons.Default.Adjust, contentDescription = null, tint = UserPrimary)
                 Text("완료", style = AppTextStyle.BodySmall, modifier = Modifier.padding(Dimens.Nano))
