@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import com.mukmuk.todori.ui.screen.stats.card.MonthProgress
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.mukmuk.todori.ui.theme.Black
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -35,9 +37,11 @@ import kotlinx.datetime.plus
 
 @Composable
 fun MonthTab(
-    selectedMonth: LocalDate,
-    onMonthChange: (LocalDate) -> Unit
 ) {
+    var selectedMonth by remember {
+        mutableStateOf(LocalDate.parse("2025-08-04"))
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -55,7 +59,7 @@ fun MonthTab(
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 IconButton(onClick = {
-                    onMonthChange(selectedMonth.minus(DatePeriod(months = 1)))
+                    selectedMonth = selectedMonth.minus(DatePeriod(months = 1))
                 }) {
                     Icon(Icons.Default.ArrowBack, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
                 }
@@ -73,7 +77,7 @@ fun MonthTab(
                 modifier = Modifier.align(Alignment.CenterEnd)
             ) {
                 IconButton(onClick = {
-                    onMonthChange(selectedMonth.plus(DatePeriod(months = 1)))
+                    selectedMonth = selectedMonth.plus(DatePeriod(months = 1))
                 }) {
                     Icon(Icons.Default.ArrowForward, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
                 }

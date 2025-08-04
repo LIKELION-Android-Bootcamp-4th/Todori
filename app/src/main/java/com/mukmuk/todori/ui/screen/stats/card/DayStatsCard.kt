@@ -82,15 +82,16 @@ fun DayStatsCard(
             //한 줄 회고
             Text("한 줄 회고", style = AppTextStyle.Body)
             Spacer(modifier = Modifier.height(Dimens.Small))
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp),
-                shape = RoundedCornerShape(DefaultCornerRadius),
-                colors = CardDefaults.cardColors(
-                    containerColor = LightGray
-                ),
-            ) {
+//            Card(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(60.dp),
+//                shape = RoundedCornerShape(DefaultCornerRadius),
+//                colors = CardDefaults.cardColors(
+//                    containerColor = LightGray
+//                ),
+//            ) {
+            //TODO:디자인 변경
                 TextField(
                     value = reflection,
                     onValueChange = {
@@ -109,7 +110,7 @@ fun DayStatsCard(
 //                ) {
 //                    Text("$reflection")
 //                }
-            }
+//            }
             Spacer(modifier = Modifier.height(Dimens.XLarge))
 
             //투두

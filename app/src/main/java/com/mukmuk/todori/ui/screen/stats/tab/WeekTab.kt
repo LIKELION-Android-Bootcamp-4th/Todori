@@ -18,6 +18,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,10 +37,11 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.DatePeriod
 
 @Composable
-fun WeekTab(
-    selectedWeek: LocalDate,
-    onWeekChange: (LocalDate) -> Unit
-) {
+fun WeekTab() {
+    var selectedWeek by remember {
+        mutableStateOf(LocalDate.parse("2025-08-04"))
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -57,7 +62,7 @@ fun WeekTab(
                     modifier = Modifier.align(Alignment.CenterStart)
                 ) {
                     IconButton(onClick = {
-                        onWeekChange(selectedWeek.minus(DatePeriod(days = 7)))
+                        selectedWeek = selectedWeek.minus(DatePeriod(days = 7))
                     }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
 
@@ -80,7 +85,7 @@ fun WeekTab(
                     modifier = Modifier.align(Alignment.CenterEnd)
                 ) {
                     IconButton(onClick = {
-                        onWeekChange(selectedWeek.plus(DatePeriod(days = 7)))
+                        selectedWeek = selectedWeek.plus(DatePeriod(days = 7))
                     }) {
                         Icon(Icons.Default.ArrowForward, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
                     }

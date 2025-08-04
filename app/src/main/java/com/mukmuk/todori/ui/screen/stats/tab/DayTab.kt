@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mukmuk.todori.ui.screen.stats.card.CalendarCard
@@ -13,9 +17,11 @@ import com.mukmuk.todori.ui.theme.Dimens
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun DayTab(
-    selectedDay: LocalDate
-) {
+fun DayTab() {
+    var selectedDay by remember {
+        mutableStateOf(LocalDate.parse("2025-08-04"))
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
