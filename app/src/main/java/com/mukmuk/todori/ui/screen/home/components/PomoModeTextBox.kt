@@ -11,40 +11,46 @@ import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.ui.screen.home.PomodoroTimerMode
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupSecondary
 
 @Composable
 fun PomoModeTextBox(pomodoroMode: PomodoroTimerMode) {
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = GroupSecondary, 
-        contentColor = Color.Black,
-    ) {
-        if (pomodoroMode == PomodoroTimerMode.FOCUSED) {
+    if (pomodoroMode == PomodoroTimerMode.FOCUSED) {
+        Surface(
+            shape = RoundedCornerShape(50),
+            color = GroupSecondary,
+            contentColor = Color.Black,
+        ) {
             Text(
                 text = "집중",
                 modifier = Modifier.padding(horizontal = Dimens.Large, vertical = Dimens.Tiny),
                 style = AppTextStyle.BodyLarge
             )
-        } else if (pomodoroMode == PomodoroTimerMode.SHORT_RESTED) {
-            Text(
-                text = "짧은 휴식",
-                modifier = Modifier.padding(horizontal = Dimens.Large, vertical = Dimens.Tiny),
-                style = AppTextStyle.BodyLarge
-            )
-        } else if (pomodoroMode == PomodoroTimerMode.LONG_RESTED) {
-            Text(
-                text = "긴 휴식",
-                modifier = Modifier.padding(horizontal = Dimens.Large, vertical = Dimens.Tiny),
-                style = AppTextStyle.BodyLarge
-            )
-        } else {
-            Text(
-                text = "휴식",
-                modifier = Modifier.padding(horizontal = Dimens.Large, vertical = Dimens.Tiny),
-                style = AppTextStyle.BodyLarge
-            )
         }
-
+    } else {
+        Surface(
+            shape = RoundedCornerShape(50),
+            color = Gray,
+            contentColor = Color.Black,
+        ) {
+            when (pomodoroMode) {
+                PomodoroTimerMode.SHORT_RESTED -> {
+                    Text(
+                        text = "짧은 휴식",
+                        modifier = Modifier.padding(horizontal = Dimens.Large, vertical = Dimens.Tiny),
+                        style = AppTextStyle.BodyLarge
+                    )
+                }
+                PomodoroTimerMode.LONG_RESTED -> {
+                    Text(
+                        text = "긴 휴식",
+                        modifier = Modifier.padding(horizontal = Dimens.Large, vertical = Dimens.Tiny),
+                        style = AppTextStyle.BodyLarge
+                    )
+                }
+                else -> {}
+            }
+        }
     }
 }

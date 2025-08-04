@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
@@ -41,7 +42,10 @@ import com.mukmuk.todori.ui.screen.home.components.PomoModeTextBox
 import com.mukmuk.todori.ui.screen.home.components.TimerTextFieldInput
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Background
+import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White // White는 Color 타입이어야 합니다.
 import java.lang.reflect.Array.set
 
@@ -98,6 +102,10 @@ fun HomeSettingScreen(viewModel: HomeSettingViewModel, navController: NavHostCon
                 )
                 Switch(
                     checked = state.isPomodoroEnabled,
+                    colors = SwitchDefaults.colors(
+                        uncheckedThumbColor = DarkGray,
+                        uncheckedTrackColor = Gray,
+                    ),
                     onCheckedChange = {
                         viewModel.onEvent(HomeSettingEvent.SetPomodoroEnabled(it))
                     }

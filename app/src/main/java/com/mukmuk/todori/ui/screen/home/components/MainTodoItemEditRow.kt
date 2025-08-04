@@ -52,7 +52,7 @@ fun MainTodoItemEditableRow(
             .border(1.dp, color = DarkGray, shape = RoundedCornerShape(DefaultCornerRadius))
             .background(
                 color = if (isDone) Gray else {
-                    if (isRecordMode) ButtonKakao
+                    if (isRecordMode) UserPrimary.copy(alpha = 0.1f)
                     else White
                 }, shape = RoundedCornerShape(DefaultCornerRadius)
             )
