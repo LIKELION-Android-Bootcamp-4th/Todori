@@ -37,11 +37,19 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.DatePeriod
 
+//일주일 기준을 일~토 로
+fun getWeekRange(date: LocalDate): List<LocalDate> {
+    val dayOfWeek = (date.dayOfWeek.ordinal + 1) % 7
+    val sunday = date.minus(DatePeriod(days = dayOfWeek))
+    return (0..6).map { sunday.plus(DatePeriod(days = it)) }
+}
 @Composable
 fun WeekTab(weekRecords: List<DailyRecord>) {
     var selectedWeek by remember {
         mutableStateOf(LocalDate.parse("2025-08-04"))
     }
+    val currentWeekRange = remember(selectedWeek) { getWeekRange(selectedWeek) }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -75,7 +83,7 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                 ) {
                     Text(
                         "${selectedWeek.year}년 ${selectedWeek.monthNumber}월" +
-                                " ${(selectedWeek.dayOfMonth - 1) / 7 + 1}주차",
+                                "${(selectedWeek.dayOfMonth - 1) / 7 + 1}주차",
                         style = AppTextStyle.TitleSmall
                     )
                 }
@@ -92,11 +100,17 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                 }
             }
 
-            WeekCard(record = weekRecords)
+            val weeklyFiltered = remember(weekRecords, currentWeekRange) {
+                weekRecords.filter { record ->
+                    record.selectedDay in currentWeekRange
+                }
+            }
+
+            WeekCard(record = weeklyFiltered)
             Spacer(modifier = Modifier.height(Dimens.Large))
             WeekGraph()
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekProgress(record = weekRecords)
+            WeekProgress(record = weeklyFiltered)
         }
     }
 }

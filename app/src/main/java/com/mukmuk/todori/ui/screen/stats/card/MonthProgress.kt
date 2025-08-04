@@ -66,7 +66,7 @@ fun MonthProgress(record: List<DailyRecord>) {
                 //목표
                 ProgressWithText(
                     progress = totalCompletedGoals/totalGoals.toFloat(),
-                    completed = totalCompletedTodos,
+                    completed = totalCompletedGoals,
                     total = totalGoals,
                     progressColor = GoalPrimary,
                     modifier = Modifier.fillMaxWidth(),

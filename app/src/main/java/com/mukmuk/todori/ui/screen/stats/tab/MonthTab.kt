@@ -84,8 +84,16 @@ fun MonthTab(monthRecords: List<DailyRecord>) {
                 }
             }
         }
-        MonthCard(record = monthRecords)
+
+        val filteredMonthly = remember(selectedMonth, monthRecords) {
+            monthRecords.filter {
+                it.selectedDay.year == selectedMonth.year &&
+                        it.selectedDay.monthNumber == selectedMonth.monthNumber
+            }
+        }
+
+        MonthCard(record = filteredMonthly)
         Spacer(modifier = Modifier.height(Dimens.Large))
-        MonthProgress(record = monthRecords)
+        MonthProgress(record = filteredMonthly)
     }
 }

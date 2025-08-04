@@ -32,7 +32,9 @@ fun MonthCard(record: List<DailyRecord>) {
     val totalStudySeconds = record.sumOf { it.studySeconds }
     val totalCompletedTodos = record.sumOf { it.completedTodos }
     val totalTodos = record.sumOf { it.totalTodos }
-    val TodoTotalPer = (totalCompletedTodos.toFloat() / totalTodos * 100).toInt()
+    val TodoTotalPer = if (totalTodos > 0) {
+        (totalCompletedTodos.toFloat() / totalTodos * 100).toInt()
+    } else 0
 
     val avgStudyMinutes = totalStudySeconds / 60 / record.size
     val avgHours = avgStudyMinutes / 60
