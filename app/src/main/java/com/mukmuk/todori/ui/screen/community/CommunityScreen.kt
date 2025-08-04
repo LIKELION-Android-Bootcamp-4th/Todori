@@ -98,7 +98,9 @@ fun CommunityScreen(navController: NavHostController) {
 
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { },
+                onClick = {
+                    navController.navigate("community/create")
+                },
                 shape = CircleShape,
                 containerColor = ButtonPrimary,
                 modifier = Modifier.size(60.dp),
