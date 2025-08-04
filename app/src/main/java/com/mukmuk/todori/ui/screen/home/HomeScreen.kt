@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Settings
@@ -182,7 +183,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF22B282)) // 예시 색상
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Star,
+                            imageVector = Icons.Rounded.Pause,
                             contentDescription = "Time Start",
                             modifier = Modifier.size(50.dp),
                             tint = Color.White
