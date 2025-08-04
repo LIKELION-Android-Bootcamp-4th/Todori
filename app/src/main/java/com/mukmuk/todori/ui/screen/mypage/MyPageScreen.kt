@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,7 +12,6 @@ import com.mukmuk.todori.ui.mypage.component.ProfileSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageAccountSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageMenuSection
 import com.mukmuk.todori.ui.theme.Dimens
-import com.mukmuk.todori.ui.theme.TodoriTheme
 
 @Composable
 fun MyPageScreen() {
@@ -25,30 +23,28 @@ fun MyPageScreen() {
         level = 3,
         rewardPoint = 1200
     )
+    Scaffold { padding ->
+        Column(
+            modifier = Modifier
+                .padding(Dimens.Medium)
+        ) {
+            ProfileSection(user = currentUser)
 
-    TodoriTheme {
-        Scaffold { padding ->
-            Column(
-                modifier = Modifier
-                    .padding(Dimens.Medium)
-            ) {
-                ProfileSection(user = currentUser)
+            Spacer(modifier = Modifier.height(Dimens.XXLarge))
 
-                Spacer(modifier = Modifier.height(Dimens.XXLarge))
+            MyPageMenuSection(
+                onLevelClick = {},
+                onGoalClick = {},
+                onProfileEditClick = {}
+            )
 
-                MyPageMenuSection(
-                    onLevelClick = {},
-                    onGoalClick = {},
-                    onProfileEditClick = {}
-                )
+            Spacer(modifier = Modifier.height(Dimens.XXLarge))
 
-                Spacer(modifier = Modifier.height(Dimens.XXLarge))
-
-                MyPageAccountSection(
-                    onLogoutClick = {},
-                    onDeleteAccountClick = {}
-                )
-            }
+            MyPageAccountSection(
+                onLogoutClick = {},
+                onDeleteAccountClick = {}
+            )
         }
     }
 }
+
