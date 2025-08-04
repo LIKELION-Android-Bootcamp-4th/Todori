@@ -35,17 +35,18 @@ fun MyPageScreen(navController: NavController) {
 
             MyPageMenuSection(
                 onLevelClick = {navController.navigate("myLevel")},
-                onGoalClick = {},
-                onProfileEditClick = {}
+                onGoalClick = {navController.navigate("completedGoals")},
+                onProfileEditClick = {navController.navigate("profileManage")}
             )
 
             Spacer(modifier = Modifier.height(Dimens.XXLarge))
 
             MyPageAccountSection(
-                onLogoutClick = {},
+                onLogoutClick = {
+                    navController.navigate("login")
+                },
                 onDeleteAccountClick = {}
             )
         }
     }
 }
-
