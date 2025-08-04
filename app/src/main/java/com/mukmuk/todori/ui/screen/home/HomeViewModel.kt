@@ -88,7 +88,8 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
             it.copy(
                 timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
                 completedFocusCycles = 0,
-                status = TimerStatus.IDLE
+                status = TimerStatus.IDLE,
+                pomodoroMode = PomodoroTimerMode.FOCUSED
             )
         }
     }

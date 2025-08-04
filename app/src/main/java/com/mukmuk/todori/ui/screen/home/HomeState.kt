@@ -11,7 +11,7 @@ enum class TimerStatus {
 }
 
 data class TimerState(
-    val timeLeftInMillis: Long = 1 * 60 * 1000L,
+    val timeLeftInMillis: Long = 0 * 60 * 1000L,
     val totalStudyTimeMills: Long = 0 * 60 * 1000L,
     val totalRecordTimeMills: Long = 0 * 60 * 1000L,
     val status: TimerStatus = TimerStatus.IDLE,

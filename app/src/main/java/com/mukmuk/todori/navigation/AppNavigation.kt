@@ -33,7 +33,7 @@ import com.mukmuk.todori.ui.screen.todo.detail.TodoDetailScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
+fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
         startDestination = BottomNavItem.Todo.route,
@@ -50,9 +50,6 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             HomeSettingScreen(viewModel = homeSettingViewModel, navController = navController)
         }
         composable(BottomNavItem.Study.route) { CommunityScreen() }
-
-
-
         composable(BottomNavItem.MyPage.route) { MyPageScreen(navController) }
         composable("myLevel") { MyLevelScreen(onBack = { navController.popBackStack() }) }
         composable("completedGoals") { CompletedGoalsScreen(onBack = { navController.popBackStack() }) }
