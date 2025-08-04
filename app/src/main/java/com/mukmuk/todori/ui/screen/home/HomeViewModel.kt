@@ -54,11 +54,19 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
         timerJob = viewModelScope.launch {
             while (_state.value.timeLeftInMillis > 0) {
                 delay(1000)
-                _state.update {
-                    it.copy(
-                        timeLeftInMillis = it.timeLeftInMillis - 1000,
-                        totalStudyTimeMills = it.totalStudyTimeMills + 1000
-                    )
+                if (_state.value.pomodoroMode == PomodoroTimerMode.FOCUSED) {
+                    _state.update {
+                        it.copy(
+                            timeLeftInMillis = it.timeLeftInMillis - 1000,
+                            totalStudyTimeMills = it.totalStudyTimeMills + 1000
+                        )
+                    }
+                } else {
+                    _state.update {
+                        it.copy(
+                            timeLeftInMillis = it.timeLeftInMillis - 1000,
+                        )
+                    }
                 }
             }
             handleTimerCompletion()
