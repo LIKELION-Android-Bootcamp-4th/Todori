@@ -39,9 +39,10 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
-firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
-firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
-firebase-functions = { module = "com.google.firebase:firebase-functions-ktx" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx", version = "24.10.3" }
+firebase-storage = { module = "com.google.firebase:firebase-storage-ktx", version = "20.3.0" }
+firebase-functions = { module = "com.google.firebase:firebase-functions-ktx", version = "20.4.0" }
+
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
