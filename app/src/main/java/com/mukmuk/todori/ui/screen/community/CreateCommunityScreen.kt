@@ -42,6 +42,7 @@ import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupPrimary
+import com.mukmuk.todori.ui.theme.GroupSecondary
 import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.White
 
@@ -163,7 +164,7 @@ fun CreateCommunityScreen(
                 data.forEach{tag ->
                     Box(
                         modifier = Modifier
-                            .background(GroupPrimary, RoundedCornerShape(32.dp))
+                            .background(GroupSecondary, RoundedCornerShape(32.dp))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                             .width(60.dp),
                         contentAlignment = Alignment.Center
