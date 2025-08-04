@@ -8,11 +8,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.mukmuk.todori.data.remote.User
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.ui.mypage.component.ProfileSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageAccountSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageMenuSection
 import com.mukmuk.todori.ui.theme.Dimens
+
 @Composable
 fun MyPageScreen(navController: NavController) {
     // 테스트 유저
@@ -23,7 +24,6 @@ fun MyPageScreen(navController: NavController) {
         level = 3,
         rewardPoint = 1200
     )
-
     Scaffold { padding ->
         Column(
             modifier = Modifier

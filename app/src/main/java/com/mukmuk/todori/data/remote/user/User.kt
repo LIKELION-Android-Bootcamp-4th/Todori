@@ -1,4 +1,4 @@
-package com.mukmuk.todori.data.remote
+package com.mukmuk.todori.data.remote.user
 
 data class User(
     val uid: String = "",                // 고유 식별자

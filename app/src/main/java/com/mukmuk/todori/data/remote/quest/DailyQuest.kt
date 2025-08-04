@@ -1,4 +1,5 @@
-package com.mukmuk.todori.data.remote
+package com.mukmuk.todori.data.remote.quest
+import com.google.firebase.Timestamp
 
 
 data class DailyUserQuest(
@@ -6,5 +7,5 @@ data class DailyUserQuest(
     val title: String = "",
     val point: Int = 0,
     val isCompleted: Boolean = false,
-    //val completedAt: Timestamp? = null
+    val completedAt: Timestamp? = null
 )

@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.dummy.QuestDummy
-import com.mukmuk.todori.data.remote.User
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.screen.mypage.component.PointProgressBar
 import com.mukmuk.todori.ui.screen.mypage.component.QuestSection

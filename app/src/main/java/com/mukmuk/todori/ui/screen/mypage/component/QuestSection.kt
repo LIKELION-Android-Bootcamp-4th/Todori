@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.data.remote.DailyUserQuest
+import com.mukmuk.todori.data.remote.quest.DailyUserQuest
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Background
 import com.mukmuk.todori.ui.theme.Dimens
