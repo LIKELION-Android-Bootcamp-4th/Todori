@@ -86,7 +86,7 @@ fun CommunityScreen(navController: NavHostController) {
                 actions = {
                     IconButton(
                         onClick = {
-                            navController.navigate("community/search")
+
                         }
                     ) {
                         Icon(Icons.Default.Search, contentDescription = "검색")
