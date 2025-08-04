@@ -13,7 +13,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -30,8 +35,9 @@ fun DayStatsCard(
     studySeconds: Int = 12345,
     completedTodos: Int = 3,
     totalTodos:Int = 10,
-    reflection: String? = "회고를 작성 해 주세요."
+    onReflectionChange: (String) -> Unit
     ) {
+    var reflection by remember { mutableStateOf("") }
     Card(
         modifier = Modifier
             .fillMaxWidth(1f)
@@ -85,14 +91,24 @@ fun DayStatsCard(
                     containerColor = LightGray
                 ),
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = Dimens.Medium),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Text("$reflection")
-                }
+                TextField(
+                    value = reflection,
+                    onValueChange = {
+                        if (it.length <= 20) {
+                            onReflectionChange(it)
+                        }
+                    },
+                    placeholder = { Text("한 줄 회고를 작성 해 주세요.") },
+                    singleLine = true
+                )
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .padding(horizontal = Dimens.Medium),
+//                    contentAlignment = Alignment.CenterStart
+//                ) {
+//                    Text("$reflection")
+//                }
             }
             Spacer(modifier = Modifier.height(Dimens.XLarge))
 
