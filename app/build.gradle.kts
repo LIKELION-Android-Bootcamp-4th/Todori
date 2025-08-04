@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.kapt")
     alias(libs.plugins.hilt)
     id("kotlin-parcelize")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -83,6 +84,8 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.functions)
+    implementation(libs.firebase.auth)
+    implementation("com.google.firebase:firebase-analytics")
 
     //MPAndroidChart
 //    implementation(libs.mpandroidchart)

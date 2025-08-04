@@ -8,7 +8,7 @@ room = "2.6.1"
 coil = "2.5.0"
 navigation = "2.9.2"
 lifecycle = "2.9.2"
-firebase-bom = "32.7.3"
+firebase-bom = "34.0.0"
 kalendar = "2.0.0-RC1"
 kalendar-foundation = "1.0.0"
 lottie = "6.4.0"
@@ -20,9 +20,6 @@ composeBom = "2024.09.00"
 coroutines = "1.10.2"
 compose-compiler = "1.6.10"
 mpandroidchart = "3.1.0"
-firebase-firestore = "24.10.3"
-firebase-storage = "20.3.0"
-firebase-functions = "20.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,9 +38,10 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
-firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx", version.ref = "firebase-firestore" }
-firebase-storage = { module = "com.google.firebase:firebase-storage-ktx", version.ref = "firebase-storage" }
-firebase-functions = { module = "com.google.firebase:firebase-functions-ktx", version.ref = "firebase-functions" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
+firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
+firebase-functions = { module = "com.google.firebase:firebase-functions-ktx" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
