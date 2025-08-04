@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.todo.component
+package com.mukmuk.todori.ui.screen.todo.list
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -7,13 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.goal.GoalTodo
-import com.mukmuk.todori.ui.screen.todo.component.card.GoalCard
+import com.mukmuk.todori.ui.screen.todo.component.GoalCard
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GoalTodoList(navController: NavHostController) {
-    //샘플 데이터
     val goals = listOf(
         Goal(
             goalId = "study-kotlin",
@@ -33,7 +32,7 @@ fun GoalTodoList(navController: NavHostController) {
             goalId = "android-ui",
             title = "안드로이드 UI 마스터",
             startDate = "2025-07-20",
-            endDate = "2025-08-15",
+            endDate = "2025-08-07",
             description = "Compose UI에 익숙해지기"
         )
     )

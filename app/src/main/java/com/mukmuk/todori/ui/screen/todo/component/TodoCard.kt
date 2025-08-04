@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.todo.component.card
+package com.mukmuk.todori.ui.screen.todo.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -13,9 +13,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
-import com.mukmuk.todori.ui.screen.todo.component.ProgressWithText
-import com.mukmuk.todori.ui.screen.todo.component.TodoItemRow
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
@@ -42,7 +40,6 @@ fun TodoCard(
         )
     ) {
         Column(modifier = Modifier.padding(Dimens.Medium)) {
-            // 상단 제목
             CardHeaderSection(title = categoryTitle, subtitle = subtitle)
             Spacer(modifier = Modifier.height(Dimens.Tiny))
             ProgressWithText(

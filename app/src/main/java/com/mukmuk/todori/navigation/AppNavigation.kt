@@ -8,16 +8,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.mukmuk.todori.data.remote.goal.Goal
+import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
-import com.mukmuk.todori.ui.screen.todo.CreateCategoryScreen
-import com.mukmuk.todori.ui.screen.todo.CreateGoalScreen
-import com.mukmuk.todori.ui.screen.todo.CreateStudyScreen
+import com.mukmuk.todori.ui.screen.todo.create.CreateCategoryScreen
+import com.mukmuk.todori.ui.screen.todo.create.CreateGoalScreen
+import com.mukmuk.todori.ui.screen.todo.create.CreateStudyScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.detail.GoalDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.MemberProgressDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.StudyDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.TodoDetailScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -52,9 +55,12 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             )
         }
         composable("study/create") {
+            val navEntry = navController.previousBackStackEntry
+            val editStudy = navEntry?.savedStateHandle?.get<Study>("editStudy")
             CreateStudyScreen(
                 onDone = { navController.popBackStack() },
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                editStudy = editStudy
             )
         }
         composable("todo/detail/{categoryId}") { backStackEntry ->
@@ -69,6 +75,20 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                     onBack = {navController.popBackStack()})
             }
         }
+        composable("study/detail") {
+            StudyDetailScreen(
+                navController,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("member_progress_detail/{studyId}") { backStackEntry ->
+            val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
+            MemberProgressDetailScreen(
+                navController = navController,
+                studyId = studyId,
+            )
+        }
+
 
     }
 }

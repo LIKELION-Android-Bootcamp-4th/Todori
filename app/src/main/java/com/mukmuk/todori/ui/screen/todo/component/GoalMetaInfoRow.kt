@@ -42,7 +42,7 @@ import java.time.temporal.ChronoUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun GoalPeriodStatus(goal: Goal) {
+fun GoalMetaInfoRow(goal: Goal) {
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
     val start = LocalDate.parse(goal.startDate)
     val end = LocalDate.parse(goal.endDate)

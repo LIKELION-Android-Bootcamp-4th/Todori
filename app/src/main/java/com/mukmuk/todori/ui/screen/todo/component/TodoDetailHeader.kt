@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
@@ -41,7 +42,6 @@ fun TodoDetailHeader(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = White)
-//            .border(1.dp, Black, RectangleShape)
             .padding(Dimens.Medium)
     ) {
         Text(

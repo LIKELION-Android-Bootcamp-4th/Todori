@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.todo
+package com.mukmuk.todori.ui.screen.todo.create
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
@@ -47,11 +48,17 @@ import com.mukmuk.todori.ui.theme.White
 @Composable
 fun CreateStudyScreen(
     onDone: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    editStudy: Study? = null
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    val selectedDays = remember { mutableStateListOf<String>() }
+    val isEditMode =
+        editStudy !=null
+
+    var title by remember { mutableStateOf(editStudy?.title.orEmpty()) }
+    var description by remember { mutableStateOf(editStudy?.description.orEmpty()) }
+    val selectedDays = remember {
+        mutableStateListOf<String>().apply { editStudy?.activeDays?.let { addAll(it) } }
+    }
 
     val titleFocusRequester = remember { FocusRequester() }
     val descFocusRequester = remember { FocusRequester() }
@@ -64,7 +71,9 @@ fun CreateStudyScreen(
 
     Scaffold(
         topBar = {
-            SimpleTopAppBar(title = "스터디 생성", onBackClick = onBack)
+            SimpleTopAppBar(
+                if (isEditMode) "스터디 수정" else "스터디 생성",
+                onBackClick = onBack)
         },
         containerColor = White
     ) { innerPadding ->
@@ -155,7 +164,12 @@ fun CreateStudyScreen(
 
             Button(
                 onClick = {
-                    // todo: 저장 로직 연결
+                    if (isEditMode) {
+                        // TODO 수정
+                    } else {
+                        // Todo 생성
+                    }
+
                     onDone()
                 },
                 modifier = Modifier.fillMaxWidth()
