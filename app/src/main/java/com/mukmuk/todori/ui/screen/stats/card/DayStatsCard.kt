@@ -32,10 +32,10 @@ import kotlinx.datetime.LocalDate
 @Composable
 fun DayStatsCard(
     selectedDay: LocalDate,
-    studySeconds: Int = 12345,
-    completedTodos: Int = 3,
-    totalTodos:Int = 10,
-    onReflectionChange: (String) -> Unit
+    studySeconds: Int,
+    completedTodos: Int,
+    totalTodos:Int,
+//    onReflectionChange: (String) -> Unit
     ) {
     var reflection by remember { mutableStateOf("") }
     Card(
@@ -95,7 +95,7 @@ fun DayStatsCard(
                     value = reflection,
                     onValueChange = {
                         if (it.length <= 20) {
-                            onReflectionChange(it)
+//                            onReflectionChange(it)
                         }
                     },
                     placeholder = { Text("한 줄 회고를 작성 해 주세요.") },

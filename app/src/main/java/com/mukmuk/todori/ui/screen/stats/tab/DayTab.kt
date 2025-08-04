@@ -23,6 +23,11 @@ fun DayTab(
         Spacer(modifier = Modifier.height(Dimens.XLarge))
         CalendarCard()
         Spacer(modifier = Modifier.height(Dimens.Large))
-        DayStatsCard(selectedDay = selectedDay)
+        DayStatsCard(
+            selectedDay = selectedDay,
+            studySeconds = 12345,
+            completedTodos = 3,
+            totalTodos = 10,
+            )
     }
 }
