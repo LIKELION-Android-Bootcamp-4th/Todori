@@ -1,7 +1,9 @@
 package com.mukmuk.todori.di
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mukmuk.todori.data.repository.GoalRepository
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
+import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.service.TodoCategoryService
 import dagger.Module
 import dagger.Provides
@@ -32,4 +34,14 @@ object AppModule {
     ): TodoCategoryRepository = TodoCategoryRepository(todoCategoryService)
 
 
+
+    @Provides
+    @Singleton
+    fun provideGoalService(firestore: FirebaseFirestore): GoalService =
+        GoalService(firestore)
+
+    @Provides
+    @Singleton
+    fun provideGoalRepository(goalService: GoalService): GoalRepository =
+        GoalRepository(goalService)
 }
