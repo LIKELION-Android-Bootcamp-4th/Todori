@@ -21,14 +21,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.R
-import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
+import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun MonthCard(record: List<DailyRecords>) {
+fun MonthCard(record: List<DailyRecord>) {
     val totalStudySeconds = record.sumOf { it.studyTimeMillis }
     val totalCompletedTodos = 32
     val totalTodos = 100

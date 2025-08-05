@@ -14,10 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,13 +26,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
-import com.mukmuk.todori.data.remote.goal.Goal
+import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
-import com.mukmuk.todori.ui.screen.home.TimerEvent
-import com.mukmuk.todori.ui.screen.home.TimerStatus
 import com.mukmuk.todori.ui.screen.home.components.MainTodoItemEditableRow
-import com.mukmuk.todori.ui.screen.home.totalFormatTime
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
@@ -43,7 +39,7 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayStatsCard(
-    record: DailyRecords
+    record: DailyRecord
 ) {
     val parsedDate = LocalDate.parse(record.date)
     val parseTime = record.studyTimeMillis
@@ -51,6 +47,9 @@ fun DayStatsCard(
     val year = parsedDate.year
     val month = parsedDate.monthValue
     val day = parsedDate.dayOfMonth
+
+    var text by remember { mutableStateOf(record.reflection ?: "") }
+    var isEditing by remember { mutableStateOf(false) }
 
     val todos = listOf(
         Todo(title = "스트레칭 하기", isCompleted = true),
@@ -135,10 +134,18 @@ fun DayStatsCard(
                         .padding(horizontal = Dimens.Medium),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    if(record.reflection != null) {
-                        Text("${record.reflection}")
+                    if (isEditing) {
+                        // 텍스트 입력 중
+                        BasicTextField(
+                            value = text,
+                            onValueChange = { text = it },
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     } else {
-                        Text("한 줄 회고를 입력 해 주세요.")
+                        // 편집 전 상태
+                        Text(
+                            text = if (text.isNotBlank()) text else "한 줄 회고를 입력 해 주세요."
+                        )
                     }
 
                 }

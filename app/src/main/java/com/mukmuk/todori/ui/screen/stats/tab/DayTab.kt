@@ -16,9 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
-import com.mukmuk.todori.data.remote.goal.Goal
-import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.screen.stats.card.CalendarCard
 import com.mukmuk.todori.ui.screen.stats.card.DayStatsCard
 import com.mukmuk.todori.ui.theme.Dimens
@@ -26,18 +24,8 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DayTab(
-    dayRecords: List<DailyRecords>,
-    dayTodos: List<Todo>,
-    dayGoals: List<Goal>
-    ) {
+fun DayTab(dayRecords: List<DailyRecord>) {
     var selectedDay by remember { mutableStateOf(LocalDate.now()) }
-
-    val todayTodos = dayTodos.filter { LocalDate.parse(it.date) == selectedDay }
-    val todayGoals = dayGoals.filter { LocalDate.parse(it.endDate) == selectedDay }
-
-    val completedTodos = todayTodos.filter { it.isCompleted }
-    val completedGoals = todayGoals.filter { it.isCompleted }
 
     Log.d("aa", "선택날짜 : $selectedDay")
 

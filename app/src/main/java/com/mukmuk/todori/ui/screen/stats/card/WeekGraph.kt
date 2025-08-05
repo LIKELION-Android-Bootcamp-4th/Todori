@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -25,16 +24,12 @@ import com.github.mikephil.charting.data.BarEntry
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
-import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.UserPrimary
 
 @Composable
-fun WeekGraph(record: List<DailyRecords>) {
+fun WeekGraph(record: List<DailyRecord>) {
     Card(
         modifier = Modifier
             .fillMaxWidth(1f)

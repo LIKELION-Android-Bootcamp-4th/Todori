@@ -2,7 +2,6 @@ package com.mukmuk.todori.ui.screen.stats.card
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -17,34 +16,25 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
-import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
+import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.CalendarSelectDay
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
-import com.mukmuk.todori.ui.theme.Gray
-import com.mukmuk.todori.ui.theme.UserHalf
-import com.mukmuk.todori.ui.theme.UserPrimary
-import com.mukmuk.todori.ui.theme.UserTenth
 import java.time.LocalDate
 import java.time.YearMonth
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarCard(
-    record: List<DailyRecords>,
+    record: List<DailyRecord>,
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit
 ) {

@@ -29,8 +29,7 @@ import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
-import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.Black
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -38,10 +37,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 
 @Composable
-fun MonthTab(
-    monthRecords: List<DailyRecords>,
-    monthTodos: List<Todo>
-) {
+fun MonthTab(monthRecords: List<DailyRecord>) {
     var selectedMonth by remember {
         mutableStateOf(LocalDate.parse("2025-08-04"))
     }

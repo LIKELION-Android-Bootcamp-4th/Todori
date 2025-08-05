@@ -1,8 +1,8 @@
-package com.mukmuk.todori.data.remote.dailyRecords
+package com.mukmuk.todori.data.remote.dailyRecord
 
 import com.google.firebase.Timestamp
 
-data class DailyRecords(
+data class DailyRecord(
     val date: String = "",            // "yyyy-MM-dd"
     val uid: String = "",
     val studyTimeMillis: Long = 0L,   // 총 공부 시간 (밀리초)

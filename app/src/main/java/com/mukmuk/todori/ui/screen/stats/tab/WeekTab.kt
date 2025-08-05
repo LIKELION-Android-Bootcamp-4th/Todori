@@ -25,8 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
-import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.screen.stats.card.WeekCard
 import com.mukmuk.todori.ui.screen.stats.card.WeekGraph
 import com.mukmuk.todori.ui.screen.stats.card.WeekProgress
@@ -46,10 +45,7 @@ fun getWeekRange(date: LocalDate): List<LocalDate> {
 }
 
 @Composable
-fun WeekTab(
-    weekRecords: List<DailyRecords>,
-    weekTodos: List<Todo>
-) {
+fun WeekTab(weekRecords: List<DailyRecord>) {
     var selectedWeek by remember {
         mutableStateOf(LocalDate.parse("2025-08-04"))
     }
