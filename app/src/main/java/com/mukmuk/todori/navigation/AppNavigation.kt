@@ -98,8 +98,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         composable("completedGoals") { CompletedGoalsScreen(onBack = { navController.popBackStack() }) }
         composable("profileManage") {
             ProfileManagementScreen(
-                onBack = { navController.popBackStack() },
-                onDone = { nickname, intro -> navController.popBackStack() }
+                onBack = { navController.popBackStack() }
             )
         }
 
