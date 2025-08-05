@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.todo.create
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.theme.Dimens
@@ -50,6 +53,7 @@ fun CreateCategoryScreen(
     val isTitleError =  title.length !in 0..8       // 제목은 1~8
     val isDescError = description.length !in 0..60 // 설명  1~60
 
+    val viewModel: TodoCategoryViewModel = hiltViewModel()
     LaunchedEffect(Unit) {
         titleFocusRequester.requestFocus()
     }
@@ -113,15 +117,34 @@ fun CreateCategoryScreen(
 
             Button(
                 onClick = {
+                    Log.d("TodoCategoryService", "버튼 클릭됨")
                     if (isTitleError || isDescError) return@Button
 
                     if (isEditMode) {
                         // TODO: 수정
                     } else {
                         // TODO: 생성
+                        val newCategory = TodoCategory(
+                            categoryId = "",
+                            uid = "testuser",
+                            name = title,
+                            colorHex = "adfa",
+                            description = description,
+                            createdAt = Timestamp.now()
+                        )
+                        viewModel.createCategory("testuser", newCategory,
+                            onSuccess = {
+                                // Firestore 작업 "성공 후"에만 onDone
+//                                onDone()
+                            },
+                            onError = { e ->
+                                // 에러시 토스트 등 처리
+                                Log.e("TodoCategoryService", "카테고리 생성 실패", e)
+                            }
+                        )
                     }
 
-                    onDone()
+//                    onDone()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

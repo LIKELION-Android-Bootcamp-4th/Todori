@@ -1,5 +1,6 @@
 package com.mukmuk.todori.data.service
 
+import android.util.Log
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
@@ -16,15 +17,18 @@ class TodoCategoryService(
 
     // 카테고리 생성
     suspend fun createCategory(uid: String, category: TodoCategory) {
-        val ref = userCategoriesRef(uid).document() // 여기서 auto-ID 생성
+        val ref = userCategoriesRef(uid).document() // auto-ID 문서
         val autoId = ref.id
         val categoryWithId = category.copy(categoryId = autoId)
-        ref.set(categoryWithId, SetOptions.merge()).await()
-//
-//        userCategoriesRef(uid)
-//            .document(category.categoryId)
-//            .set(category, SetOptions.merge())
-//            .await()
+        Log.d("TodoCategoryService", "Firestore set() 직전: $categoryWithId")
+        try {
+            Log.d("TodoCategoryService", "Firestore try t시작")
+
+            ref.set(categoryWithId, SetOptions.merge()).await()
+        } catch (e: Exception) {
+            Log.e("TodoCategoryService", "Firestore set() 중 오류!", e)
+        }
+        Log.d("TodoCategoryService", "Firestore set() 완료")
     }
 
     // 카테고리 목록 조회

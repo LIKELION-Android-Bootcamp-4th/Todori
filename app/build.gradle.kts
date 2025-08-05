@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-//    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.compose)
     id("org.jetbrains.kotlin.kapt")
     alias(libs.plugins.hilt)
     id("kotlin-parcelize")
@@ -43,6 +43,10 @@ android {
     }
 }
 
+hilt{
+    enableAggregatingTask = false
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -69,7 +73,7 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
-//    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     kapt(libs.hilt.compiler)
 
     // Room

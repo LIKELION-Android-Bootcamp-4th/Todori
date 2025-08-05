@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.todo.create
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.remote.todo.TodoCategory
@@ -23,17 +24,25 @@ class TodoCategoryViewModel @Inject constructor(
     fun loadCategories(uid: String) {
         viewModelScope.launch {
             _categories.value = repository.getCategories(uid)
+            Log.d("TodoCategoryService", "${categories.value}")
         }
     }
 
     // 카테고리 생성
-    fun createCategory(uid: String, category: TodoCategory, onSuccess: () -> Unit = {}) {
+    fun createCategory(uid: String, category: TodoCategory, onSuccess: () -> Unit = {}, onError: (Exception) -> Unit = {}) {
         viewModelScope.launch {
-            repository.createCategory(uid, category)
-            loadCategories(uid) // 생성 후 다시 목록 불러오기
-            onSuccess()
+            try {
+                loadCategories(uid)
+                repository.createCategory(uid, category)
+                Log.d("TodoCategoryService", "repository 호출 끝")
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("TodoCategoryService", "repository 호출 중 오류!", e)
+                onError(e)
+            }
         }
     }
+
 
     // 카테고리 수정
     fun updateCategory(uid: String, category: TodoCategory, onSuccess: () -> Unit = {}) {
