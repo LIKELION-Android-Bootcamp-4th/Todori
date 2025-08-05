@@ -27,6 +27,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.mukmuk.todori.R
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -43,17 +44,19 @@ fun CommunityListItem(
     tags: List<String>,
     comments: Int,
     members: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 20.dp)
-            .height(120.dp)
             .border(1.dp, Gray, RoundedCornerShape(10.dp)),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = White),
-        onClick = {},
+        onClick = {
+            navController.navigate("community/detail")
+        },
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
