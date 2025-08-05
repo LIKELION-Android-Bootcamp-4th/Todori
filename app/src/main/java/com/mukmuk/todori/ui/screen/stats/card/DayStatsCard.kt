@@ -1,5 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.card
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -22,15 +26,41 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.ui.screen.stats.DailyRecord
+import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
+import com.mukmuk.todori.data.remote.goal.Goal
+import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.ui.screen.home.TimerEvent
+import com.mukmuk.todori.ui.screen.home.TimerStatus
+import com.mukmuk.todori.ui.screen.home.components.MainTodoItemEditableRow
+import com.mukmuk.todori.ui.screen.home.totalFormatTime
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.White
+import java.time.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DayStatsCard(record: DailyRecord){
+fun DayStatsCard(
+    record: DailyRecords
+) {
+    val parsedDate = LocalDate.parse(record.date)
+    val parseTime = record.studyTimeMillis
+
+    val year = parsedDate.year
+    val month = parsedDate.monthValue
+    val day = parsedDate.dayOfMonth
+
+    val todos = listOf(
+        Todo(title = "스트레칭 하기", isCompleted = true),
+        Todo(title = "스쿼트 50개", isCompleted = false),
+        Todo(title = "런닝 30분", isCompleted = true)
+
+    )
+
+    val completedTodos = todos.count { it.isCompleted }
+
     Card(
         modifier = Modifier
             .fillMaxWidth(1f)
@@ -44,7 +74,7 @@ fun DayStatsCard(record: DailyRecord){
         Column(modifier = Modifier.padding(Dimens.Medium)) {
             //날짜
             Text(
-                "${record.selectedDay.year}년 ${record.selectedDay.monthNumber}월 ${record.selectedDay.dayOfMonth}일",
+                "${year}년 ${month}월 ${day}일",
                 style = AppTextStyle.TitleSmall
             )
             Spacer(modifier = Modifier.height(Dimens.XXLarge))
@@ -56,7 +86,7 @@ fun DayStatsCard(record: DailyRecord){
             ) {
                 Text("공부시간", style = AppTextStyle.Body)
                 Text(
-                    "${record.studySeconds / 3600} : ${(record.studySeconds % 3600) / 60} : ${record.studySeconds % 60}",
+                    "${parseTime / 3600} : ${(parseTime % 3600) / 60} : ${parseTime % 60}",
                     style = AppTextStyle.BodyLarge
                 )
             }
@@ -68,7 +98,10 @@ fun DayStatsCard(record: DailyRecord){
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("달성 TODO", style = AppTextStyle.Body)
-                Text("${record.completedTodos} / ${record.totalTodos}", style = AppTextStyle.BodyLarge)
+                Text(
+                    "$completedTodos / ${todos.size}",
+                    style = AppTextStyle.BodyLarge
+                )
             }
             Spacer(modifier = Modifier.height(Dimens.XLarge))
 
@@ -85,7 +118,7 @@ fun DayStatsCard(record: DailyRecord){
                 ),
                 onClick = {}
             ) {
-            //TODO:디자인 변경
+                //TODO:디자인 변경
 //                TextField(
 //                    value = reflection,
 //                    onValueChange = {
@@ -102,13 +135,36 @@ fun DayStatsCard(record: DailyRecord){
                         .padding(horizontal = Dimens.Medium),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    Text("${record.reflection}")
+                    if(record.reflection != null) {
+                        Text("${record.reflection}")
+                    } else {
+                        Text("한 줄 회고를 입력 해 주세요.")
+                    }
+
                 }
             }
             Spacer(modifier = Modifier.height(Dimens.XLarge))
 
-            //투두
-            Text("투두 나열")
+            //투두 나열
+//            LazyColumn {
+//                itemsIndexed(todos) { index, todo ->
+//                    MainTodoItemEditableRow(
+//                        title = todo.title,
+//                        isDone = todo.isCompleted,
+//                        isRecordMode = state.status == TimerStatus.RECORDING,
+//                        recordTime = if (todo.totalFocusTimeMillis > 0L) {
+//                            totalFormatTime(todo.totalFocusTimeMillis)
+//                        } else {
+//                            null
+//                        },
+//                        onCheckedChange = { checked ->
+//
+//                        },
+//                        onItemClick = {}
+//                    )
+//                    Spacer(modifier = Modifier.height(Dimens.Medium))
+//                }
+//            }
         }
     }
 }

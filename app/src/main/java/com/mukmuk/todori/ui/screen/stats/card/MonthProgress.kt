@@ -12,11 +12,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
 import com.mukmuk.todori.data.remote.goal.GoalTodo
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.ui.component.ProgressWithText
-import com.mukmuk.todori.ui.screen.stats.DailyRecord
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
@@ -26,10 +26,10 @@ import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun MonthProgress(record: List<DailyRecord>) {
+fun MonthProgress(record: List<DailyRecords>) {
 
-    val totalCompletedTodos = record.sumOf { it.completedTodos }
-    val totalTodos = record.sumOf { it.totalTodos }
+    val totalCompletedTodos = 10
+    val totalTodos = 100
 
     //TODO: todo 분류 필요
     val totalCompletedGoals = 10

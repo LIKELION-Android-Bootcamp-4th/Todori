@@ -29,8 +29,8 @@ import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.mukmuk.todori.ui.screen.stats.DailyRecord
-import com.mukmuk.todori.ui.screen.stats.records
+import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
+import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.theme.Black
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -38,7 +38,10 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 
 @Composable
-fun MonthTab(monthRecords: List<DailyRecord>) {
+fun MonthTab(
+    monthRecords: List<DailyRecords>,
+    monthTodos: List<Todo>
+) {
     var selectedMonth by remember {
         mutableStateOf(LocalDate.parse("2025-08-04"))
     }
@@ -62,7 +65,12 @@ fun MonthTab(monthRecords: List<DailyRecord>) {
                 IconButton(onClick = {
                     selectedMonth = selectedMonth.minus(DatePeriod(months = 1))
                 }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Black
+                    )
                 }
             }
 
@@ -70,7 +78,10 @@ fun MonthTab(monthRecords: List<DailyRecord>) {
             Row(
                 modifier = Modifier.align(Alignment.Center)
             ) {
-                Text("${selectedMonth.year}년 ${selectedMonth.monthNumber}월", style = AppTextStyle.TitleSmall)
+                Text(
+                    "${selectedMonth.year}년 ${selectedMonth.monthNumber}월",
+                    style = AppTextStyle.TitleSmall
+                )
             }
 
             //오른쪽 화살표
@@ -80,15 +91,21 @@ fun MonthTab(monthRecords: List<DailyRecord>) {
                 IconButton(onClick = {
                     selectedMonth = selectedMonth.plus(DatePeriod(months = 1))
                 }) {
-                    Icon(Icons.Default.ArrowForward, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
+                    Icon(
+                        Icons.Default.ArrowForward,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Black
+                    )
                 }
             }
         }
 
         val filteredMonthly = remember(selectedMonth, monthRecords) {
             monthRecords.filter {
-                it.selectedDay.year == selectedMonth.year &&
-                        it.selectedDay.monthNumber == selectedMonth.monthNumber
+                val recordDate = LocalDate.parse(it.date)
+                recordDate.year == selectedMonth.year &&
+                        recordDate.monthNumber == selectedMonth.monthNumber
             }
         }
 

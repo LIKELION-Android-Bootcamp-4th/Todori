@@ -25,7 +25,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.ui.screen.stats.DailyRecord
+import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
+import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.screen.stats.card.WeekCard
 import com.mukmuk.todori.ui.screen.stats.card.WeekGraph
 import com.mukmuk.todori.ui.screen.stats.card.WeekProgress
@@ -43,8 +44,12 @@ fun getWeekRange(date: LocalDate): List<LocalDate> {
     val sunday = date.minus(DatePeriod(days = dayOfWeek))
     return (0..6).map { sunday.plus(DatePeriod(days = it)) }
 }
+
 @Composable
-fun WeekTab(weekRecords: List<DailyRecord>) {
+fun WeekTab(
+    weekRecords: List<DailyRecords>,
+    weekTodos: List<Todo>
+) {
     var selectedWeek by remember {
         mutableStateOf(LocalDate.parse("2025-08-04"))
     }
@@ -72,7 +77,12 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                     IconButton(onClick = {
                         selectedWeek = selectedWeek.minus(DatePeriod(days = 7))
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = Black
+                        )
 
                     }
                 }
@@ -95,20 +105,25 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                     IconButton(onClick = {
                         selectedWeek = selectedWeek.plus(DatePeriod(days = 7))
                     }) {
-                        Icon(Icons.Default.ArrowForward, contentDescription = null,modifier = Modifier.size(24.dp), tint = Black)
+                        Icon(
+                            Icons.Default.ArrowForward,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = Black
+                        )
                     }
                 }
             }
 
             val weeklyFiltered = remember(weekRecords, currentWeekRange) {
                 weekRecords.filter { record ->
-                    record.selectedDay in currentWeekRange
+                    LocalDate.parse(record.date) in currentWeekRange
                 }
             }
 
             WeekCard(record = weeklyFiltered)
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekGraph()
+            WeekGraph(record = weeklyFiltered)
             Spacer(modifier = Modifier.height(Dimens.Large))
             WeekProgress(record = weeklyFiltered)
         }

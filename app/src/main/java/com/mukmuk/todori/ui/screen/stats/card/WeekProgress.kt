@@ -12,17 +12,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
 import com.mukmuk.todori.ui.component.ProgressWithText
-import com.mukmuk.todori.ui.screen.stats.DailyRecord
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
-import kotlinx.datetime.LocalDate
 
 @Composable
-fun WeekProgress(record: List<DailyRecord>) {
+fun WeekProgress(record: List<DailyRecords>) {
+    val completedTodos = 10
+    val totalTodos = 100
+
     Column() {
         Card(
             modifier = Modifier
@@ -38,13 +40,13 @@ fun WeekProgress(record: List<DailyRecord>) {
                 Text("주간 TODO 통계", style = AppTextStyle.TitleSmall)
                 Spacer(modifier = Modifier.height(Dimens.XLarge))
 
-                record.sortedBy { it.selectedDay }.forEach { record ->
+                record.sortedBy { it.date }.forEach { record ->
 
 
                     ProgressWithText(
-                        progress = record.completedTodos / record.totalTodos.toFloat(),
-                        completed = record.completedTodos,
-                        total = record.totalTodos,
+                        progress = completedTodos / totalTodos.toFloat(),
+                        completed = completedTodos,
+                        total = totalTodos,
                         progressColor = UserPrimary,
                         modifier = Modifier.fillMaxWidth(),
                         cornerRadius = Dimens.Nano,
@@ -53,9 +55,9 @@ fun WeekProgress(record: List<DailyRecord>) {
                     Spacer(modifier = Modifier.height(Dimens.Large))
 
                     ProgressWithText(
-                        progress = record.completedTodos / record.totalTodos.toFloat(),
-                        completed = record.completedTodos,
-                        total = record.totalTodos,
+                        progress = completedTodos / totalTodos.toFloat(),
+                        completed = completedTodos,
+                        total = totalTodos,
                         progressColor = UserPrimary,
                         modifier = Modifier.fillMaxWidth(),
                         cornerRadius = Dimens.Nano,

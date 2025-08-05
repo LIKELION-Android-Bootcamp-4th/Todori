@@ -15,19 +15,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.ui.screen.stats.DailyRecord
+import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun WeekCard(record: List<DailyRecord>) {
-    val totalStudySeconds = record.sumOf { it.studySeconds }
-    val totalCompletedTodos = record.sumOf { it.completedTodos }
-    val totalTodos = record.sumOf { it.totalTodos }
+fun WeekCard(record: List<DailyRecords>) {
+    val totalStudySeconds = record.sumOf { it.studyTimeMillis }
+    val totalCompletedTodos = 3
+    val totalTodos = 10
     val TodoTotalPer = (totalCompletedTodos.toFloat() / totalTodos * 100).toInt()
 
-    val avgStudyMinutes = totalStudySeconds / 60 / record.size
+    val avgStudyMinutes = if (record.size > 1) {
+        totalStudySeconds / 60 / record.size
+    } else 0
     val avgHours = avgStudyMinutes / 60
     val avgMinutes = avgStudyMinutes % 60
 

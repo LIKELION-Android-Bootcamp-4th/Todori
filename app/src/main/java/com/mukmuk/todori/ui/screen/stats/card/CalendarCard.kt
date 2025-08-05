@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
-import com.mukmuk.todori.ui.screen.stats.DailyRecord
+import com.mukmuk.todori.data.remote.dailyRecords.DailyRecords
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.CalendarSelectDay
 import com.mukmuk.todori.ui.theme.Dimens
@@ -44,7 +44,7 @@ import java.time.YearMonth
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarCard(
-    record: List<DailyRecord>,
+    record: List<DailyRecords>,
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit
 ) {
