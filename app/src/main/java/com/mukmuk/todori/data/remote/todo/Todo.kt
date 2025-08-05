@@ -1,6 +1,7 @@
 package com.mukmuk.todori.data.remote.todo
 
-import java.security.Timestamp
+import com.google.firebase.Timestamp
+
 
 data class Todo(
     val todoId: String = "",               // 문서ID

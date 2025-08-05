@@ -2,12 +2,14 @@ package com.mukmuk.todori.di
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mukmuk.todori.data.repository.GoalRepository
-import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.repository.StudyRepository
-import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
+import com.mukmuk.todori.data.repository.TodoRepository
+import com.mukmuk.todori.data.repository.UserRepository
+import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.service.StudyService
 import com.mukmuk.todori.data.service.TodoCategoryService
+import com.mukmuk.todori.data.service.TodoService
 import com.mukmuk.todori.data.service.UserService
 import dagger.Module
 import dagger.Provides
@@ -71,5 +73,15 @@ object AppModule {
     @Singleton
     fun provideGoalRepository(goalService: GoalService): GoalRepository =
         GoalRepository(goalService)
+
+    @Provides
+    @Singleton
+    fun provideTodoService(firestore: FirebaseFirestore): TodoService =
+        TodoService(firestore)
+
+    @Provides
+    @Singleton
+    fun provideTodoRepository(todoService: TodoService): TodoRepository =
+        TodoRepository(todoService)
 
 }
