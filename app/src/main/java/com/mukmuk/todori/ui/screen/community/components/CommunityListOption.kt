@@ -37,7 +37,7 @@ import com.mukmuk.todori.ui.theme.White
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun CommunityListOption(
-    data: List<StudyPost> = emptyList()
+
 ) {
 
     var expanded by remember { mutableStateOf(false) }

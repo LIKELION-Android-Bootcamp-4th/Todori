@@ -1,13 +1,13 @@
-package com.mukmuk.todori.ui.screen.community
+package com.mukmuk.todori.ui.screen.community.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,7 +20,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -36,7 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mukmuk.todori.ui.screen.community.components.CommunitySearchData
 import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.NotoSans
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,31 +56,36 @@ fun CommunitySearchScreen(
                 title = {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Gray, shape = RoundedCornerShape(30))
+                            .padding(horizontal = 16.dp)
                     ) {
-                        TextField(
+                        OutlinedTextField(
                             value = query,
                             onValueChange = { query = it },
                             colors = TextFieldDefaults.colors(
                                 focusedIndicatorColor = Color.Transparent,
-                                cursorColor = Black
+                                cursorColor = Black,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedContainerColor = LightGray,
+                                unfocusedContainerColor = LightGray,
                             ),
                             textStyle = TextStyle(
                                 color = Black,
                                 fontSize = 16.sp,
                                 fontFamily = NotoSans,
+
                             ),
-                            modifier = Modifier.fillMaxSize(),
-                            placeholder = { Text("검색어를 입력하세요") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(LightGray, RoundedCornerShape(30.dp)),
+                            shape = RoundedCornerShape(30.dp),
+                            placeholder = { Text("검색어를 입력하세요", fontFamily = NotoSans, fontSize = 14.sp, color = DarkGray) },
                             singleLine = true,
                             maxLines = 1,
                             trailingIcon = {
                                 IconButton(onClick = { }) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
-                                        contentDescription = "Search",
-                                        modifier = Modifier.padding(end = 8.dp)
+                                        contentDescription = "Search"
                                     )
                                 }
                             }

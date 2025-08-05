@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.community
+package com.mukmuk.todori.ui.screen.community.create
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -25,7 +25,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,10 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Gray
@@ -49,17 +49,27 @@ import com.mukmuk.todori.ui.theme.White
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateCommunityScreen(
-    onBack: () -> Unit
+    navController: NavController,
+    onBack: () -> Unit,
+    viewModel: CommunityViewModel
 ) {
     val scrollState = rememberScrollState()
 
-    var name by remember { mutableStateOf("") }
-    var isNameError by remember { mutableStateOf(false) }
+    var title by remember { mutableStateOf("") }
+    var isTitleError by remember { mutableStateOf(false) }
 
     var content by remember { mutableStateOf("") }
 
     var data = listOf("td", "asd")
 
+    var showListSheet by remember { mutableStateOf(false) }
+    var pickedItem by remember { mutableStateOf<String?>(null) }
+
+    if(viewModel.data == 2) {
+        title = viewModel.selectedPost?.title ?: ""
+        content = viewModel.selectedPost?.content ?: ""
+        viewModel.selectedPost = null
+    }
 
     Scaffold(
 
@@ -88,10 +98,10 @@ fun CreateCommunityScreen(
                 .padding(top = 20.dp, start = 16.dp, end = 16.dp)
         ) {
             OutlinedTextField(
-                value = name,
+                value = title,
                 onValueChange = {
-                    name = it
-                    isNameError = it.isBlank()
+                    title = it
+                    isTitleError = it.isBlank()
                 },
                 placeholder = {Text("스터디 명을 입력하세요", color = DarkGray, fontSize = 16.sp, fontFamily = NotoSans) },
                 modifier = Modifier
@@ -104,9 +114,9 @@ fun CreateCommunityScreen(
                     fontFamily = NotoSans
                 ),
                 singleLine = true,
-                isError = isNameError,
+                isError = isTitleError,
                 supportingText = {
-                    if (isNameError) Text("스터디 명을 입력해주세요", fontFamily = NotoSans) else null
+                    if (isTitleError) Text("스터디 명을 입력해주세요", fontFamily = NotoSans) else null
                 }
             )
 
@@ -143,7 +153,9 @@ fun CreateCommunityScreen(
                 Text("내가 만든 스터디", color = Black, fontSize = 16.sp, fontFamily = NotoSans)
                 Spacer(Modifier.weight(1f))
                 Button (
-                    onClick = {},
+                    onClick = {
+                        showListSheet = true
+                    },
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GroupPrimary,
@@ -187,7 +199,14 @@ fun CreateCommunityScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = {},
+                onClick = {
+                    viewModel.addPost(
+                        title = title,
+                        content = content
+                    )
+
+                    navController.popBackStack()
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("작성")

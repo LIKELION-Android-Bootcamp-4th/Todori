@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.R
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Gray
@@ -41,20 +42,22 @@ import com.mukmuk.todori.ui.theme.White
 fun CommunityListItem(
     title: String,
     description: String,
-    tags: List<String>,
-    comments: Int,
-    members: Int,
-    modifier: Modifier = Modifier,
-    navController: NavHostController
+    tags: List<String> = emptyList(),
+    comments: Int = 0,
+    members: Int = 0,
+    navController: NavHostController,
+    viewModel: CommunityViewModel,
+    post: StudyPost
 ) {
     Card(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 20.dp)
             .border(1.dp, Gray, RoundedCornerShape(10.dp)),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         onClick = {
+            viewModel.selectedPost = post
             navController.navigate("community/detail")
         },
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)

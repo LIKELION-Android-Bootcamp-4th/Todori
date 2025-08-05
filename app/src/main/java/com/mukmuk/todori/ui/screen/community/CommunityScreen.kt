@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.ui.screen.community.components.CommunityListItem
 import com.mukmuk.todori.ui.screen.community.components.CommunityListOption
-import com.mukmuk.todori.ui.screen.community.components.StudyPost
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.Gray
@@ -47,38 +46,13 @@ import com.mukmuk.todori.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CommunityScreen(navController: NavHostController) {
+fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewModel) {
 
     var selectedCategory by remember { mutableStateOf("전체") }
     var categories = listOf("전체", "개발")
 
+    val postList = viewModel.postList
 
-    val data = listOf(
-        StudyPost(
-            title = "asd",
-            content = "asoihdjoiashioasd",
-            tags = listOf("개발"),
-            members = 1,
-            authorId = "asd",
-            createdAt = null
-        ),
-        StudyPost(
-            title = "asd",
-            content = "asoihdjoiashioasd",
-            tags = listOf("개발"),
-            members = 1,
-            authorId = "asd",
-            createdAt = null
-        ),
-        StudyPost(
-            title = "asd",
-            content = "asoihdjoiashioasd",
-            tags = listOf("개발"),
-            members = 1,
-            authorId = "asd",
-            createdAt = null
-        ),
-    )
 
     Scaffold(
         topBar = {
@@ -126,7 +100,7 @@ fun CommunityScreen(navController: NavHostController) {
                     .padding(top = 20.dp, start = 16.dp, end = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CommunityListOption(data)
+                CommunityListOption()
             }
 
             LazyRow(
@@ -170,14 +144,14 @@ fun CommunityScreen(navController: NavHostController) {
                         .fillMaxSize()
                         .padding(top = 16.dp)
                 ) {
-                    items(data) { post ->
+                    items(postList) { post ->
                         CommunityListItem(
                             title = post.title,
                             description = post.content,
                             tags = post.tags,
-                            comments = post.comments,
-                            members = post.members,
-                            navController = navController
+                            navController = navController,
+                            viewModel = viewModel,
+                            post = post
                         )
                     }
                 }
