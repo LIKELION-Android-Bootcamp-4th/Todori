@@ -1,8 +1,8 @@
 package com.mukmuk.todori.data.remote.todo
 
 import android.os.Parcelable
+import com.google.firebase.Timestamp
 import kotlinx.parcelize.Parcelize
-import java.security.Timestamp
 
 @Parcelize
 data class TodoCategory(
