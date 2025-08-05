@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.todo.create
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,9 +33,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -51,6 +54,8 @@ fun CreateStudyScreen(
     onBack: () -> Unit,
     editStudy: Study? = null
 ) {
+    val viewModel: StudyViewModel = hiltViewModel()
+    val context = LocalContext.current
     val isEditMode =
         editStudy !=null
 
@@ -167,10 +172,19 @@ fun CreateStudyScreen(
                     if (isEditMode) {
                         // TODO 수정
                     } else {
-                        // Todo 생성
+                        viewModel.createStudy(
+                            title = title,
+                            description = description,
+                            activeDays = selectedDays,
+                            onSuccess = {
+                                Toast.makeText(context,"스터디 생성이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                                onDone()
+                            },
+                            onError = { e ->
+                                // 에러 처리 (예: Toast 등)
+                            }
+                        )
                     }
-
-                    onDone()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
