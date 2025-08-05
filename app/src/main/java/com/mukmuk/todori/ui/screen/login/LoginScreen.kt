@@ -49,13 +49,15 @@ fun LoginScreen(
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
             Log.d("todorilog", "Firebase credential 생성됨, 인증 시작")
             FirebaseAuth.getInstance().signInWithCredential(credential)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val user = FirebaseAuth.getInstance().currentUser
-                        if (user != null) {
-                            viewModel.uploadUserToFirestore(user)
-                        }
+                .addOnCompleteListener { authTask ->
+                    if (authTask.isSuccessful) {
+                        val authResult = authTask.result
+                        val user = authResult?.user
+                        val isNewUser = authResult?.additionalUserInfo?.isNewUser
 
+                        if (user != null) {
+                                viewModel.uploadUserToFirestore(user, isNewUser)
+                        }
                         val userId = user?.uid ?: ""
                         viewModel.onEvent(LoginEvent.LoginSuccess(userId))
                         Log.d("todorilog", "firebase 로그인 $userId")
