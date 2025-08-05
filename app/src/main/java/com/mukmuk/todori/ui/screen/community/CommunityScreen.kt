@@ -176,7 +176,8 @@ fun CommunityScreen(navController: NavHostController) {
                             description = post.content,
                             tags = post.tags,
                             comments = post.comments,
-                            members = post.members
+                            members = post.members,
+                            navController = navController
                         )
                     }
                 }
