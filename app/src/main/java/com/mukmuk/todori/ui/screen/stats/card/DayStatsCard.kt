@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
@@ -115,7 +113,7 @@ fun DayStatsCard(
                 colors = CardDefaults.cardColors(
                     containerColor = LightGray
                 ),
-                onClick = {}
+                onClick = { isEditing = true }
             ) {
                 Box(
                     modifier = Modifier
@@ -124,14 +122,12 @@ fun DayStatsCard(
                     contentAlignment = Alignment.CenterStart
                 ) {
                     if (isEditing) {
-                        // 텍스트 입력 중
                         BasicTextField(
                             value = text,
                             onValueChange = { text = it },
                             modifier = Modifier.fillMaxWidth()
                         )
                     } else {
-                        // 편집 전 상태
                         Text(
                             text = if (text.isNotBlank()) text else "한 줄 회고를 입력 해 주세요."
                         )
@@ -142,25 +138,19 @@ fun DayStatsCard(
             Spacer(modifier = Modifier.height(Dimens.XLarge))
 
             //투두 나열
-//            Column {
-//                itemsIndexed(todos) { index, todo ->
-//                    MainTodoItemEditableRow(
-//                        title = todo.title,
-//                        isDone = todo.isCompleted,
-//                        isRecordMode = state.status == TimerStatus.RECORDING,
-//                        recordTime = if (todo.totalFocusTimeMillis > 0L) {
-//                            totalFormatTime(todo.totalFocusTimeMillis)
-//                        } else {
-//                            null
-//                        },
-//                        onCheckedChange = { checked ->
-//
-//                        },
-//                        onItemClick = {}
-//                    )
-//                    Spacer(modifier = Modifier.height(Dimens.Medium))
-//                }
-//            }
+            Column {
+                todos.forEach { todo ->
+                    MainTodoItemEditableRow(
+                        title = todo.title,
+                        isDone = todo.isCompleted,
+                        isRecordMode = false,
+                        recordTime = null,
+                        onCheckedChange = {  },
+                        onItemClick = { }
+                    )
+                    Spacer(modifier = Modifier.height(Dimens.Medium))
+                }
+            }
         }
     }
 }

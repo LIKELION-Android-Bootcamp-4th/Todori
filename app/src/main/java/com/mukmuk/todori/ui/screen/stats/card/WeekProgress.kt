@@ -26,9 +26,6 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeekProgress(record: List<DailyRecord>) {
-    val completedTodos = 10
-    val totalTodos = 100
-
     Column() {
 
         val weekDays = listOf("일", "월", "화", "수", "목", "금", "토")
