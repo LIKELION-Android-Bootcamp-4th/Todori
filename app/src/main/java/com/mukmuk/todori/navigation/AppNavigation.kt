@@ -3,19 +3,21 @@ package com.mukmuk.todori.navigation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
-import com.mukmuk.todori.ui.screen.community.CommunityDetailScreen
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailScreen
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
-import com.mukmuk.todori.ui.screen.community.CommunitySearchScreen
-import com.mukmuk.todori.ui.screen.community.CreateCommunityScreen
+import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
+import com.mukmuk.todori.ui.screen.community.create.CreateCommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
 import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
@@ -54,20 +56,40 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             val homeSettingViewModel: HomeSettingViewModel = viewModel()
             HomeSettingScreen(viewModel = homeSettingViewModel, navController = navController)
         }
-        composable(BottomNavItem.Study.route) { CommunityScreen(navController) }
-        composable("community/search"){
+
+        composable(BottomNavItem.Study.route) { backStackEntry ->
+
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(BottomNavItem.Study.route)
+            }
+            val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
+            CommunityScreen(navController, viewModel)
+        }
+        composable("community/create") { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(BottomNavItem.Study.route)
+            }
+            val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
+            CreateCommunityScreen(navController, onBack = { navController.popBackStack() }, viewModel)
+        }
+        composable("community/search"){ backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(BottomNavItem.Study.route)
+            }
+            val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunitySearchScreen(
                 onBack = { navController.popBackStack() }
             )
         }
-        composable("community/create"){
-            CreateCommunityScreen(
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable("community/detail"){
+        composable("community/detail"){ backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(BottomNavItem.Study.route)
+            }
+            val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunityDetailScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                navController,
+                viewModel
             )
         }
 
