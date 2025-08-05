@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Timestamp
+import com.mukmuk.todori.ui.screen.todo.component.StudyMetaInfoRow
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -58,16 +59,6 @@ fun CommunityDetailItem(
     activeDays: List<String>,
 ) {
 
-    val formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd")
-    val createdDate = remember(createdAt) {
-        createdAt?.toDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate()
-    }
-    val joinedDate = remember(joinedAt) {
-        joinedAt?.toDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate()
-    }
-    val today = remember { LocalDate.now() }
-    val dDay = joinedDate?.let { ChronoUnit.DAYS.between(it, today).toInt() } ?: 0
-
     Card (
         modifier = Modifier
             .fillMaxWidth()
@@ -79,68 +70,22 @@ fun CommunityDetailItem(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Text(text = name, color = Black, fontSize = 16.sp, fontFamily = NotoSans, fontWeight = FontWeight.Bold)
+            Text(text = name, color = Black, fontSize = 18.sp, fontFamily = NotoSans, fontWeight = FontWeight.Bold)
 
             Spacer(modifier = Modifier.width(Dimens.Tiny))
 
-            Text(text = description, color = Black, fontSize = 16.sp, fontFamily = NotoSans)
+            Text(text = description, color = DarkGray, fontSize = 16.sp, fontFamily = NotoSans)
 
-            Spacer(modifier = Modifier.width(Dimens.Tiny))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .border(1.dp, Gray, RoundedCornerShape(DefaultCornerRadius))
-                        .padding(Dimens.Nano)
-                ) {
-                    Icon(Icons.Outlined.CalendarMonth, contentDescription = null, modifier = Modifier.size(16.dp), tint = Black)
-                    Spacer(modifier = Modifier.width(Dimens.Nano))
-                    Text(createdDate?.format(formatter) ?: "", style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold))
-                }
+            StudyMetaInfoRow(
+                createdAt = createdAt,
+                joinedAt = joinedAt,
+                memberCount = memberCount,
+                activeDays = activeDays
+            )
 
-                Spacer(modifier = Modifier.width(Dimens.Tiny))
-
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(GroupPrimary)
-                        .padding(vertical = Dimens.Nano, horizontal = Dimens.Tiny)
-                ) {
-                    Text("D+$dDay", style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold, color = White))
-                }
-
-                Spacer(modifier = Modifier.width(Dimens.Tiny))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .border(1.dp, Gray, RoundedCornerShape(DefaultCornerRadius))
-                        .padding(vertical = Dimens.Nano, horizontal = Dimens.Tiny)
-                ) {
-                    Icon(Icons.Outlined.PeopleAlt, contentDescription = null, modifier = Modifier.size(16.dp), tint = Black)
-                    Spacer(modifier = Modifier.width(Dimens.Nano))
-                    Text("$memberCount", style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold))
-                }
-
-                Spacer(modifier = Modifier.width(Dimens.Tiny))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .border(1.dp, Gray, RoundedCornerShape(DefaultCornerRadius))
-                        .padding(vertical = Dimens.Nano, horizontal = Dimens.Tiny)
-                ) {
-                    Icon(Icons.Default.Repeat, contentDescription = null, modifier = Modifier.size(16.dp), tint = Black)
-                    Spacer(modifier = Modifier.width(Dimens.Nano))
-                    Text(
-                        text = activeDays.joinToString(" "),
-                        style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(Dimens.Tiny))
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
 
             Button(
                 onClick = {},

@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.community
+package com.mukmuk.todori.ui.screen.community.detail
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -40,11 +40,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.components.CommentList
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailComment
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailItem
@@ -60,23 +62,19 @@ import com.mukmuk.todori.ui.theme.White
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunityDetailScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    navController: NavController,
+    viewModel: CommunityViewModel
 ) {
+    val post = viewModel.selectedPost
 
     var scrollState = rememberScrollState()
 
     var expanded by remember { mutableStateOf(false) }
-    var menu = listOf("수정", "삭제")
 
     var data = listOf("td", "asd")
 
     var commentContent by remember { mutableStateOf("") }
-
-    var comments = listOf<CommentList>(
-        CommentList("asd", "asiohdoiasd", null),
-
-    )
-
 
     Scaffold(
 
@@ -108,10 +106,20 @@ fun CommunityDetailScreen(
                                 .background(White, RoundedCornerShape(10.dp))
                                 .border(1.dp, Gray)
                         ) {
-                            menu.forEach { item ->
+                            viewModel.menu.forEach { item ->
                                 DropdownMenuItem(
                                     text = { Text(item) },
-                                    onClick = {  expanded = false }
+                                    onClick = {
+                                        expanded = false
+                                        if(item == "수정") {
+                                            navController.navigate("community/create")
+                                            viewModel.selectedPost = post
+                                        }
+                                        else if(item == "삭제") {
+                                            viewModel.deletePost(post!!)
+                                            onBack()
+                                        }
+                                    }
                                 )
                             }
                         }
@@ -123,7 +131,8 @@ fun CommunityDetailScreen(
         bottomBar = {
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .background(White),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -131,7 +140,9 @@ fun CommunityDetailScreen(
                     onValueChange = { commentContent = it },
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 8.dp),
+                        .padding(end = 8.dp)
+                        .background(White, RoundedCornerShape(10.dp))
+                        .border(1.dp, Gray, RoundedCornerShape(10.dp)),
                     shape = RoundedCornerShape(10.dp),
                     placeholder = { Text("댓글을 작성해주세요", fontFamily = NotoSans) },
                     singleLine = true,
@@ -140,7 +151,18 @@ fun CommunityDetailScreen(
 
 
                 Button(
-                    onClick = {},
+                    onClick = {
+                        viewModel.commentList.add(
+                            CommentList(
+                                commentId = "1",
+                                postId = "1",
+                                uid = "1",
+                                userName = "asd",
+                                content = commentContent,
+                            )
+                        )
+                        commentContent = ""
+                    },
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ButtonPrimary
@@ -181,7 +203,7 @@ fun CommunityDetailScreen(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                "asd",
+                text = post?.title ?: "",
                 fontFamily = NotoSans,
                 fontSize = 18.sp,
                 color = Black,
@@ -190,8 +212,12 @@ fun CommunityDetailScreen(
 
             Spacer(Modifier.height(4.dp))
 
+
+
+
+
             Text(
-                "asiodjaoisjoidsd",
+                post?.content ?: "",
                 fontFamily = NotoSans,
                 fontSize = 14.sp,
                 color = Black
@@ -200,6 +226,7 @@ fun CommunityDetailScreen(
             Spacer(Modifier.height(8.dp))
 
             Row(
+
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 data.forEach{ tag ->
@@ -248,13 +275,16 @@ fun CommunityDetailScreen(
                     .fillMaxWidth()
                     .padding(top = 16.dp)
             ){
-                comments.forEach{ comment ->
+                viewModel.commentList.forEach{ comment ->
                     CommunityDetailComment(
                         userName = comment.userName,
                         comment = comment.content,
-                        createdAt = comment.createdAt.toString()
+                        createdAt = comment.createdAt,
+                        viewModel = viewModel,
+                        commentData = comment
                     )
                 }
+
             }
 
 

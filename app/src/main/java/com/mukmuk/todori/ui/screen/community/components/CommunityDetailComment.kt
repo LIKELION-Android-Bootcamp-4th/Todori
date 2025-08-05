@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -31,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.Timestamp
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Gray
@@ -42,16 +43,16 @@ import com.mukmuk.todori.ui.theme.White
 fun CommunityDetailComment(
     userName: String,
     comment: String,
-    createdAt: String,
+    createdAt: Timestamp?,
+    viewModel: CommunityViewModel,
+    commentData: CommentList
 ) {
-
     var expanded by remember { mutableStateOf(false) }
-    var menu = listOf("답글 달기", "삭제")
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 20.dp)
+            .padding(bottom = 16.dp)
             .background(White, RoundedCornerShape(10.dp))
             .border(1.dp, Gray, RoundedCornerShape(10.dp)),
     ){
@@ -77,17 +78,26 @@ fun CommunityDetailComment(
                 IconButton(onClick = { expanded = true }) {
                     Icon(Icons.Default.MoreVert, contentDescription = "더보기")
                 }
+
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
                     modifier = Modifier
                         .background(White, RoundedCornerShape(10.dp))
-                        .border(1.dp, Gray)
+                        .border(1.dp, Gray, RoundedCornerShape(10.dp))
                 ) {
-                    menu.forEach { item ->
+                    viewModel.td.forEach { item ->
                         DropdownMenuItem(
                             text = { Text(item) },
-                            onClick = {  expanded = false }
+                            onClick = {
+                                expanded = false
+                                if(item == "답글 달기") {
+
+                                }
+                                else if(item == "삭제") {
+                                    viewModel.deleteComment(commentData)
+                                }
+                            }
                         )
                     }
                 }
@@ -99,7 +109,7 @@ fun CommunityDetailComment(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(createdAt, color = DarkGray, fontSize = 12.sp, fontFamily = NotoSans)
+            Text(createdAt?.toDate().toString(), color = DarkGray, fontSize = 12.sp, fontFamily = NotoSans)
 
 
         }
