@@ -1,5 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.tab
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,6 +46,7 @@ fun getWeekRange(date: LocalDate): List<LocalDate> {
     return (0..6).map { sunday.plus(DatePeriod(days = it)) }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeekTab(weekRecords: List<DailyRecord>) {
     var selectedWeek by remember {

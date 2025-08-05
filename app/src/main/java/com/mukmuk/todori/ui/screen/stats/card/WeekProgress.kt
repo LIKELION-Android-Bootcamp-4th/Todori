@@ -1,5 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.card
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,13 +21,26 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
+import java.time.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeekProgress(record: List<DailyRecord>) {
     val completedTodos = 10
     val totalTodos = 100
 
     Column() {
+
+        val weekDays = listOf("일", "월", "화", "수", "목", "금", "토")
+
+        val today = LocalDate.now()
+        val sunday = today.minusDays(today.dayOfWeek.value % 7L)
+        val thisWeekDates = (0..6).map { sunday.plusDays(it.toLong()) }
+
+        val dataPerDay = thisWeekDates.map { date ->
+            record.find { it.date == date.toString() }
+        }
+
         Card(
             modifier = Modifier
                 .fillMaxWidth(1f)
@@ -40,86 +55,25 @@ fun WeekProgress(record: List<DailyRecord>) {
                 Text("주간 TODO 통계", style = AppTextStyle.TitleSmall)
                 Spacer(modifier = Modifier.height(Dimens.XLarge))
 
-                record.sortedBy { it.date }.forEach { record ->
+                weekDays.forEachIndexed { index, dayLabel ->
+                    val dayRecord = dataPerDay.getOrNull(index)
 
+                    val completed = 8 ?: 0
+                    val total = 10 ?: 0
 
                     ProgressWithText(
-                        progress = completedTodos / totalTodos.toFloat(),
-                        completed = completedTodos,
-                        total = totalTodos,
+                        progress = if (total != 0) completed.toFloat() / total else 0f,
+                        completed = completed,
+                        total = total,
                         progressColor = UserPrimary,
                         modifier = Modifier.fillMaxWidth(),
                         cornerRadius = Dimens.Nano,
-                        label = "일"
+                        label = dayLabel
                     )
+
                     Spacer(modifier = Modifier.height(Dimens.Large))
-
-                    ProgressWithText(
-                        progress = completedTodos / totalTodos.toFloat(),
-                        completed = completedTodos,
-                        total = totalTodos,
-                        progressColor = UserPrimary,
-                        modifier = Modifier.fillMaxWidth(),
-                        cornerRadius = Dimens.Nano,
-                        label = "월"
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.Large))
-
-                    ProgressWithText(
-                        progress = 8 / 10.toFloat(),
-                        completed = 8,
-                        total = 10,
-                        progressColor = UserPrimary,
-                        modifier = Modifier.fillMaxWidth(),
-                        cornerRadius = Dimens.Nano,
-                        label = "화"
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.Large))
-
-                    ProgressWithText(
-                        progress = 8 / 10.toFloat(),
-                        completed = 8,
-                        total = 10,
-                        progressColor = UserPrimary,
-                        modifier = Modifier.fillMaxWidth(),
-                        cornerRadius = Dimens.Nano,
-                        label = "수"
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.Large))
-
-                    ProgressWithText(
-                        progress = 8 / 10.toFloat(),
-                        completed = 8,
-                        total = 10,
-                        progressColor = UserPrimary,
-                        modifier = Modifier.fillMaxWidth(),
-                        cornerRadius = Dimens.Nano,
-                        label = "목"
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.Large))
-
-                    ProgressWithText(
-                        progress = 8 / 10.toFloat(),
-                        completed = 8,
-                        total = 10,
-                        progressColor = UserPrimary,
-                        modifier = Modifier.fillMaxWidth(),
-                        cornerRadius = Dimens.Nano,
-                        label = "금"
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.Large))
-
-                    ProgressWithText(
-                        progress = 8 / 10.toFloat(),
-                        completed = 8,
-                        total = 10,
-                        progressColor = UserPrimary,
-                        modifier = Modifier.fillMaxWidth(),
-                        cornerRadius = Dimens.Nano,
-                        label = "토"
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.Medium))
                 }
+
             }
         }
         Spacer(modifier = Modifier.height(Dimens.Large))

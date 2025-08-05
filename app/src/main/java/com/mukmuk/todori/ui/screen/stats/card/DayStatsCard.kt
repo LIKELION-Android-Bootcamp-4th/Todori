@@ -117,17 +117,6 @@ fun DayStatsCard(
                 ),
                 onClick = {}
             ) {
-                //TODO:디자인 변경
-//                TextField(
-//                    value = reflection,
-//                    onValueChange = {
-//                        if (it.length <= 20) {
-////                            onReflectionChange(it)
-//                        }
-//                    },
-//                    placeholder = { Text("한 줄 회고를 작성 해 주세요.") },
-//                    singleLine = true
-//                )
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -153,7 +142,7 @@ fun DayStatsCard(
             Spacer(modifier = Modifier.height(Dimens.XLarge))
 
             //투두 나열
-//            LazyColumn {
+//            Column {
 //                itemsIndexed(todos) { index, todo ->
 //                    MainTodoItemEditableRow(
 //                        title = todo.title,
