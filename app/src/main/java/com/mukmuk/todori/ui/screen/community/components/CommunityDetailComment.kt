@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.White
 
@@ -106,5 +107,83 @@ fun CommunityDetailComment(
 
 
     }
+
+}
+
+@Composable
+fun CommunityDetailCommentReply(
+    userName: String,
+    comment: String,
+    createdAt: String,
+) {
+
+    var expanded by remember { mutableStateOf(false) }
+    var menu = listOf("답글 달기", "삭제")
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.width(8.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 20.dp)
+                .background(LightGray, RoundedCornerShape(10.dp))
+                .border(1.dp, Gray, RoundedCornerShape(10.dp)),
+        ){
+
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(Gray, CircleShape),
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(userName, color = Black, fontSize = 16.sp, fontFamily = NotoSans, fontWeight = FontWeight.Bold)
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "더보기")
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .background(White, RoundedCornerShape(10.dp))
+                            .border(1.dp, Gray)
+                    ) {
+                        menu.forEach { item ->
+                            DropdownMenuItem(
+                                text = { Text(item) },
+                                onClick = {  expanded = false }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(comment, color = Black, fontSize = 14.sp, fontFamily = NotoSans)
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(createdAt, color = DarkGray, fontSize = 12.sp, fontFamily = NotoSans)
+
+
+            }
+
+        }
+    }
+
+
 
 }
