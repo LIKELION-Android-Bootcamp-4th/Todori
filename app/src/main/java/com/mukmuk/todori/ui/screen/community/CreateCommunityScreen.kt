@@ -66,7 +66,7 @@ fun CreateCommunityScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "게시글 작성")
+                    Text(text = "게시글 작성", color = Black, fontSize = 18.sp, fontFamily = NotoSans)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
