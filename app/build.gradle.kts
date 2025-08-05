@@ -43,6 +43,10 @@ android {
     }
 }
 
+hilt{
+    enableAggregatingTask = false
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -69,6 +73,7 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     kapt(libs.hilt.compiler)
 
     // Room

@@ -20,7 +20,9 @@ import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.TodoriTheme
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
