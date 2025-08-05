@@ -37,8 +37,14 @@ object AppModule {
     // MyPageProfile
     @Provides
     @Singleton
-    fun provideProfileService(
+    fun provideUserService(
         firestore: FirebaseFirestore
     ): UserService = UserService(firestore)
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(
+        userService: UserService
+    ): UserRepository = UserRepository(userService)
 
 }
