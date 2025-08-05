@@ -51,7 +51,12 @@ fun LoginScreen(
             FirebaseAuth.getInstance().signInWithCredential(credential)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                        val user = FirebaseAuth.getInstance().currentUser
+                        if (user != null) {
+                            viewModel.uploadUserToFirestore(user)
+                        }
+
+                        val userId = user?.uid ?: ""
                         viewModel.onEvent(LoginEvent.LoginSuccess(userId))
                         Log.d("todorilog", "firebase 로그인 $userId")
                     } else {
