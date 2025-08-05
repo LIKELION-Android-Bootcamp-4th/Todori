@@ -8,7 +8,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
@@ -57,8 +56,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         composable("completedGoals") { CompletedGoalsScreen(onBack = { navController.popBackStack() }) }
         composable("profileManage") {
             ProfileManagementScreen(
-                onBack = { navController.popBackStack() },
-                onDone = { nickname, intro -> navController.popBackStack() }
+                onBack = { navController.popBackStack() }
             )
         }
 

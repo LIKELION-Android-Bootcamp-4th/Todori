@@ -24,4 +24,13 @@ class ProfileViewModel @Inject constructor(
             _profile.value = repository.getProfile(uid)
         }
     }
+
+    //프로필 수정
+    fun updateProfile(uid: String, nickname: String, intro: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            repository.updateUser(uid, nickname, intro)
+            loadProfile(uid)
+            onSuccess()
+        }
+    }
 }
