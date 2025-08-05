@@ -25,8 +25,8 @@ import com.mukmuk.todori.ui.theme.White
 @Composable
 fun ProfileManagementScreen(
     onBack: () -> Unit,
-    viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val viewModel: ProfileViewModel = hiltViewModel()
     val profile by viewModel.profile.collectAsState()
     val context = LocalContext.current
 
