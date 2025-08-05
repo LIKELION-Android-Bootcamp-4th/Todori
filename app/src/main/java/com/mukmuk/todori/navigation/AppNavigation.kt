@@ -12,6 +12,7 @@ import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
+import com.mukmuk.todori.ui.screen.community.CommunityDetailScreen
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.community.CommunitySearchScreen
 import com.mukmuk.todori.ui.screen.community.CreateCommunityScreen
@@ -61,6 +62,11 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         }
         composable("community/create"){
             CreateCommunityScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("community/detail"){
+            CommunityDetailScreen(
                 onBack = { navController.popBackStack() }
             )
         }
