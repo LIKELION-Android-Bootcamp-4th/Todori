@@ -21,8 +21,8 @@ import com.mukmuk.todori.ui.theme.Dimens
 @Composable
 fun MyPageScreen(
     navController: NavController,
-    viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val viewModel: ProfileViewModel = hiltViewModel()
     val profile by viewModel.profile.collectAsState()
 
     LaunchedEffect(Unit) {

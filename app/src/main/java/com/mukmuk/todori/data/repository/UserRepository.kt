@@ -17,4 +17,9 @@ class UserRepository @Inject constructor(
             null
         }
     }
+
+    //프로필 수정
+    suspend fun updateUser(uid: String, nickname: String, intro: String){
+            userService.updateUser(uid, nickname, intro)
+    }
 }
