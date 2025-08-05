@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.todo.create
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +52,7 @@ fun CreateCategoryScreen(
     val descFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
+    val context = LocalContext.current
     val isTitleError =  title.length !in 0..8       // 제목은 1~8
     val isDescError = description.length !in 0..60 // 설명  1~60
 
@@ -134,8 +137,8 @@ fun CreateCategoryScreen(
                         )
                         viewModel.createCategory("testuser", newCategory,
                             onSuccess = {
-                                // Firestore 작업 "성공 후"에만 onDone
-//                                onDone()
+                                Toast.makeText(context,"카테고리 생성이 완료되었습니다.",Toast.LENGTH_SHORT).show()
+                                onDone()
                             },
                             onError = { e ->
                                 // 에러시 토스트 등 처리

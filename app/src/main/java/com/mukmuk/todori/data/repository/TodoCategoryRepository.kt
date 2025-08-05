@@ -9,12 +9,10 @@ class TodoCategoryRepository @Inject constructor(
 ) {
     // 카테고리 생성
     suspend fun createCategory(uid: String, category: TodoCategory) {
-        Log.d("TodoCategoryService", "repository 실행됨")
         try {
             todoCategoryService.createCategory(uid, category)
-            Log.d("TodoCategoryService", "service 호출 끝")
         } catch (e: Exception) {
-            Log.e("TodoCategoryService", "service 호출 중 오류!", e)
+            Log.d("CreateCategory", " Repository 에러 : ${e.message}")
         }
     }
 

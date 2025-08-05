@@ -34,10 +34,8 @@ class TodoCategoryViewModel @Inject constructor(
             try {
                 loadCategories(uid)
                 repository.createCategory(uid, category)
-                Log.d("TodoCategoryService", "repository 호출 끝")
                 onSuccess()
             } catch (e: Exception) {
-                Log.e("TodoCategoryService", "repository 호출 중 오류!", e)
                 onError(e)
             }
         }
