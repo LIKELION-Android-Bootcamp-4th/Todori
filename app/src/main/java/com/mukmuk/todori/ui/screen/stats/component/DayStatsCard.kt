@@ -124,8 +124,8 @@ fun DayStatsCard(
                     if (isEditing) {
                         BasicTextField(
                             value = text,
-                            onValueChange = { text = it },
-                            modifier = Modifier.fillMaxWidth()
+                            onValueChange = { if (it.length <= 20) text = it },
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     } else {
                         Text(
