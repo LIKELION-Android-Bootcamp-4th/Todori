@@ -57,7 +57,6 @@ fun TodoDetailScreen(
     val uid = "testuser"
     val state by viewModel.state.collectAsState()
 
-
     LaunchedEffect(categoryId, date) {
         viewModel.loadDetail(uid, categoryId, date)
     }
@@ -158,7 +157,7 @@ fun TodoDetailScreen(
                         modifier = Modifier
                             .size(20.dp)
                             .clickable {
-                                //todo: 삭제 로직
+                                viewModel.deletedTodo(uid,todo.todoId,categoryId,date)
                             }
                     )
                 }

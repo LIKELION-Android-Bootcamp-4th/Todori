@@ -43,6 +43,7 @@ class TodoDetailViewModel @Inject constructor(
         }
     }
 
+    //확인 update
     @RequiresApi(Build.VERSION_CODES.O)
     fun toggleTodoCompleted(uid: String, todo: Todo) {
         viewModelScope.launch {
@@ -52,10 +53,20 @@ class TodoDetailViewModel @Inject constructor(
                 // 성공 시 목록 다시 로딩 등 처리
                 loadDetail(uid, todo.categoryId, todo.date)
             } catch (e: Exception) {
-                // 에러 처리
+                _state.value = _state.value.copy(error = e.message)
             }
         }
     }
 
-
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun deletedTodo(uid: String, todoId: String, categoryId: String, date: String) {
+        viewModelScope.launch {
+            try {
+                todoRepository.deleteTodo(uid, todoId)
+                loadDetail(uid, categoryId, date)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(error = e.message)
+            }
+        }
+    }
 }
