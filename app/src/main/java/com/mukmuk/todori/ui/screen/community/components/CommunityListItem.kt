@@ -1,0 +1,160 @@
+package com.mukmuk.todori.ui.screen.community.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.mukmuk.todori.R
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.DarkGray
+import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.GroupSecondary
+import com.mukmuk.todori.ui.theme.NotoSans
+import com.mukmuk.todori.ui.theme.White
+
+
+@Composable
+fun CommunityListItem(
+    title: String,
+    description: String,
+    tags: List<String> = emptyList(),
+    comments: Int = 0,
+    members: Int = 0,
+    navController: NavHostController,
+    viewModel: CommunityViewModel,
+    post: StudyPost
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = Dimens.Large)
+            .border(1.dp, Gray, RoundedCornerShape(10.dp))
+            .height(maxOf(120.dp)),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        onClick = {
+            viewModel.selectedPost = post
+            navController.navigate("community/detail")
+        },
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(Dimens.Medium)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    title,
+                    modifier = Modifier.weight(1f),
+                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .border(1.dp, Gray, RoundedCornerShape(5.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Person,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = Black
+                    )
+
+                    Spacer(Modifier.width(Dimens.Tiny))
+
+                    Text(
+                        "$members",
+                        style = AppTextStyle.BodySmall
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
+
+            Text(
+                description,
+                style = AppTextStyle.Body.copy(color = DarkGray),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
+
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                tags.forEach { tag ->
+                    Box(
+                        modifier = Modifier
+                            .background(GroupSecondary, RoundedCornerShape(32.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .width(60.dp),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text(
+                            tag,
+                            style = AppTextStyle.BodySmall
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_comment),
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+
+                        tint = Black
+                    )
+
+                    Spacer(modifier = Modifier.width(Dimens.Tiny))
+
+                    Text(
+                        text = "$comments",
+                        style = AppTextStyle.BodySmall
+                    )
+                }
+            }
+        }
+    }
+
+}
