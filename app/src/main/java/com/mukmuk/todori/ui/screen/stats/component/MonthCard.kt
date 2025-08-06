@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.stats.card
+package com.mukmuk.todori.ui.screen.stats.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

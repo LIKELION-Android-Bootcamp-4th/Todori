@@ -23,20 +23,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
-import com.mukmuk.todori.ui.screen.stats.card.WeekCard
-import com.mukmuk.todori.ui.screen.stats.card.WeekGraph
-import com.mukmuk.todori.ui.screen.stats.card.WeekProgress
+import com.mukmuk.todori.ui.screen.stats.component.WeekCard
+import com.mukmuk.todori.ui.screen.stats.component.WeekGraph
+import com.mukmuk.todori.ui.screen.stats.component.WeekProgress
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
 import kotlinx.datetime.DatePeriod
 
 //일주일 기준을 일~토 로

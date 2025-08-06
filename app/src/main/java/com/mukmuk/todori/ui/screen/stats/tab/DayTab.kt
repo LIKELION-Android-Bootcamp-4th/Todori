@@ -17,8 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
-import com.mukmuk.todori.ui.screen.stats.card.CalendarCard
-import com.mukmuk.todori.ui.screen.stats.card.DayStatsCard
+import com.mukmuk.todori.ui.screen.stats.component.CalendarCard
+import com.mukmuk.todori.ui.screen.stats.component.DayStatsCard
 import com.mukmuk.todori.ui.theme.Dimens
 import java.time.LocalDate
 

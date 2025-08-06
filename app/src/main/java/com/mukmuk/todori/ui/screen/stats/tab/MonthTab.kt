@@ -23,18 +23,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.ui.screen.stats.card.MonthCard
-import com.mukmuk.todori.ui.screen.stats.card.MonthProgress
+import com.mukmuk.todori.ui.screen.stats.component.MonthCard
+import com.mukmuk.todori.ui.screen.stats.component.MonthProgress
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.Black
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
 
 @Composable
 fun MonthTab(monthRecords: List<DailyRecord>) {

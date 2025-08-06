@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.stats.card
+package com.mukmuk.todori.ui.screen.stats.component
 
 import android.os.Build
 import androidx.annotation.RequiresApi
