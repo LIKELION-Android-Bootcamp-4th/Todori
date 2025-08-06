@@ -32,10 +32,7 @@ fun GoalTodoList(selectedDate: LocalDate, navController: NavHostController) {
                 goal = goal,
                 goalTodos = todos,
                 onClick = {
-                    navController.currentBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("goal", goal)
-                    navController.navigate("goal/detail")
+                    navController.navigate("goal/detail/${goal.goalId}")
                 }
             )
         }

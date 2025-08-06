@@ -196,7 +196,23 @@ fun CreateGoalScreen(
             Button(
                 onClick = {
                     if (isEditMode) {
-                        // TODO: 수정 API 호출
+                        val updatedGoal = editGoal.copy(
+                            title = title,
+                            description = description,
+                            startDate = startDate!!.format(formatter),
+                            endDate = endDate!!.format(formatter)
+                        )
+                        viewModel.updateGoal(
+                            uid = "testuser",
+                            goal = updatedGoal,
+                            onSuccess = {
+                                Toast.makeText(context, "목표 수정 완료", Toast.LENGTH_SHORT).show()
+                                onDone()
+                            },
+                            onError = { e ->
+                                Toast.makeText(context, "수정 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        )
                     } else {
                         if (!isTitleError && !isDescError && !isDateError && startDate != null && endDate != null) {
                             viewModel.createGoal(

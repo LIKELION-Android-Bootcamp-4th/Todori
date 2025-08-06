@@ -16,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +44,10 @@ fun SingleDatePickerBottomSheet(
 ) {
     if (!show) return
 
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+
     val today = remember { LocalDate.now() }
     var selectedDate by remember { mutableStateOf(today) }
 
@@ -54,6 +59,7 @@ fun SingleDatePickerBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
         containerColor = White
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -100,8 +106,6 @@ fun SingleDatePickerBottomSheet(
             ) {
                 Text("확인")
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }
