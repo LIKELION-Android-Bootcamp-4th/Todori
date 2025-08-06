@@ -66,6 +66,8 @@ fun CreateCommunityScreen(
 
     var data = listOf("토익", "언어", "개발", "자기계발", "실습", "운동", "수학", "국어", "독서", "예체능")
 
+    var asd = listOf("")
+
     var showListSheet by remember { mutableStateOf(false) }
     var pickedItem by remember { mutableStateOf<String?>(null) }
 
@@ -228,7 +230,7 @@ fun CreateCommunityScreen(
         if (showListSheet) {
             ListPickerBottomSheet(
                 show = showListSheet,
-                items = data,
+                items = asd,
                 onDismissRequest = { showListSheet = false },
                 onSelect = {
                     pickedItem = it
