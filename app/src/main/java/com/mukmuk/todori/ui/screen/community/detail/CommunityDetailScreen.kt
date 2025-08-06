@@ -50,9 +50,11 @@ import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.components.CommentList
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailComment
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailItem
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.DarkGray
+import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupSecondary
 import com.mukmuk.todori.ui.theme.NotoSans
@@ -81,7 +83,7 @@ fun CommunityDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "게시글", color = Black, fontSize = 18.sp, fontFamily = NotoSans)
+                    Text(text = "게시글", style = AppTextStyle.AppBar)
                 },
 
                 navigationIcon = {
@@ -108,7 +110,7 @@ fun CommunityDetailScreen(
                         ) {
                             viewModel.menu.forEach { item ->
                                 DropdownMenuItem(
-                                    text = { Text(item) },
+                                    text = { Text(item, style = AppTextStyle.BodySmall) },
                                     onClick = {
                                         expanded = false
                                         if(item == "수정") {
@@ -144,7 +146,7 @@ fun CommunityDetailScreen(
                         .background(White, RoundedCornerShape(10.dp))
                         .border(1.dp, Gray, RoundedCornerShape(10.dp)),
                     shape = RoundedCornerShape(10.dp),
-                    placeholder = { Text("댓글을 작성해주세요", fontFamily = NotoSans) },
+                    placeholder = { Text("댓글을 작성해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                     singleLine = true,
                     maxLines = 1
                 )
@@ -167,7 +169,7 @@ fun CommunityDetailScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ButtonPrimary
                     ),
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(2.dp)
                 ) {
                     Icon(Icons.Default.Send, contentDescription = "전송")
                 }
@@ -192,23 +194,17 @@ fun CommunityDetailScreen(
                         .size(36.dp)
                         .background(Gray, CircleShape)
                 )
-                Spacer(Modifier.width(8.dp))
-                Text("사용자 이름", fontFamily = NotoSans, fontSize = 16.sp, color = Black, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.width(Dimens.Tiny))
+                Text("사용자 이름", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
 
                 Spacer(Modifier.weight(1f))
 
-                Text("", fontFamily = NotoSans, fontSize = 12.sp, color = DarkGray)
+                Text("", style = AppTextStyle.BodySmall.copy(color = DarkGray))
             }
 
             Spacer(Modifier.height(8.dp))
 
-            Text(
-                text = post?.title ?: "",
-                fontFamily = NotoSans,
-                fontSize = 18.sp,
-                color = Black,
-                fontWeight = FontWeight.Bold
-            )
+            Text(post?.title ?: "", style = AppTextStyle.Title.copy(fontWeight = FontWeight.Bold))
 
             Spacer(Modifier.height(4.dp))
 
@@ -218,12 +214,10 @@ fun CommunityDetailScreen(
 
             Text(
                 post?.content ?: "",
-                fontFamily = NotoSans,
-                fontSize = 14.sp,
-                color = Black
+                style = AppTextStyle.Body
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(Dimens.Tiny))
 
             Row(
 
@@ -239,11 +233,7 @@ fun CommunityDetailScreen(
                     ){
                         Text(
                             text = tag,
-                            color = Black,
-                            style = TextStyle(
-                                fontFamily = NotoSans,
-                                fontSize = 12.sp
-                            )
+                            style = AppTextStyle.BodySmall
                         )
                     }
 

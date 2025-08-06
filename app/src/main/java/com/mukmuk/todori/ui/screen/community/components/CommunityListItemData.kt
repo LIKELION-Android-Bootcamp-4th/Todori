@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.components
 
-import java.sql.Timestamp
+import com.google.firebase.Timestamp
+
 
 data class StudyPost (
     val postId: String = "",

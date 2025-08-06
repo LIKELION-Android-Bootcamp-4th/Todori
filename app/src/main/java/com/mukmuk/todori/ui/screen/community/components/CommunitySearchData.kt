@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.UserPrimary
@@ -32,11 +33,7 @@ fun CommunitySearchData(data: String) {
     ){
         Text(
             text = data,
-            color = Black,
-            style = TextStyle(
-                fontFamily = NotoSans,
-                fontSize = 16.sp,
-            )
+            style = AppTextStyle.Body
         )
     }
 

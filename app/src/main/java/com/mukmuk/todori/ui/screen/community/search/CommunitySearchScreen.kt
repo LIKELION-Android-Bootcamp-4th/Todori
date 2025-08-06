@@ -34,8 +34,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mukmuk.todori.ui.screen.community.components.CommunitySearchData
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
+import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.NotoSans
@@ -78,7 +80,7 @@ fun CommunitySearchScreen(
                                 .fillMaxWidth()
                                 .background(LightGray, RoundedCornerShape(30.dp)),
                             shape = RoundedCornerShape(30.dp),
-                            placeholder = { Text("검색어를 입력하세요", fontFamily = NotoSans, fontSize = 14.sp, color = DarkGray) },
+                            placeholder = { Text("검색어를 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                             singleLine = true,
                             maxLines = 1,
                             trailingIcon = {
@@ -116,10 +118,7 @@ fun CommunitySearchScreen(
 
             Text(
                 text = "최근 검색어",
-                fontSize = 16.sp,
-                fontFamily = NotoSans,
-                color = Black,
-                fontWeight = FontWeight.Bold,
+                style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(16.dp)
             )
 
@@ -131,7 +130,7 @@ fun CommunitySearchScreen(
             ) {
                 searchData.forEach{ data ->
                     CommunitySearchData(data = data)
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(Dimens.Tiny))
                 }
             }
         }

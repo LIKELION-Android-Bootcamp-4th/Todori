@@ -38,8 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
+import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.GroupSecondary
@@ -76,7 +78,7 @@ fun CreateCommunityScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "게시글 작성", color = Black, fontSize = 18.sp, fontFamily = NotoSans)
+                    Text("게시글 작성", style = AppTextStyle.AppBar)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -103,20 +105,15 @@ fun CreateCommunityScreen(
                     title = it
                     isTitleError = it.isBlank()
                 },
-                placeholder = {Text("스터디 명을 입력하세요", color = DarkGray, fontSize = 16.sp, fontFamily = NotoSans) },
+                placeholder = {Text("스터디 명을 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 56.dp),
                 shape = RoundedCornerShape(10.dp),
-                textStyle = TextStyle(
-                    fontSize = 16.sp,
-                    color = Black,
-                    fontFamily = NotoSans
-                ),
                 singleLine = true,
                 isError = isTitleError,
                 supportingText = {
-                    if (isTitleError) Text("스터디 명을 입력해주세요", fontFamily = NotoSans) else null
+                    if (isTitleError) Text("스터디 명을 입력해주세요", style = AppTextStyle.Body) else null
                 }
             )
 
@@ -128,7 +125,7 @@ fun CreateCommunityScreen(
                     content = it
 
                 },
-                placeholder = {Text("스터디 설명을 작성 해주세요", color = DarkGray, fontSize = 16.sp, fontFamily = NotoSans) },
+                placeholder = {Text("스터디 설명을 작성 해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
@@ -136,7 +133,7 @@ fun CreateCommunityScreen(
                 minLines = 6
             )
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(Dimens.Large))
 
             Spacer(
                 modifier = Modifier
@@ -145,12 +142,12 @@ fun CreateCommunityScreen(
                     .background(Gray)
             )
 
-            Spacer(Modifier.height(20.dp))
+
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("내가 만든 스터디", color = Black, fontSize = 16.sp, fontFamily = NotoSans)
+                Text("내가 만든 스터디", style = AppTextStyle.Body)
                 Spacer(Modifier.weight(1f))
                 Button (
                     onClick = {
@@ -163,11 +160,11 @@ fun CreateCommunityScreen(
                     ),
 
                 ) {
-                    Text("불러오기", color = White, fontSize = 16.sp, fontFamily = NotoSans)
+                    Text("불러오기", style = AppTextStyle.Body)
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(Dimens.Large))
 
             FlowRow(
                 modifier = Modifier
@@ -184,14 +181,11 @@ fun CreateCommunityScreen(
                         Text(
                             text = tag,
                             color = Black,
-                            style = TextStyle(
-                                fontFamily = NotoSans,
-                                fontSize = 12.sp
-                            )
+                            style = AppTextStyle.BodySmall
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(Dimens.Tiny))
 
                 }
             }
@@ -200,16 +194,23 @@ fun CreateCommunityScreen(
 
             Button(
                 onClick = {
-                    viewModel.addPost(
-                        title = title,
-                        content = content
-                    )
+                    if(title != "") {
 
-                    navController.popBackStack()
+                        viewModel.addPost(
+                            title = title,
+                            content = content
+                        )
+
+
+                        navController.popBackStack()
+                    }
+                    else{
+                        isTitleError = true
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("작성")
+                Text("작성", style = AppTextStyle.ButtonText.copy(color = White))
             }
         }
 

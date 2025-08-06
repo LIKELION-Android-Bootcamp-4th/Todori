@@ -32,8 +32,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Timestamp
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
+import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.NotoSans
@@ -58,7 +60,7 @@ fun CommunityDetailComment(
     ){
 
         Column(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(Dimens.Tiny)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -69,9 +71,9 @@ fun CommunityDetailComment(
                         .background(Gray, CircleShape),
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(Dimens.Tiny))
 
-                Text(userName, color = Black, fontSize = 16.sp, fontFamily = NotoSans, fontWeight = FontWeight.Bold)
+                Text(userName, style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -88,7 +90,7 @@ fun CommunityDetailComment(
                 ) {
                     viewModel.td.forEach { item ->
                         DropdownMenuItem(
-                            text = { Text(item) },
+                            text = { Text(item, style = AppTextStyle.BodySmall) },
                             onClick = {
                                 expanded = false
                                 if(item == "답글 달기") {
@@ -103,11 +105,11 @@ fun CommunityDetailComment(
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            Text(comment, color = Black, fontSize = 14.sp, fontFamily = NotoSans)
+            Text(comment, style = AppTextStyle.Body)
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
 
             Text(createdAt?.toDate().toString(), color = DarkGray, fontSize = 12.sp, fontFamily = NotoSans)
 
@@ -120,80 +122,3 @@ fun CommunityDetailComment(
 
 }
 
-@Composable
-fun CommunityDetailCommentReply(
-    userName: String,
-    comment: String,
-    createdAt: String,
-) {
-
-    var expanded by remember { mutableStateOf(false) }
-    var menu = listOf("답글 달기", "삭제")
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(8.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp)
-                .background(LightGray, RoundedCornerShape(10.dp))
-                .border(1.dp, Gray, RoundedCornerShape(10.dp)),
-        ){
-
-            Column(
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .background(Gray, CircleShape),
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(userName, color = Black, fontSize = 16.sp, fontFamily = NotoSans, fontWeight = FontWeight.Bold)
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    IconButton(onClick = { expanded = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "더보기")
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier
-                            .background(White, RoundedCornerShape(10.dp))
-                            .border(1.dp, Gray)
-                    ) {
-                        menu.forEach { item ->
-                            DropdownMenuItem(
-                                text = { Text(item) },
-                                onClick = {  expanded = false }
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(comment, color = Black, fontSize = 14.sp, fontFamily = NotoSans)
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(createdAt, color = DarkGray, fontSize = 12.sp, fontFamily = NotoSans)
-
-
-            }
-
-        }
-    }
-
-
-
-}

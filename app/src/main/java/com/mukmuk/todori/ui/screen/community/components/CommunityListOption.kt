@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.NotoSans
@@ -52,10 +53,7 @@ fun CommunityListOption(
         ){
             Text(
                 text = "이런 주제의 스터디는 어때요?",
-                style = TextStyle(
-                    fontFamily = NotoSans,
-                    fontSize = 16.sp
-                )
+                style = AppTextStyle.Body
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -75,10 +73,7 @@ fun CommunityListOption(
                 ) {
                     Text(
                         text = selectedOption,
-                        style = TextStyle(
-                            fontFamily = NotoSans,
-                            fontSize = 14.sp
-                        )
+                        style = AppTextStyle.BodySmall
                     )
                     Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                 }
@@ -94,10 +89,7 @@ fun CommunityListOption(
                         DropdownMenuItem(
                             text = { Text(
                                 text = option,
-                                style = TextStyle(
-                                    fontFamily = NotoSans,
-                                    fontSize = 14.sp
-                                )
+                                style = AppTextStyle.BodySmall
                             ) },
                             onClick = {
                                 selectedOption = option

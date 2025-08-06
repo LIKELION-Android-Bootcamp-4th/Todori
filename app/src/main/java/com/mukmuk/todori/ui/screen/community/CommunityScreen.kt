@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.ui.screen.community.components.CommunityListItem
 import com.mukmuk.todori.ui.screen.community.components.CommunityListOption
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.Gray
@@ -57,7 +58,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("커뮤니티") },
+                title = { Text("커뮤니티", style = AppTextStyle.AppBar) },
                 actions = {
                     IconButton(
                         onClick = {

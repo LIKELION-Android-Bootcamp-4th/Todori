@@ -62,21 +62,21 @@ fun CommunityDetailItem(
     Card (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 20.dp)
+            .padding(bottom = Dimens.Large)
             .border(1.dp, Gray, RoundedCornerShape(10.dp)),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = White),
     ){
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(Dimens.Medium)
         ) {
-            Text(text = name, color = Black, fontSize = 18.sp, fontFamily = NotoSans, fontWeight = FontWeight.Bold)
+            Text(name, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold))
 
-            Spacer(modifier = Modifier.width(Dimens.Tiny))
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            Text(text = description, color = DarkGray, fontSize = 16.sp, fontFamily = NotoSans)
+            Text(description, style = AppTextStyle.Body.copy(color = DarkGray))
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
 
             StudyMetaInfoRow(
                 createdAt = createdAt,
@@ -91,7 +91,7 @@ fun CommunityDetailItem(
                 onClick = {},
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("참여하기")
+                Text("참여하기", style = AppTextStyle.ButtonText.copy(color = White))
             }
         }
     }

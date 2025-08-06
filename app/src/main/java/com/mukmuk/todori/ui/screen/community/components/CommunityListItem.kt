@@ -25,13 +25,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.R
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
+import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupSecondary
 import com.mukmuk.todori.ui.theme.NotoSans
@@ -52,8 +55,9 @@ fun CommunityListItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 20.dp)
-            .border(1.dp, Gray, RoundedCornerShape(10.dp)),
+            .padding(bottom = Dimens.Large)
+            .border(1.dp, Gray, RoundedCornerShape(10.dp))
+            .height(maxOf(120.dp)),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         onClick = {
@@ -63,21 +67,16 @@ fun CommunityListItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(Dimens.Medium)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = title,
-                    color = Black,
+                    title,
                     modifier = Modifier.weight(1f),
-                    style = TextStyle(
-                        fontFamily = NotoSans,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
                 )
 
                 Row(
@@ -93,33 +92,25 @@ fun CommunityListItem(
                         tint = Black
                     )
 
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(Dimens.Tiny))
 
                     Text(
-                        text = "$members",
-                        color = Black,
-                        style = TextStyle(
-                            fontFamily = NotoSans,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 12.sp
-                        )
+                        "$members",
+                        style = AppTextStyle.BodySmall
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
 
             Text(
-                text = description,
-                color = DarkGray,
-                style = TextStyle(
-                    fontFamily = NotoSans,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 14.sp
-                )
+                description,
+                style = AppTextStyle.Body.copy(color = DarkGray),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
 
             Row (
                 modifier = Modifier.fillMaxWidth(),
@@ -134,13 +125,8 @@ fun CommunityListItem(
                         contentAlignment = Alignment.Center
                     ){
                         Text(
-                            text = tag,
-                            color = Black,
-                            style = TextStyle(
-                                fontFamily = NotoSans,
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 12.sp
-                            )
+                            tag,
+                            style = AppTextStyle.BodySmall
                         )
                     }
                 }
@@ -160,16 +146,11 @@ fun CommunityListItem(
                         tint = Black
                     )
 
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(Dimens.Tiny))
 
                     Text(
                         text = "$comments",
-                        color = Black,
-                        style = TextStyle(
-                            fontFamily = NotoSans,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 14.sp
-                        )
+                        style = AppTextStyle.BodySmall
                     )
                 }
             }
