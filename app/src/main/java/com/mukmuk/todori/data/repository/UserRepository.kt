@@ -1,6 +1,7 @@
 package com.mukmuk.todori.data.repository
 
 import android.util.Log
+import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.service.UserService
 import javax.inject.Inject
@@ -21,5 +22,15 @@ class UserRepository @Inject constructor(
     //프로필 수정
     suspend fun updateUser(uid: String, nickname: String, intro: String){
             userService.updateUser(uid, nickname, intro)
+    }
+
+    //목표 조회
+    suspend fun getGoals(uid: String): List<Goal>? {
+        return try {
+            userService.getGoals(uid)
+        } catch (e: Exception) {
+            Log.e("UserGoals", "목표 조회 실패: ${e.message}")
+            emptyList()
+        }
     }
 }
