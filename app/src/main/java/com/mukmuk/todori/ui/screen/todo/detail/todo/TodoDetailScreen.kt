@@ -1,7 +1,7 @@
 package com.mukmuk.todori.ui.screen.todo.detail.todo
 
-import android.R.attr.category
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -61,6 +62,19 @@ fun TodoDetailScreen(
     val uid = "testuser"
     val state by viewModel.state.collectAsState()
 
+
+    val focusManager = LocalFocusManager.current
+
+    var showDialog by remember { mutableStateOf(false) }
+    val category = state.category
+    val categoryTitle = state.category?.name.orEmpty()
+    val categorySubTitle = state.category?.description.orEmpty()
+    val todos = state.todos
+    val total = todos.size
+    val progress = todos.count { it.completed }
+
+    var newTodoText by remember { mutableStateOf("") }
+    var context = LocalContext.current
     if (state.categoryDeleted) {
         LaunchedEffect(Unit) {
             onBack()
@@ -71,17 +85,6 @@ fun TodoDetailScreen(
     LaunchedEffect(categoryId, date) {
         viewModel.loadDetail(uid, categoryId, date)
     }
-
-    val focusManager = LocalFocusManager.current
-
-    var showDialog by remember { mutableStateOf(false) }
-    val categoryTitle = state.category?.name.orEmpty()
-    val categorySubTitle = state.category?.description.orEmpty()
-    val todos = state.todos
-    val total = todos.size
-    val progress = todos.count { it.completed }
-
-    var newTodoText by remember { mutableStateOf("") }
 
     if (showDialog) {
         AlertDialog(
@@ -94,6 +97,7 @@ fun TodoDetailScreen(
                     onClick = {
                         showDialog = false
                         viewModel.deleteCategoryWithTodos(uid, categoryId)
+                        Toast.makeText(context,"카테고리가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                     }
                 ) { Text("삭제", style = AppTextStyle.Body.copy(color = Red)) }
             },

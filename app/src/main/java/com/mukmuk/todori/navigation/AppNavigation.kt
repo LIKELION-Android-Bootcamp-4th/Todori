@@ -96,7 +96,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             )
         }
         composable(
-            "todo/detail/{categoryId}?date={date}",  // ← 쿼리 파라미터 date 추가
+            "todo/detail/{categoryId}?date={date}",
             arguments = listOf(
                 navArgument("categoryId") { type = NavType.StringType },
                 navArgument("date") { type = NavType.StringType }
