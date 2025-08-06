@@ -3,14 +3,17 @@ package com.mukmuk.todori.ui.screen.home
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-
-import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
@@ -19,22 +22,32 @@ import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.todo.Todo
-import com.mukmuk.todori.ui.screen.home.components.PomoModeTextBox
 import com.mukmuk.todori.ui.screen.home.components.MainTodoItemEditableRow
+import com.mukmuk.todori.ui.screen.home.components.PomoModeTextBox
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Background
@@ -55,15 +68,15 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     var recordButtonText by remember { mutableStateOf("기록") }
     val todos = remember {
         mutableStateListOf(
-            Todo(title = "스트레칭 하기", isCompleted = true),
-            Todo(title = "스쿼트 50개", isCompleted = false),
-            Todo(title = "런닝 30분", isCompleted = true),
-            Todo(title = "Kotlin 문법 정리", isCompleted = false),
-            Todo(title = "Coroutine 복습", isCompleted = true),
-            Todo(title = "Jetpack Compose", isCompleted = false),
-            Todo(title = "10분 명상", isCompleted = true),
-            Todo(title = "감사 일기 작성", isCompleted = false),
-            Todo(title = "차분한 음악 듣기", isCompleted = true)
+            Todo(title = "스트레칭 하기", completed = true),
+            Todo(title = "스쿼트 50개", completed = false),
+            Todo(title = "런닝 30분", completed = true),
+            Todo(title = "Kotlin 문법 정리", completed = false),
+            Todo(title = "Coroutine 복습", completed = true),
+            Todo(title = "Jetpack Compose", completed = false),
+            Todo(title = "10분 명상", completed = true),
+            Todo(title = "감사 일기 작성", completed = false),
+            Todo(title = "차분한 음악 듣기", completed = true)
         )
     }
 
@@ -245,7 +258,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                     itemsIndexed(todos) { index, todo ->
                         MainTodoItemEditableRow(
                             title = todo.title,
-                            isDone = todo.isCompleted,
+                            isDone = todo.completed,
                             isRecordMode = state.status == TimerStatus.RECORDING,
                             recordTime = if (todo.totalFocusTimeMillis > 0L) {
                                 totalFormatTime(todo.totalFocusTimeMillis)
@@ -253,10 +266,10 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                                 null
                             },
                             onCheckedChange = { checked ->
-                                todos[index] = todo.copy(isCompleted = checked)
+                                todos[index] = todo.copy(completed = checked)
                             },
                             onItemClick = {
-                                if (state.status == TimerStatus.RECORDING && !todo.isCompleted) {
+                                if (state.status == TimerStatus.RECORDING && !todo.completed) {
                                     selectedIndex = index
                                     if (todos[index].totalFocusTimeMillis > 0L) {
                                         todos[index] = todo.copy(totalFocusTimeMillis = todos[index].totalFocusTimeMillis + recordTime)

@@ -68,7 +68,7 @@ fun TodoDetailScreen(
     val categorySubTitle = state.category?.description.orEmpty()
     val todos = state.todos
     val total = todos.size
-    val progress = todos.count { it.isCompleted }
+    val progress = todos.count { it.completed }
 
     var newTodoText by remember { mutableStateOf("") }
 
@@ -145,10 +145,10 @@ fun TodoDetailScreen(
         todos.forEachIndexed { i, todo ->
             TodoItemEditableRow(
                 title = todo.title,
-                isDone = todo.isCompleted,
+                isDone = todo.completed,
                 modifier = Modifier.padding(Dimens.Small),
                 onCheckedChange = { checked ->
-                    //todo : 토글 isCompleted 변경 처리
+                    viewModel.toggleTodoCompleted(uid, todo)
                 },
                 trailingContent = {
                     Icon(

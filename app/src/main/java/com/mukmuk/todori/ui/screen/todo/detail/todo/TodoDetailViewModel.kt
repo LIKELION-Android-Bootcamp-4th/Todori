@@ -30,7 +30,6 @@ class TodoDetailViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true)
             try {
                 val category = categoryRepository.getCategoryById(uid, categoryId)
-//                val formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 val todos = todoRepository.getTodosByCategoryAndDate(uid, categoryId, date)
                 _state.value = _state.value.copy(
                     isLoading = false,
@@ -47,7 +46,7 @@ class TodoDetailViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun toggleTodoCompleted(uid: String, todo: Todo) {
         viewModelScope.launch {
-            val updated = todo.copy(isCompleted = !todo.isCompleted)
+            val updated = todo.copy(completed = !todo.completed)
             try {
                 todoRepository.updateTodo(uid, updated)
                 // 성공 시 목록 다시 로딩 등 처리

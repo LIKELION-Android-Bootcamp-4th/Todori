@@ -32,13 +32,13 @@ fun TodoList(selectedDate: LocalDate, navController: NavHostController) {
         items(state.categories) { category ->
             val todos = state.todosByCategory[category.categoryId].orEmpty()
             val total = todos.size
-            val progress = todos.count { it.isCompleted }
+            val progress = todos.count { it.completed }
             TodoCard(
                 categoryTitle = category.name,
                 subtitle = category.description.orEmpty(),
                 progress = progress,
                 total = total,
-                todos = todos.map { it.title to it.isCompleted }
+                todos = todos.map { it.title to it.completed }
             ) {
                 navController.navigate("todo/detail/${category.categoryId}?date=${selectedDate}")
             }
