@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 // 개인 포인트 컬러
 val UserPrimary = Color(0xFF22B282)
-val UserHalf = Color(0x2B22B282)
+val UserHalf = Color(0x9922B282) //0x9922B282 -> 이게 훨씬 나은듯 합니다.
 val UserTenth = Color(0x1A22B282)
 
 // 목표 포인트 컬러

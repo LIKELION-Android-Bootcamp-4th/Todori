@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("org.jetbrains.kotlin.kapt")
     alias(libs.plugins.hilt)
+    id("kotlin-parcelize")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -41,6 +43,10 @@ android {
     }
 }
 
+hilt{
+    enableAggregatingTask = false
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -67,6 +73,7 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     kapt(libs.hilt.compiler)
 
     // Room
@@ -82,11 +89,26 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.functions)
+    implementation(libs.firebase.auth)
+    implementation("com.google.firebase:firebase-analytics")
 
     //MPAndroidChart
 //    implementation(libs.mpandroidchart)
 
     // 기타
     implementation(libs.kalendar)
+    implementation(libs.kalendar.foundation)
+    implementation("com.kizitonwose.calendar:compose:2.8.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+
+    // icons (filled, outlined, rounded 등)
+    implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.material:material-icons-extended")
+
+
+
+
     implementation(libs.lottie)
+    implementation(libs.kotlinx.datetime)
 }

@@ -23,12 +23,14 @@ object AppTextStyle {
         fontSize = 32.sp
     )
 
+
     // 24sp
     val Title = TextStyle(
         fontFamily = NotoSans,
         fontWeight = FontWeight.Medium,
         fontSize = 24.sp
     )
+
     val TitleMedium = TextStyle(
         fontFamily = NotoSans,
         fontWeight = FontWeight.Bold,
