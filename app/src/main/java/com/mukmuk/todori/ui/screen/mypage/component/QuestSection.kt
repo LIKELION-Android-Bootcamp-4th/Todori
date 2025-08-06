@@ -49,7 +49,7 @@ fun QuestItem(quest: DailyUserQuest) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(Dimens.ButtonCornerRadius))
             .background(
-                if (quest.isCompleted) UserTenth
+                if (quest.completed) UserTenth
                 else LightGray
             )
             .padding(horizontal = Dimens.Medium, vertical = 12.dp),
@@ -61,7 +61,7 @@ fun QuestItem(quest: DailyUserQuest) {
                 .size(12.dp)
                 .clip(RoundedCornerShape(50))
                 .background(
-                    if (quest.isCompleted) UserPrimary
+                    if (quest.completed) UserPrimary
                     else Gray
                 )
         )
