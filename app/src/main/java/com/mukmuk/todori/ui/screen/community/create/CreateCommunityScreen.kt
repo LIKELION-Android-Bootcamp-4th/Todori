@@ -33,9 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -45,7 +43,6 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.GroupSecondary
-import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -210,7 +207,7 @@ fun CreateCommunityScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("작성", style = AppTextStyle.ButtonText.copy(color = White))
+                Text("작성", style = AppTextStyle.MypageButtonText.copy(color = White))
             }
         }
 
