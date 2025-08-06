@@ -18,11 +18,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,6 +41,8 @@ import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
 import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
+import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.UserPrimary
@@ -57,12 +61,20 @@ fun TodoDetailScreen(
     val uid = "testuser"
     val state by viewModel.state.collectAsState()
 
+    if (state.categoryDeleted) {
+        LaunchedEffect(Unit) {
+            onBack()
+            viewModel.resetCategoryDeleted()
+        }
+    }
+
     LaunchedEffect(categoryId, date) {
         viewModel.loadDetail(uid, categoryId, date)
     }
 
     val focusManager = LocalFocusManager.current
 
+    var showDialog by remember { mutableStateOf(false) }
     val categoryTitle = state.category?.name.orEmpty()
     val categorySubTitle = state.category?.description.orEmpty()
     val todos = state.todos
@@ -71,6 +83,25 @@ fun TodoDetailScreen(
 
     var newTodoText by remember { mutableStateOf("") }
 
+    if (showDialog) {
+        AlertDialog(
+            containerColor = White,
+            onDismissRequest = { showDialog = false },
+            title = { Text("카테고리 삭제") },
+            text = { Text("이 카테고리와 연관된 모든 할 일이 함께 삭제됩니다. 진행할까요?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDialog = false
+                        viewModel.deleteCategoryWithTodos(uid, categoryId)
+                    }
+                ) { Text("삭제", style = AppTextStyle.Body.copy(color = Red)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) { Text("취소",style = AppTextStyle.Body.copy(color = Black)) }
+            }
+        )
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         CommonDetailAppBar(
@@ -83,7 +114,7 @@ fun TodoDetailScreen(
                 navController.navigate("category/create")
             },
             onDelete = {
-                // todo: category 삭제
+                showDialog = true
             }
         )
         Column(

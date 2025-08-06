@@ -24,6 +24,14 @@ class TodoService(
         ref.set(todoWithId).await()
     }
 
+    suspend fun getTodosByCategory(uid: String, categoryId: String): List<Todo> {
+        val snapshot = userTodosRef(uid)
+            .whereEqualTo("categoryId", categoryId)
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull { it.toObject(Todo::class.java) }
+    }
+
 
     // 특정 날짜의 todo 리스트 불러오기
     @RequiresApi(Build.VERSION_CODES.O)

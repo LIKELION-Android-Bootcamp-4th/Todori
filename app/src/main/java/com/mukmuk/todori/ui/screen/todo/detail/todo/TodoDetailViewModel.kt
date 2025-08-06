@@ -95,4 +95,28 @@ class TodoDetailViewModel @Inject constructor(
             }
         }
     }
+
+    //category 삭제 및 해당 관련 Todo 삭제
+    fun deleteCategoryWithTodos(uid: String, categoryId: String) {
+        viewModelScope.launch {
+            try {
+                val todos = todoRepository.getTodosByCategory(uid, categoryId)
+                todos.forEach { todo ->
+                    todoRepository.deleteTodo(uid, todo.todoId)
+                }
+                categoryRepository.deleteCategory(uid, categoryId)
+                _state.value = _state.value.copy(categoryDeleted = true)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(error = e.message)
+                _state.value = _state.value.copy(categoryDeleted = false)
+            }
+        }
+    }
+
+    //뒤로 가기 후 categoryDeleted 상태 초기화
+    fun resetCategoryDeleted() {
+        _state.value = _state.value.copy(categoryDeleted = false)
+    }
+
+
 }

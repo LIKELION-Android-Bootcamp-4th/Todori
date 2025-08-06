@@ -18,7 +18,9 @@ class TodoRepository @Inject constructor(
         return todoService.getTodosByCategoryAndDate(uid, categoryId, date)
     }
 
-    suspend fun getAllTodos(uid: String) = todoService.getAllTodos(uid)
+    suspend fun getTodosByCategory(uid: String, categoryId: String): List<Todo> =
+        todoService.getTodosByCategory(uid, categoryId)
+
     suspend fun updateTodo(uid: String, todo: Todo) = todoService.updateTodo(uid, todo)
     suspend fun deleteTodo(uid: String, todoId: String) = todoService.deleteTodo(uid, todoId)
 }
