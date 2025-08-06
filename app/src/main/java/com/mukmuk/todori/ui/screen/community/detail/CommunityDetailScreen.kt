@@ -217,7 +217,7 @@ fun CommunityDetailScreen(
                 style = AppTextStyle.Body
             )
 
-            Spacer(Modifier.height(Dimens.Tiny))
+            Spacer(Modifier.height(Dimens.Large))
 
             Row(
 
