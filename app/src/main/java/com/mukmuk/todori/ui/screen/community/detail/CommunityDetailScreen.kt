@@ -40,24 +40,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
-import com.mukmuk.todori.ui.screen.community.components.CommentList
-import com.mukmuk.todori.ui.screen.community.components.CommunityDetailComment
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailItem
 import com.mukmuk.todori.ui.theme.AppTextStyle
-import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupSecondary
-import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.White
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -154,15 +147,6 @@ fun CommunityDetailScreen(
 
                 Button(
                     onClick = {
-                        viewModel.commentList.add(
-                            CommentList(
-                                commentId = "1",
-                                postId = "1",
-                                uid = "1",
-                                userName = "asd",
-                                content = commentContent,
-                            )
-                        )
                         commentContent = ""
                     },
                     shape = RoundedCornerShape(20.dp),
@@ -265,15 +249,7 @@ fun CommunityDetailScreen(
                     .fillMaxWidth()
                     .padding(top = 16.dp)
             ){
-                viewModel.commentList.forEach{ comment ->
-                    CommunityDetailComment(
-                        userName = comment.userName,
-                        comment = comment.content,
-                        createdAt = comment.createdAt,
-                        viewModel = viewModel,
-                        commentData = comment
-                    )
-                }
+
 
             }
 

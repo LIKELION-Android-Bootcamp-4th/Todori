@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +55,9 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
 
     val postList = viewModel.postList
 
+    LaunchedEffect(Unit) {
+        viewModel.loadPosts()
+    }
 
     Scaffold(
         topBar = {
@@ -94,71 +98,78 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp, start = 16.dp, end = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CommunityListOption()
-            }
-
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(categories) { category ->
-                    Box(
-                        modifier = Modifier
-                            .border(
-                                width = 1.dp,
-                                color = Gray,
-                                shape = RoundedCornerShape(30)
-                            )
-                            .background(
-                                if (selectedCategory == category) Black else White,
-                                shape = RoundedCornerShape(30)
-                            )
-                            .clickable { selectedCategory = category }
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = category,
-                            fontSize = 14.sp,
-                            color = if (selectedCategory == category) White else Black
-                        )
-                    }
+            if (postList.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("게시글이 없습니다.", style = AppTextStyle.Body)
                 }
             }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                LazyColumn(
+            else {
+                Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 16.dp)
+                        .fillMaxWidth()
+                        .padding(top = 20.dp, start = 16.dp, end = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(postList) { post ->
-                        CommunityListItem(
-                            title = post.title,
-                            description = post.content,
-                            tags = post.tags,
-                            navController = navController,
-                            viewModel = viewModel,
-                            post = post
-                        )
+                    CommunityListOption()
+                }
+
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(categories) { category ->
+                        Box(
+                            modifier = Modifier
+                                .border(
+                                    width = 1.dp,
+                                    color = Gray,
+                                    shape = RoundedCornerShape(30)
+                                )
+                                .background(
+                                    if (selectedCategory == category) Black else White,
+                                    shape = RoundedCornerShape(30)
+                                )
+                                .clickable { selectedCategory = category }
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = category,
+                                fontSize = 14.sp,
+                                color = if (selectedCategory == category) White else Black
+                            )
+                        }
+                    }
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 16.dp)
+                    ) {
+                        items(postList) { post ->
+                            CommunityListItem(
+                                title = post.title,
+                                description = post.content,
+                                tags = post.tags,
+                                navController = navController,
+                            )
+                        }
                     }
                 }
             }
         }
-
 
 
     }
