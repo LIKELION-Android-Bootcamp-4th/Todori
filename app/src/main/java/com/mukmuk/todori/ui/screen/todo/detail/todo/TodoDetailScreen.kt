@@ -124,9 +124,18 @@ fun TodoDetailScreen(
                     IconButton(
                         onClick = {
                             if (newTodoText.isNotBlank()) {
-                                //todo 추가
-                                newTodoText = ""
-                                focusManager.clearFocus()
+                                viewModel.addTodo(
+                                    uid = uid,
+                                    categoryId = categoryId,
+                                    date = date,
+                                    title = newTodoText.trim(),
+                                    onResult = { success ->
+                                        if (success) {
+                                            newTodoText = ""
+                                            focusManager.clearFocus()
+                                        }
+                                    }
+                                )
                             }
                         },
                         modifier = Modifier.fillMaxSize()

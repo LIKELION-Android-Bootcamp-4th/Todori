@@ -18,13 +18,12 @@ class TodoService(
         firestore.collection("users").document(uid).collection("todos")
 
     // todo 생성
-    suspend fun createTodo(uid: String, todo: Todo): String {
+    suspend fun createTodo(uid: String, todo: Todo) {
         val ref = userTodosRef(uid).document() // auto-ID
-        val autoId = ref.id
-        val todoWithId = todo.copy(todoId = autoId)
-        ref.set(todoWithId, SetOptions.merge()).await()
-        return autoId
+        val todoWithId = todo.copy(todoId = ref.id)
+        ref.set(todoWithId).await()
     }
+
 
     // 특정 날짜의 todo 리스트 불러오기
     @RequiresApi(Build.VERSION_CODES.O)

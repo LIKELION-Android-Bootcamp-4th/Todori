@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
@@ -42,6 +43,31 @@ class TodoDetailViewModel @Inject constructor(
             }
         }
     }
+
+    //todo 생성
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun addTodo(uid: String, categoryId: String, date: String, title: String, onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val newTodo = Todo(
+                    todoId = "",
+                    uid = uid,
+                    title = title,
+                    categoryId = categoryId,
+                    date = date,
+                    completed = false,
+                    createdAt = Timestamp.now()
+                )
+                todoRepository.createTodo(uid, newTodo)
+                loadDetail(uid, categoryId, date)
+                onResult(true)
+            } catch (e: Exception) {
+                onResult(false)
+                _state.value = _state.value.copy(error = e.message)
+            }
+        }
+    }
+
 
     //확인 update
     @RequiresApi(Build.VERSION_CODES.O)
