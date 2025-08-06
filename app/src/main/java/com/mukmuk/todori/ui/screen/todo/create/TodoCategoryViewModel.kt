@@ -1,6 +1,5 @@
 package com.mukmuk.todori.ui.screen.todo.create
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.remote.todo.TodoCategory
@@ -16,47 +15,75 @@ class TodoCategoryViewModel @Inject constructor(
     private val repository: TodoCategoryRepository
 ) : ViewModel() {
 
-    // 카테고리 리스트 상태
-    private val _categories = MutableStateFlow<List<TodoCategory>>(emptyList())
-    val categories: StateFlow<List<TodoCategory>> = _categories
+    private val _uiState = MutableStateFlow(TodoCategoryUiState())
+    val uiState: StateFlow<TodoCategoryUiState> = _uiState
 
-    // 카테고리 조회
     fun loadCategories(uid: String) {
         viewModelScope.launch {
-            _categories.value = repository.getCategories(uid)
-            Log.d("TodoCategoryService", "${categories.value}")
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, success = false)
+            try {
+                val categories = repository.getCategories(uid)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    categories = categories,
+                    error = null,
+                    success = true
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message,
+                    success = false
+                )
+            }
         }
     }
 
-    // 카테고리 생성
-    fun createCategory(uid: String, category: TodoCategory, onSuccess: () -> Unit = {}, onError: (Exception) -> Unit = {}) {
+    fun createCategory(
+        uid: String,
+        category: TodoCategory,
+        onSuccess: () -> Unit = {},
+        onError: (Exception) -> Unit = {}
+    ) {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, success = false)
             try {
-                loadCategories(uid)
                 repository.createCategory(uid, category)
+                loadCategories(uid)
+                _uiState.value = _uiState.value.copy(success = true)
                 onSuccess()
             } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message,
+                    success = false
+                )
                 onError(e)
             }
         }
     }
 
-
-    // 카테고리 수정
-    fun updateCategory(uid: String, category: TodoCategory, onSuccess: () -> Unit = {}) {
+    fun updateCategory(
+        uid: String,
+        category: TodoCategory,
+        onSuccess: () -> Unit = {},
+        onError: (Exception) -> Unit = {}
+    ) {
         viewModelScope.launch {
-            repository.updateCategory(uid, category)
-            loadCategories(uid)
-            onSuccess()
-        }
-    }
-
-    // 카테고리 삭제
-    fun deleteCategory(uid: String, categoryId: String, onSuccess: () -> Unit = {}) {
-        viewModelScope.launch {
-            repository.deleteCategory(uid, categoryId)
-            loadCategories(uid)
-            onSuccess()
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, success = false)
+            try {
+                repository.updateCategory(uid, category)
+                loadCategories(uid)
+                _uiState.value = _uiState.value.copy(success = true)
+                onSuccess()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message,
+                    success = false
+                )
+                onError(e)
+            }
         }
     }
 }

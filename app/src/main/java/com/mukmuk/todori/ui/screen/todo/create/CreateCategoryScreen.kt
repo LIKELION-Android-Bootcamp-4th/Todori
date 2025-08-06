@@ -45,6 +45,7 @@ fun CreateCategoryScreen(
     val isEditMode =
         editCategory !=null
 
+    val uid = "testuser"
     var title by remember { mutableStateOf(editCategory?.name.orEmpty()) }
     var description by remember { mutableStateOf(editCategory?.description.orEmpty()) }
 
@@ -124,14 +125,25 @@ fun CreateCategoryScreen(
                     if (isTitleError || isDescError) return@Button
 
                     if (isEditMode) {
-                        // TODO: 수정
+                        val updatedCategory = editCategory.copy(
+                            name = title,
+                            description = description,
+                            categoryId = editCategory.categoryId,
+                        )
+                        viewModel.updateCategory(
+                            uid = uid,
+                            category = updatedCategory,
+                            onSuccess = {
+                                Toast.makeText(context, "카테고리 수정 완료", Toast.LENGTH_SHORT).show()
+                                onDone()
+                            }
+                        )
+
                     } else {
-                        // TODO: 생성
                         val newCategory = TodoCategory(
                             categoryId = "",
-                            uid = "testuser",
+                            uid = uid,
                             name = title,
-                            colorHex = "adfa",
                             description = description,
                             createdAt = Timestamp.now()
                         )
@@ -141,13 +153,10 @@ fun CreateCategoryScreen(
                                 onDone()
                             },
                             onError = { e ->
-                                // 에러시 토스트 등 처리
                                 Log.e("TodoCategoryService", "카테고리 생성 실패", e)
                             }
                         )
                     }
-
-//                    onDone()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
