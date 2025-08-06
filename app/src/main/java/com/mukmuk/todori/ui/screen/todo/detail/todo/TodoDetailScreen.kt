@@ -1,5 +1,6 @@
-package com.mukmuk.todori.ui.screen.todo.detail
+package com.mukmuk.todori.ui.screen.todo.detail.todo
 
+import android.R.attr.category
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -23,21 +24,21 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.mukmuk.todori.data.remote.todo.Todo
-import com.mukmuk.todori.data.remote.todo.TodoCategory
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
 import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
-import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.UserPrimary
@@ -48,59 +49,28 @@ import com.mukmuk.todori.ui.theme.White
 @Composable
 fun TodoDetailScreen(
     categoryId: String,
+    date: String,
     navController: NavHostController,
     onBack: () -> Unit
 ) {
-    val todoCategories = listOf(
-        TodoCategory(
-            categoryId = "cat1",
-            name = "운동",
-            description = "몸짱이 될거야 ~~~~~~~~~",
-            colorHex = "#22B282"
-        ),
-        TodoCategory(
-            categoryId = "cat2",
-            name = "공부",
-            description = "오늘도 열공한다~",
-            colorHex = "#B28222"
-        ),
-        TodoCategory(
-            categoryId = "cat3",
-            name = "명상",
-            description = "마음의 평화...",
-            colorHex = "#8222B2"
-        )
-    )
+    val viewModel: TodoDetailViewModel = hiltViewModel()
+    val uid = "testuser"
+    val state by viewModel.state.collectAsState()
 
-    val todos = listOf(
-        listOf(
-            Todo(title = "스트레칭 하기", isCompleted = true),
-            Todo(title = "스쿼트 50개", isCompleted = false),
-            Todo(title = "런닝 30분", isCompleted = true)
-        ),
-        listOf(
-            Todo(title = "Kotlin 문법 정리", isCompleted = false),
-            Todo(title = "Coroutine 복습", isCompleted = true),
-            Todo(title = "Jetpack Compose", isCompleted = false)
-        ),
-        listOf(
-            Todo(title = "10분 명상", isCompleted = true),
-            Todo(title = "감사 일기 작성", isCompleted = false),
-            Todo(title = "차분한 음악 듣기", isCompleted = true)
-        )
-    )
+
+    LaunchedEffect(categoryId, date) {
+        viewModel.loadDetail(uid, categoryId, date)
+    }
 
     val focusManager = LocalFocusManager.current
-    val index = todoCategories.indexOfFirst { it.categoryId == categoryId }
-    val category = todoCategories.getOrNull(index)
-    val categoryTitle = category?.name.orEmpty()
-    val categorySubTitle = category?.description.orEmpty()
 
-    val taskList = remember { mutableStateListOf(*todos[index].toTypedArray()) }
+    val categoryTitle = state.category?.name.orEmpty()
+    val categorySubTitle = state.category?.description.orEmpty()
+    val todos = state.todos
+    val total = todos.size
+    val progress = todos.count { it.isCompleted }
+
     var newTodoText by remember { mutableStateOf("") }
-
-    val total = taskList.size
-    val progress = taskList.count { it.isCompleted }
 
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -114,7 +84,7 @@ fun TodoDetailScreen(
                 navController.navigate("category/create")
             },
             onDelete = {
-                // todo:
+                // todo: category 삭제
             }
         )
         Column(
@@ -155,9 +125,7 @@ fun TodoDetailScreen(
                     IconButton(
                         onClick = {
                             if (newTodoText.isNotBlank()) {
-                                taskList.add(
-                                    Todo(title = newTodoText.trim(), isCompleted = false)
-                                )
+                                //todo 추가
                                 newTodoText = ""
                                 focusManager.clearFocus()
                             }
@@ -174,13 +142,13 @@ fun TodoDetailScreen(
             }
         }
 
-        taskList.forEachIndexed { i, todo ->
+        todos.forEachIndexed { i, todo ->
             TodoItemEditableRow(
                 title = todo.title,
                 isDone = todo.isCompleted,
                 modifier = Modifier.padding(Dimens.Small),
                 onCheckedChange = { checked ->
-                    taskList[i] = taskList[i].copy(isCompleted = checked)
+                    //todo : 토글 isCompleted 변경 처리
                 },
                 trailingContent = {
                     Icon(
@@ -190,7 +158,7 @@ fun TodoDetailScreen(
                         modifier = Modifier
                             .size(20.dp)
                             .clickable {
-                                taskList.removeAt(i)
+                                //todo: 삭제 로직
                             }
                     )
                 }

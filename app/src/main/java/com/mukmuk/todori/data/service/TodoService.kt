@@ -38,6 +38,20 @@ class TodoService(
         return snapshot.documents.mapNotNull { it.toObject(Todo::class.java) }
     }
 
+    suspend fun getTodosByCategoryAndDate(
+        uid: String,
+        categoryId: String,
+        date: String
+    ): List<Todo> {
+        val snapshot = userTodosRef(uid)
+            .whereEqualTo("categoryId", categoryId)
+            .whereEqualTo("date", date)
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull { it.toObject(Todo::class.java) }
+    }
+
+
     // 전체 todo 리스트 (필터 없음)
     suspend fun getAllTodos(uid: String): List<Todo> {
         val snapshot: QuerySnapshot = userTodosRef(uid).get().await()

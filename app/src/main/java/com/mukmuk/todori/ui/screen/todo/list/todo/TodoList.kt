@@ -40,7 +40,7 @@ fun TodoList(selectedDate: LocalDate, navController: NavHostController) {
                 total = total,
                 todos = todos.map { it.title to it.isCompleted }
             ) {
-                navController.navigate("todo/detail/${category.categoryId}")
+                navController.navigate("todo/detail/${category.categoryId}?date=${selectedDate}")
             }
         }
     }

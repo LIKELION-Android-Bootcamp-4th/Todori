@@ -13,6 +13,11 @@ class TodoRepository @Inject constructor(
     suspend fun createTodo(uid: String, todo: Todo) = todoService.createTodo(uid, todo)
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getTodosByDate(uid: String, date: LocalDate) = todoService.getTodosByDate(uid, date)
+
+    suspend fun getTodosByCategoryAndDate(uid: String, categoryId: String, date: String): List<Todo> {
+        return todoService.getTodosByCategoryAndDate(uid, categoryId, date)
+    }
+
     suspend fun getAllTodos(uid: String) = todoService.getAllTodos(uid)
     suspend fun updateTodo(uid: String, todo: Todo) = todoService.updateTodo(uid, todo)
     suspend fun deleteTodo(uid: String, todoId: String) = todoService.deleteTodo(uid, todoId)

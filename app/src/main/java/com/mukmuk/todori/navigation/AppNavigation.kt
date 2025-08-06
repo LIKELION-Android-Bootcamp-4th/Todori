@@ -6,31 +6,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
-import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
-import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
 import com.mukmuk.todori.ui.screen.login.LoginScreen
 import com.mukmuk.todori.ui.screen.login.LoginViewModel
+import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
+import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.mypage.ProfileManagementScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
+import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateCategoryScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateGoalScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateStudyScreen
-import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.detail.GoalDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.MemberProgressDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.StudyDetailScreen
-import com.mukmuk.todori.ui.screen.todo.detail.TodoDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -38,7 +40,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
     NavHost(
         navController = navController,
         startDestination = BottomNavItem.Todo.route,
-        modifier = modifier // 추가!
+        modifier = modifier
     ) {
         composable(BottomNavItem.Todo.route) { TodoScreen(navController) }
         composable(BottomNavItem.Stats.route) { StatsScreen() }
@@ -93,12 +95,21 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 editStudy = editStudy
             )
         }
-        composable("todo/detail/{categoryId}") { backStackEntry ->
+        composable(
+            "todo/detail/{categoryId}?date={date}",  // ← 쿼리 파라미터 date 추가
+            arguments = listOf(
+                navArgument("categoryId") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
+            val date = backStackEntry.arguments?.getString("date") ?: ""
             TodoDetailScreen(
                 categoryId = categoryId,
+                date = date,
                 navController = navController,
-                onBack = { navController.popBackStack() })
+                onBack = { navController.popBackStack() }
+            )
         }
         composable("goal/detail") { backStackEntry ->
             val goal = navController.previousBackStackEntry
