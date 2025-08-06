@@ -50,13 +50,13 @@ fun DayStatsCard(
     var isEditing by remember { mutableStateOf(false) }
 
     val todos = listOf(
-        Todo(title = "스트레칭 하기", isCompleted = true),
-        Todo(title = "스쿼트 50개", isCompleted = false),
-        Todo(title = "런닝 30분", isCompleted = true)
+        Todo(title = "스트레칭 하기", completed = true),
+        Todo(title = "스쿼트 50개", completed = false),
+        Todo(title = "런닝 30분", completed = true)
 
     )
 
-    val completedTodos = todos.count { it.isCompleted }
+    val completedTodos = todos.count { it.completed }
 
     Card(
         modifier = Modifier
@@ -142,7 +142,7 @@ fun DayStatsCard(
                 todos.forEach { todo ->
                     MainTodoItemEditableRow(
                         title = todo.title,
-                        isDone = todo.isCompleted,
+                        isDone = todo.completed,
                         isRecordMode = false,
                         recordTime = null,
                         onCheckedChange = {  },

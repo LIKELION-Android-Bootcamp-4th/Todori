@@ -38,11 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.goal.GoalTodo
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
 import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
 import com.mukmuk.todori.ui.screen.todo.component.GoalMetaInfoRow
-import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.screen.todo.component.SingleDatePickerBottomSheet
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -68,24 +68,24 @@ fun GoalDetailScreen(
             GoalTodo(
                 title = "자료 조사",
                 dueDate = "2025-08-10",
-                isCompleted = false
+                completed = false
             ),
             GoalTodo(
                 title = "초안 작성",
                 dueDate = "2025-08-15",
-                isCompleted = true
+                completed = true
             ),
             GoalTodo(
                 title = "최종 검토",
                 dueDate = "2025-08-20",
-                isCompleted = false
+                completed = false
             )
         )
     }
 
 
     val total = goalTodos.size
-    val completed = goalTodos.count { it.isCompleted }
+    val completed = goalTodos.count { it.completed }
 
     var showDatePicker by remember { mutableStateOf(false) }
     var newTodoDueDate by remember { mutableStateOf<LocalDate?>(null) }
@@ -184,7 +184,7 @@ fun GoalDetailScreen(
                                     GoalTodo(
                                         title = newTodoTitle,
                                         dueDate = newTodoDueDate?.toString() ?: "",
-                                        isCompleted = false
+                                        completed = false
                                     )
                                 )
                                 newTodoTitle = ""
@@ -204,11 +204,11 @@ fun GoalDetailScreen(
         goalTodos.forEachIndexed { index, todo ->
             TodoItemEditableRow(
                 title = todo.title,
-                isDone = todo.isCompleted,
+                isDone = todo.completed,
                 dueDate = todo.dueDate,
                 modifier = Modifier.padding(Dimens.Small),
                 onCheckedChange = { checked ->
-                    goalTodos[index] = goalTodos[index].copy(isCompleted = checked)
+                    goalTodos[index] = goalTodos[index].copy(completed = checked)
                 },
                 trailingContent = {
                     Icon(
