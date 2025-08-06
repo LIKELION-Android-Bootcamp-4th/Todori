@@ -55,8 +55,8 @@ fun WeekProgress(record: List<DailyRecord>) {
                 weekDays.forEachIndexed { index, dayLabel ->
                     val dayRecord = dataPerDay.getOrNull(index)
 
-                    val completed = 8 ?: 0
-                    val total = 10 ?: 0
+                    val completed = 8
+                    val total = 10
 
                     ProgressWithText(
                         progress = if (total != 0) completed.toFloat() / total else 0f,
