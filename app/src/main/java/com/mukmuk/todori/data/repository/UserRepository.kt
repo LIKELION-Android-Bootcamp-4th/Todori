@@ -1,7 +1,6 @@
 package com.mukmuk.todori.data.repository
 
 import android.util.Log
-import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.service.UserService
 import javax.inject.Inject

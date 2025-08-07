@@ -2,7 +2,6 @@ package com.mukmuk.todori.data.service
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.user.User
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
