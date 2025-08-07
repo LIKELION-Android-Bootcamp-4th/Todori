@@ -39,8 +39,10 @@ fun WeekProgress(
         val sunday = today.minusDays(today.dayOfWeek.value % 7L)
         val thisWeekDates = (0..6).map { sunday.plusDays(it.toLong()) }
 
-        val dataPerDay = thisWeekDates.map { date ->
-            record.find { it.date == date.toString() }
+        val dailyProgress = thisWeekDates.map { date ->
+            val dailyTotal = allTodos.count { it.date == date.toString() }
+            val dailyCompleted = completedTodos.count { it.date == date.toString() }
+            Pair(dailyCompleted, dailyTotal)
         }
 
         Card(
@@ -58,10 +60,8 @@ fun WeekProgress(
                 Spacer(modifier = Modifier.height(Dimens.XLarge))
 
                 weekDays.forEachIndexed { index, dayLabel ->
-                    val dayRecord = dataPerDay.getOrNull(index)
-
-                    val completed = completedTodos.size
-                    val total = allTodos.size
+                    val dayRecord = dailyProgress.getOrNull(index)
+                    val (completed, total) = dayRecord ?: Pair(0, 0)
 
                     ProgressWithText(
                         progress = if (total != 0) completed.toFloat() / total else 0f,
