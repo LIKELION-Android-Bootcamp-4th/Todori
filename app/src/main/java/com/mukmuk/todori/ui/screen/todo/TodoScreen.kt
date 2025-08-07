@@ -24,7 +24,7 @@ import com.mukmuk.todori.ui.screen.todo.component.MenuAction
 import com.mukmuk.todori.ui.screen.todo.component.TodoTopBar
 import com.mukmuk.todori.ui.screen.todo.component.WeekCalendar
 import com.mukmuk.todori.ui.screen.todo.list.GoalTodoList
-import com.mukmuk.todori.ui.screen.todo.list.StudyTodoList
+import com.mukmuk.todori.ui.screen.todo.list.study.StudyTodoList
 import com.mukmuk.todori.ui.screen.todo.list.todo.TodoList
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
@@ -103,7 +103,7 @@ fun TodoScreen(navController: NavHostController) {
         when (selectedTabIndex) {
             0 -> TodoList(selectedDate,navController)
             1 -> GoalTodoList(navController)
-            2 -> StudyTodoList(navController)
+            2 -> StudyTodoList(selectedDate,navController)
         }
     }
 
