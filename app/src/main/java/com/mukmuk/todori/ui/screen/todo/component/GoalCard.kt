@@ -33,7 +33,7 @@ fun GoalCard(
     onClick: () -> Unit
 ) {
     val total = goalTodos.size
-    val completed = goalTodos.count { it.isCompleted }
+    val completed = goalTodos.count { it.completed }
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -63,7 +63,7 @@ fun GoalCard(
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
             goalTodos.take(3).forEach { todo ->
-                TodoItemRow(title = todo.title, isDone = todo.isCompleted)
+                TodoItemRow(title = todo.title, isDone = todo.completed)
             }
         }
     }
