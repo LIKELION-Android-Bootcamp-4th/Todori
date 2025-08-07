@@ -42,4 +42,25 @@ class StudyDetailViewModel @Inject constructor(
             }
         }
     }
+
+    fun toggleTodoProgress(studyId: String, studyTodoId: String, uid: String, checked: Boolean) {
+        val updatedProgresses = _state.value.progresses.map {
+            if (it.studyTodoId == studyTodoId && it.uid == uid) it.copy(done = checked)
+            else it
+        }
+        _state.value = _state.value.copy(progresses = updatedProgresses)
+
+        viewModelScope.launch {
+            try {
+                studyRepository.toggleTodoProgressDone(studyId, studyTodoId, uid, checked)
+            } catch (e: Exception) {
+                val rolledBack = _state.value.progresses.map {
+                    if (it.studyTodoId == studyTodoId && it.uid == uid) it.copy(done = !checked)
+                    else it
+                }
+                _state.value = _state.value.copy(progresses = rolledBack, error = "저장 실패, 다시 시도해주세요.")
+            }
+        }
+    }
+
 }

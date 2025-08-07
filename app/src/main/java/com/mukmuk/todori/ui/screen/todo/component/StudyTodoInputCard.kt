@@ -1,5 +1,6 @@
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -101,7 +102,7 @@ fun StudyTodoInputCard(
 
             taskList.forEachIndexed { i, todo ->
                 val isDone = progressMap[todo.studyTodoId]?.done == true
-
+                Log.d("TODORI", "progressMap: $progressMap")
                 TodoItemEditableRow(
                     title = todo.title,
                     isDone = isDone,

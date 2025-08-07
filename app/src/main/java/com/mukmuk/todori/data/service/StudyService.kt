@@ -114,5 +114,12 @@ class StudyService(
         return snapshot.documents.mapNotNull { it.toObject(TodoProgress::class.java) }
     }
 
+    suspend fun toggleTodoProgressDone(studyId: String, studyTodoId: String, uid: String, checked: Boolean) {
+        val docId = "progress_${studyTodoId}_$uid"
+        firestore.collection("todoProgresses")
+            .document(docId)
+            .update("done", checked)
+            .await()
+    }
 
 }

@@ -88,7 +88,10 @@ fun StudyDetailScreen(
             val todos = state.todos
             val progresses = state.progresses
 
-            val myProgressMap = progresses.associateBy { it.studyTodoId }
+            val myProgressMap = progresses
+                .filter { it.uid == uid }
+                .associateBy { it.studyTodoId }
+
 
             val completedCount = myProgressMap.values.count { it.uid == uid && it.done }
             val totalCount = todos.size
@@ -149,7 +152,15 @@ fun StudyDetailScreen(
                         newTodoText = newTodoText,
                         onTodoTextChange = { newTodoText = it },
                         onAddClick = { /* TODO */ },
-                        onToggleChecked = { todoId, checked -> /* TODO */ },
+                        onToggleChecked = { todoId, checked ->
+                            viewModel.toggleTodoProgress(
+                                studyId = study.studyId,
+                                studyTodoId = todoId,
+                                uid = uid,
+                                checked = checked,
+                                date = selectedDate
+                            )
+                        },
                         onDelete = { todoId -> /* TODO */ },
                         progressMap = myProgressMap
                     )
