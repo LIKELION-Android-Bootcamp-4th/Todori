@@ -7,13 +7,13 @@ class TodoStatsRepository @Inject constructor(
     private val todoStatsService: TodoStatsService
 ) {
 
-    suspend fun getTodoCompleteStats(
-        uid: String,
-        year: Int,
-        month: Int
-    ): Pair<Int, Int> {
-        val todosMonth = todoStatsService.getTodosByMonth(uid, year, month)
-        val completed = todosMonth.count { it.completed }
-        return Pair(completed, todosMonth.size)
+    suspend fun getCompletedTodoCount(uid: String, year: Int, month: Int): Int {
+        val todos = todoStatsService.getTodosByMonth(uid, year, month)
+        return todos.count { it.completed }
+    }
+
+    suspend fun getTotalTodoCount(uid: String, year: Int, month: Int): Int {
+        val todos = todoStatsService.getTodosByMonth(uid, year, month)
+        return todos.size
     }
 }
