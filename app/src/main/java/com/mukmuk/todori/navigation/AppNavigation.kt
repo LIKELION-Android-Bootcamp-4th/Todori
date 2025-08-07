@@ -15,11 +15,11 @@ import androidx.navigation.navArgument
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
-import com.mukmuk.todori.ui.screen.community.CommunityViewModel
-import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailScreen
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
-import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.create.CreateCommunityScreen
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailScreen
+import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
@@ -35,9 +35,9 @@ import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateCategoryScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateGoalScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateStudyScreen
-import com.mukmuk.todori.ui.screen.todo.detail.GoalDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.MemberProgressDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.StudyDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.goal.GoalDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -153,14 +153,12 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 onBack = { navController.popBackStack() }
             )
         }
-        composable("goal/detail") { backStackEntry ->
-            val goal = navController.previousBackStackEntry
-                ?.savedStateHandle?.get<Goal>("goal")
-            goal?.let {
+        composable("goal/detail/{goalId}") { backStackEntry ->
+            val goalId = backStackEntry.arguments?.getString("goalId") ?: ""
                 GoalDetailScreen(
-                    goal = it, navController = navController,
-                    onBack = { navController.popBackStack() })
-            }
+                    goalId = goalId, navController = navController,
+                    onBack = { navController.popBackStack() }
+                )
         }
         composable("study/detail") {
             StudyDetailScreen(

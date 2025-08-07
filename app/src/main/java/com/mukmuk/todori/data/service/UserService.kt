@@ -25,5 +25,4 @@ class UserService @Inject constructor(
             SetOptions.merge())
             .await()
     }
-
 }
