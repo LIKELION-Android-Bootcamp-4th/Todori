@@ -105,9 +105,6 @@ fun WeekCard(
                     style = AppTextStyle.BodyTinyNormal
                 )
             }
-            Log.d("WeekCard", "📋 All Todos (${allTodos.size}): ${allTodos.joinToString { it.title }}")
-            Log.d("WeekCard", "✅ Completed Todos (${completedTodos.size}): ${completedTodos.joinToString { it.title }}")
-
         }
     }
 }

@@ -38,12 +38,11 @@ class WeekViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val weekRange = getWeekRange(date)
-                val allTodos = todoRepository.getTodosByDate(uid, date)
-                val weeklyTodos = allTodos.filter { todo ->
-                    val Date = LocalDate.parse(todo.date)
-                    //date말구??
-                    Date in weekRange
-                }
+                val sunday = weekRange.first()
+                val saturday = weekRange.last()
+
+                val weeklyTodos = todoRepository.getTodosByWeek(uid, sunday, saturday)
+
                 _todos.value = weeklyTodos
 
             } catch (e: Exception){
@@ -56,11 +55,11 @@ class WeekViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val weekRange = getWeekRange(date)
-                val allTodos = todoRepository.getTodosByDate(uid, date)
-                val weeklyTodos = allTodos.filter { todo ->
-                    val Date = LocalDate.parse(todo.date)
-                    Date in weekRange
-                }
+                val sunday = weekRange.first()
+                val saturday = weekRange.last()
+
+                val weeklyTodos = todoRepository.getTodosByWeek(uid, sunday, saturday)
+
                 _completedTodos.value = weeklyTodos.filter { it.completed }
 
             } catch (e: Exception){
