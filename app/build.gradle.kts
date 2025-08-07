@@ -91,6 +91,8 @@ dependencies {
     implementation(libs.firebase.functions)
     implementation(libs.firebase.auth)
     implementation("com.google.firebase:firebase-analytics")
+    //implementation("com.google.firebase:firebase-functions-ktx")
+
 
     //MPAndroidChart
 //    implementation(libs.mpandroidchart)
