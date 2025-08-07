@@ -12,5 +12,7 @@ data class StudyDetailState(
     val members: List<StudyMember> = emptyList(),
     val todos: List<StudyTodo> = emptyList(),
     val progresses: List<TodoProgress> = emptyList(),
-    val error: String? = null
+    val error: String? = null,
+    val studyDeleted: Boolean = false,
+    val isDeleting: Boolean = false
 )

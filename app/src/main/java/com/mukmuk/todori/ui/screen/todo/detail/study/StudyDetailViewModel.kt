@@ -131,6 +131,25 @@ class StudyDetailViewModel @Inject constructor(
         }
     }
 
+    fun deleteStudyWithAllData(studyId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isDeleting = true)
+            try {
+                studyRepository.deleteStudyWithAllData(studyId)
+                _state.value = _state.value.copy(isDeleting = false)
+                onSuccess()
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(isDeleting = false)
+                onError(e.message ?: "삭제에 실패했습니다.")
+            }
+        }
+    }
+
+    fun resetCategoryDeleted() {
+        _state.value = _state.value.copy(studyDeleted = false)
+    }
+
+
 
 
 }

@@ -153,5 +153,44 @@ class StudyService(
         }
     }
 
+    suspend fun deleteStudyWithAllData(studyId: String) {
+        val batch = firestore.batch()
+        // studies/{studyId} 삭제
+        val studyRef = firestore.collection("studies").document(studyId)
+        batch.delete(studyRef)
+
+        // studyMembers(studyId) 삭제
+        val members = firestore.collection("studyMembers")
+            .whereEqualTo("studyId", studyId).get().await()
+        for (doc in members.documents) {
+            batch.delete(doc.reference)
+        }
+
+        // studyTodos(studyId) 삭제
+        val todos = firestore.collection("studyTodos")
+            .whereEqualTo("studyId", studyId).get().await()
+        for (doc in todos.documents) {
+            batch.delete(doc.reference)
+        }
+
+        // todoProgresses(studyId) 삭제
+        val progresses = firestore.collection("todoProgresses")
+            .whereEqualTo("studyId", studyId).get().await()
+        for (doc in progresses.documents) {
+            batch.delete(doc.reference)
+        }
+
+        // users/{uid}/myStudies 내역 삭제
+        val allMembers = members.documents.mapNotNull { it.getString("uid") }
+        for (uid in allMembers) {
+            val myStudyRef = firestore.collection("users").document(uid)
+                .collection("myStudies").document(studyId)
+            batch.delete(myStudyRef)
+        }
+
+        batch.commit().await()
+    }
+
+
 
 }
