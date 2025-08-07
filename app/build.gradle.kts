@@ -92,6 +92,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation("com.google.firebase:firebase-analytics")
     //implementation("com.google.firebase:firebase-functions-ktx")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
 
     //MPAndroidChart
