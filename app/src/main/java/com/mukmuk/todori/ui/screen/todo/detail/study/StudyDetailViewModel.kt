@@ -63,4 +63,22 @@ class StudyDetailViewModel @Inject constructor(
         }
     }
 
+    fun deleteStudyTodo(studyTodoId: String) {
+        val updatedTodos = _state.value.todos.filter { it.studyTodoId != studyTodoId }
+        val updatedProgresses = _state.value.progresses.filter { it.studyTodoId != studyTodoId }
+        _state.value = _state.value.copy(
+            todos = updatedTodos,
+            progresses = updatedProgresses
+        )
+
+        viewModelScope.launch {
+            try {
+                studyRepository.deleteStudyTodo(studyTodoId)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(error = "삭제에 실패했습니다. 다시 시도해주세요.")
+            }
+        }
+    }
+
+
 }

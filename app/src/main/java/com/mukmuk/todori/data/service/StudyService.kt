@@ -122,4 +122,15 @@ class StudyService(
             .await()
     }
 
+    suspend fun deleteStudyTodo(studyTodoId: String) {
+        firestore.collection("studyTodos").document(studyTodoId).delete().await()
+        val progressesSnapshot = firestore.collection("todoProgresses")
+            .whereEqualTo("studyTodoId", studyTodoId)
+            .get().await()
+        for (doc in progressesSnapshot.documents) {
+            doc.reference.delete().await()
+        }
+    }
+
+
 }

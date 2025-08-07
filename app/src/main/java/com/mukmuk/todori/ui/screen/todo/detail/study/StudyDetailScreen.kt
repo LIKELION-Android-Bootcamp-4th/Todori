@@ -157,11 +157,12 @@ fun StudyDetailScreen(
                                 studyId = study.studyId,
                                 studyTodoId = todoId,
                                 uid = uid,
-                                checked = checked,
-                                date = selectedDate
+                                checked = checked
                             )
                         },
-                        onDelete = { todoId -> /* TODO */ },
+                        onDelete = { todoId ->
+                            viewModel.deleteStudyTodo(todoId)
+                        },
                         progressMap = myProgressMap
                     )
                 }
