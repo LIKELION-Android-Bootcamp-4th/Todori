@@ -13,7 +13,7 @@ data class Goal(
     val isPinned: Boolean = false,        // 상단 고정 여부
     val startDate: String = "",           // 시작일 (yyyy-MM-dd)
     val endDate: String = "",             // 종료일 (yyyy-MM-dd)
-    val isCompleted: Boolean = false,     // 전체 목표 완료 여부
+    val completed: Boolean = false,     // 전체 목표 완료 여부
     val createdAt: Timestamp? = null,     // 생성 시간
     val updatedAt: Timestamp? = null      // 수정 시간
 ) : Parcelable

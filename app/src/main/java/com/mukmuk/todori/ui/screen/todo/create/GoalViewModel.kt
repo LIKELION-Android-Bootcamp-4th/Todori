@@ -51,4 +51,20 @@ class GoalViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateGoal(
+        uid: String,
+        goal: Goal,
+        onSuccess: () -> Unit = {},
+        onError: (Throwable) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.updateGoal(uid, goal)
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e)
+            }
+        }
+    }
 }
