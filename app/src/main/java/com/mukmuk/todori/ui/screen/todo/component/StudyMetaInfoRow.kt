@@ -41,7 +41,7 @@ import java.time.temporal.ChronoUnit
 @Composable
 fun StudyMetaInfoRow(
     createdAt: Timestamp?,
-    joinedAt: Timestamp?,
+    joinedAt: Timestamp? = null,
     memberCount: Int,
     activeDays: List<String>,
     modifier: Modifier = Modifier
