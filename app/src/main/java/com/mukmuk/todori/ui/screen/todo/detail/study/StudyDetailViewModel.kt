@@ -2,11 +2,16 @@ package com.mukmuk.todori.ui.screen.todo.detail.study
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mukmuk.todori.data.remote.study.Study
+import com.mukmuk.todori.data.remote.study.StudyMember
+import com.mukmuk.todori.data.remote.study.StudyTodo
+import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.data.repository.StudyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID.randomUUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -79,6 +84,53 @@ class StudyDetailViewModel @Inject constructor(
             }
         }
     }
+
+    fun addStudyTodo(
+        study: Study,
+        title: String,
+        date: String,
+        createdBy: String,
+        members: List<StudyMember>
+    ) {
+        viewModelScope.launch {
+            val tempId = randomUUID().toString()
+            val todo = StudyTodo(
+                studyTodoId = tempId,
+                studyId = study.studyId,
+                title = title,
+                date = date,
+                createdBy = createdBy,
+                createdAt = com.google.firebase.Timestamp.now()
+            )
+            val newTodos = _state.value.todos + todo
+            val newProgresses = _state.value.progresses +
+                    members.map {
+                        TodoProgress(
+                            studyTodoId = tempId,
+                            studyId = study.studyId,
+                            uid = it.uid,
+                            done = false,
+                            completedAt = null,
+                            date = date
+                        )
+                    }
+            _state.value = _state.value.copy(
+                todos = newTodos,
+                progresses = newProgresses
+            )
+
+            try {
+                studyRepository.addStudyTodoWithProgress(todo.copy(studyTodoId = ""), members)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    todos = _state.value.todos.filter { it.studyTodoId != tempId },
+                    progresses = _state.value.progresses.filter { it.studyTodoId != tempId },
+                    error = "추가에 실패했습니다. 다시 시도해주세요."
+                )
+            }
+        }
+    }
+
 
 
 }

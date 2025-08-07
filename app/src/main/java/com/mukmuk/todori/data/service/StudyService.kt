@@ -132,5 +132,26 @@ class StudyService(
         }
     }
 
+    suspend fun addStudyTodoWithProgress(studyTodo: StudyTodo, members: List<StudyMember>) {
+        // 1. studyTodos 컬렉션에 추가 (Auto-ID 필요시 set 대신 add)
+        val todoRef = firestore.collection("studyTodos").document() // auto-id 생성
+        val autoId = todoRef.id
+        val todoWithId = studyTodo.copy(studyTodoId = autoId)
+        todoRef.set(todoWithId).await()
+
+        for (member in members) {
+            val progressId = "progress_${autoId}_${member.uid}"
+            val progress = mapOf(
+                "studyTodoId" to autoId,
+                "studyId" to studyTodo.studyId,
+                "uid" to member.uid,
+                "done" to false,
+                "completedAt" to null,
+                "date" to studyTodo.date
+            )
+            firestore.collection("todoProgresses").document(progressId).set(progress).await()
+        }
+    }
+
 
 }

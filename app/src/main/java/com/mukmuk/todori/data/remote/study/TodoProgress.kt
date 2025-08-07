@@ -11,5 +11,6 @@ data class TodoProgress(
     val studyId: String = "",                 // 해당 study
     val uid: String = "",                     // 스터디원
     val done: Boolean = false,              // 일정 수행 여부
+    val date: String = "",                    // 일정 날짜
     val completedAt: Timestamp? = null        // 수행 시각
 ) : Parcelable

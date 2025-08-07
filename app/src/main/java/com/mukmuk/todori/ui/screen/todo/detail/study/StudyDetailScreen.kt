@@ -151,7 +151,18 @@ fun StudyDetailScreen(
                         taskList = todos,
                         newTodoText = newTodoText,
                         onTodoTextChange = { newTodoText = it },
-                        onAddClick = { /* TODO */ },
+                        onAddClick = {
+                            if (newTodoText.isNotBlank()) {
+                                viewModel.addStudyTodo(
+                                    study = study,
+                                    title = newTodoText,
+                                    date = selectedDate,
+                                    createdBy = uid,
+                                    members = members
+                                )
+                                newTodoText = ""
+                            }
+                        },
                         onToggleChecked = { todoId, checked ->
                             viewModel.toggleTodoProgress(
                                 studyId = study.studyId,

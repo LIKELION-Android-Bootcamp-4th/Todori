@@ -42,5 +42,11 @@ class StudyRepository @Inject constructor(
     suspend fun deleteStudyTodo(studyTodoId: String) =
         studyService.deleteStudyTodo(studyTodoId)
 
+    suspend fun addStudyTodoWithProgress(
+        studyTodo: StudyTodo,
+        members: List<StudyMember>
+    ) = studyService.addStudyTodoWithProgress(studyTodo, members)
+
+
 
 }
