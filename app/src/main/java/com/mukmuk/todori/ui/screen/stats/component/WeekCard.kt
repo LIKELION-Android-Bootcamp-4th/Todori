@@ -60,14 +60,14 @@ fun WeekCard(record: List<DailyRecord>) {
                     .fillMaxSize()
                     .padding(horizontal = Dimens.Medium)
             ) {
-                Text("평균 공부시간", style = AppTextStyle.MypageButtonText)
+                Text("평균 공부시간", style = AppTextStyle.BodyTinyNormal)
                 Text(
                     "${avgHours}시간 ${avgMinutes}분",
                     style = AppTextStyle.TitleMedium
                 )
                 Text(
                     "총합 ${totalHours}시간 ${totalMinutes}분",
-                    style = AppTextStyle.MypageButtonText
+                    style = AppTextStyle.BodyTinyNormal
                 )
             }
         }
@@ -89,14 +89,14 @@ fun WeekCard(record: List<DailyRecord>) {
                     .fillMaxSize()
                     .padding(horizontal = Dimens.Medium)
             ) {
-                Text("달성률", style = AppTextStyle.MypageButtonText)
+                Text("달성률", style = AppTextStyle.BodyTinyNormal)
                 Text(
                     "${TodoTotalPer}%",
                     style = AppTextStyle.TitleMedium
                 )
                 Text(
                     "$totalCompletedTodos / $totalTodos",
-                    style = AppTextStyle.MypageButtonText
+                    style = AppTextStyle.BodyTinyNormal
                 )
             }
         }

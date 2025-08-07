@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.stats.tab
+package com.mukmuk.todori.ui.screen.stats.tab.month
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
