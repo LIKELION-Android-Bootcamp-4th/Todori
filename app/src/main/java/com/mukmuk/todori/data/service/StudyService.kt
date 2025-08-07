@@ -191,6 +191,13 @@ class StudyService(
         batch.commit().await()
     }
 
+    suspend fun updateStudy(study: Study) {
+        val docId = study.studyId.ifBlank { throw IllegalArgumentException("studyId required") }
+        firestore.collection("studies").document(docId)
+            .set(study, SetOptions.merge())
+            .await()
+    }
+
 
 
 }

@@ -51,5 +51,8 @@ class StudyRepository @Inject constructor(
         studyService.deleteStudyWithAllData(studyId)
 
 
+    suspend fun updateStudy(study: Study) =
+        studyService.updateStudy(study)
+
 
 }
