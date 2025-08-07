@@ -242,7 +242,7 @@ fun StudyDetailScreen(
                         todos = todos,
                         progresses = memberProgressMap
                     ) {
-                        navController.navigate("member_progress_detail/${study.studyId}")
+                        navController.navigate("member_progress_detail/${study.studyId}?date=$selectedDate")
                     }
                     Spacer(modifier = Modifier.height(Dimens.Small))
                 }
