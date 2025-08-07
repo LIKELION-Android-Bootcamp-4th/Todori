@@ -9,8 +9,12 @@ import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.service.QuestService
+import com.mukmuk.todori.data.repository.TodoRepository
+import com.mukmuk.todori.data.repository.UserRepository
+import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.service.StudyService
 import com.mukmuk.todori.data.service.TodoCategoryService
+import com.mukmuk.todori.data.service.TodoService
 import com.mukmuk.todori.data.service.UserService
 import dagger.Module
 import dagger.Provides
@@ -93,6 +97,14 @@ object AppModule {
     fun provideQuestRepository(
         questService: QuestService
     ): QuestRepository = QuestRepository(questService)
+    @Provides
+    @Singleton
+    fun provideTodoService(firestore: FirebaseFirestore): TodoService =
+        TodoService(firestore)
+
+    @Provides
+    @Singleton
+    fun provideTodoRepository(todoService: TodoService): TodoRepository =
+        TodoRepository(todoService)
+
 }
-
-

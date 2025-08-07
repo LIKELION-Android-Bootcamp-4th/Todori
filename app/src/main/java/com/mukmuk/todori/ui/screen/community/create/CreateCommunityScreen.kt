@@ -1,0 +1,216 @@
+package com.mukmuk.todori.ui.screen.community.create
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.DarkGray
+import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.GroupPrimary
+import com.mukmuk.todori.ui.theme.GroupSecondary
+import com.mukmuk.todori.ui.theme.White
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateCommunityScreen(
+    navController: NavController,
+    onBack: () -> Unit,
+    viewModel: CommunityViewModel
+) {
+    val scrollState = rememberScrollState()
+
+    var title by remember { mutableStateOf("") }
+    var isTitleError by remember { mutableStateOf(false) }
+
+    var content by remember { mutableStateOf("") }
+
+    var data = listOf("td", "asd")
+
+    var showListSheet by remember { mutableStateOf(false) }
+    var pickedItem by remember { mutableStateOf<String?>(null) }
+
+    if(viewModel.data == 2) {
+        title = viewModel.selectedPost?.title ?: ""
+        content = viewModel.selectedPost?.content ?: ""
+        viewModel.selectedPost = null
+    }
+
+    Scaffold(
+
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("게시글 작성", style = AppTextStyle.AppBar)
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(top = 20.dp, start = 16.dp, end = 16.dp)
+        ) {
+            OutlinedTextField(
+                value = title,
+                onValueChange = {
+                    title = it
+                    isTitleError = it.isBlank()
+                },
+                placeholder = {Text("스터디 명을 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 56.dp),
+                shape = RoundedCornerShape(10.dp),
+                singleLine = true,
+                isError = isTitleError,
+                supportingText = {
+                    if (isTitleError) Text("스터디 명을 입력해주세요", style = AppTextStyle.Body) else null
+                }
+            )
+
+
+
+            OutlinedTextField(
+                value = content,
+                onValueChange = {
+                    content = it
+
+                },
+                placeholder = {Text("스터디 설명을 작성 해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                shape = RoundedCornerShape(10.dp),
+                minLines = 6
+            )
+
+            Spacer(Modifier.height(Dimens.Large))
+
+            Spacer(
+                modifier = Modifier
+                    .height(1.dp)
+                    .fillMaxWidth()
+                    .background(Gray)
+            )
+
+
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("내가 만든 스터디", style = AppTextStyle.Body)
+                Spacer(Modifier.weight(1f))
+                Button (
+                    onClick = {
+                        showListSheet = true
+                    },
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GroupPrimary,
+                        contentColor = Black
+                    ),
+
+                ) {
+                    Text("불러오기", style = AppTextStyle.Body)
+                }
+            }
+
+            Spacer(Modifier.height(Dimens.Large))
+
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth(),
+            ) {
+                data.forEach{tag ->
+                    Box(
+                        modifier = Modifier
+                            .background(GroupSecondary, RoundedCornerShape(32.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .width(60.dp),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text(
+                            text = tag,
+                            color = Black,
+                            style = AppTextStyle.BodySmall
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(Dimens.Tiny))
+
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    if(title != "") {
+
+                        viewModel.addPost(
+                            title = title,
+                            content = content
+                        )
+
+
+                        navController.popBackStack()
+                    }
+                    else{
+                        isTitleError = true
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("작성", style = AppTextStyle.MypageButtonText.copy(color = White))
+            }
+        }
+
+    }
+
+}

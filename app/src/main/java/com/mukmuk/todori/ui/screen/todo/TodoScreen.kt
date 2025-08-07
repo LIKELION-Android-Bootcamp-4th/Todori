@@ -25,7 +25,7 @@ import com.mukmuk.todori.ui.screen.todo.component.TodoTopBar
 import com.mukmuk.todori.ui.screen.todo.component.WeekCalendar
 import com.mukmuk.todori.ui.screen.todo.list.GoalTodoList
 import com.mukmuk.todori.ui.screen.todo.list.StudyTodoList
-import com.mukmuk.todori.ui.screen.todo.list.TodoList
+import com.mukmuk.todori.ui.screen.todo.list.todo.TodoList
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.UserPrimary
