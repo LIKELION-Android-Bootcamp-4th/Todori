@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
+import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
@@ -25,7 +26,11 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeekProgress(record: List<DailyRecord>) {
+fun WeekProgress(
+    record: List<DailyRecord>,
+    allTodos: List<Todo>,
+    completedTodos: List<Todo>
+) {
     Column() {
 
         val weekDays = listOf("일", "월", "화", "수", "목", "금", "토")
@@ -55,8 +60,8 @@ fun WeekProgress(record: List<DailyRecord>) {
                 weekDays.forEachIndexed { index, dayLabel ->
                     val dayRecord = dataPerDay.getOrNull(index)
 
-                    val completed = 8
-                    val total = 10
+                    val completed = completedTodos.size
+                    val total = allTodos.size
 
                     ProgressWithText(
                         progress = if (total != 0) completed.toFloat() / total else 0f,

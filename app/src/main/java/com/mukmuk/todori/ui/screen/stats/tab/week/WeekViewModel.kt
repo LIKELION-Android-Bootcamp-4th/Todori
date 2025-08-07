@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.tab.week
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,7 +23,11 @@ class WeekViewModel @Inject constructor(
     private val _todos = MutableStateFlow(emptyList<Todo>())
     val todos: StateFlow<List<Todo>> = _todos
 
-    //주차 별로 나누기
+    private val _completedTodos = MutableStateFlow(emptyList<Todo>())
+    val completedTodos: StateFlow<List<Todo>> = _completedTodos
+
+
+    //선택 날짜에 해당하는 주 가져오기
     fun getWeekRange(date: LocalDate): List<LocalDate> {
         val dayOfWeek = date.dayOfWeek.value % 7
         val sunday = date.minusDays(dayOfWeek.toLong())
@@ -36,11 +41,30 @@ class WeekViewModel @Inject constructor(
                 val allTodos = todoRepository.getTodosByDate(uid, date)
                 val weeklyTodos = allTodos.filter { todo ->
                     val Date = LocalDate.parse(todo.date)
+                    //date말구??
                     Date in weekRange
                 }
                 _todos.value = weeklyTodos
 
             } catch (e: Exception){
+                Log.d("WeekViewModel", "주간 투두 불러오기 실패 : ${e.message}")
+            }
+        }
+    }
+
+    fun loadWeekCompletedTodos(uid: String, date: LocalDate) {
+        viewModelScope.launch {
+            try {
+                val weekRange = getWeekRange(date)
+                val allTodos = todoRepository.getTodosByDate(uid, date)
+                val weeklyTodos = allTodos.filter { todo ->
+                    val Date = LocalDate.parse(todo.date)
+                    Date in weekRange
+                }
+                _completedTodos.value = weeklyTodos.filter { it.completed }
+
+            } catch (e: Exception){
+                Log.d("WeekViewModel", "주간 완료 투두 불러오기 실패 : ${e.message}")
             }
         }
     }

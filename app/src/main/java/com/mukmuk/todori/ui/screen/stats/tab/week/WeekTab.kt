@@ -47,19 +47,22 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
     }
 
     val viewModel: WeekViewModel = hiltViewModel()
-    val todo by viewModel.todos.collectAsState()
+    val weeklyTodos by viewModel.todos.collectAsState()
+    val weeklyCompletedTodos by viewModel.completedTodos.collectAsState()
+
     val uid = "testuser"
     val weeklyFiltered = viewModel.getWeekRange(selectedWeek) //주차 선택
-    val weeklyTodos = viewModel.loadWeekTodos(uid = uid, date = selectedWeek) //선택 주차 투두 불러오기
+//    val weeklyTodos = viewModel.loadWeekTodos(uid = uid, date = selectedWeek) //선택 주차 투두 불러오기
 
 //    LaunchedEffect(selectedWeek) {
 //        viewModel.getWeekRange(selectedWeek)
 //    }
-//
-//    LaunchedEffect(uid, selectedWeek) {
-//        viewModel.loadWeekTodos(uid = uid, date = selectedWeek)
-//    }
-//
+
+    LaunchedEffect(uid, selectedWeek) {
+        viewModel.loadWeekTodos(uid = uid, date = selectedWeek)
+        viewModel.loadWeekCompletedTodos(uid = uid, date = selectedWeek)
+    }
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -127,11 +130,11 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                 }
             }
 
-            WeekCard(record = DailyRecordFiltered)
+            WeekCard(record = DailyRecordFiltered, allTodos = weeklyTodos, completedTodos = weeklyCompletedTodos)
             Spacer(modifier = Modifier.height(Dimens.Large))
             WeekGraph(record = DailyRecordFiltered)
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekProgress(record = DailyRecordFiltered)
+            WeekProgress(record = DailyRecordFiltered, allTodos = weeklyTodos, completedTodos= weeklyCompletedTodos)
         }
     }
 }

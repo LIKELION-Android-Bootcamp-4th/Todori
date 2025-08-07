@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.stats.component
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,16 +17,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
+import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun WeekCard(record: List<DailyRecord>) {
+fun WeekCard(
+    record: List<DailyRecord>,
+    allTodos: List<Todo>,
+    completedTodos: List<Todo>
+) {
     val totalStudySeconds = record.sumOf { it.studyTimeMillis }
-    val totalCompletedTodos = 3
-    val totalTodos = 10
-    val TodoTotalPer = (totalCompletedTodos.toFloat() / totalTodos * 100).toInt()
+    val TodoTotalPer = if (allTodos.isNotEmpty()) {
+        (completedTodos.size.toFloat() / allTodos.size * 100).toInt()
+    } else 0
 
     val avgStudyMinutes = if (record.size > 1) {
         totalStudySeconds / 60 / record.size
@@ -95,10 +101,13 @@ fun WeekCard(record: List<DailyRecord>) {
                     style = AppTextStyle.TitleMedium
                 )
                 Text(
-                    "$totalCompletedTodos / $totalTodos",
+                    "${completedTodos.size} / ${allTodos.size}",
                     style = AppTextStyle.BodyTinyNormal
                 )
             }
+            Log.d("WeekCard", "📋 All Todos (${allTodos.size}): ${allTodos.joinToString { it.title }}")
+            Log.d("WeekCard", "✅ Completed Todos (${completedTodos.size}): ${completedTodos.joinToString { it.title }}")
+
         }
     }
 }
