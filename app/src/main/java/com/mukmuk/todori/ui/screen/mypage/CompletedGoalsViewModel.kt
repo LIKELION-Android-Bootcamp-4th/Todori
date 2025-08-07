@@ -3,7 +3,7 @@ package com.mukmuk.todori.ui.screen.mypage
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.remote.goal.Goal
-import com.mukmuk.todori.data.repository.UserRepository
+import com.mukmuk.todori.data.repository.GoalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CompletedGoalsViewModel @Inject constructor(
-    private val repository: UserRepository
+    private val repository: GoalRepository
 ) : ViewModel() {
     private val _completedGoals = MutableStateFlow<List<Goal?>>(emptyList())
     val goals: StateFlow<List<Goal?>> = _completedGoals
