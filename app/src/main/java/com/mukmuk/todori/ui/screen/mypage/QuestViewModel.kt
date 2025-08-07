@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.mypage
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.remote.quest.DailyUserQuest
@@ -21,15 +22,23 @@ class QuestViewModel @Inject constructor(
     private val _questCheckResult = MutableStateFlow<Result<String>?>(null)
     val questCheckResult: StateFlow<Result<String>?> = _questCheckResult
 
-    //퀘스트 완료체크
+    // 퀘스트 완료 체크 및 불러오기
     fun loadDailyQuests(uid: String) {
         viewModelScope.launch {
-            // cloud function 호출
+            Log.d("QuestViewModel", "🔄 loadDailyQuests 호출 - uid 전달 확인: $uid")
+
+            // Cloud Function 호출
             val result = questRepository.callQuestCheckFunction(uid)
             _questCheckResult.value = result
 
-            //퀘스트 목록 새로고침
-            _dailyQuests.value = questRepository.getUserDailyQuests(uid)
+            result
+                .onSuccess { Log.d("QuestViewModel", "✅ 함수 호출 성공: $it") }
+                .onFailure { Log.e("QuestViewModel", "❌ 함수 호출 실패", it) }
+
+            // Firestore에서 유저의 퀘스트 목록 불러오기
+            val quests = questRepository.getUserDailyQuests(uid)
+            Log.d("QuestViewModel", "📌 퀘스트 개수: ${quests.size}")
+            _dailyQuests.value = quests
         }
     }
 }

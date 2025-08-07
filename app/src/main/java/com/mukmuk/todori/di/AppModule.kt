@@ -10,8 +10,6 @@ import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.service.QuestService
 import com.mukmuk.todori.data.repository.TodoRepository
-import com.mukmuk.todori.data.repository.UserRepository
-import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.service.StudyService
 import com.mukmuk.todori.data.service.TodoCategoryService
 import com.mukmuk.todori.data.service.TodoService
@@ -82,15 +80,13 @@ object AppModule {
     @Provides
     @Singleton
     fun provideQuestService(
-        firestore: FirebaseFirestore,
-        functions: FirebaseFunctions
-    ): QuestService = QuestService(firestore, functions)
+        firestore: FirebaseFirestore
+    ): QuestService = QuestService(firestore)
 
     @Provides
     @Singleton
     fun provideFirebaseFunctions(): FirebaseFunctions =
         FirebaseFunctions.getInstance()
-
 
     @Provides
     @Singleton

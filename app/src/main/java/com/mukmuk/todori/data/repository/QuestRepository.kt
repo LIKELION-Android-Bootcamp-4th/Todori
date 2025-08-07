@@ -48,6 +48,14 @@ class QuestRepository @Inject constructor(
     }
 
     suspend fun callQuestCheckFunction(uid: String): Result<String> {
+        // 디버깅용 로그 추가
+        println("🔥 callQuestCheckFunction 호출됨 - uid: '$uid'")  // 콘솔에 uid 값 찍기
+
+        // uid가 null이거나 빈 문자열일 경우 경고
+        if (uid.isBlank()) {
+            println("⚠️ uid가 비어있습니다.")
+        }
+
         return questService.callQuestCheckFunction(uid)
     }
 
