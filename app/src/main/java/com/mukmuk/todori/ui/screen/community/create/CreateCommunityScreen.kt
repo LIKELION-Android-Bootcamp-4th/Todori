@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -73,7 +74,7 @@ fun CreateCommunityScreen(
 
     val td = remember { mutableStateListOf<String>() }
 
-    if(viewModel.data == 2) {
+    if (viewModel.data == 2) {
         title = viewModel.selectedPost?.title ?: ""
         content = viewModel.selectedPost?.content ?: ""
         viewModel.selectedPost = null
@@ -111,7 +112,12 @@ fun CreateCommunityScreen(
                     title = it
                     isTitleError = it.isBlank()
                 },
-                placeholder = {Text("스터디 명을 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
+                placeholder = {
+                    Text(
+                        "스터디 명을 입력하세요",
+                        style = AppTextStyle.Body.copy(color = DarkGray)
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 56.dp),
@@ -131,7 +137,12 @@ fun CreateCommunityScreen(
                     content = it
 
                 },
-                placeholder = {Text("스터디 설명을 작성 해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
+                placeholder = {
+                    Text(
+                        "스터디 설명을 작성 해주세요",
+                        style = AppTextStyle.Body.copy(color = DarkGray)
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
@@ -156,7 +167,7 @@ fun CreateCommunityScreen(
             ) {
                 Text("내가 만든 스터디", style = AppTextStyle.Body)
                 Spacer(Modifier.weight(1f))
-                Button (
+                Button(
                     onClick = {
                         showListSheet = true
                     },
@@ -166,7 +177,7 @@ fun CreateCommunityScreen(
                         contentColor = Black
                     ),
 
-                ) {
+                    ) {
                     Text("불러오기", style = AppTextStyle.Body)
                 }
             }
@@ -177,18 +188,20 @@ fun CreateCommunityScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
             ) {
-                data.forEach{tag ->
+                data.forEach { tag ->
                     Box(
                         modifier = Modifier
                             .background(GroupSecondary, RoundedCornerShape(32.dp))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                             .clickable {
-                                if(!td.contains(tag)){
-                                    td.add(tag)
+                                if (!td.contains(tag)) {
+
+                                        td.add(tag)
+
                                 }
                             }
                             .width(60.dp),
-                    ){
+                    ) {
                         Text(
                             text = tag,
                             color = Black,
@@ -205,7 +218,7 @@ fun CreateCommunityScreen(
 
             Button(
                 onClick = {
-                    if(title != "") {
+                    if (title != "") {
                         viewModel.createPost(
                             StudyPost(
                                 title = title,
@@ -215,9 +228,9 @@ fun CreateCommunityScreen(
                                 createdAt = Timestamp.now()
                             )
                         )
+
                         navController.popBackStack()
-                    }
-                    else{
+                    } else {
                         isTitleError = true
                     }
                 },

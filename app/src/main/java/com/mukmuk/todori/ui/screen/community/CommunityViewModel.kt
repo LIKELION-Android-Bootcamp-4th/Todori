@@ -10,13 +10,19 @@ import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.repository.CommunityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class CommunityViewModel @Inject constructor(
     private val repository: CommunityRepository
 ) : ViewModel() {
-    val postList = mutableStateListOf<StudyPost>()
+
+    private val _state = MutableStateFlow(CommunityState())
+    val state: StateFlow<CommunityState> = _state.asStateFlow()
 
     var selectedPost by mutableStateOf<StudyPost?>(null)
 
@@ -31,40 +37,54 @@ class CommunityViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
 
 
-    fun loadPosts() {
+    fun loadPosts(fliter: String? = null) {
         viewModelScope.launch {
-            val posts = repository.getPosts()
-            postList.clear()
-            postList.addAll(posts)
+            _state.update { it.copy(isLoading = true) }
+            try {
+                val posts = repository.getPosts(fliter)
+                _state.update {
+                    it.copy(
+                        postList = posts,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            }
+            catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
         }
     }
 
-    fun loadPostById(postId: String) {
-        viewModelScope.launch {
-            val post = repository.getPostById(postId)
-            selectedPost = post
-        }
-    }
 
     fun createPost(post: StudyPost) {
         viewModelScope.launch {
-            repository.createPost(post)
-            postList.add(post)
+            try {
+                repository.createPost(post)
+                _state.update {
+                    it.copy(postList = it.postList + post, error = null)
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
         }
     }
 
     fun updatePost(post: StudyPost) {
-        data = 2
-        val index = postList.indexOf(post)
-        if (index != -1) {
-            postList[index] = post
-        }
+
     }
 
     fun deletePost(post: StudyPost) {
         viewModelScope.launch {
-            repository.deletePost(post.postId)
-            postList.remove(post)
+            try {
+                repository.deletePost(post.postId)
+                _state.update {
+                    it.copy(postList = it.postList - post, error = null)
+                }
+            }
+            catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
         }
     }
 

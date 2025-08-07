@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community
 
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,7 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,14 +49,18 @@ import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.White
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewModel) {
 
     var selectedCategory by remember { mutableStateOf("전체") }
-    var categories = listOf("전체", "개발")
+    var categories = mutableStateListOf("전체")
 
-    val postList = viewModel.postList
+    val state by viewModel.state.collectAsState()
+    val postList = state.postList
+
+
 
     LaunchedEffect(Unit) {
         viewModel.loadPosts()
@@ -93,6 +100,20 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
             }
         }
     ){innerPadding ->
+        val list = mutableListOf<String>()
+        for(data in postList) {
+            for (tag in data.tags) {
+                if(tag != ""){
+                    list.add(tag)
+                    }
+            }
+        }
+
+        val result = list.groupingBy { it }.eachCount().toList().sortedByDescending { it.second }.map { it.first }
+
+        categories.addAll(result)
+
+
         Column (
             modifier = Modifier
                 .fillMaxSize()
@@ -104,23 +125,24 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("게시글이 없습니다.", style = AppTextStyle.Body)
+                    Text("게시글이 없습니다", style = AppTextStyle.Body)
                 }
             }
             else {
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 20.dp, start = 16.dp, end = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CommunityListOption()
+                    CommunityListOption(viewModel)
                 }
 
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
+                        .padding(top = 8.dp, bottom = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(categories) { category ->
@@ -135,7 +157,14 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                                     if (selectedCategory == category) Black else White,
                                     shape = RoundedCornerShape(30)
                                 )
-                                .clickable { selectedCategory = category }
+                                .clickable {
+                                    if(category == "전체") {
+                                        postList.filter { true }
+                                    }
+                                    else {
+                                        postList.filter { it.tags.contains(category) }
+                                    }
+                                }
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             Text(

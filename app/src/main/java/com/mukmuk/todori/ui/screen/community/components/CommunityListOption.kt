@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mukmuk.todori.ui.screen.community.CommunityState
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Gray
@@ -39,12 +41,12 @@ import com.mukmuk.todori.ui.theme.White
 @Composable
 fun CommunityListOption(
 
+    viewModel: CommunityViewModel
 ) {
 
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("인기순") }
-    val options = listOf("인기순", "최신순")
-
+    val options = listOf("인기순", "날짜순")
 
 
         Row (
@@ -94,8 +96,12 @@ fun CommunityListOption(
                             onClick = {
                                 selectedOption = option
                                 if (option == "인기순") {
-
+                                    viewModel.loadPosts("맴버 수")
                                 }
+                                else if(option == "날짜수"){
+                                    viewModel.loadPosts("날짜")
+                                }
+
                                 expanded = false
                             },
                         )

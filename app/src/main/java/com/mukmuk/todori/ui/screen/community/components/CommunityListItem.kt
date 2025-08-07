@@ -72,7 +72,9 @@ fun CommunityListItem(
                 Text(
                     title,
                     modifier = Modifier.weight(1f),
-                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
+                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Row(

@@ -12,8 +12,8 @@ class CommunityRepository @Inject constructor(
         communityService.createPost(post)
     }
 
-    suspend fun getPosts(): List<StudyPost> {
-        return communityService.getPosts()
+    suspend fun getPosts(filter: String? = null): List<StudyPost> {
+        return communityService.getPosts(filter)
     }
 
     suspend fun getPostById(postId: String): StudyPost? {
