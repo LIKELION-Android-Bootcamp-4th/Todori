@@ -53,7 +53,7 @@ fun MemberProgressDetailScreen(
             todo.studyTodoId to TodoProgress(
                 studyTodoId = todo.studyTodoId,
                 uid = member.uid,
-                isDone = (0..1).random() == 1,
+                done = (0..1).random() == 1,
                 completedAt = null
             )
         }.toMutableMap()
@@ -88,7 +88,7 @@ fun MemberProgressDetailScreen(
         ) {
             items(filteredMembers) { member ->
                 val todoProgresses = progresses[member.uid] ?: emptyMap()
-                val completedCount = todoProgresses.values.count { it.isDone }
+                val completedCount = todoProgresses.values.count { it.done }
                 val totalCount = todos.size
                 val progress = if (totalCount > 0) completedCount / totalCount.toFloat() else 0f
 

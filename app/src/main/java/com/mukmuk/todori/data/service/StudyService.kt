@@ -77,11 +77,22 @@ class StudyService(
                 studyTodoId = data["studyTodoId"] as? String ?: "",
                 studyId = data["studyId"] as? String ?: "",
                 uid = data["uid"] as? String ?: "",
-                isDone = isDone,
+                done = isDone,
                 completedAt = data["completedAt"] as? com.google.firebase.Timestamp
             )
         }
     }
+
+    suspend fun getProgressByUidStudyDate(uid: String, studyId: String, date: String): List<TodoProgress> {
+        val snapshot = firestore
+            .collection("todoProgresses")
+            .whereEqualTo("uid", uid)
+            .whereEqualTo("studyId", studyId)
+            .whereEqualTo("date", date)
+            .get().await()
+        return snapshot.documents.mapNotNull { it.toObject(TodoProgress::class.java) }
+    }
+
 
     suspend fun getMembersForStudies(studyIds: List<String>): List<StudyMember> {
         if (studyIds.isEmpty()) return emptyList()
@@ -93,6 +104,14 @@ class StudyService(
             result.addAll(snapshot.documents.mapNotNull { it.toObject(StudyMember::class.java) })
         }
         return result
+    }
+
+    suspend fun getProgressesByStudyAndDate(studyId: String, date: String): List<TodoProgress> {
+        val snapshot = firestore.collection("todoProgresses")
+            .whereEqualTo("studyId", studyId)
+            .whereEqualTo("date", date)
+            .get().await()
+        return snapshot.documents.mapNotNull { it.toObject(TodoProgress::class.java) }
     }
 
 

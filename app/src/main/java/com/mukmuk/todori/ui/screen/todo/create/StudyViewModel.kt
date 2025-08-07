@@ -41,7 +41,7 @@ class StudyViewModel @Inject constructor(
                     leaderId = leaderId,
                     createdAt = now,
                     activeDays = activeDays,
-                    isDeleted = false,
+                    deleted = false,
                 )
 
                 // StudyMember 객체 생성

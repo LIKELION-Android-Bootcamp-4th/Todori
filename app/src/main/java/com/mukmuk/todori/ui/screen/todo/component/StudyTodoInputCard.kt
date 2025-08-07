@@ -26,7 +26,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -44,7 +43,7 @@ import com.mukmuk.todori.ui.theme.White
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StudyTodoInputCard(
-    taskList: SnapshotStateList<StudyTodo>,
+    taskList: List<StudyTodo>,
     newTodoText: String,
     onTodoTextChange: (String) -> Unit,
     onAddClick: () -> Unit,
@@ -101,7 +100,7 @@ fun StudyTodoInputCard(
             Spacer(modifier = Modifier.height(Dimens.Small))
 
             taskList.forEachIndexed { i, todo ->
-                val isDone = progressMap[todo.studyTodoId]?.isDone == true
+                val isDone = progressMap[todo.studyTodoId]?.done == true
 
                 TodoItemEditableRow(
                     title = todo.title,
