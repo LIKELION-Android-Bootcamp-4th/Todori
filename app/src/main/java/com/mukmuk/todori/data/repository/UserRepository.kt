@@ -23,14 +23,4 @@ class UserRepository @Inject constructor(
     suspend fun updateUser(uid: String, nickname: String, intro: String){
             userService.updateUser(uid, nickname, intro)
     }
-
-    //목표 조회
-    suspend fun getGoals(uid: String): List<Goal>? {
-        return try {
-            userService.getGoals(uid)
-        } catch (e: Exception) {
-            Log.e("UserGoals", "목표 조회 실패: ${e.message}")
-            emptyList()
-        }
-    }
 }

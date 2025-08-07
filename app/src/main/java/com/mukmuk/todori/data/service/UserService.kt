@@ -26,15 +26,4 @@ class UserService @Inject constructor(
             SetOptions.merge())
             .await()
     }
-
-    //목표 조회
-    suspend fun getGoals(uid: String): List<Goal>? {
-        return userDoc(uid)
-            .collection("goals")
-            .get()
-            .await()
-            .documents
-            .mapNotNull { it.toObject(Goal::class.java) }
-    }
-
 }
