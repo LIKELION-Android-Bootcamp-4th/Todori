@@ -28,12 +28,15 @@ import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun MonthCard(record: List<DailyRecord>) {
+fun MonthCard(
+    record: List<DailyRecord>,
+    completedTodos: Int,
+    totalTodos: Int,
+) {
     val totalStudySeconds = record.sumOf { it.studyTimeMillis }
-    val totalCompletedTodos = 32
-    val totalTodos = 100
-    val TodoTotalPer = if (totalTodos > 0) {
-        (totalCompletedTodos.toFloat() / totalTodos * 100).toInt()
+
+    val todoTotalPer = if (totalTodos > 0) {
+        (completedTodos.toFloat() / totalTodos * 100).toInt()
     } else 0
 
     val avgStudyMinutes = if (record.size > 1) {
@@ -113,7 +116,7 @@ fun MonthCard(record: List<DailyRecord>) {
                     Spacer(modifier = Modifier.height(Dimens.Small))
                     Text("TODO 달성률", style = AppTextStyle.MypageButtonText)
                     Text(
-                        "${TodoTotalPer}%",
+                        "${todoTotalPer}%",
                         style = AppTextStyle.TitleMedium
                     )
                 }

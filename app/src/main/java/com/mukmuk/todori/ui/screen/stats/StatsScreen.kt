@@ -19,15 +19,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.screen.stats.tab.DayTab
-import com.mukmuk.todori.ui.screen.stats.tab.MonthTab
 import com.mukmuk.todori.ui.screen.stats.tab.WeekTab
+import com.mukmuk.todori.ui.screen.stats.tab.month.MonthTab
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.UserPrimary
 
-//더미데이터
 val records = listOf(
     DailyRecord("2025-07-24", "11111", 35432, null),
     DailyRecord("2025-07-25", "11111", 21541, null),
@@ -47,9 +47,13 @@ val records = listOf(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StatsScreen() {
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    //val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+    val uid = "testuser"
 
+    var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("DAY", "WEEK", "MONTH")
+
+
 
     Column(modifier = Modifier.fillMaxSize()) {
         TabRow(
@@ -76,7 +80,7 @@ fun StatsScreen() {
         when (selectedTabIndex) {
             0 -> DayTab(dayRecords = records)
             1 -> WeekTab(weekRecords = records)
-            2 -> MonthTab(monthRecords = records)
+            2 -> MonthTab(monthRecords = records, uid = uid)
         }
     }
 }

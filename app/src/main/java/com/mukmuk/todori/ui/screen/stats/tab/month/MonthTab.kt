@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.stats.tab
+package com.mukmuk.todori.ui.screen.stats.tab.month
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +18,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,11 +37,36 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mukmuk.todori.ui.screen.todo.detail.goal.GoalDetailViewModel
 
 @Composable
-fun MonthTab(monthRecords: List<DailyRecord>) {
+fun MonthTab(
+    monthRecords: List<DailyRecord>,
+    uid: String
+) {
     var selectedMonth by remember {
         mutableStateOf(LocalDate.parse("2025-08-04"))
+    }
+    val viewModel: MonthViewModel = hiltViewModel()
+    val completedTodos by viewModel.completedTodos.collectAsState()
+    val totalTodos by viewModel.totalTodos.collectAsState()
+
+
+    LaunchedEffect(selectedMonth) {
+        viewModel.loadTodoStats(
+            uid = uid,
+            year = selectedMonth.year,
+            month = selectedMonth.monthNumber
+        )
+    }
+
+    val filteredMonthly = remember(selectedMonth, monthRecords) {
+        monthRecords.filter {
+            val recordDate = LocalDate.parse(it.date)
+            recordDate.year == selectedMonth.year &&
+                    recordDate.monthNumber == selectedMonth.monthNumber
+        }
     }
 
     Column(
@@ -105,7 +132,11 @@ fun MonthTab(monthRecords: List<DailyRecord>) {
             }
         }
 
-        MonthCard(record = filteredMonthly)
+        MonthCard(
+            record = filteredMonthly,
+            completedTodos = completedTodos,
+            totalTodos = totalTodos
+        )
         Spacer(modifier = Modifier.height(Dimens.Large))
         MonthProgress(record = filteredMonthly)
     }
