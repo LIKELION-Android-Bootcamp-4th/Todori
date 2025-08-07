@@ -5,6 +5,7 @@ import com.mukmuk.todori.data.remote.community.StudyPost
 data class CommunityState (
 
     val postList: List<StudyPost> = emptyList(),
+    val allPostList: List<StudyPost> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
     val data: Int = 1

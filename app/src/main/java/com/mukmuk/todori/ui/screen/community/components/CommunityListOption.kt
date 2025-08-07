@@ -40,14 +40,12 @@ import com.mukmuk.todori.ui.theme.White
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun CommunityListOption(
-
-    viewModel: CommunityViewModel
+    selectedOption: String,
+    setData: (String) -> Unit
 ) {
 
     var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("인기순") }
-    val options = listOf("인기순", "날짜순")
-
+    val options = listOf("참가자 수", "날짜순")
 
         Row (
             modifier = Modifier.wrapContentSize(),
@@ -83,6 +81,7 @@ fun CommunityListOption(
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
+                    shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .background(White, RoundedCornerShape(10.dp))
                         .border(1.dp, Gray)
@@ -94,14 +93,7 @@ fun CommunityListOption(
                                 style = AppTextStyle.BodySmall
                             ) },
                             onClick = {
-                                selectedOption = option
-                                if (option == "인기순") {
-                                    viewModel.loadPosts("맴버 수")
-                                }
-                                else if(option == "날짜수"){
-                                    viewModel.loadPosts("날짜")
-                                }
-
+                                setData(option)
                                 expanded = false
                             },
                         )

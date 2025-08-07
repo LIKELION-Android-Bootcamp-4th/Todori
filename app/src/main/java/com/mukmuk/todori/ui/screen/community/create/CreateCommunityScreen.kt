@@ -241,15 +241,6 @@ fun CreateCommunityScreen(
         }
 
         if (showListSheet) {
-            ListPickerBottomSheet(
-                show = showListSheet,
-                items = asd,
-                onDismissRequest = { showListSheet = false },
-                onSelect = {
-                    pickedItem = it
-                    showListSheet = false
-                }
-            )
         }
 
     }

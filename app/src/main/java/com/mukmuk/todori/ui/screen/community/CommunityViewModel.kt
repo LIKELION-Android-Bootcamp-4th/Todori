@@ -37,13 +37,14 @@ class CommunityViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
 
 
-    fun loadPosts(fliter: String? = null) {
+    fun loadPosts(filter: String? = null) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                val posts = repository.getPosts(fliter)
+                val posts = repository.getPosts(filter)
                 _state.update {
                     it.copy(
+                        allPostList = if(filter == null) posts else it.allPostList,
                         postList = posts,
                         isLoading = false,
                         error = null
@@ -52,6 +53,24 @@ class CommunityViewModel @Inject constructor(
             }
             catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    fun setData(data: String){
+        _state.update {
+            it.copy(postList = state.value.allPostList)
+        }
+        if(data == "전체") {
+            _state.update {
+                it.copy(postList = state.value.allPostList)
+            }
+        }
+        else {
+            _state.update {
+                it.copy(postList = state.value.allPostList.filter { post ->
+                    post.tags.contains(data)
+                })
             }
         }
     }
@@ -69,6 +88,7 @@ class CommunityViewModel @Inject constructor(
             }
         }
     }
+
 
     fun updatePost(post: StudyPost) {
 

@@ -8,10 +8,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -38,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -46,6 +49,7 @@ import com.mukmuk.todori.ui.screen.community.components.CommunityListOption
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.ButtonPrimary
+import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.White
 
@@ -58,9 +62,8 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
     var categories = mutableStateListOf("전체")
 
     val state by viewModel.state.collectAsState()
-    val postList = state.postList
 
-
+    var selectedOption by remember { mutableStateOf("참가자 수") }
 
     LaunchedEffect(Unit) {
         viewModel.loadPosts()
@@ -101,7 +104,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
         }
     ){innerPadding ->
         val list = mutableListOf<String>()
-        for(data in postList) {
+        for(data in state.postList) {
             for (tag in data.tags) {
                 if(tag != ""){
                     list.add(tag)
@@ -119,13 +122,14 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (postList.isEmpty()) {
+            if (state.postList.isEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Text("게시글이 없습니다", style = AppTextStyle.Body)
+                    Text("게시글이 없습니다", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
                 }
             }
             else {
@@ -136,7 +140,20 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                         .padding(top = 20.dp, start = 16.dp, end = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CommunityListOption(viewModel)
+                    CommunityListOption(
+                        selectedOption = selectedOption,
+                        setData = { option ->
+                            selectedOption = option
+                            selectedCategory = "전체"
+                            viewModel.setData(selectedCategory)
+                            if(option == "참가자 수"){
+                                viewModel.loadPosts("맴버 수")
+                            }
+                            else if(option == "날짜순"){
+                                viewModel.loadPosts("날짜순")
+                            }
+                        }
+                    )
                 }
 
                 LazyRow(
@@ -146,6 +163,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(categories) { category ->
+                        Spacer(modifier = Modifier.width(Dimens.Tiny))
                         Box(
                             modifier = Modifier
                                 .border(
@@ -158,12 +176,8 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                                     shape = RoundedCornerShape(30)
                                 )
                                 .clickable {
-                                    if(category == "전체") {
-                                        postList.filter { true }
-                                    }
-                                    else {
-                                        postList.filter { it.tags.contains(category) }
-                                    }
+                                    selectedCategory = category
+                                    viewModel.setData(selectedCategory)
                                 }
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
@@ -180,14 +194,14 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 16.dp, end = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(top = 16.dp)
                     ) {
-                        items(postList) { post ->
+                        items(state.postList) { post ->
                             CommunityListItem(
                                 title = post.title,
                                 description = post.content,

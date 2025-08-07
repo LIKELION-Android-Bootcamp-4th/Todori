@@ -2,6 +2,7 @@ package com.mukmuk.todori.data.service
 
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.mukmuk.todori.data.remote.community.StudyPost
 import kotlinx.coroutines.tasks.await
@@ -24,8 +25,8 @@ class CommunityService(
         val snapshot: QuerySnapshot = if (filter == "맴버 수") {
             communityRef().orderBy("memberCount").get().await()
         }
-        else if(filter == "날짜"){
-            communityRef().orderBy("createdAt").get().await()
+        else if(filter == "날짜순"){
+            communityRef().orderBy("createdAt", Query.Direction.DESCENDING).get().await()
         }
         else {
             communityRef().get().await()
