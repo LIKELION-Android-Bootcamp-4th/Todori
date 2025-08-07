@@ -18,9 +18,17 @@ class QuestViewModel @Inject constructor(
     private val _dailyQuests = MutableStateFlow<List<DailyUserQuest>>(emptyList())
     val dailyQuests: StateFlow<List<DailyUserQuest>> = _dailyQuests
 
+    private val _questCheckResult = MutableStateFlow<Result<String>?>(null)
+    val questCheckResult: StateFlow<Result<String>?> = _questCheckResult
+
+    //퀘스트 완료체크
     fun loadDailyQuests(uid: String) {
         viewModelScope.launch {
-            questRepository.updateUserDailyQuests(uid)
+            // cloud function 호출
+            val result = questRepository.callQuestCheckFunction(uid)
+            _questCheckResult.value = result
+
+            //퀘스트 목록 새로고침
             _dailyQuests.value = questRepository.getUserDailyQuests(uid)
         }
     }

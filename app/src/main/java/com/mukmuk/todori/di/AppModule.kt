@@ -1,6 +1,7 @@
 package com.mukmuk.todori.di
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import com.mukmuk.todori.data.repository.GoalRepository
 import com.mukmuk.todori.data.repository.QuestRepository
 import com.mukmuk.todori.data.service.GoalService
@@ -77,8 +78,15 @@ object AppModule {
     @Provides
     @Singleton
     fun provideQuestService(
-        firestore: FirebaseFirestore
-    ): QuestService = QuestService(firestore)
+        firestore: FirebaseFirestore,
+        functions: FirebaseFunctions
+    ): QuestService = QuestService(firestore, functions)
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFunctions(): FirebaseFunctions =
+        FirebaseFunctions.getInstance()
+
 
     @Provides
     @Singleton
