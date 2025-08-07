@@ -54,6 +54,7 @@ fun MonthTab(
     val completedTodos by viewModel.completedTodos.collectAsState()
     val totalTodos by viewModel.totalTodos.collectAsState()
     val completedGoals by viewModel.completedGoals.collectAsState()
+    val totalGoals by viewModel.totalGoals.collectAsState()
 
     LaunchedEffect(selectedMonth) {
         viewModel.loadTodoStats(
@@ -146,6 +147,12 @@ fun MonthTab(
             completedGoals = completedGoals
         )
         Spacer(modifier = Modifier.height(Dimens.Large))
-        MonthProgress(record = filteredMonthly)
+        MonthProgress(
+            record = filteredMonthly,
+            completedTodos = completedTodos,
+            totalTodos = totalTodos,
+            completedGoals = completedGoals,
+            totalGoals = totalGoals
+        )
     }
 }

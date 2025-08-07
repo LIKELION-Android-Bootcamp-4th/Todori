@@ -23,4 +23,17 @@ class GoalStatsRepository @Inject constructor(
             }.getOrDefault(false)
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getTotalGoalCount(uid: String, year: Int, month: Int): Int {
+        val goals = goalService.getGoals(uid)
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+        return goals.count { goal ->
+            runCatching {
+                val end = LocalDate.parse(goal.endDate, formatter)
+                end.year == year && end.monthValue == month
+            }.getOrDefault(false)
+        }
+    }
 }

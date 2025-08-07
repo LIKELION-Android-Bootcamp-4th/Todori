@@ -23,15 +23,13 @@ import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun MonthProgress(record: List<DailyRecord>) {
-
-    val totalCompletedTodos = 10
-    val totalTodos = 100
-
-    //TODO: todo 분류 필요
-    val totalCompletedGoals = 10
-    val totalGoals = 10
-
+fun MonthProgress(
+    record: List<DailyRecord>,
+    completedTodos: Int,
+    totalTodos: Int,
+    completedGoals: Int,
+    totalGoals: Int
+) {
     val totalCompletedStudy = 25
     val totalStudy = 30
 
@@ -51,8 +49,8 @@ fun MonthProgress(record: List<DailyRecord>) {
                 Spacer(modifier = Modifier.height(Dimens.XLarge))
                 //개인
                 ProgressWithText(
-                    progress = totalCompletedTodos/totalTodos.toFloat(),
-                    completed = totalCompletedTodos,
+                    progress = completedTodos/totalTodos.toFloat(),
+                    completed = completedTodos,
                     total = totalTodos,
                     progressColor = UserPrimary,
                     modifier = Modifier.fillMaxWidth(),
@@ -62,8 +60,8 @@ fun MonthProgress(record: List<DailyRecord>) {
 
                 //목표
                 ProgressWithText(
-                    progress = totalCompletedGoals/totalGoals.toFloat(),
-                    completed = totalCompletedGoals,
+                    progress = completedGoals/totalGoals.toFloat(),
+                    completed = completedGoals,
                     total = totalGoals,
                     progressColor = GoalPrimary,
                     modifier = Modifier.fillMaxWidth(),

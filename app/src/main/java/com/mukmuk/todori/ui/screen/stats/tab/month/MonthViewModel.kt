@@ -28,6 +28,8 @@ class MonthViewModel @Inject constructor(
     private val _completedGoals = MutableStateFlow(0)
     val completedGoals: StateFlow<Int> = _completedGoals.asStateFlow()
 
+    private val _totalGoals = MutableStateFlow(0)
+    val totalGoals: StateFlow<Int> = _totalGoals
 
     fun loadTodoStats(uid: String, year: Int, month: Int) {
         viewModelScope.launch {
@@ -39,7 +41,10 @@ class MonthViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadGoalStats(uid: String, year: Int, month: Int) {
         viewModelScope.launch {
-            _completedGoals.value = goalStatsRepository.getCompletedGoalCount(uid, year, month)
+            val completed = goalStatsRepository.getCompletedGoalCount(uid, year, month)
+            val total = goalStatsRepository.getTotalGoalCount(uid, year, month)
+            _completedGoals.value = completed
+            _totalGoals.value = total
         }
     }
 }
