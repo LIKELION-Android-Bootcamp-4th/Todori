@@ -27,7 +27,7 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeekProgress(
-    record: List<DailyRecord>,
+    week: LocalDate,
     allTodos: List<Todo>,
     completedTodos: List<Todo>
 ) {
@@ -35,8 +35,7 @@ fun WeekProgress(
 
         val weekDays = listOf("일", "월", "화", "수", "목", "금", "토")
 
-        val today = LocalDate.now()
-        val sunday = today.minusDays(today.dayOfWeek.value % 7L)
+        val sunday = week.minusDays(week.dayOfWeek.value % 7L)
         val thisWeekDates = (0..6).map { sunday.plusDays(it.toLong()) }
 
         val dailyProgress = thisWeekDates.map { date ->

@@ -134,7 +134,7 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
             Spacer(modifier = Modifier.height(Dimens.Large))
             WeekGraph(record = DailyRecordFiltered)
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekProgress(record = DailyRecordFiltered, allTodos = weeklyTodos, completedTodos= weeklyCompletedTodos)
+            WeekProgress(week = selectedWeek,allTodos = weeklyTodos, completedTodos= weeklyCompletedTodos)
         }
     }
 }
