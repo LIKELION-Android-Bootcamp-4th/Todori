@@ -32,6 +32,7 @@ fun MonthCard(
     record: List<DailyRecord>,
     completedTodos: Int,
     totalTodos: Int,
+    completedGoals: Int
 ) {
     val totalStudySeconds = record.sumOf { it.studyTimeMillis }
 
@@ -48,8 +49,6 @@ fun MonthCard(
     val totalStudyMinutes = totalStudySeconds / 60
     val totalHours = totalStudyMinutes / 60
     val totalMinutes = totalStudyMinutes % 60
-
-    val completedGoal = 3
 
     Column {
         Row(
@@ -188,7 +187,7 @@ fun MonthCard(
                     )
                     Spacer(modifier = Modifier.height(Dimens.Small))
                     Text("완료 목표", style = AppTextStyle.MypageButtonText)
-                    Text("${completedGoal}개", style = AppTextStyle.TitleMedium)
+                    Text("${completedGoals}개", style = AppTextStyle.TitleMedium)
                 }
             }
         }

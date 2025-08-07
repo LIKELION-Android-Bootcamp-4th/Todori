@@ -1,5 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.tab.month
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,10 +53,15 @@ fun MonthTab(
     val viewModel: MonthViewModel = hiltViewModel()
     val completedTodos by viewModel.completedTodos.collectAsState()
     val totalTodos by viewModel.totalTodos.collectAsState()
-
+    val completedGoals by viewModel.completedGoals.collectAsState()
 
     LaunchedEffect(selectedMonth) {
         viewModel.loadTodoStats(
+            uid = uid,
+            year = selectedMonth.year,
+            month = selectedMonth.monthNumber
+        )
+        viewModel.loadGoalStats(
             uid = uid,
             year = selectedMonth.year,
             month = selectedMonth.monthNumber
@@ -135,7 +142,8 @@ fun MonthTab(
         MonthCard(
             record = filteredMonthly,
             completedTodos = completedTodos,
-            totalTodos = totalTodos
+            totalTodos = totalTodos,
+            completedGoals = completedGoals
         )
         Spacer(modifier = Modifier.height(Dimens.Large))
         MonthProgress(record = filteredMonthly)
