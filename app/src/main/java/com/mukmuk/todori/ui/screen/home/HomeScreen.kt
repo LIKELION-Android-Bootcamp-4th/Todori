@@ -49,6 +49,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.mukmuk.todori.navigation.BottomNavItem
 import com.mukmuk.todori.ui.screen.home.components.MainTodoItemEditableRow
 import com.mukmuk.todori.ui.screen.home.components.PomoModeTextBox
+import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Background
 import com.mukmuk.todori.ui.theme.Black
@@ -83,6 +84,15 @@ fun HomeScreen(navController: NavHostController) {
     }
     LaunchedEffect("testuser") {
         viewModel.startObservingTodos("testuser")
+    }
+
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    LaunchedEffect(savedStateHandle) {
+        savedStateHandle?.getLiveData<HomeSettingState>("homeSetting")
+            ?.observeForever {
+                viewModel.onEvent(TimerEvent.Reset)
+            }
     }
 
     Scaffold(
