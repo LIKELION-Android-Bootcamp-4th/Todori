@@ -13,6 +13,7 @@ class TodoRepository @Inject constructor(
     suspend fun createTodo(uid: String, todo: Todo) = todoService.createTodo(uid, todo)
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getTodosByDate(uid: String, date: LocalDate) = todoService.getTodosByDate(uid, date)
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getTodosByWeek(uid: String, sunday: LocalDate, saturday: LocalDate) = todoService.getTodosByWeek(uid, sunday, saturday)
 
     suspend fun getTodosByCategoryAndDate(uid: String, categoryId: String, date: String): List<Todo> {
