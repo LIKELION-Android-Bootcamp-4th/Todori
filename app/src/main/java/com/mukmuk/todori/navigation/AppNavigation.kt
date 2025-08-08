@@ -74,8 +74,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             )
         }
         composable("login") {
-            val loginViewModel: LoginViewModel = viewModel()
-            LoginScreen(viewModel = loginViewModel, navController = navController)
+            LoginScreen(navController = navController)
         }
         composable("goal/create") { backStackEntry ->
             val navEntry = navController.previousBackStackEntry

@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -33,9 +34,9 @@ import com.mukmuk.todori.ui.theme.Dimens
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel,
     navController: NavController
 ) {
+    val viewModel: LoginViewModel = hiltViewModel()
     val state = viewModel.state
     val context = LocalContext.current
 

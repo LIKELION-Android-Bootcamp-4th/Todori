@@ -5,12 +5,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.user.User
+import com.mukmuk.todori.data.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginViewModel  : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val repository: UserRepository
+) : ViewModel() {
     var state by mutableStateOf(LoginState())
         private set
 
@@ -35,44 +43,24 @@ class LoginViewModel  : ViewModel() {
     }
 
     fun uploadUserToFirestore(user: FirebaseUser, isNewUser: Boolean?) {
-        val firestore = FirebaseFirestore.getInstance()
-        val userDocRef = firestore.collection("users").document(user.uid)
         val currentTime = System.currentTimeMillis()
+        val userData = User(
+            uid = user.uid,
+            nickname = user.displayName!!,
+            createdAt = currentTime,
+            lastLoginAt = currentTime
+        )
 
-        if (isNewUser == true) {
-            val newUserData = mapOf(
-                "uid" to user.uid,
-                "nickname" to user.displayName,
-                "intro" to null,
-                "level" to 1,
-                "rewardPoint" to 0,
-                "authProvider" to "google",
-                "createdAt" to currentTime,
-                "lastLoginAt" to currentTime,
-                "isDeleted" to false,
-                "fcmToken" to null
-            )
-
-            userDocRef.set(newUserData)
-                .addOnSuccessListener {
-                    println("Firestore: 새로운 사용자(${user.uid}) 정보 성공적으로 생성.")
+        viewModelScope.launch {
+            try {
+                if (isNewUser == true) {
+                    repository.createUser(user.uid, userData)
+                } else {
+                    repository.updateUser(user.uid, userData)
                 }
-                .addOnFailureListener { e ->
-                    println("Firestore: 새로운 사용자 정보 생성 실패: $e")
-                }
-        } else {
-            val updateData = mapOf(
-                "lastLoginAt" to currentTime,
-
-            )
-
-            userDocRef.set(updateData, SetOptions.merge())
-                .addOnSuccessListener {
-                    println("Firestore: 기존 사용자(${user.uid}) 정보 성공적으로 업데이트.")
-                }
-                .addOnFailureListener { e ->
-                    println("Firestore: 기존 사용자 정보 업데이트 실패: $e")
-                }
+            } catch (e: Exception) {
+                LoginEvent.LoginFailure("${e.message}")
+            }
         }
     }
 }
