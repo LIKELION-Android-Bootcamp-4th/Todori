@@ -77,11 +77,22 @@ class StudyService(
                 studyTodoId = data["studyTodoId"] as? String ?: "",
                 studyId = data["studyId"] as? String ?: "",
                 uid = data["uid"] as? String ?: "",
-                isDone = isDone,
+                done = isDone,
                 completedAt = data["completedAt"] as? com.google.firebase.Timestamp
             )
         }
     }
+
+    suspend fun getProgressByUidStudyDate(uid: String, studyId: String, date: String): List<TodoProgress> {
+        val snapshot = firestore
+            .collection("todoProgresses")
+            .whereEqualTo("uid", uid)
+            .whereEqualTo("studyId", studyId)
+            .whereEqualTo("date", date)
+            .get().await()
+        return snapshot.documents.mapNotNull { it.toObject(TodoProgress::class.java) }
+    }
+
 
     suspend fun getMembersForStudies(studyIds: List<String>): List<StudyMember> {
         if (studyIds.isEmpty()) return emptyList()
@@ -94,6 +105,99 @@ class StudyService(
         }
         return result
     }
+
+    suspend fun getProgressesByStudyAndDate(studyId: String, date: String): List<TodoProgress> {
+        val snapshot = firestore.collection("todoProgresses")
+            .whereEqualTo("studyId", studyId)
+            .whereEqualTo("date", date)
+            .get().await()
+        return snapshot.documents.mapNotNull { it.toObject(TodoProgress::class.java) }
+    }
+
+    suspend fun toggleTodoProgressDone(studyId: String, studyTodoId: String, uid: String, checked: Boolean) {
+        val docId = "progress_${studyTodoId}_$uid"
+        firestore.collection("todoProgresses")
+            .document(docId)
+            .update("done", checked)
+            .await()
+    }
+
+    suspend fun deleteStudyTodo(studyTodoId: String) {
+        firestore.collection("studyTodos").document(studyTodoId).delete().await()
+        val progressesSnapshot = firestore.collection("todoProgresses")
+            .whereEqualTo("studyTodoId", studyTodoId)
+            .get().await()
+        for (doc in progressesSnapshot.documents) {
+            doc.reference.delete().await()
+        }
+    }
+
+    suspend fun addStudyTodoWithProgress(studyTodo: StudyTodo, members: List<StudyMember>) {
+        // 1. studyTodos 컬렉션에 추가 (Auto-ID 필요시 set 대신 add)
+        val todoRef = firestore.collection("studyTodos").document() // auto-id 생성
+        val autoId = todoRef.id
+        val todoWithId = studyTodo.copy(studyTodoId = autoId)
+        todoRef.set(todoWithId).await()
+
+        for (member in members) {
+            val progressId = "progress_${autoId}_${member.uid}"
+            val progress = mapOf(
+                "studyTodoId" to autoId,
+                "studyId" to studyTodo.studyId,
+                "uid" to member.uid,
+                "done" to false,
+                "completedAt" to null,
+                "date" to studyTodo.date
+            )
+            firestore.collection("todoProgresses").document(progressId).set(progress).await()
+        }
+    }
+
+    suspend fun deleteStudyWithAllData(studyId: String) {
+        val batch = firestore.batch()
+        // studies/{studyId} 삭제
+        val studyRef = firestore.collection("studies").document(studyId)
+        batch.delete(studyRef)
+
+        // studyMembers(studyId) 삭제
+        val members = firestore.collection("studyMembers")
+            .whereEqualTo("studyId", studyId).get().await()
+        for (doc in members.documents) {
+            batch.delete(doc.reference)
+        }
+
+        // studyTodos(studyId) 삭제
+        val todos = firestore.collection("studyTodos")
+            .whereEqualTo("studyId", studyId).get().await()
+        for (doc in todos.documents) {
+            batch.delete(doc.reference)
+        }
+
+        // todoProgresses(studyId) 삭제
+        val progresses = firestore.collection("todoProgresses")
+            .whereEqualTo("studyId", studyId).get().await()
+        for (doc in progresses.documents) {
+            batch.delete(doc.reference)
+        }
+
+        // users/{uid}/myStudies 내역 삭제
+        val allMembers = members.documents.mapNotNull { it.getString("uid") }
+        for (uid in allMembers) {
+            val myStudyRef = firestore.collection("users").document(uid)
+                .collection("myStudies").document(studyId)
+            batch.delete(myStudyRef)
+        }
+
+        batch.commit().await()
+    }
+
+    suspend fun updateStudy(study: Study) {
+        val docId = study.studyId.ifBlank { throw IllegalArgumentException("studyId required") }
+        firestore.collection("studies").document(docId)
+            .set(study, SetOptions.merge())
+            .await()
+    }
+
 
 
 }

@@ -20,9 +20,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
-import com.mukmuk.todori.ui.screen.stats.tab.DayTab
-import com.mukmuk.todori.ui.screen.stats.tab.MonthTab
-import com.mukmuk.todori.ui.screen.stats.tab.WeekTab
+import com.mukmuk.todori.ui.screen.stats.tab.day.DayTab
+import com.mukmuk.todori.ui.screen.stats.tab.month.MonthTab
+import com.mukmuk.todori.ui.screen.stats.tab.week.WeekTab
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.UserPrimary
