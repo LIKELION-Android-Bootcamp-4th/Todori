@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
+import com.mukmuk.todori.data.local.datastore.RecordRepository
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.HomeRepository
@@ -31,7 +32,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val homeSettingRepository: HomeSettingRepository,
     private val todoRepository: TodoRepository,
-    private val homeRepository: HomeRepository
+    private val homeRepository: HomeRepository,
+    private val recordRepository: RecordRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TimerState())
@@ -44,6 +46,7 @@ class HomeViewModel @Inject constructor(
     val todoList: StateFlow<List<Todo>> = _todoList.asStateFlow()
 
     private val currentUid: String = "testuser"
+
     @RequiresApi(Build.VERSION_CODES.O)
     private val currentDate = LocalDate.now()
 
@@ -65,6 +68,13 @@ class HomeViewModel @Inject constructor(
                 _homeSettingState.value = settings
             }
         }
+
+        viewModelScope.launch {
+            recordRepository.totalRecordTimeFlow.collectLatest { savedTime ->
+                _state.update { it.copy(totalRecordTimeMills = savedTime) }
+            }
+        }
+
         loadTodosForHomeScreen(currentUid, currentDate)
         loadDailyRecordAndSetTotalTime(currentUid, currentDate)
     }
@@ -150,7 +160,16 @@ class HomeViewModel @Inject constructor(
 
     fun setTotalRecordTimeMills(recordTime: Long, uid: String, todo: Todo) {
         viewModelScope.launch {
-            val updated = todo.copy(totalFocusTimeMillis = _state.value.totalRecordTimeMills + recordTime)
+            val updated = if (todo.totalFocusTimeMillis > 0L) {
+                todo.copy(totalFocusTimeMillis = todo.totalFocusTimeMillis + recordTime)
+            } else {
+                todo.copy(totalFocusTimeMillis = recordTime)
+            }
+
+            val newRecordTime = _state.value.totalStudyTimeMills
+            _state.update { it.copy(totalRecordTimeMills = newRecordTime) }
+            recordRepository.saveTotalRecordTime(newRecordTime)
+
             try {
                 todoRepository.updateTodo(uid, updated)
                 loadTodosForHomeScreen(uid, LocalDate.parse(todo.date))

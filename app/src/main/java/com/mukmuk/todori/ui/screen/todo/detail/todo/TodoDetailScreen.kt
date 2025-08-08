@@ -175,6 +175,7 @@ fun TodoDetailScreen(
                                         }
                                     }
                                 )
+                                homeViewModel.triggerRefresh()
                             }
                         },
                         modifier = Modifier.fillMaxSize()

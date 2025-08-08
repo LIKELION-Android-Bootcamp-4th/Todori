@@ -1,6 +1,9 @@
 package com.mukmuk.todori.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.data.repository.GoalRepository
@@ -117,5 +120,11 @@ object AppModule {
         return HomeSettingRepository(context)
     }
 
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "todori_prefs")
+    @Provides
+    @Singleton
+    fun provideDataStore(
+        @ApplicationContext context: Context
+    ): DataStore<Preferences> = context.dataStore
 
 }
