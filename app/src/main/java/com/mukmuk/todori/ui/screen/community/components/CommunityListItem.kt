@@ -45,12 +45,8 @@ import com.mukmuk.todori.ui.theme.White
 fun CommunityListItem(
     title: String,
     description: String,
-    tags: List<String> = emptyList(),
-    comments: Int = 0,
-    members: Int = 0,
+    tags: List<String>,
     navController: NavHostController,
-    viewModel: CommunityViewModel,
-    post: StudyPost
 ) {
     Card(
         modifier = Modifier
@@ -61,8 +57,8 @@ fun CommunityListItem(
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         onClick = {
-            viewModel.selectedPost = post
             navController.navigate("community/detail")
+
         },
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -76,7 +72,9 @@ fun CommunityListItem(
                 Text(
                     title,
                     modifier = Modifier.weight(1f),
-                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
+                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Row(
@@ -95,7 +93,7 @@ fun CommunityListItem(
                     Spacer(Modifier.width(Dimens.Tiny))
 
                     Text(
-                        "$members",
+                        "",
                         style = AppTextStyle.BodySmall
                     )
                 }
@@ -128,7 +126,11 @@ fun CommunityListItem(
                             tag,
                             style = AppTextStyle.BodySmall
                         )
+
+
                     }
+
+                    Spacer(modifier = Modifier.width(Dimens.Tiny))
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -149,7 +151,7 @@ fun CommunityListItem(
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
 
                     Text(
-                        text = "$comments",
+                        text = "",
                         style = AppTextStyle.BodySmall
                     )
                 }

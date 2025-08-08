@@ -46,7 +46,6 @@ fun CommunityDetailCommentReply(
     comment: String,
     createdAt: Timestamp?,
     viewModel: CommunityViewModel,
-    commentData: CommentList
 ) {
 
     var expanded by remember { mutableStateOf(false) }

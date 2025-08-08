@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.create
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,7 +38,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.Timestamp
+import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.screen.community.components.ListPickerBottomSheet
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -59,12 +65,16 @@ fun CreateCommunityScreen(
 
     var content by remember { mutableStateOf("") }
 
-    var data = listOf("td", "asd")
+    var data = listOf("토익", "언어", "개발", "자기계발", "실습", "운동", "수학", "국어", "독서", "예체능")
+
+    var asd = listOf("")
 
     var showListSheet by remember { mutableStateOf(false) }
     var pickedItem by remember { mutableStateOf<String?>(null) }
 
-    if(viewModel.data == 2) {
+    val td = remember { mutableStateListOf<String>() }
+
+    if (viewModel.data == 2) {
         title = viewModel.selectedPost?.title ?: ""
         content = viewModel.selectedPost?.content ?: ""
         viewModel.selectedPost = null
@@ -102,7 +112,12 @@ fun CreateCommunityScreen(
                     title = it
                     isTitleError = it.isBlank()
                 },
-                placeholder = {Text("스터디 명을 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
+                placeholder = {
+                    Text(
+                        "스터디 명을 입력하세요",
+                        style = AppTextStyle.Body.copy(color = DarkGray)
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 56.dp),
@@ -122,7 +137,12 @@ fun CreateCommunityScreen(
                     content = it
 
                 },
-                placeholder = {Text("스터디 설명을 작성 해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
+                placeholder = {
+                    Text(
+                        "스터디 설명을 작성 해주세요",
+                        style = AppTextStyle.Body.copy(color = DarkGray)
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
@@ -139,6 +159,7 @@ fun CreateCommunityScreen(
                     .background(Gray)
             )
 
+            Spacer(Modifier.height(Dimens.Large))
 
 
             Row(
@@ -146,7 +167,7 @@ fun CreateCommunityScreen(
             ) {
                 Text("내가 만든 스터디", style = AppTextStyle.Body)
                 Spacer(Modifier.weight(1f))
-                Button (
+                Button(
                     onClick = {
                         showListSheet = true
                     },
@@ -156,7 +177,7 @@ fun CreateCommunityScreen(
                         contentColor = Black
                     ),
 
-                ) {
+                    ) {
                     Text("불러오기", style = AppTextStyle.Body)
                 }
             }
@@ -167,14 +188,20 @@ fun CreateCommunityScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
             ) {
-                data.forEach{tag ->
+                data.forEach { tag ->
                     Box(
                         modifier = Modifier
                             .background(GroupSecondary, RoundedCornerShape(32.dp))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .clickable {
+                                if (!td.contains(tag)) {
+
+                                        td.add(tag)
+
+                                }
+                            }
                             .width(60.dp),
-                        contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         Text(
                             text = tag,
                             color = Black,
@@ -182,7 +209,7 @@ fun CreateCommunityScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(Dimens.Tiny))
+                    Spacer(modifier = Modifier.padding(16.dp))
 
                 }
             }
@@ -191,17 +218,19 @@ fun CreateCommunityScreen(
 
             Button(
                 onClick = {
-                    if(title != "") {
-
-                        viewModel.addPost(
-                            title = title,
-                            content = content
+                    if (title != "") {
+                        viewModel.createPost(
+                            StudyPost(
+                                title = title,
+                                content = content,
+                                tags = td,
+                                postId = "",
+                                createdAt = Timestamp.now()
+                            )
                         )
 
-
                         navController.popBackStack()
-                    }
-                    else{
+                    } else {
                         isTitleError = true
                     }
                 },
@@ -209,6 +238,9 @@ fun CreateCommunityScreen(
             ) {
                 Text("작성", style = AppTextStyle.MypageButtonText.copy(color = White))
             }
+        }
+
+        if (showListSheet) {
         }
 
     }

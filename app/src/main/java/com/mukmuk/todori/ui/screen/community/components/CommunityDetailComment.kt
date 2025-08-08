@@ -47,7 +47,6 @@ fun CommunityDetailComment(
     comment: String,
     createdAt: Timestamp?,
     viewModel: CommunityViewModel,
-    commentData: CommentList
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -97,7 +96,7 @@ fun CommunityDetailComment(
 
                                 }
                                 else if(item == "삭제") {
-                                    viewModel.deleteComment(commentData)
+
                                 }
                             }
                         )
