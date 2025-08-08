@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.stats.tab
+package com.mukmuk.todori.ui.screen.stats.tab.day
 
 import android.os.Build
 import android.util.Log
@@ -30,16 +30,6 @@ class DayViewModel @Inject constructor(
             try {
                 val dailyTodos = todoRepository.getTodosByDate(uid, date)
                 _todos.value = dailyTodos
-            } catch (e: Exception) {
-                Log.d("DayViewModel", "DAY TODO 불러오기 실패 : ${e.message}")
-            }
-        }
-    }
-
-    fun loadCompletedTodos(uid: String, date: LocalDate) {
-        viewModelScope.launch {
-            try {
-                val dailyTodos = todoRepository.getTodosByDate(uid, date)
                 _completedTodos.value = dailyTodos.filter { it.completed }
             } catch (e: Exception) {
                 Log.d("DayViewModel", "DAY TODO 불러오기 실패 : ${e.message}")

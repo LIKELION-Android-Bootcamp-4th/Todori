@@ -37,24 +37,19 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayStatsCard(
-    record: DailyRecord
+    date: LocalDate,
+    record: DailyRecord,
+    todos: List<Todo>
 ) {
     val parsedDate = LocalDate.parse(record.date)
     val parseTime = record.studyTimeMillis
 
-    val year = parsedDate.year
-    val month = parsedDate.monthValue
-    val day = parsedDate.dayOfMonth
+    val year = date.year
+    val month = date.monthValue
+    val day = date.dayOfMonth
 
     var text by remember { mutableStateOf(record.reflection ?: "") }
     var isEditing by remember { mutableStateOf(false) }
-
-    val todos = listOf(
-        Todo(title = "스트레칭 하기", completed = true),
-        Todo(title = "스쿼트 50개", completed = false),
-        Todo(title = "런닝 30분", completed = true)
-
-    )
 
     val completedTodos = todos.count { it.completed }
 
