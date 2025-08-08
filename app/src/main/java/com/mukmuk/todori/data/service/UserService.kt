@@ -52,30 +52,30 @@ class UserService @Inject constructor(
     suspend fun kakaoLogin(context: Context) {
         try {
             val accessToken = getKakaoAccessToken(context)
-            Log.d("KAKAO", "카카오 AccessToken: $accessToken")
 
             val functions = FirebaseFunctions.getInstance()
             val auth = FirebaseAuth.getInstance()
 
-            // Cloud Function 호출해서 Custom Token 받기
-            val customToken = functions
+            // 1) 함수 호출 결과를 await()로 받아서
+            val result = functions
                 .getHttpsCallable("kakaoCustomAuth")
-                .call(mapOf("token" to accessToken))
-                .continueWith { task ->
-                    val result = task.result?.data as Map<*, *>
-                    result["customToken"] as String
-                }.await()
+                .call(mapOf("accessToken" to accessToken))
+                .await()
 
-            // Firebase 로그인
+            val data = result.data as? Map<*, *>
+                ?: throw IllegalStateException("Invalid response from kakaoCustomAuth")
+            val customToken = data["token"] as? String
+                ?: throw IllegalStateException("No token in kakaoCustomAuth response")
+
             auth.signInWithCustomToken(customToken).await()
 
             Log.d("KAKAO", "Firebase 로그인 성공: ${auth.currentUser?.uid}")
-
         } catch (e: Exception) {
             Log.e("KAKAO", "카카오 로그인 실패", e)
             throw e
         }
     }
+
 
     /**
      * 카카오 SDK를 통해 accessToken 가져오기
