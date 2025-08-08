@@ -5,12 +5,14 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.data.repository.GoalRepository
 import com.mukmuk.todori.data.repository.GoalTodoRepository
+import com.mukmuk.todori.data.repository.HomeRepository
 import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.service.GoalTodoService
+import com.mukmuk.todori.data.service.HomeService
 import com.mukmuk.todori.data.service.StudyService
 import com.mukmuk.todori.data.service.TodoCategoryService
 import com.mukmuk.todori.data.service.TodoService
@@ -101,7 +103,19 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideHomeService(firestore: FirebaseFirestore): HomeService =
+        HomeService(firestore)
+
+    @Provides
+    @Singleton
+    fun provideHomeRepository(homeService: HomeService): HomeRepository =
+        HomeRepository(homeService)
+
+    @Provides
+    @Singleton
     fun provideHomeSettingRepository(@ApplicationContext context: Context): HomeSettingRepository {
         return HomeSettingRepository(context)
     }
+
+
 }

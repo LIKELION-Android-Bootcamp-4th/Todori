@@ -6,7 +6,9 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
+import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.repository.HomeRepository
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
@@ -28,7 +30,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val homeSettingRepository: HomeSettingRepository,
-    private val todoRepository: TodoRepository
+    private val todoRepository: TodoRepository,
+    private val homeRepository: HomeRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TimerState())
@@ -63,6 +66,7 @@ class HomeViewModel @Inject constructor(
             }
         }
         loadTodosForHomeScreen(currentUid, currentDate)
+        loadDailyRecordAndSetTotalTime(currentUid, currentDate)
     }
 
     fun triggerRefresh() {
@@ -113,6 +117,18 @@ class HomeViewModel @Inject constructor(
     private fun stopTimer() {
         timerJob?.cancel()
         _state.update { it.copy(status = TimerStatus.IDLE) }
+
+        viewModelScope.launch {
+            val dailyRecord = DailyRecord(
+                date = currentDate.toString(),
+                studyTimeMillis = _state.value.totalStudyTimeMills
+            )
+            try {
+                homeRepository.updateDailyRecord(currentUid, dailyRecord)
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error updating daily record: ${e.message}")
+            }
+        }
     }
 
     private fun resetTimer() {
@@ -238,6 +254,18 @@ class HomeViewModel @Inject constructor(
                 loadTodosForHomeScreen(uid, LocalDate.parse(todo.date))
             } catch (e: Exception) {
                 Log.e("todorilog", e.toString())
+            }
+        }
+    }
+
+    private fun loadDailyRecordAndSetTotalTime(uid: String, date: LocalDate) {
+        viewModelScope.launch {
+            try {
+                val dailyRecords = homeRepository.getDailyRecord(uid, date)
+                val totalTime = dailyRecords.firstOrNull()?.studyTimeMillis ?: 0L
+                _state.update { it.copy(totalStudyTimeMills = totalTime) }
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error loading daily record: ${e.message}")
             }
         }
     }
