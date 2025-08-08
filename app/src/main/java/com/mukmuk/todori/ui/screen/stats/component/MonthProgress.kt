@@ -28,10 +28,11 @@ fun MonthProgress(
     completedTodos: Int,
     totalTodos: Int,
     completedGoals: Int,
-    totalGoals: Int
+    totalGoals: Int,
+    completedStudyTodos : Int,
+    totalStudyTodos : Int
 ) {
-    val totalCompletedStudy = 25
-    val totalStudy = 30
+
 
     Column {
         Card(
@@ -71,9 +72,9 @@ fun MonthProgress(
 
                 //스터디
                 ProgressWithText(
-                    progress = totalCompletedStudy/totalStudy.toFloat(),
-                    completed = totalCompletedStudy,
-                    total = totalStudy,
+                    progress = completedStudyTodos/totalStudyTodos.toFloat(),
+                    completed = completedStudyTodos,
+                    total = totalStudyTodos,
                     progressColor = GroupPrimary,
                     modifier = Modifier.fillMaxWidth(),
                     cornerRadius = Dimens.Nano,

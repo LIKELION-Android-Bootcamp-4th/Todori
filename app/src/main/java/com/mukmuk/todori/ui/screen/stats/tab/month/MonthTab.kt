@@ -55,6 +55,8 @@ fun MonthTab(
     val totalTodos by viewModel.totalTodos.collectAsState()
     val completedGoals by viewModel.completedGoals.collectAsState()
     val totalGoals by viewModel.totalGoals.collectAsState()
+    val completedStudyTodos by viewModel.completedStudyTodos.collectAsState()
+    val totalStudyTodos by viewModel.totalStudyTodos.collectAsState()
 
     LaunchedEffect(selectedMonth) {
         viewModel.loadTodoStats(
@@ -63,6 +65,11 @@ fun MonthTab(
             month = selectedMonth.monthNumber
         )
         viewModel.loadGoalStats(
+            uid = uid,
+            year = selectedMonth.year,
+            month = selectedMonth.monthNumber
+        )
+        viewModel.loadStudyTodosStats(
             uid = uid,
             year = selectedMonth.year,
             month = selectedMonth.monthNumber
@@ -152,7 +159,9 @@ fun MonthTab(
             completedTodos = completedTodos,
             totalTodos = totalTodos,
             completedGoals = completedGoals,
-            totalGoals = totalGoals
+            totalGoals = totalGoals,
+            completedStudyTodos = completedStudyTodos,
+            totalStudyTodos = totalStudyTodos
         )
     }
 }

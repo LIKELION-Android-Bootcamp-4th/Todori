@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.repository.GoalStatsRepository
+import com.mukmuk.todori.data.repository.StudyStatsRepository
 import com.mukmuk.todori.data.repository.TodoStatsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MonthViewModel @Inject constructor(
     private val todoStatsRepository: TodoStatsRepository,
-    private val goalStatsRepository: GoalStatsRepository
+    private val goalStatsRepository: GoalStatsRepository,
+    private val studyStatsRepository: StudyStatsRepository
 ) : ViewModel() {
 
     private val _completedTodos = MutableStateFlow(0)
@@ -30,6 +32,12 @@ class MonthViewModel @Inject constructor(
 
     private val _totalGoals = MutableStateFlow(0)
     val totalGoals: StateFlow<Int> = _totalGoals
+
+    private val _completedStudyTodos = MutableStateFlow(0)
+    val completedStudyTodos: StateFlow<Int> = _completedStudyTodos.asStateFlow()
+
+    private val _totalStudyTodos = MutableStateFlow(0)
+    val totalStudyTodos: StateFlow<Int> = _totalStudyTodos
 
     fun loadTodoStats(uid: String, year: Int, month: Int) {
         viewModelScope.launch {
@@ -45,6 +53,16 @@ class MonthViewModel @Inject constructor(
             val total = goalStatsRepository.getTotalGoalCount(uid, year, month)
             _completedGoals.value = completed
             _totalGoals.value = total
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun loadStudyTodosStats(uid: String, year: Int, month: Int) {
+        viewModelScope.launch {
+            val completed = studyStatsRepository.getCompletedStudyTodosCount(uid, year, month)
+            val total = studyStatsRepository.getTotalStudyTodosCount(uid, year, month)
+            _completedStudyTodos.value = completed
+            _totalStudyTodos.value = total
         }
     }
 }
