@@ -1,6 +1,5 @@
 package com.mukmuk.todori.ui.screen.login
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,8 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
+import com.google.firebase.auth.GoogleAuthProvider
 import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +18,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val repository: UserRepository
 ) : ViewModel() {
+
     private val auth = FirebaseAuth.getInstance()
     var state by mutableStateOf(LoginState())
         private set
@@ -30,39 +29,54 @@ class LoginViewModel @Inject constructor(
 
     fun onEvent(event: LoginEvent) {
         when (event) {
-            is LoginEvent.KakaoLogin -> {
-                state = state.copy(status = LoginStatus.LOADING)
-            }
-            is LoginEvent.GoogleLogin -> {
-                state = state.copy(status = LoginStatus.LOADING)
-            }
-            is LoginEvent.NaverLogin -> {
-                state = state.copy(status = LoginStatus.LOADING)
-            }
+            is LoginEvent.GoogleLogin -> signInWithGoogle(event.idToken)
             is LoginEvent.LoginSuccess -> {
                 state = state.copy(status = LoginStatus.SUCCESS, userId = event.userId)
             }
             is LoginEvent.LoginFailure -> {
                 state = state.copy(status = LoginStatus.FAILURE, errorMessage = event.errorMessage)
             }
+            else -> Unit
         }
     }
 
     private fun checkAutoLogin() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            state = state.copy(
-                status = LoginStatus.SUCCESS,
-                userId = currentUser.uid
-            )
+            state = state.copy(status = LoginStatus.SUCCESS, userId = currentUser.uid)
         }
     }
 
-    fun uploadUserToFirestore(user: FirebaseUser, isNewUser: Boolean?) {
+    private fun signInWithGoogle(idToken: String?) {
+        if (idToken == null) {
+            onEvent(LoginEvent.LoginFailure("Google ID Token이 없습니다."))
+            return
+        }
+
+        state = state.copy(status = LoginStatus.LOADING)
+
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    val isNewUser = task.result?.additionalUserInfo?.isNewUser
+
+                    if (user != null) {
+                        uploadUserToFirestore(user, isNewUser)
+                        onEvent(LoginEvent.LoginSuccess(user.uid))
+                    }
+                } else {
+                    onEvent(LoginEvent.LoginFailure(task.exception?.localizedMessage ?: "로그인 실패"))
+                }
+            }
+    }
+
+    private fun uploadUserToFirestore(user: FirebaseUser, isNewUser: Boolean?) {
         val currentTime = System.currentTimeMillis()
         val userData = User(
             uid = user.uid,
-            nickname = user.displayName!!,
+            nickname = user.displayName ?: "",
             createdAt = currentTime,
             lastLoginAt = currentTime
         )
@@ -75,7 +89,7 @@ class LoginViewModel @Inject constructor(
                     repository.updateUser(user.uid, userData)
                 }
             } catch (e: Exception) {
-                LoginEvent.LoginFailure("${e.message}")
+                onEvent(LoginEvent.LoginFailure(e.message ?: "Firestore 저장 실패"))
             }
         }
     }
