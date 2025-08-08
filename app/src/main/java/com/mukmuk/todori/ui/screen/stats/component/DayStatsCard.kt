@@ -39,7 +39,8 @@ import java.time.LocalDate
 fun DayStatsCard(
     date: LocalDate,
     record: DailyRecord,
-    todos: List<Todo>
+    todos: List<Todo>,
+    completedTodos: List<Todo>
 ) {
     val parsedDate = LocalDate.parse(record.date)
     val parseTime = record.studyTimeMillis
@@ -50,8 +51,6 @@ fun DayStatsCard(
 
     var text by remember { mutableStateOf(record.reflection ?: "") }
     var isEditing by remember { mutableStateOf(false) }
-
-    val completedTodos = todos.count { it.completed }
 
     Card(
         modifier = Modifier
@@ -91,7 +90,7 @@ fun DayStatsCard(
             ) {
                 Text("달성 TODO", style = AppTextStyle.Body)
                 Text(
-                    "$completedTodos / ${todos.size}",
+                    "${completedTodos.count()} / ${todos.size}",
                     style = AppTextStyle.BodyLarge
                 )
             }

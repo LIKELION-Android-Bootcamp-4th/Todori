@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.screen.stats.component.CalendarCard
 import com.mukmuk.todori.ui.screen.stats.component.DayStatsCard
@@ -26,10 +29,16 @@ import java.time.LocalDate
 @Composable
 fun DayTab(dayRecords: List<DailyRecord>) {
     var selectedDay by remember { mutableStateOf(LocalDate.now()) }
-
-    Log.d("aa", "선택날짜 : $selectedDay")
+    val viewModel: DayViewModel = hiltViewModel()
+    val uid = "testuser"
 
     val todayRecord = dayRecords.firstOrNull { LocalDate.parse(it.date) == selectedDay }
+    val dailyTodos by viewModel.todos.collectAsState()
+    val dailyCompletedTodos by viewModel.completedTodos.collectAsState()
+
+    LaunchedEffect(uid, selectedDay) {
+        viewModel.loadTodos(uid = uid, date = selectedDay)
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -46,7 +55,7 @@ fun DayTab(dayRecords: List<DailyRecord>) {
 //        todayRecord?.let {
 //            DayStatsCard(record = it)
 //        }
-        DayStatsCard(record = dayRecords[11])
+        DayStatsCard(date = selectedDay,record = dayRecords[11], todos = dailyTodos, completedTodos = dailyCompletedTodos)
         Spacer(modifier = Modifier.height(Dimens.Large))
     }
 }
