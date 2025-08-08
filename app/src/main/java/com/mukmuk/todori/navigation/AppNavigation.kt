@@ -38,7 +38,7 @@ import com.mukmuk.todori.ui.screen.todo.detail.TodoDetailScreen
 fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        startDestination = BottomNavItem.Todo.route,
+        startDestination = "login",
         modifier = modifier // 추가!
     ) {
         composable(BottomNavItem.Todo.route) { TodoScreen(navController) }

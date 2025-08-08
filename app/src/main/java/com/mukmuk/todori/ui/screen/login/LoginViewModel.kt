@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -19,8 +20,13 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val repository: UserRepository
 ) : ViewModel() {
+    private val auth = FirebaseAuth.getInstance()
     var state by mutableStateOf(LoginState())
         private set
+
+    init {
+        checkAutoLogin()
+    }
 
     fun onEvent(event: LoginEvent) {
         when (event) {
@@ -39,6 +45,16 @@ class LoginViewModel @Inject constructor(
             is LoginEvent.LoginFailure -> {
                 state = state.copy(status = LoginStatus.FAILURE, errorMessage = event.errorMessage)
             }
+        }
+    }
+
+    private fun checkAutoLogin() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            state = state.copy(
+                status = LoginStatus.SUCCESS,
+                userId = currentUser.uid
+            )
         }
     }
 
