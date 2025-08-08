@@ -32,6 +32,7 @@ import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.White
+import com.mukmuk.todori.util.activeDaysText
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -107,7 +108,7 @@ fun StudyMetaInfoRow(
             Icon(Icons.Default.Repeat, contentDescription = null, modifier = Modifier.size(16.dp), tint = Black)
             Spacer(modifier = Modifier.width(Dimens.Nano))
             Text(
-                text = activeDays.joinToString(" "),
+                text = activeDaysText(activeDays),
                 style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold)
             )
         }
