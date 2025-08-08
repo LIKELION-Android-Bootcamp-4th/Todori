@@ -45,6 +45,20 @@ class TodoService(
         return snapshot.documents.mapNotNull { it.toObject(Todo::class.java) }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getTodosByWeek(uid: String, sunday: LocalDate, saturday: LocalDate): List<Todo> {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val startDate = sunday.format(formatter)
+        val endDate = saturday.format(formatter)
+
+        val snapshot: QuerySnapshot = userTodosRef(uid)
+            .whereGreaterThanOrEqualTo("date", startDate)
+            .whereLessThanOrEqualTo("date", endDate)
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull { it.toObject(Todo::class.java) }
+    }
+
     suspend fun getTodosByCategoryAndDate(
         uid: String,
         categoryId: String,

@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
+import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
@@ -25,17 +26,22 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeekProgress(record: List<DailyRecord>) {
+fun WeekProgress(
+    week: LocalDate,
+    allTodos: List<Todo>,
+    completedTodos: List<Todo>
+) {
     Column() {
 
         val weekDays = listOf("일", "월", "화", "수", "목", "금", "토")
 
-        val today = LocalDate.now()
-        val sunday = today.minusDays(today.dayOfWeek.value % 7L)
+        val sunday = week.minusDays(week.dayOfWeek.value % 7L)
         val thisWeekDates = (0..6).map { sunday.plusDays(it.toLong()) }
 
-        val dataPerDay = thisWeekDates.map { date ->
-            record.find { it.date == date.toString() }
+        val dailyProgress = thisWeekDates.map { date ->
+            val dailyTotal = allTodos.count { it.date == date.toString() }
+            val dailyCompleted = completedTodos.count { it.date == date.toString() }
+            Pair(dailyCompleted, dailyTotal)
         }
 
         Card(
@@ -53,10 +59,8 @@ fun WeekProgress(record: List<DailyRecord>) {
                 Spacer(modifier = Modifier.height(Dimens.XLarge))
 
                 weekDays.forEachIndexed { index, dayLabel ->
-                    val dayRecord = dataPerDay.getOrNull(index)
-
-                    val completed = 8
-                    val total = 10
+                    val dayRecord = dailyProgress.getOrNull(index)
+                    val (completed, total) = dayRecord ?: Pair(0, 0)
 
                     ProgressWithText(
                         progress = if (total != 0) completed.toFloat() / total else 0f,

@@ -36,8 +36,9 @@ import com.mukmuk.todori.ui.screen.todo.create.CreateCategoryScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateGoalScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateStudyScreen
 import com.mukmuk.todori.ui.screen.todo.detail.MemberProgressDetailScreen
-import com.mukmuk.todori.ui.screen.todo.detail.StudyDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.goal.GoalDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
 import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -160,20 +161,40 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                     onBack = { navController.popBackStack() }
                 )
         }
-        composable("study/detail") {
+        composable(
+            route = "study/detail/{studyId}?date={date}",
+            arguments = listOf(
+                navArgument("studyId") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
+            val date = backStackEntry.arguments?.getString("date") ?: ""
             StudyDetailScreen(
-                navController,
+                navController = navController,
+                studyId = studyId,
+                selectedDate = date,
                 onBack = { navController.popBackStack() }
             )
         }
-        composable("member_progress_detail/{studyId}") { backStackEntry ->
+        composable(
+            "member_progress_detail/{studyId}?date={date}",
+            arguments = listOf(
+                navArgument("studyId") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
             val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
+            val date = backStackEntry.arguments?.getString("date") ?: ""
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("study/detail/$studyId?date=$date")
+            }
+            val viewModel: StudyDetailViewModel = hiltViewModel(parentEntry)
             MemberProgressDetailScreen(
                 navController = navController,
-                studyId = studyId,
+                viewModel = viewModel
             )
         }
-
 
     }
 }
