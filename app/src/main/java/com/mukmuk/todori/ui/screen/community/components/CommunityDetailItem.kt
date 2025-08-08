@@ -85,7 +85,7 @@ fun CommunityDetailItem(
             if(state.members.find { it.uid == "testuser" } != null){
                 Button(
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Gray,
+                        containerColor = DarkGray,
                         contentColor = White
                     ),
                     modifier = Modifier.fillMaxWidth(),

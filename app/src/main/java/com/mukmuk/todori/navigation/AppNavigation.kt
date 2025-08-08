@@ -90,6 +90,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunitySearchScreen(
                 onBack = { navController.popBackStack() },
+                navController,
                 viewModel
             )
         }
