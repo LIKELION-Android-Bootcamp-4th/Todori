@@ -43,7 +43,8 @@ fun DayStatsCard(
     date: LocalDate,
     record: List<DailyRecord>,
     todos: List<Todo>,
-    completedTodos: List<Todo>
+    completedTodos: List<Todo>,
+    onReflectionChange: (String) -> Unit
 ) {
     val dailyRecord = record.firstOrNull()
     val studyTime = dailyRecord?.studyTimeMillis ?: 0L
@@ -123,7 +124,12 @@ fun DayStatsCard(
                     if (isEditing) {
                         BasicTextField(
                             value = text,
-                            onValueChange = { if (it.length <= 20) text = it },
+                            onValueChange = {
+                                if (it.length <= 20) {
+                                    text = it
+                                    onReflectionChange(it)
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done), // 엔터 대신 완료 버튼
                             keyboardActions = KeyboardActions {

@@ -2,6 +2,7 @@ package com.mukmuk.todori.data.repository
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.service.DailyRecordService
 import java.time.LocalDate
 import javax.inject.Inject
@@ -11,5 +12,5 @@ class DailyRecordRepository @Inject constructor(
 ) {
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getDailyRecords(uid: String, date: LocalDate) = dailyRecordService.getDailyRecordByDate(uid, date)
-    suspend fun updateDailyRecord(uid: String, date: LocalDate) = dailyRecordService.updateDailyRecord(uid, date)
+    suspend fun updateDailyRecord(uid: String, record: DailyRecord) { dailyRecordService.updateDailyRecord(uid, record) }
 }

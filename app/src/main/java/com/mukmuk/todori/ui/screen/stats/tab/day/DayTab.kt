@@ -32,14 +32,9 @@ fun DayTab(dayRecords: List<DailyRecord>) {
     val viewModel: DayViewModel = hiltViewModel()
     val uid = "testuser"
 
-    val todayRecord = dayRecords.firstOrNull { LocalDate.parse(it.date) == selectedDay }
     val dailyTodos by viewModel.todos.collectAsState()
     val dailyCompletedTodos by viewModel.completedTodos.collectAsState()
     val dailyRecord by viewModel.dailyRecord.collectAsState()
-
-    Log.d("aa","$selectedDay")
-    Log.d("aa","$dailyRecord")
-
 
     LaunchedEffect(uid, selectedDay) {
         viewModel.loadTodos(uid = uid, date = selectedDay)
@@ -58,7 +53,15 @@ fun DayTab(dayRecords: List<DailyRecord>) {
             selectedDate = selectedDay,
             onDateSelected = { selectedDay = it })
         Spacer(modifier = Modifier.height(Dimens.Large))
-        DayStatsCard(date = selectedDay, record = dailyRecord, todos = dailyTodos, completedTodos = dailyCompletedTodos)
+        DayStatsCard(
+            date = selectedDay,
+            record = dailyRecord,
+            todos = dailyTodos,
+            completedTodos = dailyCompletedTodos,
+            onReflectionChange = { newReflection ->
+                viewModel.updateDailyRecord(uid, selectedDay, newReflection)
+            }
+        )
         Spacer(modifier = Modifier.height(Dimens.Large))
     }
 }

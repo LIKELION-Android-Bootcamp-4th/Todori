@@ -30,12 +30,10 @@ class DailyRecordService(
         return snapshot.documents.mapNotNull { it.toObject(DailyRecord::class.java) }
     }
 
-
-    suspend fun updateDailyRecord(uid: String, date: LocalDate) {
-        val dateString = date.toString()
-        userDailyRecordRef(uid).document(dateString)
-            .set(date, SetOptions.merge())
+    suspend fun updateDailyRecord(uid: String, record: DailyRecord) {
+        val documentId = record.date
+        userDailyRecordRef(uid).document(documentId)
+            .set(record, SetOptions.merge())
             .await()
     }
-
 }
