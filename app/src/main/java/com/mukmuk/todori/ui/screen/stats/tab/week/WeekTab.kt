@@ -52,11 +52,6 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
 
     val uid = "testuser"
     val weeklyFiltered = viewModel.getWeekRange(selectedWeek) //주차 선택
-//    val weeklyTodos = viewModel.loadWeekTodos(uid = uid, date = selectedWeek) //선택 주차 투두 불러오기
-
-//    LaunchedEffect(selectedWeek) {
-//        viewModel.getWeekRange(selectedWeek)
-//    }
 
     LaunchedEffect(uid, selectedWeek) {
         viewModel.loadWeekTodos(uid = uid, date = selectedWeek)
