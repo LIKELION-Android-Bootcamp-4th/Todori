@@ -1,0 +1,49 @@
+package com.mukmuk.todori.ui.screen.stats.tab
+
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.repository.TodoRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import javax.inject.Inject
+
+@HiltViewModel
+@RequiresApi(Build.VERSION_CODES.O)
+class DayViewModel @Inject constructor(
+    private val todoRepository: TodoRepository
+) : ViewModel() {
+    private val _todos = MutableStateFlow(emptyList<Todo>())
+    val todos: StateFlow<List<Todo>> = _todos
+
+    private val _completedTodos = MutableStateFlow(emptyList<Todo>())
+    val completedTodos: StateFlow<List<Todo>> = _completedTodos
+
+    fun loadTodos(uid: String, date: LocalDate) {
+        viewModelScope.launch {
+            try {
+                val dailyTodos = todoRepository.getTodosByDate(uid, date)
+                _todos.value = dailyTodos
+            } catch (e: Exception) {
+                Log.d("DayViewModel", "DAY TODO 불러오기 실패 : ${e.message}")
+            }
+        }
+    }
+
+    fun loadCompletedTodos(uid: String, date: LocalDate) {
+        viewModelScope.launch {
+            try {
+                val dailyTodos = todoRepository.getTodosByDate(uid, date)
+                _completedTodos.value = dailyTodos.filter { it.completed }
+            } catch (e: Exception) {
+                Log.d("DayViewModel", "DAY TODO 불러오기 실패 : ${e.message}")
+            }
+        }
+    }
+}
