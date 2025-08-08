@@ -1,6 +1,8 @@
 package com.mukmuk.todori.di
 
+import android.content.Context
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.data.repository.GoalRepository
 import com.mukmuk.todori.data.repository.GoalTodoRepository
 import com.mukmuk.todori.data.repository.StudyRepository
@@ -16,6 +18,7 @@ import com.mukmuk.todori.data.service.UserService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -95,4 +98,10 @@ object AppModule {
     @Singleton
     fun provideGoalTodoRepository(goalTodoService: GoalTodoService): GoalTodoRepository =
         GoalTodoRepository(goalTodoService)
+
+    @Provides
+    @Singleton
+    fun provideHomeSettingRepository(@ApplicationContext context: Context): HomeSettingRepository {
+        return HomeSettingRepository(context)
+    }
 }

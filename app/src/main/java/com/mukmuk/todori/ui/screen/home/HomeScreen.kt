@@ -44,11 +44,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.screen.home.components.MainTodoItemEditableRow
 import com.mukmuk.todori.ui.screen.home.components.PomoModeTextBox
-import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Background
 import com.mukmuk.todori.ui.theme.Black
@@ -60,9 +60,11 @@ import java.util.concurrent.TimeUnit
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
+fun HomeScreen(navController: NavHostController) {
+    val viewModel: HomeViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    val homeSettingState by viewModel.state.collectAsState()
+
     var selectedIndex by remember { mutableStateOf(-1) }
     var recordTime by remember { mutableStateOf(0L) }
     var recordButtonText by remember { mutableStateOf("기록") }
@@ -78,15 +80,6 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
             Todo(title = "감사 일기 작성", completed = false),
             Todo(title = "차분한 음악 듣기", completed = true)
         )
-    }
-
-
-    LaunchedEffect(savedStateHandle) {
-        val homeSettingState = savedStateHandle?.get<HomeSettingState>("homeSetting")
-        if (homeSettingState != null) {
-            viewModel.updateInitialTimerSettings(homeSettingState)
-            savedStateHandle.remove<HomeSettingState>("homeSetting")
-        }
     }
 
     LaunchedEffect(state.status == TimerStatus.RECORDING) {
@@ -106,8 +99,10 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 colors = TopAppBarDefaults.topAppBarColors(Background),
                 actions = {
                     IconButton(onClick = {
+                        // 설정 화면으로 이동.
+                        // 설정 값은 DataStore를 통해 자동으로 전달되므로, ViewModel에 stop 이벤트만 보냅니다.
                         navController.navigate("home_setting")
-                        viewModel.onEvent(TimerEvent.Stop)
+                        viewModel.onEvent(TimerEvent.Stop) // 타이머 멈춤
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Settings,
@@ -142,13 +137,15 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                     textAlign = TextAlign.Center
                 )
             }
-            if (state.isPomodoroEnabled) {
+            // 뽀모도로 활성화 여부를 homeSettingState에서 가져옵니다.
+            if (homeSettingState.isPomodoroEnabled) { // 🚀 homeSettingState.isPomodoroEnabled 사용
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     PomoModeTextBox(state.pomodoroMode)
                     Spacer(modifier = Modifier.width(Dimens.Large))
                     Text(
+                        // 타이머의 남은 시간은 ViewModel의 state에서 가져옵니다.
                         text = pomodoroFormatTime(state.timeLeftInMillis),
                         style = AppTextStyle.TitleLarge,
                         textAlign = TextAlign.Center
@@ -171,6 +168,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                     onClick = {
                         if (state.status == TimerStatus.RUNNING) {
                             viewModel.onEvent(TimerEvent.Record)
+                            // recordTime 계산은 그대로 유지
                             recordTime = state.totalStudyTimeMills - state.totalRecordTimeMills
                         } else {
                             viewModel.onEvent(TimerEvent.Stop)
@@ -298,7 +296,7 @@ fun pomodoroFormatTime(millis: Long): String {
 
 fun totalFormatTime(millis: Long): String {
     val hours = TimeUnit.MILLISECONDS.toHours((millis))
-    val minutes = TimeUnit.MILLISECONDS.toMinutes(millis)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(millis) % 60 // 60분 이상일 경우를 위해 % 60 추가
     val seconds = TimeUnit.MILLISECONDS.toSeconds(millis) % 60
     return String.format("%02d : %02d : %02d", hours, minutes, seconds)
 }

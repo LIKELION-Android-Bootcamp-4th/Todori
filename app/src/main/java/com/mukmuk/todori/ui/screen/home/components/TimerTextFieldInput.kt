@@ -39,8 +39,8 @@ fun TimerTextFieldInput(
     initialSeconds: Int = 0,
     onTimeChanged: (Int, Int) -> Unit
 ) {
-    var minutesText by remember { mutableStateOf(initialMinutes.toString().padStart(2, '0')) }
-    var secondsText by remember { mutableStateOf(initialSeconds.toString().padStart(2, '0')) }
+    var minutesText by remember(initialMinutes) { mutableStateOf(initialMinutes.toString().padStart(2, '0')) }
+    var secondsText by remember(initialSeconds) { mutableStateOf(initialSeconds.toString().padStart(2, '0')) }
 
     Row(
         modifier = Modifier
@@ -50,9 +50,9 @@ fun TimerTextFieldInput(
     ) {
         TimerUnitTextField(
             value = minutesText,
-            onValueChange = {
-                minutesText = it
-                onTimeChanged(it.toInt(), secondsText.toInt())
+            onValueChange = { newMinutesString ->
+                minutesText = newMinutesString
+                onTimeChanged(newMinutesString.toInt(), secondsText.toInt())
             }
         )
         Text(
@@ -63,9 +63,9 @@ fun TimerTextFieldInput(
         )
         TimerUnitTextField(
             value = secondsText,
-            onValueChange = {
-                secondsText = it
-                onTimeChanged(minutesText.toInt(), it.toInt())
+            onValueChange = { newSecondsString ->
+                secondsText = newSecondsString
+                onTimeChanged(minutesText.toInt(), newSecondsString.toInt())
             }
         )
     }

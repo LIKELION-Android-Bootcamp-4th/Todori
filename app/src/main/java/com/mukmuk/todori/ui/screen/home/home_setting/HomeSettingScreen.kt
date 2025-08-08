@@ -35,8 +35,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.ui.screen.home.PomodoroTimerMode
 import com.mukmuk.todori.ui.screen.home.components.PomoModeTextBox
 import com.mukmuk.todori.ui.screen.home.components.TimerTextFieldInput
@@ -51,7 +55,8 @@ import java.lang.reflect.Array.set
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeSettingScreen(viewModel: HomeSettingViewModel, navController: NavHostController) {
+fun HomeSettingScreen(navController: NavHostController) {
+    val viewModel: HomeSettingViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
 
     Scaffold(
