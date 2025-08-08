@@ -9,23 +9,22 @@ import com.mukmuk.todori.ui.screen.home.TimerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel // Hilt를 통해 ViewModel을 주입받겠다는 어노테이션
-class HomeSettingViewModel @Inject constructor( // 생성자에 @Inject 어노테이션
-    private val repository: HomeSettingRepository // Hilt가 이 인스턴스를 제공
+@HiltViewModel
+class HomeSettingViewModel @Inject constructor(
+    private val repository: HomeSettingRepository
 )  : ViewModel() {
     private val _state = MutableStateFlow(HomeSettingState())
-    val state: StateFlow<HomeSettingState> = _state
+    val state: StateFlow<HomeSettingState> = _state.asStateFlow()
 
     init {
-        // ViewModel 초기화 시 저장된 설정 불러오기
         viewModelScope.launch {
-            repository.homeSettingStateFlow.collect { loadedState ->
-                _state.value = loadedState
-            }
+            _state.value = repository.homeSettingStateFlow.first()
         }
     }
 

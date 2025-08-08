@@ -9,27 +9,37 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest // collectLatest import
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeSettingRepository: HomeSettingRepository // HomeSettingRepository 주입
+    private val homeSettingRepository: HomeSettingRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TimerState())
     val state: StateFlow<TimerState> = _state
+
+    private val _homeSettingState = MutableStateFlow(HomeSettingState())
+    val homeSettingState: StateFlow<HomeSettingState> = _homeSettingState.asStateFlow()
 
     private var timerJob: Job? = null
     private var currentSettings: HomeSettingState = HomeSettingState()
 
     init {
         viewModelScope.launch {
+            val initialLoadedSettings = homeSettingRepository.homeSettingStateFlow.first()
+            currentSettings = initialLoadedSettings
+            _homeSettingState.value = initialLoadedSettings
+            updateInitialTimerSettings(initialLoadedSettings)
+
             homeSettingRepository.homeSettingStateFlow.collectLatest { settings ->
                 currentSettings = settings
-                updateInitialTimerSettings(settings)
+                _homeSettingState.value = settings
             }
         }
     }
