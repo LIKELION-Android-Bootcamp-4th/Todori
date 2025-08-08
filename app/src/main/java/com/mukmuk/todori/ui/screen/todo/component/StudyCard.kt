@@ -37,7 +37,7 @@ fun StudyCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    val completed = studyTodos.count { myProgressMap[it.studyTodoId]?.isDone == true }
+    val completed = studyTodos.count { myProgressMap[it.studyTodoId]?.done == true }
     val total = studyTodos.size
     val progress = if (total > 0) completed / total.toFloat() else 0f
 
@@ -76,7 +76,7 @@ fun StudyCard(
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
             studyTodos.take(3).forEach { todo ->
-                val isDone = myProgressMap[todo.studyTodoId]?.isDone == true
+                val isDone = myProgressMap[todo.studyTodoId]?.done == true
                 TodoItemRow(title = todo.title, isDone = isDone)
             }
         }

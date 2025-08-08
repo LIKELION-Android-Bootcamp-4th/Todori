@@ -33,7 +33,6 @@ class StudyViewModel @Inject constructor(
             val leaderNickname = "edittest"
             try {
                 val now = Timestamp.now()
-                // Study 객체 생성
                 val study = Study(
                     studyName = title,
                     title = title,
@@ -41,10 +40,9 @@ class StudyViewModel @Inject constructor(
                     leaderId = leaderId,
                     createdAt = now,
                     activeDays = activeDays,
-                    isDeleted = false,
+                    deleted = false,
                 )
 
-                // StudyMember 객체 생성
                 val leaderMember = StudyMember(
                     uid = leaderId,
                     nickname = leaderNickname,
@@ -60,4 +58,25 @@ class StudyViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateStudy(editStudy: Study, newTitle: String, newDescription: String, newActiveDays: List<String>,
+        onSuccess: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val updated = editStudy.copy(
+                    studyName = newTitle,
+                    title = newTitle,
+                    description = newDescription,
+                    activeDays = newActiveDays,
+                )
+                repository.updateStudy(updated)
+                withContext(Dispatchers.Main) { onSuccess() }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) { onError(e) }
+            }
+        }
+    }
+
 }
