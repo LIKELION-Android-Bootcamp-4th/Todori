@@ -1,7 +1,5 @@
 package com.mukmuk.todori.ui.screen.stats.tab.month
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,7 +29,6 @@ import com.mukmuk.todori.ui.screen.stats.component.MonthProgress
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import androidx.compose.runtime.mutableStateOf
-import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.Black
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -40,7 +37,6 @@ import kotlinx.datetime.plus
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mukmuk.todori.ui.screen.todo.detail.goal.GoalDetailViewModel
 
 @Composable
 fun MonthTab(
@@ -50,15 +46,7 @@ fun MonthTab(
         mutableStateOf(LocalDate.parse("2025-08-04"))
     }
     val viewModel: MonthViewModel = hiltViewModel()
-    val completedTodos by viewModel.completedTodos.collectAsState()
-    val totalTodos by viewModel.totalTodos.collectAsState()
-    val completedGoals by viewModel.completedGoals.collectAsState()
-    val totalGoals by viewModel.totalGoals.collectAsState()
-    val completedStudyTodos by viewModel.completedStudyTodos.collectAsState()
-    val totalStudyTodos by viewModel.totalStudyTodos.collectAsState()
-    val totalStudyTimeMillis by viewModel.totalStudyTimeMillis.collectAsState()
-    val avgStudyTimeMillis by viewModel.avgStudyTimeMillis.collectAsState()
-
+    val state by viewModel.monthState.collectAsState()
 
     LaunchedEffect(selectedMonth) {
         viewModel.loadTodoStats(
@@ -139,20 +127,20 @@ fun MonthTab(
         }
 
         MonthCard(
-            completedTodos = completedTodos,
-            totalTodos = totalTodos,
-            completedGoals = completedGoals,
-            avgStudyTimeMillis = avgStudyTimeMillis,
-            totalStudyTimeMillis = totalStudyTimeMillis
+            completedTodos = state.completedTodos,
+            totalTodos = state.totalTodos,
+            completedGoals = state.completedGoals,
+            avgStudyTimeMillis = state.avgStudyTimeMillis,
+            totalStudyTimeMillis = state.totalStudyTimeMillis
         )
         Spacer(modifier = Modifier.height(Dimens.Large))
         MonthProgress(
-            completedTodos = completedTodos,
-            totalTodos = totalTodos,
-            completedGoals = completedGoals,
-            totalGoals = totalGoals,
-            completedStudyTodos = completedStudyTodos,
-            totalStudyTodos = totalStudyTodos
+            completedTodos = state.completedTodos,
+            totalTodos = state.totalTodos,
+            completedGoals = state.completedGoals,
+            totalGoals = state.totalGoals,
+            completedStudyTodos = state.completedStudyTodos,
+            totalStudyTodos = state.totalStudyTodos
         )
     }
 }
