@@ -81,7 +81,7 @@ fun StatsScreen() {
         when (selectedTabIndex) {
             0 -> DayTab(dayRecords = records)
             1 -> WeekTab(weekRecords = records)
-            2 -> MonthTab(monthRecords = records, uid = uid)
+            2 -> MonthTab(uid = uid)
         }
     }
 }

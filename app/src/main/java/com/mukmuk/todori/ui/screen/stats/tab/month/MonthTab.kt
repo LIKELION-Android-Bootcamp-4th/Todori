@@ -44,7 +44,6 @@ import com.mukmuk.todori.ui.screen.todo.detail.goal.GoalDetailViewModel
 
 @Composable
 fun MonthTab(
-    monthRecords: List<DailyRecord>,
     uid: String
 ) {
     var selectedMonth by remember {
@@ -57,6 +56,9 @@ fun MonthTab(
     val totalGoals by viewModel.totalGoals.collectAsState()
     val completedStudyTodos by viewModel.completedStudyTodos.collectAsState()
     val totalStudyTodos by viewModel.totalStudyTodos.collectAsState()
+    val totalStudyTimeMillis by viewModel.totalStudyTimeMillis.collectAsState()
+    val avgStudyTimeMillis by viewModel.avgStudyTimeMillis.collectAsState()
+
 
     LaunchedEffect(selectedMonth) {
         viewModel.loadTodoStats(
@@ -74,14 +76,11 @@ fun MonthTab(
             year = selectedMonth.year,
             month = selectedMonth.monthNumber
         )
-    }
-
-    val filteredMonthly = remember(selectedMonth, monthRecords) {
-        monthRecords.filter {
-            val recordDate = LocalDate.parse(it.date)
-            recordDate.year == selectedMonth.year &&
-                    recordDate.monthNumber == selectedMonth.monthNumber
-        }
+        viewModel.loadStudyTimeStats(
+            uid = uid,
+            year = selectedMonth.year,
+            month = selectedMonth.monthNumber
+        )
     }
 
     Column(
@@ -139,23 +138,15 @@ fun MonthTab(
             }
         }
 
-        val filteredMonthly = remember(selectedMonth, monthRecords) {
-            monthRecords.filter {
-                val recordDate = LocalDate.parse(it.date)
-                recordDate.year == selectedMonth.year &&
-                        recordDate.monthNumber == selectedMonth.monthNumber
-            }
-        }
-
         MonthCard(
-            record = filteredMonthly,
             completedTodos = completedTodos,
             totalTodos = totalTodos,
-            completedGoals = completedGoals
+            completedGoals = completedGoals,
+            avgStudyTimeMillis = avgStudyTimeMillis,
+            totalStudyTimeMillis = totalStudyTimeMillis
         )
         Spacer(modifier = Modifier.height(Dimens.Large))
         MonthProgress(
-            record = filteredMonthly,
             completedTodos = completedTodos,
             totalTodos = totalTodos,
             completedGoals = completedGoals,

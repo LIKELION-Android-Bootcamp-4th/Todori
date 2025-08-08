@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mukmuk.todori.data.repository.DailyRecordRepository
 import com.mukmuk.todori.data.repository.GoalStatsRepository
 import com.mukmuk.todori.data.repository.StudyStatsRepository
 import com.mukmuk.todori.data.repository.TodoStatsRepository
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class MonthViewModel @Inject constructor(
     private val todoStatsRepository: TodoStatsRepository,
     private val goalStatsRepository: GoalStatsRepository,
-    private val studyStatsRepository: StudyStatsRepository
+    private val studyStatsRepository: StudyStatsRepository,
+    private val dailyRecordRepository: DailyRecordRepository
 ) : ViewModel() {
 
     private val _completedTodos = MutableStateFlow(0)
@@ -39,6 +41,11 @@ class MonthViewModel @Inject constructor(
     private val _totalStudyTodos = MutableStateFlow(0)
     val totalStudyTodos: StateFlow<Int> = _totalStudyTodos
 
+    private val _avgStudyTimeMillis = MutableStateFlow(0L)
+    val avgStudyTimeMillis: StateFlow<Long> = _avgStudyTimeMillis.asStateFlow()
+
+    private val _totalStudyTimeMillis = MutableStateFlow(0L)
+    val totalStudyTimeMillis: StateFlow<Long> = _totalStudyTimeMillis.asStateFlow()
     fun loadTodoStats(uid: String, year: Int, month: Int) {
         viewModelScope.launch {
             _completedTodos.value = todoStatsRepository.getCompletedTodoCount(uid, year, month)
@@ -63,6 +70,16 @@ class MonthViewModel @Inject constructor(
             val total = studyStatsRepository.getTotalStudyTodosCount(uid, year, month)
             _completedStudyTodos.value = completed
             _totalStudyTodos.value = total
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun loadStudyTimeStats(uid: String, year: Int, month: Int) {
+        viewModelScope.launch {
+            val total = dailyRecordRepository.getTotalStudyTimeMillis(uid, year, month)
+            val avg = dailyRecordRepository.getAverageStudyTimeMillis(uid, year, month)
+            _totalStudyTimeMillis.value = total
+            _avgStudyTimeMillis.value = avg
         }
     }
 }

@@ -24,7 +24,6 @@ import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun MonthProgress(
-    record: List<DailyRecord>,
     completedTodos: Int,
     totalTodos: Int,
     completedGoals: Int,

@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.R
-import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
@@ -29,24 +28,22 @@ import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun MonthCard(
-    record: List<DailyRecord>,
     completedTodos: Int,
     totalTodos: Int,
-    completedGoals: Int
+    completedGoals: Int,
+    avgStudyTimeMillis : Long,
+    totalStudyTimeMillis : Long
 ) {
-    val totalStudySeconds = record.sumOf { it.studyTimeMillis }
 
     val todoTotalPer = if (totalTodos > 0) {
         (completedTodos.toFloat() / totalTodos * 100).toInt()
     } else 0
 
-    val avgStudyMinutes = if (record.size > 1) {
-        totalStudySeconds / 60 / record.size
-    } else 0
+    val avgStudyMinutes = avgStudyTimeMillis / 60
     val avgHours = avgStudyMinutes / 60
     val avgMinutes = avgStudyMinutes % 60
 
-    val totalStudyMinutes = totalStudySeconds / 60
+    val totalStudyMinutes = totalStudyTimeMillis / 60
     val totalHours = totalStudyMinutes / 60
     val totalMinutes = totalStudyMinutes % 60
 
