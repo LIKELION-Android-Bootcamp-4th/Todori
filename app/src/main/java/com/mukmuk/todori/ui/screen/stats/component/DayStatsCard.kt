@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -23,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
@@ -37,26 +40,23 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayStatsCard(
-    record: DailyRecord
+    date: LocalDate,
+    record: List<DailyRecord>,
+    todos: List<Todo>,
+    completedTodos: List<Todo>,
+    onReflectionChange: (String) -> Unit
 ) {
-    val parsedDate = LocalDate.parse(record.date)
-    val parseTime = record.studyTimeMillis
+    val dailyRecord = record.firstOrNull()
+    val studyTime = dailyRecord?.studyTimeMillis ?: 0L
+    val year = date.year
+    val month = date.monthValue
+    val day = date.dayOfMonth
+    val hour = studyTime / 3600
+    val minute = (studyTime % 3600) / 60
+    val second = studyTime % 60
 
-    val year = parsedDate.year
-    val month = parsedDate.monthValue
-    val day = parsedDate.dayOfMonth
-
-    var text by remember { mutableStateOf(record.reflection ?: "") }
+    var text by remember(dailyRecord?.reflection) { mutableStateOf(dailyRecord?.reflection ?: "") }
     var isEditing by remember { mutableStateOf(false) }
-
-    val todos = listOf(
-        Todo(title = "스트레칭 하기", completed = true),
-        Todo(title = "스쿼트 50개", completed = false),
-        Todo(title = "런닝 30분", completed = true)
-
-    )
-
-    val completedTodos = todos.count { it.completed }
 
     Card(
         modifier = Modifier
@@ -83,7 +83,7 @@ fun DayStatsCard(
             ) {
                 Text("공부시간", style = AppTextStyle.Body)
                 Text(
-                    "${parseTime / 3600} : ${(parseTime % 3600) / 60} : ${parseTime % 60}",
+                    "$hour : $minute : $second",
                     style = AppTextStyle.BodyLarge
                 )
             }
@@ -96,7 +96,7 @@ fun DayStatsCard(
             ) {
                 Text("달성 TODO", style = AppTextStyle.Body)
                 Text(
-                    "$completedTodos / ${todos.size}",
+                    "${completedTodos.count()} / ${todos.size}",
                     style = AppTextStyle.BodyLarge
                 )
             }
@@ -124,8 +124,17 @@ fun DayStatsCard(
                     if (isEditing) {
                         BasicTextField(
                             value = text,
-                            onValueChange = { if (it.length <= 20) text = it },
+                            onValueChange = {
+                                if (it.length <= 20) {
+                                    text = it
+                                    onReflectionChange(it)
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done), // 엔터 대신 완료 버튼
+                            keyboardActions = KeyboardActions {
+                                isEditing = false
+                            }
                         )
                     } else {
                         Text(
@@ -145,7 +154,7 @@ fun DayStatsCard(
                         isDone = todo.completed,
                         isRecordMode = false,
                         recordTime = null,
-                        onCheckedChange = {  },
+                        onCheckedChange = { },
                         onItemClick = { }
                     )
                     Spacer(modifier = Modifier.height(Dimens.Medium))

@@ -131,4 +131,14 @@ object AppModule {
     @Singleton
     fun provideStudyStatsRepository(studyService: StudyService): StudyStatsRepository =
         StudyStatsRepository(studyService)
+
+    @Provides
+    @Singleton
+    fun provideDailyRecordService(firestore: FirebaseFirestore): DailyRecordService =
+        DailyRecordService(firestore)
+
+    @Provides
+    @Singleton
+    fun provideDailyRecordRepository(dailyRecordService: DailyRecordService): DailyRecordRepository =
+        DailyRecordRepository(dailyRecordService)
 }
