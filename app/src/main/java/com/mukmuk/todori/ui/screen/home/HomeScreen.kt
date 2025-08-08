@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Pause
@@ -36,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,7 +45,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.mukmuk.todori.data.remote.todo.Todo
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.mukmuk.todori.navigation.BottomNavItem
 import com.mukmuk.todori.ui.screen.home.components.MainTodoItemEditableRow
 import com.mukmuk.todori.ui.screen.home.components.PomoModeTextBox
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -57,6 +56,7 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.UserPrimary
 import kotlinx.coroutines.delay
+import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -81,6 +81,9 @@ fun HomeScreen(navController: NavHostController) {
             recordButtonText = "취소"
         }
     }
+    LaunchedEffect("testuser") {
+        viewModel.startObservingTodos("testuser")
+    }
 
     Scaffold(
         topBar = {
@@ -89,8 +92,6 @@ fun HomeScreen(navController: NavHostController) {
                 colors = TopAppBarDefaults.topAppBarColors(Background),
                 actions = {
                     IconButton(onClick = {
-                        // 설정 화면으로 이동.
-                        // 설정 값은 DataStore를 통해 자동으로 전달되므로, ViewModel에 stop 이벤트만 보냅니다.
                         navController.navigate("home_setting")
                         viewModel.onEvent(TimerEvent.Stop) // 타이머 멈춤
                     }) {

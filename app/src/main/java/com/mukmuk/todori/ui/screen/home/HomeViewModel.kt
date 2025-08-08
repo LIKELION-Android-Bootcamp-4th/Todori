@@ -50,9 +50,6 @@ class HomeViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     private val currentDate = LocalDate.now()
 
-    private val _refreshTrigger = MutableStateFlow(0)
-    val refreshTrigger: StateFlow<Int> = _refreshTrigger.asStateFlow()
-
     private var timerJob: Job? = null
     private var currentSettings: HomeSettingState = HomeSettingState()
 
@@ -77,10 +74,6 @@ class HomeViewModel @Inject constructor(
 
         loadTodosForHomeScreen(currentUid, currentDate)
         loadDailyRecordAndSetTotalTime(currentUid, currentDate)
-    }
-
-    fun triggerRefresh() {
-        _refreshTrigger.value = _refreshTrigger.value + 1
     }
 
     fun onEvent(event: TimerEvent) {
@@ -286,6 +279,11 @@ class HomeViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error loading daily record: ${e.message}")
             }
+        }
+    }
+    fun startObservingTodos(uid: String) {
+        todoRepository.observeTodos(uid) { updatedTodos ->
+            _todoList.value = updatedTodos
         }
     }
 }
