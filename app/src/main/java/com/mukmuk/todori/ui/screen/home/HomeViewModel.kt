@@ -1,20 +1,23 @@
 package com.mukmuk.todori.ui.screen.home
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.collectLatest // collectLatest import
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val homeSettingRepository: HomeSettingRepository // HomeSettingRepository 주입
+) : ViewModel() {
 
     private val _state = MutableStateFlow(TimerState())
     val state: StateFlow<TimerState> = _state
@@ -22,18 +25,13 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
     private var timerJob: Job? = null
     private var currentSettings: HomeSettingState = HomeSettingState()
 
-    // 초기값 반영
     init {
-        val initialSettings = savedStateHandle.get<HomeSettingState>("homeSetting") ?: HomeSettingState()
-        updateInitialTimerSettings(initialSettings)
-
-        savedStateHandle.getStateFlow<HomeSettingState?>("homeSetting", null)
-            .filterNotNull()
-            .onEach { newSettings ->
-                updateInitialTimerSettings(newSettings)
-                savedStateHandle["homeSetting"] = null // 1회성 값이므로 반영 후 제거
+        viewModelScope.launch {
+            homeSettingRepository.homeSettingStateFlow.collectLatest { settings ->
+                currentSettings = settings
+                updateInitialTimerSettings(settings)
             }
-            .launchIn(viewModelScope)
+        }
     }
 
     fun onEvent(event: TimerEvent) {
@@ -101,30 +99,22 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
     fun setTotalRecordTimeMills(recordTime: Long) {
         _state.update { it.copy(totalRecordTimeMills = _state.value.totalRecordTimeMills + recordTime) }
-
     }
 
-
-    fun updateInitialTimerSettings(settings: HomeSettingState) {
-        currentSettings = settings
-
+    private fun updateInitialTimerSettings(settings: HomeSettingState) {
         _state.update {
             it.copy(
                 timeLeftInMillis = (settings.focusMinutes * 60 + settings.focusSeconds) * 1000L,
                 pomodoroMode = PomodoroTimerMode.FOCUSED,
                 completedFocusCycles = 0,
-                isPomodoroEnabled = settings.isPomodoroEnabled
+                isPomodoroEnabled = settings.isPomodoroEnabled,
+                status = TimerStatus.IDLE
             )
         }
     }
 
     private fun handleTimerCompletion() {
         timerJob?.cancel()
-        _state.update {
-            it.copy(
-                status = TimerStatus.IDLE,
-            )
-        }
 
         if (currentSettings.isPomodoroEnabled) {
             when (_state.value.pomodoroMode) {
@@ -136,7 +126,8 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                             currentState.copy(
                                 pomodoroMode = PomodoroTimerMode.LONG_RESTED,
                                 timeLeftInMillis = (currentSettings.longRestMinutes * 60 + currentSettings.longRestSeconds) * 1000L,
-                                completedFocusCycles = nextCompletedCycles
+                                completedFocusCycles = nextCompletedCycles,
+                                status = TimerStatus.IDLE
                             )
                         }
                     } else {
@@ -144,7 +135,8 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                             currentState.copy(
                                 pomodoroMode = PomodoroTimerMode.SHORT_RESTED,
                                 timeLeftInMillis = (currentSettings.shortRestMinutes * 60 + currentSettings.shortRestSeconds) * 1000L,
-                                completedFocusCycles = nextCompletedCycles
+                                completedFocusCycles = nextCompletedCycles,
+                                status = TimerStatus.IDLE
                             )
                         }
                     }
@@ -154,7 +146,8 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                     _state.update { currentState ->
                         currentState.copy(
                             pomodoroMode = PomodoroTimerMode.FOCUSED,
-                            timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L
+                            timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
+                            status = TimerStatus.IDLE
                         )
                     }
                 }
@@ -164,7 +157,8 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                         currentState.copy(
                             pomodoroMode = PomodoroTimerMode.FOCUSED,
                             timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
-                            completedFocusCycles = 0 // 긴 휴식 후에는 사이클 초기화
+                            completedFocusCycles = 0,
+                            status = TimerStatus.IDLE
                         )
                     }
                 }
@@ -174,10 +168,10 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                 currentState.copy(
                     pomodoroMode = PomodoroTimerMode.FOCUSED,
                     timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
-                    completedFocusCycles = 0 // 사이클 초기화
+                    completedFocusCycles = 0, // 사이클 초기화
+                    status = TimerStatus.IDLE // 완료 후 IDLE 상태로
                 )
             }
         }
-        startTimer()
     }
 }

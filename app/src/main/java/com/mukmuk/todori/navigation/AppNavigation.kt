@@ -52,8 +52,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         composable(BottomNavItem.Todo.route) { TodoScreen(navController) }
         composable(BottomNavItem.Stats.route) { StatsScreen() }
         composable(BottomNavItem.Home.route) {
-            val homeViewModel: HomeViewModel = viewModel()
-            HomeScreen(viewModel = homeViewModel, navController = navController)
+            HomeScreen(navController = navController)
         }
         composable("home_setting") {
             HomeSettingScreen(navController = navController)
