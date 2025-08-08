@@ -54,4 +54,16 @@ class DayViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateDailyRecord(uid: String, date: LocalDate) {
+        viewModelScope.launch {
+            try {
+                val dailyRecord = dailyRecordRepository.updateDailyRecord(uid, date)
+
+//                _dailyRecord.value = dailyRecord
+            } catch (e: Exception) {
+                Log.d("DayViewModel", "DailyRecord 수정 실패 : ${e.message}")
+            }
+        }
+    }
 }

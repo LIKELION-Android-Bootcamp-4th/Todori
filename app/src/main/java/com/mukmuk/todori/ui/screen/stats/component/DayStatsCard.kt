@@ -54,7 +54,7 @@ fun DayStatsCard(
     val minute = (studyTime % 3600) / 60
     val second = studyTime % 60
 
-    var text by remember { mutableStateOf(dailyRecord?.reflection ?: "") }
+    var text by remember(dailyRecord?.reflection) { mutableStateOf(dailyRecord?.reflection ?: "") }
     var isEditing by remember { mutableStateOf(false) }
 
     Card(

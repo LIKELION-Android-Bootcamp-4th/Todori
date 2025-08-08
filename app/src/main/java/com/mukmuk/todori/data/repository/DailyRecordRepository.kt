@@ -11,4 +11,5 @@ class DailyRecordRepository @Inject constructor(
 ) {
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getDailyRecords(uid: String, date: LocalDate) = dailyRecordService.getDailyRecordByDate(uid, date)
+    suspend fun updateDailyRecord(uid: String, date: LocalDate) = dailyRecordService.updateDailyRecord(uid, date)
 }
