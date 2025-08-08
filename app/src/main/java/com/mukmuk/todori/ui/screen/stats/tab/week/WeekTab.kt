@@ -55,7 +55,6 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
 
     LaunchedEffect(uid, selectedWeek) {
         viewModel.loadWeekTodos(uid = uid, date = selectedWeek)
-        viewModel.loadWeekCompletedTodos(uid = uid, date = selectedWeek)
     }
 
 

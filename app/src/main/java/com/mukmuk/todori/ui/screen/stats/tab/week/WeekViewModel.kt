@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.TodoRepository
-import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,26 +43,10 @@ class WeekViewModel @Inject constructor(
                 val weeklyTodos = todoRepository.getTodosByWeek(uid, sunday, saturday)
 
                 _todos.value = weeklyTodos
-
-            } catch (e: Exception){
-                Log.d("WeekViewModel", "주간 투두 불러오기 실패 : ${e.message}")
-            }
-        }
-    }
-
-    fun loadWeekCompletedTodos(uid: String, date: LocalDate) {
-        viewModelScope.launch {
-            try {
-                val weekRange = getWeekRange(date)
-                val sunday = weekRange.first()
-                val saturday = weekRange.last()
-
-                val weeklyTodos = todoRepository.getTodosByWeek(uid, sunday, saturday)
-
                 _completedTodos.value = weeklyTodos.filter { it.completed }
 
             } catch (e: Exception){
-                Log.d("WeekViewModel", "주간 완료 투두 불러오기 실패 : ${e.message}")
+                Log.d("WeekViewModel", "주간 투두 불러오기 실패 : ${e.message}")
             }
         }
     }
