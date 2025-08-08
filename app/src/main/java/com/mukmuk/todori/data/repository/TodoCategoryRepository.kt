@@ -16,6 +16,10 @@ class TodoCategoryRepository @Inject constructor(
         }
     }
 
+    suspend fun getCategoryById(uid: String, categoryId: String): TodoCategory? {
+        return todoCategoryService.getCategoryById(uid, categoryId)
+    }
+
     // 카테고리 목록 조회
     suspend fun getCategories(uid: String): List<TodoCategory> {
         return todoCategoryService.getCategories(uid)

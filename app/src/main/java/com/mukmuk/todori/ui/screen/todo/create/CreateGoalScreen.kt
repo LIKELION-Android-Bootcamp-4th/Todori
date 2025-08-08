@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.todo.create
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,9 +35,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.screen.todo.component.DateRangePickerBottomSheet
@@ -58,6 +61,7 @@ fun CreateGoalScreen(
     onBack: () -> Unit,
     editGoal: Goal? = null
 ) {
+    val viewModel: GoalViewModel = hiltViewModel()
     val isEditMode = editGoal != null
 
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -84,6 +88,7 @@ fun CreateGoalScreen(
     val titleFocusRequester = remember { FocusRequester() }
     val descFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
 
     val isTitleError = title.length !in 0..15       // 목표  1~15
     val isDescError = description.length !in 0..60 // 설명  1~60
@@ -191,11 +196,39 @@ fun CreateGoalScreen(
             Button(
                 onClick = {
                     if (isEditMode) {
-                        // TODO: 수정 API 호출
+                        val updatedGoal = editGoal.copy(
+                            title = title,
+                            description = description,
+                            startDate = startDate!!.format(formatter),
+                            endDate = endDate!!.format(formatter)
+                        )
+                        viewModel.updateGoal(
+                            uid = "testuser",
+                            goal = updatedGoal,
+                            onSuccess = {
+                                Toast.makeText(context, "목표 수정 완료", Toast.LENGTH_SHORT).show()
+                                onDone()
+                            },
+                            onError = { e ->
+                                Toast.makeText(context, "수정 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        )
                     } else {
-                        // TODO: 생성 API 호출
+                        if (!isTitleError && !isDescError && !isDateError && startDate != null && endDate != null) {
+                            viewModel.createGoal(
+                                title = title,
+                                description = description,
+                                startDate = startDate!!,
+                                endDate = endDate!!,
+                                onSuccess = {
+                                    Toast.makeText(context,"목표가 생성되었습니다.",Toast.LENGTH_SHORT).show()
+                                    onDone()
+                                },
+                                onError = { e ->
+                                }
+                            )
+                        }
                     }
-                    onDone()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

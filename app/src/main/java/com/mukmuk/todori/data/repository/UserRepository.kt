@@ -15,9 +15,20 @@ class UserRepository @Inject constructor(
             Log.d("User", "Repository 에러 : ${e.message}")
         }
     }
+    suspend fun getProfile(uid: String): User? {
+        return try {
+            userService.getProfile(uid)
+        } catch (e: Exception) {
+            Log.e("Profile", "프로필 조회 실패: ${e.message}")
+            null
+        }
+    }
 
     suspend fun getUser(uid: String) {
 
+    //프로필 수정
+    suspend fun updateUser(uid: String, nickname: String, intro: String){
+            userService.updateUser(uid, nickname, intro)
     }
 
     suspend fun updateUser(uid: String, user: User) {

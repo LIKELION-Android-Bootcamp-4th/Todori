@@ -99,7 +99,8 @@ dependencies {
     // 기타
     implementation(libs.kalendar)
     implementation(libs.kalendar.foundation)
-    implementation ("com.kizitonwose.calendar:compose:2.8.0")
+    implementation("com.kizitonwose.calendar:compose:2.8.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
 
     // icons (filled, outlined, rounded 등)
@@ -111,5 +112,4 @@ dependencies {
 
     implementation(libs.lottie)
     implementation(libs.kotlinx.datetime)
-
 }

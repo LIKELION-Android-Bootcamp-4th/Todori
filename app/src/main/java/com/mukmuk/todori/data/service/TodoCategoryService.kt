@@ -22,6 +22,16 @@ class TodoCategoryService(
         ref.set(categoryWithId, SetOptions.merge()).await()
     }
 
+    suspend fun getCategoryById(uid: String, categoryId: String): TodoCategory? {
+        val snapshot = firestore.collection("users")
+            .document(uid)
+            .collection("todoCategories")
+            .document(categoryId)
+            .get()
+            .await()
+        return snapshot.toObject(TodoCategory::class.java)
+    }
+
     // 카테고리 목록 조회
     suspend fun getCategories(uid: String): List<TodoCategory> {
         val snapshot: QuerySnapshot = userCategoriesRef(uid).get().await()

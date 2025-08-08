@@ -1,6 +1,7 @@
-package com.mukmuk.todori.ui.screen.todo.detail
+package com.mukmuk.todori.ui.screen.todo.detail.todo
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,27 +18,32 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.mukmuk.todori.data.remote.todo.Todo
-import com.mukmuk.todori.data.remote.todo.TodoCategory
+import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
 import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
-import com.mukmuk.todori.ui.component.ProgressWithText
+import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.UserPrimary
@@ -48,60 +54,58 @@ import com.mukmuk.todori.ui.theme.White
 @Composable
 fun TodoDetailScreen(
     categoryId: String,
+    date: String,
     navController: NavHostController,
     onBack: () -> Unit
 ) {
-    val todoCategories = listOf(
-        TodoCategory(
-            categoryId = "cat1",
-            name = "운동",
-            description = "몸짱이 될거야 ~~~~~~~~~",
-            colorHex = "#22B282"
-        ),
-        TodoCategory(
-            categoryId = "cat2",
-            name = "공부",
-            description = "오늘도 열공한다~",
-            colorHex = "#B28222"
-        ),
-        TodoCategory(
-            categoryId = "cat3",
-            name = "명상",
-            description = "마음의 평화...",
-            colorHex = "#8222B2"
-        )
-    )
+    val viewModel: TodoDetailViewModel = hiltViewModel()
+    val uid = "testuser"
+    val state by viewModel.state.collectAsState()
 
-    val todos = listOf(
-        listOf(
-            Todo(title = "스트레칭 하기", isCompleted = true),
-            Todo(title = "스쿼트 50개", isCompleted = false),
-            Todo(title = "런닝 30분", isCompleted = true)
-        ),
-        listOf(
-            Todo(title = "Kotlin 문법 정리", isCompleted = false),
-            Todo(title = "Coroutine 복습", isCompleted = true),
-            Todo(title = "Jetpack Compose", isCompleted = false)
-        ),
-        listOf(
-            Todo(title = "10분 명상", isCompleted = true),
-            Todo(title = "감사 일기 작성", isCompleted = false),
-            Todo(title = "차분한 음악 듣기", isCompleted = true)
-        )
-    )
 
     val focusManager = LocalFocusManager.current
-    val index = todoCategories.indexOfFirst { it.categoryId == categoryId }
-    val category = todoCategories.getOrNull(index)
-    val categoryTitle = category?.name.orEmpty()
-    val categorySubTitle = category?.description.orEmpty()
 
-    val taskList = remember { mutableStateListOf(*todos[index].toTypedArray()) }
+    var showDialog by remember { mutableStateOf(false) }
+    val category = state.category
+    val categoryTitle = state.category?.name.orEmpty()
+    val categorySubTitle = state.category?.description.orEmpty()
+    val todos = state.todos
+    val total = todos.size
+    val progress = todos.count { it.completed }
+
     var newTodoText by remember { mutableStateOf("") }
+    var context = LocalContext.current
+    if (state.categoryDeleted) {
+        LaunchedEffect(Unit) {
+            onBack()
+            viewModel.resetCategoryDeleted()
+        }
+    }
 
-    val total = taskList.size
-    val progress = taskList.count { it.isCompleted }
+    LaunchedEffect(categoryId, date) {
+        viewModel.loadDetail(uid, categoryId, date)
+    }
 
+    if (showDialog) {
+        AlertDialog(
+            containerColor = White,
+            onDismissRequest = { showDialog = false },
+            title = { Text("카테고리 삭제") },
+            text = { Text("이 카테고리와 연관된 모든 할 일이 함께 삭제됩니다. 진행할까요?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDialog = false
+                        viewModel.deleteCategoryWithTodos(uid, categoryId)
+                        Toast.makeText(context,"카테고리가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                ) { Text("삭제", style = AppTextStyle.Body.copy(color = Red)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) { Text("취소",style = AppTextStyle.Body.copy(color = Black)) }
+            }
+        )
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         CommonDetailAppBar(
@@ -114,7 +118,7 @@ fun TodoDetailScreen(
                 navController.navigate("category/create")
             },
             onDelete = {
-                // todo:
+                showDialog = true
             }
         )
         Column(
@@ -155,11 +159,18 @@ fun TodoDetailScreen(
                     IconButton(
                         onClick = {
                             if (newTodoText.isNotBlank()) {
-                                taskList.add(
-                                    Todo(title = newTodoText.trim(), isCompleted = false)
+                                viewModel.addTodo(
+                                    uid = uid,
+                                    categoryId = categoryId,
+                                    date = date,
+                                    title = newTodoText.trim(),
+                                    onResult = { success ->
+                                        if (success) {
+                                            newTodoText = ""
+                                            focusManager.clearFocus()
+                                        }
+                                    }
                                 )
-                                newTodoText = ""
-                                focusManager.clearFocus()
                             }
                         },
                         modifier = Modifier.fillMaxSize()
@@ -174,13 +185,13 @@ fun TodoDetailScreen(
             }
         }
 
-        taskList.forEachIndexed { i, todo ->
+        todos.forEachIndexed { i, todo ->
             TodoItemEditableRow(
                 title = todo.title,
-                isDone = todo.isCompleted,
+                isDone = todo.completed,
                 modifier = Modifier.padding(Dimens.Small),
                 onCheckedChange = { checked ->
-                    taskList[i] = taskList[i].copy(isCompleted = checked)
+                    viewModel.toggleTodoCompleted(uid, todo)
                 },
                 trailingContent = {
                     Icon(
@@ -190,7 +201,7 @@ fun TodoDetailScreen(
                         modifier = Modifier
                             .size(20.dp)
                             .clickable {
-                                taskList.removeAt(i)
+                                viewModel.deletedTodo(uid,todo.todoId,categoryId,date)
                             }
                     )
                 }

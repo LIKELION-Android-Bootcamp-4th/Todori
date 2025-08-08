@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.sp
 
 object AppTextStyle {
 
+    // 타이머
     val Timer = TextStyle(
         fontFamily = NotoSans,
         fontWeight = FontWeight.Bold,
@@ -22,6 +23,8 @@ object AppTextStyle {
         fontSize = 32.sp
     )
 
+
+    // 24sp
     val Title = TextStyle(
         fontFamily = NotoSans,
         fontWeight = FontWeight.Medium,
@@ -34,59 +37,38 @@ object AppTextStyle {
         fontSize = 24.sp,
         lineHeight = 30.sp
     )
+    val TitleMediumNormal = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Normal,
+        fontSize = 24.sp
+    )
 
+    // 18sp
     val TitleSmall = TextStyle(
         fontFamily = NotoSans,
         fontWeight = FontWeight.Medium,
         fontSize = 18.sp,
         lineHeight = 24.sp
     )
-
+    val TitleSmallNormal = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        lineHeight = 24.sp
+    )
+    val TitleSmallLight = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Light,
+        fontSize = 18.sp,
+        lineHeight = 24.sp
+    )
     // 앱바
     val AppBar = TextStyle(
         fontFamily = NotoSans,
         fontWeight = FontWeight.Bold,
         fontSize = 18.sp
     )
-
-    // 본문
-    val Body = TextStyle(
-        fontFamily = NotoSans,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 22.sp
-    )
-
-    val BodyLarge = TextStyle(
-        fontFamily = NotoSans,
-        fontWeight = FontWeight.Medium,
-        fontSize = 16.sp,
-        lineHeight = 22.sp
-    )
-
-    val BodyLargeGray = TextStyle(
-        fontFamily = NotoSans,
-        fontWeight = FontWeight.Medium,
-        fontSize = 16.sp,
-        lineHeight = 22.sp,
-        color = Gray
-    )
-
-    val BodySmall = TextStyle(
-        fontFamily = NotoSans,
-        fontWeight = FontWeight.Light,
-        fontSize = 14.sp,
-        lineHeight = 20.sp
-    )
-
-    // 버튼 텍스트
-    val ButtonText = TextStyle(
-        fontFamily = NotoSans,
-        fontWeight = FontWeight.Thin,
-        fontSize = 12.sp,
-        lineHeight = 18.sp
-    )
-
+    // 흰색 텍스트
     val BodyLargeWhite = TextStyle(
         fontFamily = NotoSans,
         fontWeight = FontWeight.Medium,
@@ -95,17 +77,96 @@ object AppTextStyle {
         color = White
     )
 
-    val BodyLargeGrayButton = TextStyle(
+    // 16sp
+    // 본문
+    val Body = TextStyle(
         fontFamily = NotoSans,
         fontWeight = FontWeight.Normal,
-        fontSize = 18.sp,
+        fontSize = 16.sp,
+        lineHeight = 22.sp
+    )
+    val BodyLight = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Light,
+        fontSize = 16.sp,
+        lineHeight = 22.sp
+    )
+    val BodyLarge = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        lineHeight = 22.sp
+    )
+    val BodyBold = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
         lineHeight = 22.sp
     )
 
-    // 마이페이지 버튼 텍스트
+    // 회색 텍스트
+    val BodyLargeGray = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        lineHeight = 22.sp,
+        color = Gray
+    )
+
+    // 14sp
+    val BodySmall = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Light,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    )
+    val BodySmallNormal = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    )
+    val BodySmallMedium = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    )
+    val BodySmallBold = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Bold,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    )
+
+    // 12sp
     val MypageButtonText = TextStyle(
         fontFamily = NotoSans,
         fontWeight = FontWeight.Thin,
+        fontSize = 12.sp,
+        lineHeight = 18.sp
+    )
+    val BodyTinyLight = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Light,
+        fontSize = 12.sp,
+        lineHeight = 18.sp
+    )
+    val BodyTinyNormal = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 18.sp
+    )
+    val BodyTinyMedium = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 18.sp
+    )
+    val BodyTinyBold = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Bold,
         fontSize = 12.sp,
         lineHeight = 18.sp
     )
