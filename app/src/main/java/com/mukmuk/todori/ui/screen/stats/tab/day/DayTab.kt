@@ -35,9 +35,11 @@ fun DayTab(dayRecords: List<DailyRecord>) {
     val todayRecord = dayRecords.firstOrNull { LocalDate.parse(it.date) == selectedDay }
     val dailyTodos by viewModel.todos.collectAsState()
     val dailyCompletedTodos by viewModel.completedTodos.collectAsState()
+    val dailyRecord by viewModel.dailyRecord.collectAsState()
 
     LaunchedEffect(uid, selectedDay) {
         viewModel.loadTodos(uid = uid, date = selectedDay)
+        viewModel.loadDailyRecord(uid = uid, date = selectedDay)
     }
 
     Column(
@@ -52,10 +54,7 @@ fun DayTab(dayRecords: List<DailyRecord>) {
             selectedDate = selectedDay,
             onDateSelected = { selectedDay = it })
         Spacer(modifier = Modifier.height(Dimens.Large))
-//        todayRecord?.let {
-//            DayStatsCard(record = it)
-//        }
-        DayStatsCard(date = selectedDay,record = dayRecords[11], todos = dailyTodos, completedTodos = dailyCompletedTodos)
+        DayStatsCard(date = selectedDay, record = dailyRecord, todos = dailyTodos, completedTodos = dailyCompletedTodos)
         Spacer(modifier = Modifier.height(Dimens.Large))
     }
 }
