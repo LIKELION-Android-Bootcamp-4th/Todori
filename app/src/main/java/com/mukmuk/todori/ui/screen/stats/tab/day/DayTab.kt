@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.stats.tab
+package com.mukmuk.todori.ui.screen.stats.tab.day
 
 import android.os.Build
 import android.util.Log

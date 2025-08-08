@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.stats.tab
+package com.mukmuk.todori.ui.screen.stats.tab.week
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -20,6 +20,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,25 +36,27 @@ import com.mukmuk.todori.ui.screen.stats.component.WeekProgress
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
-import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
-
-//일주일 기준을 일~토 로
-fun getWeekRange(date: LocalDate): List<LocalDate> {
-    val dayOfWeek = (date.dayOfWeek.ordinal + 1) % 7
-    val sunday = date.minus(DatePeriod(days = dayOfWeek))
-    return (0..6).map { sunday.plus(DatePeriod(days = it)) }
-}
+import androidx.hilt.navigation.compose.hiltViewModel
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeekTab(weekRecords: List<DailyRecord>) {
     var selectedWeek by remember {
-        mutableStateOf(LocalDate.parse("2025-08-04"))
+        mutableStateOf(LocalDate.now())
     }
-    val currentWeekRange = remember(selectedWeek) { getWeekRange(selectedWeek) }
+
+    val viewModel: WeekViewModel = hiltViewModel()
+    val weeklyTodos by viewModel.todos.collectAsState()
+    val weeklyCompletedTodos by viewModel.completedTodos.collectAsState()
+
+    val uid = "testuser"
+    val weeklyFiltered = viewModel.getWeekRange(selectedWeek) //주차 선택
+
+    LaunchedEffect(uid, selectedWeek) {
+        viewModel.loadWeekTodos(uid = uid, date = selectedWeek)
+    }
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -74,7 +78,7 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                     modifier = Modifier.align(Alignment.CenterStart)
                 ) {
                     IconButton(onClick = {
-                        selectedWeek = selectedWeek.minus(DatePeriod(days = 7))
+                        selectedWeek = selectedWeek.minusWeeks(1)
                     }) {
                         Icon(
                             Icons.Default.ArrowBack,
@@ -91,7 +95,7 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                     modifier = Modifier.align(Alignment.Center)
                 ) {
                     Text(
-                        "${selectedWeek.year}년 ${selectedWeek.monthNumber}월" +
+                        "${selectedWeek.year}년 ${selectedWeek.monthValue}월" +
                                 "${(selectedWeek.dayOfMonth - 1) / 7 + 1}주차",
                         style = AppTextStyle.TitleSmall
                     )
@@ -102,7 +106,7 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                     modifier = Modifier.align(Alignment.CenterEnd)
                 ) {
                     IconButton(onClick = {
-                        selectedWeek = selectedWeek.plus(DatePeriod(days = 7))
+                        selectedWeek = selectedWeek.plusWeeks(1)
                     }) {
                         Icon(
                             Icons.Default.ArrowForward,
@@ -114,17 +118,17 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                 }
             }
 
-            val weeklyFiltered = remember(weekRecords, currentWeekRange) {
+            val DailyRecordFiltered = remember(weekRecords, weeklyFiltered) {
                 weekRecords.filter { record ->
-                    LocalDate.parse(record.date) in currentWeekRange
+                    LocalDate.parse(record.date) in weeklyFiltered
                 }
             }
 
-            WeekCard(record = weeklyFiltered)
+            WeekCard(record = DailyRecordFiltered, allTodos = weeklyTodos, completedTodos = weeklyCompletedTodos)
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekGraph(record = weeklyFiltered)
+            WeekGraph(record = DailyRecordFiltered)
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekProgress(record = weeklyFiltered)
+            WeekProgress(week = selectedWeek,allTodos = weeklyTodos, completedTodos= weeklyCompletedTodos)
         }
     }
 }
