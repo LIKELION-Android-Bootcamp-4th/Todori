@@ -29,4 +29,30 @@ class StudyRepository @Inject constructor(
 
     suspend fun getMembersForStudies(studyIds: List<String>): List<StudyMember> =
         studyService.getMembersForStudies(studyIds)
+
+    suspend fun getProgressByUidStudyDate(uid: String, studyId: String, date: String): List<TodoProgress> =
+        studyService.getProgressByUidStudyDate(uid, studyId, date)
+
+    suspend fun getProgressesByStudyAndDate(studyId: String, date: String): List<TodoProgress> =
+        studyService.getProgressesByStudyAndDate(studyId, date)
+
+    suspend fun toggleTodoProgressDone(studyId: String, studyTodoId: String, uid: String, checked: Boolean) =
+        studyService.toggleTodoProgressDone(studyId, studyTodoId, uid, checked)
+
+    suspend fun deleteStudyTodo(studyTodoId: String) =
+        studyService.deleteStudyTodo(studyTodoId)
+
+    suspend fun addStudyTodoWithProgress(
+        studyTodo: StudyTodo,
+        members: List<StudyMember>
+    ) = studyService.addStudyTodoWithProgress(studyTodo, members)
+
+    suspend fun deleteStudyWithAllData(studyId: String) =
+        studyService.deleteStudyWithAllData(studyId)
+
+
+    suspend fun updateStudy(study: Study) =
+        studyService.updateStudy(study)
+
+
 }

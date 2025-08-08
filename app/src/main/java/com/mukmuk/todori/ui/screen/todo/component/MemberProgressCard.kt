@@ -39,7 +39,7 @@ fun MemberProgressCard(
 ) {
     val memberProgressList = members.map { member ->
         val todoProgresses = progresses[member.uid] ?: emptyMap()
-        val completedCount = todoProgresses.values.count { it.isDone }
+        val completedCount = todoProgresses.values.count { it.done }
         val totalCount = todos.size
         val progress = if (totalCount > 0) completedCount / totalCount.toFloat() else 0f
         Triple(member, completedCount, progress)

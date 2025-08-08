@@ -47,7 +47,7 @@ fun StudyTodoList(selectedDate: LocalDate,navController: NavHostController) {
                 memberCount = members.size,
                 joinedAt = members.firstOrNull { it.uid == uid }?.joinedAt ?: Timestamp.now(),
                 onClick = {
-                    navController.navigate("study/detail/${study.studyId}")
+                    navController.navigate("study/detail/${study.studyId}?date=${selectedDate}")
                 }
             )
         }

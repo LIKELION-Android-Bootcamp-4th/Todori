@@ -19,14 +19,12 @@ class StudyListViewModel @Inject constructor(
     val state: StateFlow<StudyListState> = _state
 
 
-
     fun loadAllStudies(uid: String, date: String? = null) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             try {
                 val myStudies = studyRepository.getMyStudies(uid)
                 val studyIds = myStudies.map { it.studyId }
-                println("StudyListViewModel :: myStudies = ${myStudies.map { it.studyId }}") // ✅
 
                 val studiesDeferred = async { studyRepository.getStudies(studyIds) }
                 val membersDeferred = async { studyRepository.getMembersForStudies(studyIds) }
@@ -37,11 +35,6 @@ class StudyListViewModel @Inject constructor(
                 val members = membersDeferred.await()
                 val todos = todosDeferred.await()
                 val progresses = progressesDeferred.await()
-
-                println("StudyListViewModel :: studies = ${studies.map { it.studyId }}")      // ✅
-                println("StudyListViewModel :: todos = ${todos.map { it.studyId }}")         // ✅
-                println("StudyListViewModel :: progresses = ${progresses.map { "${it.studyId}:${it.studyTodoId}:${it.isDone}" }}") // ✅
-
 
                 val membersMap = members.groupBy { it.studyId }
                 val todosMap = todos.groupBy { it.studyId }
