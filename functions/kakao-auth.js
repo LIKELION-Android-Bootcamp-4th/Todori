@@ -16,7 +16,9 @@ module.exports = async (data, context) => {
 
     const kakaoUser = userRes.data;
     const uid = `kakao:${kakaoUser.id}`;
-    const profile = kakaoUser.kakao_account.profile || {};
+    // 안전하게 접근
+    const kakaoAccount = kakaoUser.kakao_account || {};
+    const profile = kakaoAccount.profile || {};
 
     // Firestore 갱신
     await admin.firestore().collection("users").doc(uid).set({
