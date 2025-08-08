@@ -1,6 +1,7 @@
 package com.mukmuk.todori.data.repository
 
 import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.service.CommunityService
 import jakarta.inject.Inject
 
@@ -12,8 +13,8 @@ class CommunityRepository @Inject constructor(
         communityService.createPost(post)
     }
 
-    suspend fun getPosts(filter: String? = null): List<StudyPost> {
-        return communityService.getPosts(filter)
+    suspend fun getPosts(filter: String? = null, data: String? = null): List<StudyPost> {
+        return communityService.getPosts(filter, data)
     }
 
     suspend fun getPostById(postId: String): StudyPost? {
@@ -27,4 +28,33 @@ class CommunityRepository @Inject constructor(
     suspend fun deletePost(postId: String) {
         communityService.deletePost(postId)
     }
+
+    suspend fun createCommunitySearch(uid: String, query: String) {
+        communityService.createCommunitySearch(uid, query)
+    }
+
+    suspend fun getCommunitySearch(uid: String): List<String> {
+        return communityService.getCommunitySearch(uid)
+    }
+
+    suspend fun createReply(postId: String, reply: StudyPostComment){
+        communityService.createReply(postId, reply)
+    }
+
+    suspend fun getReplies(postId: String): List<StudyPostComment> {
+        return communityService.getReplies(postId)
+    }
+
+    suspend fun deleteReply(postId: String, replyId: String) {
+        communityService.deleteReply(postId, replyId)
+    }
+
+    suspend fun createCommentReply(postId: String, commentId: String, reply: StudyPostComment){
+        communityService.createCommentReply(postId, commentId, reply)
+    }
+
+    suspend fun getCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
+        return communityService.getCommentReplies(postId, commentId)
+    }
+
 }

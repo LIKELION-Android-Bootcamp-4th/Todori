@@ -24,27 +24,17 @@ class CommunityViewModel @Inject constructor(
     private val _state = MutableStateFlow(CommunityState())
     val state: StateFlow<CommunityState> = _state.asStateFlow()
 
-    var selectedPost by mutableStateOf<StudyPost?>(null)
-
     var commentList = null
 
-    var menu = listOf("수정", "삭제")
 
-    var td = listOf("답글 달기", "삭제")
-
-    var data = 1
-
-    var isLoading by mutableStateOf(false)
-
-
-    fun loadPosts(filter: String? = null) {
+    fun loadPosts(filter: String? = null, data: String? = null) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                val posts = repository.getPosts(filter)
+                val posts = repository.getPosts(filter, data)
                 _state.update {
                     it.copy(
-                        allPostList = if(filter == null) posts else it.allPostList,
+                        allPostList = if(filter == null && data == null) posts else it.allPostList,
                         postList = posts,
                         isLoading = false,
                         error = null
@@ -90,16 +80,31 @@ class CommunityViewModel @Inject constructor(
     }
 
 
-    fun updatePost(post: StudyPost) {
-
-    }
-
-    fun deletePost(post: StudyPost) {
+    fun updatePost(postId: String, updatedPost: StudyPost) {
         viewModelScope.launch {
             try {
-                repository.deletePost(post.postId)
+                repository.updatePost(postId, updatedPost)
                 _state.update {
-                    it.copy(postList = it.postList - post, error = null)
+                    it.copy(
+                        postList = it.postList.map { post ->
+                            if (post.postId == postId) updatedPost else post
+                        }
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
+
+    fun deletePost(postId: String) {
+        viewModelScope.launch {
+            try {
+                repository.deletePost(postId)
+                _state.update {
+                    it.copy(postList = it.postList.filter { post ->
+                        post.postId != postId
+                    })
                 }
             }
             catch (e: Exception) {
@@ -108,6 +113,28 @@ class CommunityViewModel @Inject constructor(
         }
     }
 
+    fun createCommunitySearch(uid: String, query: String) {
+        viewModelScope.launch {
+            try {
+                repository.createCommunitySearch(uid, query)
+            }
+            catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
 
+    fun getCommunitySearch(uid: String) {
+        viewModelScope.launch {
+            try {
+                val searches = repository.getCommunitySearch(uid)
+                _state.update {
+                    it.copy(communitySearchList = searches)
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
 
 }

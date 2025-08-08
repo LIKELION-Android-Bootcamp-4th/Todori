@@ -145,6 +145,16 @@ class StudyDetailViewModel @Inject constructor(
         }
     }
 
+    fun updateStudyMember(studyId: String, member: StudyMember) {
+        viewModelScope.launch {
+            try {
+                studyRepository.updateStudyMember(studyId, member)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(error = "저장 실패, 다시 시도해주세요.")
+            }
+        }
+    }
+
     fun resetCategoryDeleted() {
         _state.value = _state.value.copy(studyDeleted = false)
     }

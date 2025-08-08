@@ -49,6 +49,7 @@ import com.mukmuk.todori.ui.screen.community.components.CommunityListOption
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.ButtonPrimary
+import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.White
@@ -104,7 +105,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
         }
     ){innerPadding ->
         val list = mutableListOf<String>()
-        for(data in state.postList) {
+        for(data in state.allPostList) {
             for (tag in data.tags) {
                 if(tag != ""){
                     list.add(tag)
@@ -129,7 +130,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("게시글이 없습니다", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
+                    Text("게시글이 없습니다", style = AppTextStyle.Body.copy(color = DarkGray, fontWeight = FontWeight.Bold))
                 }
             }
             else {
@@ -203,9 +204,8 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     ) {
                         items(state.postList) { post ->
                             CommunityListItem(
-                                title = post.title,
-                                description = post.content,
-                                tags = post.tags,
+                                post = post,
+                                memberCount = 0,
                                 navController = navController,
                             )
                         }

@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -20,14 +21,15 @@ import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.UserPrimary
 
 @Composable
-fun CommunitySearchData(data: String) {
+fun CommunitySearchData(data: String, onClick: () -> Unit) {
 
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(30))
             .background(UserPrimary)
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .width(60.dp),
+            .width(60.dp)
+            .clickable { onClick() },
 
         contentAlignment = Alignment.Center
     ){

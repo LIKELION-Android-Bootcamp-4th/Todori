@@ -23,16 +23,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.components.CommunitySearchData
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
@@ -45,12 +48,16 @@ import com.mukmuk.todori.ui.theme.NotoSans
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunitySearchScreen(
-    onBack: () -> Unit
-
+    onBack: () -> Unit,
+    viewModel: CommunityViewModel
 ) {
     var query by remember { mutableStateOf("") }
 
-    var searchData = listOf("asd", "asd")
+    val focusManager = LocalFocusManager.current
+
+    var setTd by remember { mutableStateOf(false) }
+
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
@@ -62,7 +69,8 @@ fun CommunitySearchScreen(
                     ) {
                         OutlinedTextField(
                             value = query,
-                            onValueChange = { query = it },
+                            onValueChange = { query = it
+                                setTd = false },
                             colors = TextFieldDefaults.colors(
                                 focusedIndicatorColor = Color.Transparent,
                                 cursorColor = Black,
@@ -84,7 +92,11 @@ fun CommunitySearchScreen(
                             singleLine = true,
                             maxLines = 1,
                             trailingIcon = {
-                                IconButton(onClick = { }) {
+                                IconButton(onClick = {
+                                    viewModel.loadPosts(data = query)
+                                    viewModel.createCommunitySearch("uid", query)
+                                    viewModel.getCommunitySearch("uid")
+                                }) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
                                         contentDescription = "Search"
@@ -110,6 +122,8 @@ fun CommunitySearchScreen(
 
         }
     ) { innerPadding ->
+
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -128,9 +142,15 @@ fun CommunitySearchScreen(
                     .fillMaxWidth(),
 
             ) {
-                searchData.forEach{ data ->
-                    CommunitySearchData(data = data)
-                    Spacer(modifier = Modifier.width(Dimens.Tiny))
+                state.communitySearchList.forEach { search ->
+                    CommunitySearchData(
+                        data = search,
+                        onClick = {
+                            query = search
+                            viewModel.loadPosts(data = query)
+                        }
+                    )
+                    Spacer(modifier = Modifier.padding(Dimens.Tiny))
                 }
             }
         }

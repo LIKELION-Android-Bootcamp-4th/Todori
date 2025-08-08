@@ -31,14 +31,16 @@ fun CommunityListData(
     study: Study,
     memberCount: Int,
     activeDays: List<String>,
-    joinedAt: Timestamp,
+    onClick: () -> Unit
 ) {
     Card (
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = Dimens.Large)
             .border(1.dp, Gray, RoundedCornerShape(10.dp)),
-        onClick = {},
+        onClick = {
+            onClick()
+        },
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = White),
     ) {
@@ -55,7 +57,6 @@ fun CommunityListData(
 
             StudyMetaInfoRow(
                 createdAt = study.createdAt,
-                joinedAt = joinedAt,
                 memberCount = memberCount,
                 activeDays = activeDays
             )

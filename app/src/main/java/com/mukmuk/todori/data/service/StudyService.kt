@@ -199,6 +199,13 @@ class StudyService(
             .await()
     }
 
+    suspend fun updateStudyMember(studyId: String, member: StudyMember) {
+        val docId = member.uid
+        firestore.collection("studyMembers").document(docId)
+            .set(member, SetOptions.merge())
+            .await()
+    }
+
 
 
 }

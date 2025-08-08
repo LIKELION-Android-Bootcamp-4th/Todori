@@ -1,5 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.create
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -29,6 +31,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +46,7 @@ import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.components.ListPickerBottomSheet
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -51,14 +56,19 @@ import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.GroupSecondary
 import com.mukmuk.todori.ui.theme.White
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateCommunityScreen(
+    postId: String? = null,
     navController: NavController,
     onBack: () -> Unit,
-    viewModel: CommunityViewModel
+    communityViewModel: CommunityViewModel,
+    communityDetailViewModel: CommunityDetailViewModel
 ) {
     val scrollState = rememberScrollState()
+
+    val state by communityDetailViewModel.state.collectAsState()
 
     var title by remember { mutableStateOf("") }
     var isTitleError by remember { mutableStateOf(false) }
@@ -72,12 +82,24 @@ fun CreateCommunityScreen(
     var showListSheet by remember { mutableStateOf(false) }
     var pickedItem by remember { mutableStateOf<String?>(null) }
 
+    var studyId: String = ""
+
     val td = remember { mutableStateListOf<String>() }
 
-    if (viewModel.data == 2) {
-        title = viewModel.selectedPost?.title ?: ""
-        content = viewModel.selectedPost?.content ?: ""
-        viewModel.selectedPost = null
+    LaunchedEffect(Unit) {
+        if (postId != null) {
+            communityDetailViewModel.loadPostById(postId)
+        }
+    }
+
+    LaunchedEffect(state.post) {
+        state.post?.let { post ->
+            title = post.title
+            content = post.content
+            studyId = post.studyId
+            td.clear()
+            td.addAll(post.tags.distinct())
+        }
     }
 
     Scaffold(
@@ -85,7 +107,13 @@ fun CreateCommunityScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("게시글 작성", style = AppTextStyle.AppBar)
+                    if(postId != null)
+                    {
+                        Text("게시글 수정", style = AppTextStyle.AppBar)
+                    }
+                    else {
+                        Text("게시글 작성", style = AppTextStyle.AppBar)
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -218,16 +246,35 @@ fun CreateCommunityScreen(
 
             Button(
                 onClick = {
+                    if (pickedItem != null) {
+                        studyId = pickedItem!!
+                    }
                     if (title != "") {
-                        viewModel.createPost(
-                            StudyPost(
-                                title = title,
-                                content = content,
-                                tags = td,
-                                postId = "",
-                                createdAt = Timestamp.now()
+                        if (postId != null) {
+                            communityViewModel.updatePost(
+                                postId,
+                                StudyPost(
+                                    title = title,
+                                    content = content,
+                                    tags = td,
+                                    postId = postId,
+                                    studyId = studyId,
+                                    createdAt = Timestamp.now()
+                                )
                             )
-                        )
+                        }
+                        else {
+                            communityViewModel.createPost(
+                                StudyPost(
+                                    title = title,
+                                    content = content,
+                                    tags = td,
+                                    postId = "",
+                                    studyId = studyId,
+                                    createdAt = Timestamp.now()
+                                )
+                            )
+                        }
 
                         navController.popBackStack()
                     } else {
@@ -236,11 +283,20 @@ fun CreateCommunityScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("작성", style = AppTextStyle.MypageButtonText.copy(color = White))
+                Text("작성", style = AppTextStyle.Body.copy(color = White))
             }
         }
 
         if (showListSheet) {
+            ListPickerBottomSheet(
+                show = showListSheet,
+                onDismissRequest = { showListSheet = false },
+                onSelect = {
+
+                    pickedItem = it
+                    showListSheet = false
+                }
+            )
         }
 
     }

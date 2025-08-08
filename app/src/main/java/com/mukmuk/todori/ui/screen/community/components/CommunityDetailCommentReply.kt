@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Timestamp
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
@@ -45,7 +46,7 @@ fun CommunityDetailCommentReply(
     userName: String,
     comment: String,
     createdAt: Timestamp?,
-    viewModel: CommunityViewModel,
+    viewModel: CommunityDetailViewModel,
 ) {
 
     var expanded by remember { mutableStateOf(false) }

@@ -34,6 +34,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +45,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.screen.community.components.CommunityDetailComment
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailItem
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.ButtonPrimary
@@ -57,19 +61,25 @@ import com.mukmuk.todori.ui.theme.White
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunityDetailScreen(
+    postId: String,
     onBack: () -> Unit,
     navController: NavController,
-    viewModel: CommunityViewModel
+    communityViewModel: CommunityViewModel,
+    communityDetailViewModel: CommunityDetailViewModel
 ) {
-    val post = viewModel.selectedPost
+    val state by communityDetailViewModel.state.collectAsState()
 
     var scrollState = rememberScrollState()
 
     var expanded by remember { mutableStateOf(false) }
 
-    var data = listOf("td", "asd")
 
     var commentContent by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        communityDetailViewModel.loadPostById(postId)
+        communityDetailViewModel.getReplies(postId)
+    }
 
     Scaffold(
 
@@ -101,17 +111,16 @@ fun CommunityDetailScreen(
                                 .background(White, RoundedCornerShape(10.dp))
                                 .border(1.dp, Gray)
                         ) {
-                            viewModel.menu.forEach { item ->
+                            communityDetailViewModel.menu.forEach { item ->
                                 DropdownMenuItem(
                                     text = { Text(item, style = AppTextStyle.BodySmall) },
                                     onClick = {
                                         expanded = false
                                         if(item == "수정") {
-                                            navController.navigate("community/create")
-                                            viewModel.selectedPost = post
+                                            navController.navigate("community/create?postId=$postId")
                                         }
                                         else if(item == "삭제") {
-                                            viewModel.deletePost(post!!)
+                                            communityViewModel.deletePost(postId)
                                             onBack()
                                         }
                                     }
@@ -183,12 +192,12 @@ fun CommunityDetailScreen(
 
                 Spacer(Modifier.weight(1f))
 
-                Text("", style = AppTextStyle.BodySmall.copy(color = DarkGray))
+                Text(state.post?.createdAt?.toDate().toString(), style = AppTextStyle.BodySmall.copy(color = DarkGray))
             }
 
             Spacer(Modifier.height(8.dp))
 
-            Text(post?.title ?: "", style = AppTextStyle.Title.copy(fontWeight = FontWeight.Bold))
+            state.post?.title?.let { Text(it, style = AppTextStyle.Title.copy(fontWeight = FontWeight.Bold)) }
 
             Spacer(Modifier.height(4.dp))
 
@@ -196,10 +205,12 @@ fun CommunityDetailScreen(
 
 
 
-            Text(
-                post?.content ?: "",
-                style = AppTextStyle.Body
-            )
+            state.post?.let {
+                Text(
+                    it.content,
+                    style = AppTextStyle.Body
+                )
+            }
 
             Spacer(Modifier.height(Dimens.Large))
 
@@ -207,7 +218,7 @@ fun CommunityDetailScreen(
 
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                data.forEach{ tag ->
+                state.post?.tags?.forEach{ tag ->
                     Box(
                         modifier = Modifier
                             .background(GroupSecondary, RoundedCornerShape(32.dp))
@@ -227,15 +238,16 @@ fun CommunityDetailScreen(
 
             Spacer(Modifier.height(16.dp))
 
+            if(state.post?.studyId != null) {
 
-            CommunityDetailItem(
-                name = "asd",
-                description = "aoisjdoiasd",
-                createdAt = null,
-                joinedAt = null,
-                memberCount = 10,
-                activeDays = listOf("화", "수", "목")
-            )
+                CommunityDetailItem(
+                    studyId = state.post!!.studyId,
+                    onClick = {
+
+                    }
+                )
+
+            }
 
             Spacer(
                 modifier = Modifier
@@ -249,11 +261,10 @@ fun CommunityDetailScreen(
                     .fillMaxWidth()
                     .padding(top = 16.dp)
             ){
+                state.commentList.forEach { comment ->
 
-
+                }
             }
-
-
 
         }
 

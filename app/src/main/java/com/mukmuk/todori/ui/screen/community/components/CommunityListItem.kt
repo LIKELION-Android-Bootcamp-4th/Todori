@@ -20,6 +20,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -30,7 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.R
+import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -43,9 +47,8 @@ import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun CommunityListItem(
-    title: String,
-    description: String,
-    tags: List<String>,
+    post: StudyPost,
+    memberCount: Int,
     navController: NavHostController,
 ) {
     Card(
@@ -57,8 +60,7 @@ fun CommunityListItem(
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         onClick = {
-            navController.navigate("community/detail")
-
+            navController.navigate("community/detail/${post.postId}")
         },
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -70,39 +72,43 @@ fun CommunityListItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    title,
+                    post.title,
                     modifier = Modifier.weight(1f),
                     style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Row(
-                    modifier = Modifier
-                        .border(1.dp, Gray, RoundedCornerShape(5.dp))
-                        .padding(horizontal = 6.dp, vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = Black
-                    )
 
-                    Spacer(Modifier.width(Dimens.Tiny))
+                if(post.studyId != null) {
 
-                    Text(
-                        "",
-                        style = AppTextStyle.BodySmall
-                    )
+                    Row(
+                        modifier = Modifier
+                            .border(1.dp, Gray, RoundedCornerShape(5.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = Black
+                        )
+
+                        Spacer(Modifier.width(Dimens.Tiny))
+
+                        Text(
+                            memberCount.toString(),
+                            style = AppTextStyle.BodySmall
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
             Text(
-                description,
+                post.content,
                 style = AppTextStyle.Body.copy(color = DarkGray),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -114,7 +120,7 @@ fun CommunityListItem(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ){
-                tags.forEach { tag ->
+                post.tags.forEach { tag ->
                     Box(
                         modifier = Modifier
                             .background(GroupSecondary, RoundedCornerShape(32.dp))

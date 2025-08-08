@@ -19,6 +19,7 @@ import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.create.CreateCommunityScreen
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailScreen
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
@@ -68,12 +69,19 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunityScreen(navController, viewModel)
         }
-        composable("community/create") { backStackEntry ->
+        composable("community/create?postId={postId}", arguments = listOf(
+            navArgument("postId") {
+                type = NavType.StringType
+                defaultValue = null
+                nullable = true
+            })) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId")
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
-            val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
-            CreateCommunityScreen(navController, onBack = { navController.popBackStack() }, viewModel)
+            val communityViewModel: CommunityViewModel = hiltViewModel(parentEntry)
+            val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
+            CreateCommunityScreen(postId, navController, onBack = { navController.popBackStack() }, communityViewModel, communityDetailViewModel)
         }
         composable("community/search"){ backStackEntry ->
             val parentEntry = remember(backStackEntry) {
@@ -82,17 +90,25 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunitySearchScreen(
                 onBack = { navController.popBackStack() }
+                viewModel
             )
         }
-        composable("community/detail"){ backStackEntry ->
+        composable("community/detail/{postId}", arguments = listOf(
+            navArgument("postId") { type = NavType.StringType }
+        )
+        ){ backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
-            val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
+            val postId = backStackEntry.arguments?.getString("postId") ?: ""
+            val communityViewModel: CommunityViewModel = hiltViewModel(parentEntry)
+            val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
             CommunityDetailScreen(
+                postId = postId,
                 onBack = { navController.popBackStack() },
                 navController,
-                viewModel
+                communityViewModel,
+                communityDetailViewModel
             )
         }
 

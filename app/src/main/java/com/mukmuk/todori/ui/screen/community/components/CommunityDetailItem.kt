@@ -2,6 +2,7 @@ package com.mukmuk.todori.ui.screen.community.components
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,15 +11,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.Timestamp
+import com.mukmuk.todori.data.remote.study.Study
+import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.ui.screen.todo.component.StudyMetaInfoRow
+import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
@@ -28,13 +37,21 @@ import com.mukmuk.todori.ui.theme.White
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CommunityDetailItem(
-    name: String,
-    description: String,
-    createdAt: Timestamp?,
-    joinedAt: Timestamp?,
-    memberCount: Int,
-    activeDays: List<String>,
+    studyId: String,
+    onClick: () -> Unit
 ) {
+
+    val viewModel: StudyDetailViewModel = hiltViewModel()
+
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if(studyId != null) {
+            viewModel.loadStudyDetail("testuser", studyId, null)
+        }
+    }
+
+    val study: Study = state.study ?: return
 
     Card (
         modifier = Modifier
@@ -47,28 +64,56 @@ fun CommunityDetailItem(
         Column(
             modifier = Modifier.padding(Dimens.Medium)
         ) {
-            Text(name, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold))
+            Text(study.title, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold))
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            Text(description, style = AppTextStyle.Body.copy(color = DarkGray))
+            Text(state.study!!.description, style = AppTextStyle.Body.copy(color = DarkGray))
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
+
+            val memberCount = state.members.size
 
             StudyMetaInfoRow(
-                createdAt = createdAt,
-                joinedAt = joinedAt,
+                createdAt = state.study!!.createdAt,
                 memberCount = memberCount,
-                activeDays = activeDays
+                activeDays = state.study!!.activeDays
             )
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            Button(
-                onClick = {},
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("참여하기", style = AppTextStyle.MypageButtonText.copy(color = White))
+            if(state.members.find { it.uid == "testuser" } != null){
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Gray,
+                        contentColor = White
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+
+                    },
+                ) {
+                    Text("참여중", style = AppTextStyle.MypageButtonText.copy(color = White))
+                }
+            }
+            else {
+                Button(
+                    onClick = {
+                        viewModel.updateStudyMember(
+                            studyId,
+                            StudyMember(
+                                uid = "testuser",
+                                nickname = "testuser",
+                                studyId = studyId,
+                                role = "MEMBER",
+                                joinedAt = Timestamp.now(),
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("참여하기", style = AppTextStyle.MypageButtonText.copy(color = White))
+                }
             }
         }
     }
