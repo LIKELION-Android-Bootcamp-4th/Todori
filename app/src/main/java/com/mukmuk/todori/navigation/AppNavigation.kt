@@ -89,7 +89,8 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             }
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunitySearchScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                viewModel
             )
         }
         composable("community/detail/{postId}", arguments = listOf(
