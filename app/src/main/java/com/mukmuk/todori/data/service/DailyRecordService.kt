@@ -14,7 +14,7 @@ class DailyRecordService(
 ) {
     // users/{uid}/dailyRecord 컬렉션 참조
     private fun userDailyRecordRef(uid: String) =
-        firestore.collection("users").document(uid).collection("todos")
+        firestore.collection("users").document(uid).collection("dailyRecord")
 
     // 선택 날짜 dailyRecord 불러오기
     @RequiresApi(Build.VERSION_CODES.O)

@@ -37,6 +37,10 @@ fun DayTab(dayRecords: List<DailyRecord>) {
     val dailyCompletedTodos by viewModel.completedTodos.collectAsState()
     val dailyRecord by viewModel.dailyRecord.collectAsState()
 
+    Log.d("aa","$selectedDay")
+    Log.d("aa","$dailyRecord")
+
+
     LaunchedEffect(uid, selectedDay) {
         viewModel.loadTodos(uid = uid, date = selectedDay)
         viewModel.loadDailyRecord(uid = uid, date = selectedDay)
