@@ -21,6 +21,7 @@ coroutines = "1.10.2"
 compose-compiler = "1.6.10"
 mpandroidchart = "3.1.0"
 play-services-auth = "21.1.0"
+kakao = "2.20.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -65,6 +66,8 @@ compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref 
 compose-nav = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.0" }
+
+kakao-user = { module = "com.kakao.sdk:v2-user", version.ref = "kakao" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

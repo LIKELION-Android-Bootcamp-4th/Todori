@@ -1,11 +1,19 @@
 package com.mukmuk.todori.data.service
 
-import com.google.firebase.firestore.CollectionReference
+import android.content.Context
+import android.util.Log
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.functions.FirebaseFunctions
+import com.kakao.sdk.user.UserApiClient
 import com.mukmuk.todori.data.remote.user.User
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 
 class UserService @Inject constructor(
@@ -20,37 +28,75 @@ class UserService @Inject constructor(
         return snapshot.toObject(User::class.java)
     }
 
-//    suspend fun createUser(uid: String, user: User) {
-//        val ref = userDoc(uid).document()
-//        ref.set(user)
-//            .addOnSuccessListener {
-//                println("Firestore: 새로운 사용자(${user.uid}) 정보 성공적으로 생성.")
-//            }
-//            .addOnFailureListener { e ->
-//                println("Firestore: 새로운 사용자 정보 생성 실패: $e")
-//            }
-//    }
 
     //프로필 수정
     suspend fun updateUser(uid: String, nickname: String, intro: String) {
         userDoc(uid).set(
             mapOf("nickname" to nickname, "intro" to intro),
-            SetOptions.merge())
+            SetOptions.merge()
+        )
             .await()
-   }
-//
-//    suspend fun updateLoginUser(uid: String, user: User) {
-//        val ref = userDoc(uid).document()
-//        ref.set(user, SetOptions.merge())
-//            .addOnSuccessListener {
-//                println("Firestore: 기존 사용자(${user.uid}) 정보 성공적으로 업데이트.")
-//            }
-//            .addOnFailureListener { e ->
-//                println("Firestore: 기존 사용자 정보 업데이트 실패: $e")
-//            }
-//    }
-//
-//    suspend fun deleteUser(uid: String) {
-//        userRef(uid).document().delete().await()
-//    }
+    }
+
+    //마지막 로그인 시간 업데이트
+    suspend fun updateLastLogin(uid: String) {
+        userDoc(uid).set(
+            mapOf("lastLoginAt" to Timestamp.now()),
+            SetOptions.merge()
+        ).await()
+    }
+
+    /**
+     * 카카오 로그인 → Cloud Functions(kakaoCustomAuth) → Firebase 로그인
+     */
+    suspend fun kakaoLogin(context: Context) {
+        try {
+            val accessToken = getKakaoAccessToken(context)
+            Log.d("KAKAO", "카카오 AccessToken: $accessToken")
+
+            val functions = FirebaseFunctions.getInstance()
+            val auth = FirebaseAuth.getInstance()
+
+            // Cloud Function 호출해서 Custom Token 받기
+            val customToken = functions
+                .getHttpsCallable("kakaoCustomAuth")
+                .call(mapOf("token" to accessToken))
+                .continueWith { task ->
+                    val result = task.result?.data as Map<*, *>
+                    result["customToken"] as String
+                }.await()
+
+            // Firebase 로그인
+            auth.signInWithCustomToken(customToken).await()
+
+            Log.d("KAKAO", "Firebase 로그인 성공: ${auth.currentUser?.uid}")
+
+        } catch (e: Exception) {
+            Log.e("KAKAO", "카카오 로그인 실패", e)
+            throw e
+        }
+    }
+
+    /**
+     * 카카오 SDK를 통해 accessToken 가져오기
+     */
+    private suspend fun getKakaoAccessToken(context: Context): String {
+        return suspendCoroutine { cont ->
+            if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
+                UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
+                    if (error != null) cont.resumeWithException(error)
+                    else if (token != null) cont.resume(token.accessToken)
+                }
+            } else {
+                UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
+                    if (error != null) cont.resumeWithException(error)
+                    else if (token != null) cont.resume(token.accessToken)
+                }
+            }
+        }
+    }
+
+
+
+
 }

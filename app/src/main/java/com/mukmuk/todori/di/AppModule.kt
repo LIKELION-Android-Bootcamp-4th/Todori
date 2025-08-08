@@ -1,11 +1,13 @@
 package com.mukmuk.todori.di
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
+import com.mukmuk.todori.data.repository.AuthRepository
 import com.mukmuk.todori.data.repository.GoalRepository
 import com.mukmuk.todori.data.repository.GoalTodoRepository
 import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
-import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.GoalService
@@ -41,12 +43,6 @@ object AppModule {
     fun provideTodoCategoryRepository(
         todoCategoryService: TodoCategoryService
     ): TodoCategoryRepository = TodoCategoryRepository(todoCategoryService)
-
-    @Provides
-    @Singleton
-    fun providerUserRepository(
-        userService: UserService
-    ): UserRepository = UserRepository(userService)
 
     @Provides
     @Singleton
@@ -102,4 +98,21 @@ object AppModule {
     @Singleton
     fun provideGoalTodoRepository(goalTodoService: GoalTodoService): GoalTodoRepository =
         GoalTodoRepository(goalTodoService)
+
+    // Firebase Auth
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    // Firebase Functions
+    @Provides
+    @Singleton
+    fun provideFirebaseFunctions(): FirebaseFunctions = FirebaseFunctions.getInstance()
+
+    // AuthRepository
+    @Provides
+    @Singleton
+    fun provideAuthRepository(
+        auth: FirebaseAuth
+    ): AuthRepository = AuthRepository(auth)
 }

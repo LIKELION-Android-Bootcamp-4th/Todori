@@ -82,7 +82,7 @@ dependencies {
     kapt(libs.room.compiler)
 
     // Coil
-    implementation(libs.coil)
+//    implementation(libs.coil)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -92,9 +92,6 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.play.services.auth)
-
-    //MPAndroidChart
-//    implementation(libs.mpandroidchart)
 
     // 기타
     implementation(libs.kalendar)
@@ -112,4 +109,11 @@ dependencies {
 
     implementation(libs.lottie)
     implementation(libs.kotlinx.datetime)
+
+//    implementation(libs.kakao.user)
+    implementation("com.kakao.sdk:v2-user:2.20.3")
+
+    implementation("com.navercorp.nid:oauth:5.9.0")
+
+
 }

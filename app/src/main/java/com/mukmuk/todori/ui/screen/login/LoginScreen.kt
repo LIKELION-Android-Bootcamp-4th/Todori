@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.login
 
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -18,14 +19,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.mukmuk.todori.R
 import com.mukmuk.todori.navigation.BottomNavItem
 
 @Composable
@@ -36,24 +32,27 @@ fun LoginScreen(
     val state = viewModel.state
     val context = LocalContext.current
 
+
+
+    // 구글 로그인 런처
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            viewModel.onEvent(LoginEvent.GoogleLogin(account.idToken))
-        } catch (e: ApiException) {
-            viewModel.onEvent(LoginEvent.LoginFailure("Google 로그인 실패: ${e.localizedMessage}"))
-        }
+        viewModel.handleGoogleSignInResult(result.data)
     }
 
-    // 상태 변화 시 네비게이션
+    // 상태 변화 시 네비게이션 / 에러 처리
     LaunchedEffect(state.status) {
-        if (state.status == LoginStatus.SUCCESS) {
-            navController.navigate(BottomNavItem.Todo.route) {
-                popUpTo("login") { inclusive = true }
+        when (state.status) {
+            LoginStatus.SUCCESS -> {
+                navController.navigate(BottomNavItem.Todo.route) {
+                    popUpTo("login") { inclusive = true }
+                }
             }
+            LoginStatus.ERROR -> {
+                Toast.makeText(context, state.errorMessage ?: "로그인 실패", Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit
         }
     }
 
@@ -77,14 +76,10 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // Google
                     Button(
                         onClick = {
-                            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                                .requestIdToken(context.getString(R.string.default_web_client_id))
-                                .requestEmail()
-                                .build()
-                            val googleSignInClient = GoogleSignIn.getClient(context, gso)
-                            launcher.launch(googleSignInClient.signInIntent)
+                            launcher.launch(viewModel.getGoogleSignInIntent(context))
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -93,8 +88,11 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    // Kakao
                     Button(
-                        onClick = { /* Kakao 로그인 로직 */ },
+                        onClick = {
+                            viewModel.kakaoLogin(context)
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
@@ -102,6 +100,7 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    // Naver
                     Button(
                         onClick = { /* Naver 로그인 로직 */ },
                         modifier = Modifier
