@@ -49,7 +49,6 @@ import com.mukmuk.todori.ui.theme.NotoSans
 @Composable
 fun CommunitySearchScreen(
     onBack: () -> Unit,
-    viewModel: CommunityViewModel
 ) {
     var query by remember { mutableStateOf("") }
 
