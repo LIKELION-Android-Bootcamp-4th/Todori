@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -54,6 +55,7 @@ import com.mukmuk.todori.ui.theme.Background
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.UserPrimary
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
@@ -63,24 +65,12 @@ import java.util.concurrent.TimeUnit
 fun HomeScreen(navController: NavHostController) {
     val viewModel: HomeViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
-    val homeSettingState by viewModel.state.collectAsState()
+    val homeSettingState by viewModel.homeSettingState.collectAsState()
+    val todoList by viewModel.todoList.collectAsState()
 
     var selectedIndex by remember { mutableStateOf(-1) }
     var recordTime by remember { mutableStateOf(0L) }
     var recordButtonText by remember { mutableStateOf("기록") }
-    val todos = remember {
-        mutableStateListOf(
-            Todo(title = "스트레칭 하기", completed = true),
-            Todo(title = "스쿼트 50개", completed = false),
-            Todo(title = "런닝 30분", completed = true),
-            Todo(title = "Kotlin 문법 정리", completed = false),
-            Todo(title = "Coroutine 복습", completed = true),
-            Todo(title = "Jetpack Compose", completed = false),
-            Todo(title = "10분 명상", completed = true),
-            Todo(title = "감사 일기 작성", completed = false),
-            Todo(title = "차분한 음악 듣기", completed = true)
-        )
-    }
 
     LaunchedEffect(state.status == TimerStatus.RECORDING) {
         if (state.status != TimerStatus.RECORDING) {
@@ -137,15 +127,13 @@ fun HomeScreen(navController: NavHostController) {
                     textAlign = TextAlign.Center
                 )
             }
-            // 뽀모도로 활성화 여부를 homeSettingState에서 가져옵니다.
-            if (homeSettingState.isPomodoroEnabled) { // 🚀 homeSettingState.isPomodoroEnabled 사용
+            if (homeSettingState.isPomodoroEnabled) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     PomoModeTextBox(state.pomodoroMode)
                     Spacer(modifier = Modifier.width(Dimens.Large))
                     Text(
-                        // 타이머의 남은 시간은 ViewModel의 state에서 가져옵니다.
                         text = pomodoroFormatTime(state.timeLeftInMillis),
                         style = AppTextStyle.TitleLarge,
                         textAlign = TextAlign.Center
@@ -168,7 +156,6 @@ fun HomeScreen(navController: NavHostController) {
                     onClick = {
                         if (state.status == TimerStatus.RUNNING) {
                             viewModel.onEvent(TimerEvent.Record)
-                            // recordTime 계산은 그대로 유지
                             recordTime = state.totalStudyTimeMills - state.totalRecordTimeMills
                         } else {
                             viewModel.onEvent(TimerEvent.Stop)
@@ -191,7 +178,7 @@ fun HomeScreen(navController: NavHostController) {
                         shape = CircleShape,
                         modifier = Modifier.size(76.dp),
                         contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF22B282)) // 예시 색상
+                        colors = ButtonDefaults.buttonColors(containerColor = UserPrimary)
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Pause,
@@ -209,7 +196,7 @@ fun HomeScreen(navController: NavHostController) {
                         shape = CircleShape,
                         modifier = Modifier.size(76.dp),
                         contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF22B282)) // 예시 색상
+                        colors = ButtonDefaults.buttonColors(containerColor = UserPrimary)
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.PlayArrow,
@@ -252,8 +239,8 @@ fun HomeScreen(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                LazyColumn {
-                    itemsIndexed(todos) { index, todo ->
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(todoList) { todo ->
                         MainTodoItemEditableRow(
                             title = todo.title,
                             isDone = todo.completed,
@@ -264,16 +251,10 @@ fun HomeScreen(navController: NavHostController) {
                                 null
                             },
                             onCheckedChange = { checked ->
-                                todos[index] = todo.copy(completed = checked)
+                                viewModel.toggleTodoCompleted(uid = "testuser", todo = todo)
                             },
                             onItemClick = {
                                 if (state.status == TimerStatus.RECORDING && !todo.completed) {
-                                    selectedIndex = index
-                                    if (todos[index].totalFocusTimeMillis > 0L) {
-                                        todos[index] = todo.copy(totalFocusTimeMillis = todos[index].totalFocusTimeMillis + recordTime)
-                                    } else {
-                                        todos[index] = todo.copy(totalFocusTimeMillis = recordTime)
-                                    }
                                     viewModel.setTotalRecordTimeMills(recordTime)
                                     viewModel.onEvent(TimerEvent.Stop)
                                 }
@@ -296,7 +277,7 @@ fun pomodoroFormatTime(millis: Long): String {
 
 fun totalFormatTime(millis: Long): String {
     val hours = TimeUnit.MILLISECONDS.toHours((millis))
-    val minutes = TimeUnit.MILLISECONDS.toMinutes(millis) % 60 // 60분 이상일 경우를 위해 % 60 추가
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(millis) % 60
     val seconds = TimeUnit.MILLISECONDS.toSeconds(millis) % 60
     return String.format("%02d : %02d : %02d", hours, minutes, seconds)
 }

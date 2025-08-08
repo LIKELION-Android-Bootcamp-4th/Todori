@@ -1,8 +1,14 @@
 package com.mukmuk.todori.ui.screen.home
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
+import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.repository.TodoCategoryRepository
+import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -14,11 +20,15 @@ import kotlinx.coroutines.flow.collectLatest // collectLatest import
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.toLocalDate
+import java.time.LocalDate
 import javax.inject.Inject
 
+@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeSettingRepository: HomeSettingRepository
+    private val homeSettingRepository: HomeSettingRepository,
+    private val todoRepository: TodoRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TimerState())
@@ -26,6 +36,13 @@ class HomeViewModel @Inject constructor(
 
     private val _homeSettingState = MutableStateFlow(HomeSettingState())
     val homeSettingState: StateFlow<HomeSettingState> = _homeSettingState.asStateFlow()
+
+    private val _todoList = MutableStateFlow<List<Todo>>(emptyList())
+    val todoList: StateFlow<List<Todo>> = _todoList.asStateFlow()
+
+    private val currentUid: String = "testuser"
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val currentDate = LocalDate.now()
 
     private var timerJob: Job? = null
     private var currentSettings: HomeSettingState = HomeSettingState()
@@ -42,6 +59,7 @@ class HomeViewModel @Inject constructor(
                 _homeSettingState.value = settings
             }
         }
+        loadTodosForHomeScreen(currentUid, currentDate)
     }
 
     fun onEvent(event: TimerEvent) {
@@ -118,14 +136,17 @@ class HomeViewModel @Inject constructor(
                 pomodoroMode = PomodoroTimerMode.FOCUSED,
                 completedFocusCycles = 0,
                 isPomodoroEnabled = settings.isPomodoroEnabled,
-                status = TimerStatus.IDLE
             )
         }
     }
 
     private fun handleTimerCompletion() {
         timerJob?.cancel()
-
+        _state.update {
+            it.copy(
+                status = TimerStatus.IDLE,
+            )
+        }
         if (currentSettings.isPomodoroEnabled) {
             when (_state.value.pomodoroMode) {
                 PomodoroTimerMode.FOCUSED -> {
@@ -137,7 +158,6 @@ class HomeViewModel @Inject constructor(
                                 pomodoroMode = PomodoroTimerMode.LONG_RESTED,
                                 timeLeftInMillis = (currentSettings.longRestMinutes * 60 + currentSettings.longRestSeconds) * 1000L,
                                 completedFocusCycles = nextCompletedCycles,
-                                status = TimerStatus.IDLE
                             )
                         }
                     } else {
@@ -146,7 +166,6 @@ class HomeViewModel @Inject constructor(
                                 pomodoroMode = PomodoroTimerMode.SHORT_RESTED,
                                 timeLeftInMillis = (currentSettings.shortRestMinutes * 60 + currentSettings.shortRestSeconds) * 1000L,
                                 completedFocusCycles = nextCompletedCycles,
-                                status = TimerStatus.IDLE
                             )
                         }
                     }
@@ -157,7 +176,6 @@ class HomeViewModel @Inject constructor(
                         currentState.copy(
                             pomodoroMode = PomodoroTimerMode.FOCUSED,
                             timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
-                            status = TimerStatus.IDLE
                         )
                     }
                 }
@@ -167,8 +185,7 @@ class HomeViewModel @Inject constructor(
                         currentState.copy(
                             pomodoroMode = PomodoroTimerMode.FOCUSED,
                             timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
-                            completedFocusCycles = 0,
-                            status = TimerStatus.IDLE
+                            completedFocusCycles = 0
                         )
                     }
                 }
@@ -178,9 +195,34 @@ class HomeViewModel @Inject constructor(
                 currentState.copy(
                     pomodoroMode = PomodoroTimerMode.FOCUSED,
                     timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
-                    completedFocusCycles = 0, // 사이클 초기화
-                    status = TimerStatus.IDLE // 완료 후 IDLE 상태로
+                    completedFocusCycles = 0
                 )
+            }
+        }
+        startTimer()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun loadTodosForHomeScreen(uid: String, date: LocalDate) {
+        viewModelScope.launch {
+            try {
+                val todos = todoRepository.getTodosByDate(uid, date)
+                _todoList.value = todos
+            } catch (e: Exception) {
+                _todoList.value = emptyList()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun toggleTodoCompleted(uid: String, todo: Todo) {
+        viewModelScope.launch {
+            val updated = todo.copy(completed = !todo.completed)
+            try {
+                todoRepository.updateTodo(uid, updated)
+                loadTodosForHomeScreen(uid, LocalDate.parse(todo.date))
+            } catch (e: Exception) {
+                Log.e("todorilog", e.toString())
             }
         }
     }
