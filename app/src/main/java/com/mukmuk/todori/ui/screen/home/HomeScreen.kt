@@ -255,7 +255,7 @@ fun HomeScreen(navController: NavHostController) {
                             },
                             onItemClick = {
                                 if (state.status == TimerStatus.RECORDING && !todo.completed) {
-                                    viewModel.setTotalRecordTimeMills(recordTime)
+                                    viewModel.setTotalRecordTimeMills(recordTime, uid = "testuser", todo = todo)
                                     viewModel.onEvent(TimerEvent.Stop)
                                 }
                             }

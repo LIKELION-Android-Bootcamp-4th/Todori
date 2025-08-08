@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
+import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
 import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -59,6 +60,7 @@ fun TodoDetailScreen(
     onBack: () -> Unit
 ) {
     val viewModel: TodoDetailViewModel = hiltViewModel()
+    val homeViewModel: HomeViewModel = hiltViewModel()
     val uid = "testuser"
     val state by viewModel.state.collectAsState()
 
@@ -79,6 +81,7 @@ fun TodoDetailScreen(
         LaunchedEffect(Unit) {
             onBack()
             viewModel.resetCategoryDeleted()
+            homeViewModel.triggerRefresh()
         }
     }
 
@@ -116,6 +119,7 @@ fun TodoDetailScreen(
                     ?.savedStateHandle
                     ?.set("editCategory", category)
                 navController.navigate("category/create")
+                homeViewModel.triggerRefresh()
             },
             onDelete = {
                 showDialog = true

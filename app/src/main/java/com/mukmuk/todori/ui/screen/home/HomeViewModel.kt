@@ -44,6 +44,9 @@ class HomeViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     private val currentDate = LocalDate.now()
 
+    private val _refreshTrigger = MutableStateFlow(0)
+    val refreshTrigger: StateFlow<Int> = _refreshTrigger.asStateFlow()
+
     private var timerJob: Job? = null
     private var currentSettings: HomeSettingState = HomeSettingState()
 
@@ -60,6 +63,10 @@ class HomeViewModel @Inject constructor(
             }
         }
         loadTodosForHomeScreen(currentUid, currentDate)
+    }
+
+    fun triggerRefresh() {
+        _refreshTrigger.value = _refreshTrigger.value + 1
     }
 
     fun onEvent(event: TimerEvent) {
@@ -125,8 +132,16 @@ class HomeViewModel @Inject constructor(
         _state.update { it.copy(status = TimerStatus.RECORDING) }
     }
 
-    fun setTotalRecordTimeMills(recordTime: Long) {
-        _state.update { it.copy(totalRecordTimeMills = _state.value.totalRecordTimeMills + recordTime) }
+    fun setTotalRecordTimeMills(recordTime: Long, uid: String, todo: Todo) {
+        viewModelScope.launch {
+            val updated = todo.copy(totalFocusTimeMillis = _state.value.totalRecordTimeMills + recordTime)
+            try {
+                todoRepository.updateTodo(uid, updated)
+                loadTodosForHomeScreen(uid, LocalDate.parse(todo.date))
+            } catch (e: Exception) {
+                Log.e("todorilog", e.toString())
+            }
+        }
     }
 
     private fun updateInitialTimerSettings(settings: HomeSettingState) {
