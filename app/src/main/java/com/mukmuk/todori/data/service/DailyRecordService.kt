@@ -14,7 +14,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class DailyRecordService @Inject constructor(
-class DailyRecordService(
     private val firestore: FirebaseFirestore
 ) {
     // users/{uid}/dailyRecord 컬렉션 참조

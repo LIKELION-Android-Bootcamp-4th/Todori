@@ -33,6 +33,7 @@ class DailyRecordRepository @Inject constructor(
         val studied = records.filter { it.studyTimeMillis > 0L }
         if (studied.isNotEmpty()) studied.sumOf { it.studyTimeMillis } / studied.size else 0L
     }
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getDailyRecords(uid: String, date: LocalDate) = dailyRecordService.getDailyRecordByDate(uid, date)
     suspend fun updateDailyRecord(uid: String, record: DailyRecord) { dailyRecordService.updateDailyRecord(uid, record) }
 }
