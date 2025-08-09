@@ -84,6 +84,7 @@ fun CommunityDetailItem(
 
             if(state.members.find { it.uid == "testuser" } != null){
                 Button(
+                    enabled = false,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = DarkGray,
                         contentColor = White

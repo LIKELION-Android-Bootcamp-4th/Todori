@@ -20,7 +20,6 @@ class StudyRepository @Inject constructor(
     suspend fun getStudies(studyIds: List<String>): List<Study> =
         studyService.getStudies(studyIds)
 
-
     suspend fun getTodosForStudies(studyIds: List<String>, date: String?): List<StudyTodo> =
         studyService.getTodosForStudies(studyIds, date)
 

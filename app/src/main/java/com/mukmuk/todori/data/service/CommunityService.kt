@@ -1,9 +1,11 @@
 package com.mukmuk.todori.data.service
 
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import kotlinx.coroutines.tasks.await
@@ -58,7 +60,9 @@ class CommunityService(
             .collection("communitySearch")
             .document()
 
-        val data = mapOf("query" to query)
+        val data = mapOf("query" to query, "timestamp" to FieldValue.serverTimestamp())
+
+
         ref.set(data).await()
     }
 
@@ -67,10 +71,11 @@ class CommunityService(
             .document(uid)
             .collection("communitySearch")
             .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(10)
             .get()
             .await()
 
-        return snapshot.documents.mapNotNull { it.getString("query") }.take(10)
+        return snapshot.documents.mapNotNull { it.getString("query") }
     }
 
     suspend fun createReply(postId: String, reply: StudyPostComment){

@@ -10,6 +10,7 @@ data class StudyPost (
     val title: String = "",
     val content: String = "",
     val tags: List<String> = emptyList(),
+    var memberCount: Int = 0,
     val createdBy: String = "",
     val createdAt: Timestamp? = null,
     val updatedAt: Timestamp? = null,

@@ -73,16 +73,21 @@ fun StudyMetaInfoRow(
         Spacer(modifier = Modifier.width(Dimens.Tiny))
 
         // D-day
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(6.dp))
-                .background(GroupPrimary)
-                .padding(vertical = Dimens.Nano, horizontal = Dimens.Tiny)
-        ) {
-            Text("D+$dDay", style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold, color = White))
-        }
+        if(joinedAt != null) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(GroupPrimary)
+                    .padding(vertical = Dimens.Nano, horizontal = Dimens.Tiny)
+            ) {
+                Text(
+                    "D+$dDay",
+                    style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold, color = White)
+                )
+            }
 
-        Spacer(modifier = Modifier.width(Dimens.Tiny))
+            Spacer(modifier = Modifier.width(Dimens.Tiny))
+        }
 
         // 멤버 수
         Row(

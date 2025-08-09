@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,6 +67,8 @@ fun CommunitySearchScreen(
 
     var showCommunitySearch by remember { mutableStateOf(false) }
 
+    val uid = "testuser"
+
     val state by viewModel.state.collectAsState()
 
     Scaffold(
@@ -97,24 +101,21 @@ fun CommunitySearchScreen(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(LightGray, RoundedCornerShape(30.dp))
-                                    .clickable {
-                                        showCommunitySearchData = true
-                                        showCommunitySearch = false
-                                    },
+                                .background(LightGray, RoundedCornerShape(30.dp)),
                             shape = RoundedCornerShape(30.dp),
                             placeholder = { Text("검색어를 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                             singleLine = true,
                             maxLines = 1,
                             trailingIcon = {
                                 IconButton(onClick = {
-                                    viewModel.loadPosts(data = query)
-                                    viewModel.createCommunitySearch("uid", query)
-                                    viewModel.getCommunitySearch("uid")
-
-                                    showCommunitySearchData = false
-                                    showCommunitySearch = true
-                                    focusManager.clearFocus()
+                                    if(query.isNotBlank() && query.length >= 2) {
+                                        viewModel.loadSearchPosts(data = query)
+                                        viewModel.createCommunitySearch(uid, query)
+                                        viewModel.getCommunitySearch(uid)
+                                        showCommunitySearchData = false
+                                        showCommunitySearch = true
+                                        focusManager.clearFocus()
+                                    }
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
@@ -165,8 +166,10 @@ fun CommunitySearchScreen(
                             data = search,
                             onClick = {
                                 query = search
-                                viewModel.loadPosts(data = query)
+                                viewModel.loadSearchPosts(data = query)
+                                showCommunitySearchData = false
                                 showCommunitySearch = true
+                                focusManager.clearFocus()
                             }
                         )
                         Spacer(modifier = Modifier.padding(Dimens.Tiny))
@@ -179,7 +182,7 @@ fun CommunitySearchScreen(
                         .fillMaxSize()
                         .padding(top = 16.dp)
                 ) {
-                    items(state.postList) { post ->
+                    items(state.communitySearchPostList) { post ->
                         CommunityListItem(
                             post = post,
                             memberCount = 0,

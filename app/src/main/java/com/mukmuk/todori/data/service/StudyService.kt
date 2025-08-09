@@ -45,7 +45,6 @@ class StudyService(
         return result
     }
 
-
     // 2. 여러 studyId의 StudyTodo 한 번에
     suspend fun getTodosForStudies(studyIds: List<String>, date: String? = null): List<StudyTodo> {
         if (studyIds.isEmpty()) return emptyList()
@@ -205,7 +204,5 @@ class StudyService(
             .set(member, SetOptions.merge())
             .await()
     }
-
-
 
 }
