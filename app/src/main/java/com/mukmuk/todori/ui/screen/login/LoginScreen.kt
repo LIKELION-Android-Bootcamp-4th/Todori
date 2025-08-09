@@ -1,5 +1,7 @@
 package com.mukmuk.todori.ui.screen.login
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mukmuk.todori.navigation.BottomNavItem
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun LoginScreen(
     navController: NavController
@@ -31,7 +34,7 @@ fun LoginScreen(
     val viewModel: LoginViewModel = hiltViewModel()
     val state = viewModel.state
     val context = LocalContext.current
-
+    val activity = LocalContext.current as Activity
 
 
     // 구글 로그인 런처
@@ -102,7 +105,9 @@ fun LoginScreen(
 
                     // Naver
                     Button(
-                        onClick = { /* Naver 로그인 로직 */ },
+                        onClick = {
+                            viewModel.naverLogin(activity)
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)

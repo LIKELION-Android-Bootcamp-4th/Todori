@@ -8,25 +8,24 @@ module.exports = async (data, context) => {
   if (!accessToken) throw new functions.https.HttpsError("invalid-argument", "Access token is required.");
 
   try {
-    const res = await axios.get("https://kapi.kakao.com/v2/user/me", {
+    const res = await axios.get("https://openapi.naver.com/v1/nid/me", {
       headers: {Authorization: `Bearer ${accessToken}`},
+      timeout: 5000,
     });
 
-    const kakaoUser = res.data;
-    const account = kakaoUser.kakao_account || {};
-    const profile = account.profile || {};
-    const uid = `kakao:${kakaoUser.id}`;
+    const naver = res.data?.response || {};
+    const uid = `naver:${naver.id}`;
 
     await upsertUserDoc({
       uid,
-      nickname: profile.nickname || "",
-      authProvider: "kakao",
+      nickname: naver.nickname || "",
+      authProvider: "naver",
     });
 
     const token = await admin.auth().createCustomToken(uid);
     return {token};
   } catch (err) {
-    console.error("kakao-auth error:", err.response?.data || err.message);
-    throw new functions.https.HttpsError("internal", "Kakao login failed");
+    console.error("naver-auth error:", err.response?.data || err.message);
+    throw new functions.https.HttpsError("internal", "Naver login failed");
   }
 };

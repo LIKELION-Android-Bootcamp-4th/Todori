@@ -1,5 +1,6 @@
 package com.mukmuk.todori.data.repository
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import com.mukmuk.todori.data.remote.user.User
@@ -40,6 +41,11 @@ class UserRepository @Inject constructor(
             throw e
         }
     }
+
+    suspend fun loginWithNaver(activity: Activity) {
+        userService.naverLogin(activity)
+    }
+
 
 
 

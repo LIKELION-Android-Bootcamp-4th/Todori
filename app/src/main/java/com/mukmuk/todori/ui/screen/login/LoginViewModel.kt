@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.login
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.getValue
@@ -81,5 +82,19 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+
+
+    fun naverLogin(activity: Activity) {
+        viewModelScope.launch {
+            state = state.copy(status = LoginStatus.LOADING, errorMessage = null)
+            try {
+                userRepository.loginWithNaver(activity)
+                state = state.copy(status = LoginStatus.SUCCESS)
+            } catch (e: Exception) {
+                state = state.copy(status = LoginStatus.ERROR, errorMessage = e.localizedMessage)
+            }
+        }
+    }
+
 
 }

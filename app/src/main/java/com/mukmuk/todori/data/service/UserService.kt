@@ -1,5 +1,6 @@
 package com.mukmuk.todori.data.service
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import com.google.firebase.Timestamp
@@ -9,6 +10,8 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.functions.FirebaseFunctions
 import com.kakao.sdk.user.UserApiClient
 import com.mukmuk.todori.data.remote.user.User
+import com.navercorp.nid.NaverIdLoginSDK
+import com.navercorp.nid.oauth.OAuthLoginCallback
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -53,7 +56,7 @@ class UserService @Inject constructor(
         try {
             val accessToken = getKakaoAccessToken(context)
 
-            val functions = FirebaseFunctions.getInstance()
+            val functions = FirebaseFunctions.getInstance("us-central1")
             val auth = FirebaseAuth.getInstance()
 
             // 1) 함수 호출 결과를 await()로 받아서
@@ -96,7 +99,51 @@ class UserService @Inject constructor(
         }
     }
 
+    suspend fun naverLogin(activity: Activity) {
+        try {
+            val accessToken = getNaverAccessToken(activity)
+            val functions = FirebaseFunctions.getInstance("us-central1")
+            val auth = FirebaseAuth.getInstance()
 
+            val result = try {
+                functions.getHttpsCallable("nCustomAuth")
+                    .call(mapOf("accessToken" to accessToken))
+                    .await()
+            } catch (e: Exception) {
+                throw e // or return
+            }
+            val data = result.data as? Map<*, *>
+                ?: error("Invalid response from naverCustomAuth")
+
+            val customToken = data["token"] as? String
+                ?: error("No token in naverCustomAuth response")
+
+            auth.signInWithCustomToken(customToken).await()
+        } catch (e: Exception) {
+            Log.e("NAVER", "네이버 로그인 실패", e)
+            throw e
+        }
+    }
+
+
+    /** 네이버 SDK로 AccessToken 받기 (suspend) */
+    private suspend fun getNaverAccessToken(activity: Activity): String {
+        return suspendCoroutine { cont ->
+            NaverIdLoginSDK.authenticate(activity, object : OAuthLoginCallback {
+                override fun onSuccess() {
+                    val token = NaverIdLoginSDK.getAccessToken()
+                    if (token != null) cont.resume(token)
+                    else cont.resumeWithException(IllegalStateException("네이버 토큰 null"))
+                }
+                override fun onFailure(httpStatus: Int, message: String) {
+                    cont.resumeWithException(IllegalStateException("Naver login failed: $httpStatus / $message"))
+                }
+                override fun onError(errorCode: Int, message: String) {
+                    onFailure(errorCode, message)
+                }
+            })
+        }
+    }
 
 
 }
