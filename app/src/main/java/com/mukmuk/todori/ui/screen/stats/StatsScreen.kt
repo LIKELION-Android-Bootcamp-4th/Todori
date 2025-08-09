@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.screen.stats.tab.day.DayTab
 import com.mukmuk.todori.ui.screen.stats.tab.month.MonthTab
@@ -47,9 +48,13 @@ val records = listOf(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StatsScreen() {
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    //val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+    val uid = "testuser"
 
+    var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("DAY", "WEEK", "MONTH")
+
+
 
     Column(modifier = Modifier.fillMaxSize()) {
         TabRow(
@@ -76,7 +81,7 @@ fun StatsScreen() {
         when (selectedTabIndex) {
             0 -> DayTab(dayRecords = records)
             1 -> WeekTab(weekRecords = records)
-            2 -> MonthTab(monthRecords = records)
+            2 -> MonthTab(uid = uid)
         }
     }
 }
