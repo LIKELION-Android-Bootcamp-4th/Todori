@@ -78,7 +78,7 @@ class AuthService @Inject constructor(
 
         // 3) Firebase Auth 계정 삭제 (최근 로그인 필요 시 예외)
         try {
-            firebaseAuth.currentUser?.delete()
+            firebaseAuth.currentUser?.delete()?.await()
         } catch (e: FirebaseAuthRecentLoginRequiredException) {
             // 화면에서 "다시 로그인 후 탈퇴를 재시도하세요" 안내 필요
             throw e
