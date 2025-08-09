@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -10,10 +11,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,16 +28,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.screen.community.components.CommunityListItem
 import com.mukmuk.todori.ui.screen.community.components.CommunitySearchData
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
@@ -45,12 +55,21 @@ import com.mukmuk.todori.ui.theme.NotoSans
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunitySearchScreen(
-    onBack: () -> Unit
-
+    onBack: () -> Unit,
+    navController: NavHostController,
+    viewModel: CommunityViewModel
 ) {
     var query by remember { mutableStateOf("") }
 
-    var searchData = listOf("asd", "asd")
+    val focusManager = LocalFocusManager.current
+
+    var showCommunitySearchData by remember { mutableStateOf(true) }
+
+    var showCommunitySearch by remember { mutableStateOf(false) }
+
+    val uid = "testuser"
+
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
@@ -62,7 +81,11 @@ fun CommunitySearchScreen(
                     ) {
                         OutlinedTextField(
                             value = query,
-                            onValueChange = { query = it },
+                            onValueChange = {
+                                query = it
+                                showCommunitySearchData = true
+                                showCommunitySearch = false
+                                            },
                             colors = TextFieldDefaults.colors(
                                 focusedIndicatorColor = Color.Transparent,
                                 cursorColor = Black,
@@ -84,7 +107,16 @@ fun CommunitySearchScreen(
                             singleLine = true,
                             maxLines = 1,
                             trailingIcon = {
-                                IconButton(onClick = { }) {
+                                IconButton(onClick = {
+                                    if(query.isNotBlank() && query.length >= 2) {
+                                        viewModel.loadSearchPosts(data = query)
+                                        viewModel.createCommunitySearch(uid, query)
+                                        viewModel.getCommunitySearch(uid)
+                                        showCommunitySearchData = false
+                                        showCommunitySearch = true
+                                        focusManager.clearFocus()
+                                    }
+                                }) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
                                         contentDescription = "Search"
@@ -102,37 +134,65 @@ fun CommunitySearchScreen(
                         )
                     }
                 },
-                actions = {
-
-                }
             )
 
 
         }
     ) { innerPadding ->
+
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp),
         ){
 
-            Text(
-                text = "최근 검색어",
-                style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.padding(16.dp)
-            )
+            if(showCommunitySearchData && !showCommunitySearch){
+                Text(
+                    text = "최근 검색어",
+                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(16.dp)
+                )
 
-            FlowRow (
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp)
-                    .fillMaxWidth(),
+                FlowRow (
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp)
+                        .fillMaxWidth(),
 
-            ) {
-                searchData.forEach{ data ->
-                    CommunitySearchData(data = data)
-                    Spacer(modifier = Modifier.width(Dimens.Tiny))
+                    ) {
+                    state.communitySearchList.forEach { search ->
+                        CommunitySearchData(
+                            data = search,
+                            onClick = {
+                                query = search
+                                viewModel.loadSearchPosts(data = query)
+                                showCommunitySearchData = false
+                                showCommunitySearch = true
+                                focusManager.clearFocus()
+                            }
+                        )
+                        Spacer(modifier = Modifier.padding(Dimens.Tiny))
+                    }
                 }
             }
+            else if(!showCommunitySearchData && showCommunitySearch){
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 16.dp)
+                ) {
+                    items(state.communitySearchPostList) { post ->
+                        CommunityListItem(
+                            post = post,
+                            memberCount = 0,
+                            navController = navController,
+                        )
+                    }
+                }
+            }
+
+
         }
     }
 }

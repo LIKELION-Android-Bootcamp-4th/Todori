@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Timestamp
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -46,8 +47,7 @@ fun CommunityDetailComment(
     userName: String,
     comment: String,
     createdAt: Timestamp?,
-    viewModel: CommunityViewModel,
-    commentData: CommentList
+    viewModel: CommunityDetailViewModel,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -97,7 +97,7 @@ fun CommunityDetailComment(
 
                                 }
                                 else if(item == "삭제") {
-                                    viewModel.deleteComment(commentData)
+
                                 }
                             }
                         )
