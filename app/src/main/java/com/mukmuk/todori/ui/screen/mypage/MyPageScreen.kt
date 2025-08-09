@@ -1,15 +1,23 @@
 package com.mukmuk.todori.ui.screen.mypage
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.firebase.Firebase
@@ -18,25 +26,49 @@ import com.mukmuk.todori.ui.mypage.component.ProfileSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageAccountSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageMenuSection
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Red
+import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun MyPageScreen(
     navController: NavController,
 ) {
     val viewModel: ProfileViewModel = hiltViewModel()
-    val profile by viewModel.profile.collectAsState()
-    val logoutDone by viewModel.logoutDone.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val uid = Firebase.auth.currentUser?.uid
-        viewModel.loadProfile(uid.toString())
+        if (uid != null) viewModel.loadProfile(uid) else {
+            navController.navigate("login") {
+                popUpTo(0) { inclusive = true }
+            }
+        }
     }
 
-    LaunchedEffect(logoutDone) {
-        if (logoutDone == true) {
-            navController.navigate("login") {
-                popUpTo(0) { inclusive = true } // 백스택 전체 제거
-                launchSingleTop = true
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is ProfileEffect.LoggedOut -> {
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+                is ProfileEffect.DeleteSuccess -> {
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+                is ProfileEffect.NeedsReauth -> {
+                    Toast.makeText(context, "다시 로그인 후 탈퇴를 진행하세요.", Toast.LENGTH_SHORT).show()
+                }
+                is ProfileEffect.ShowMessage -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -46,7 +78,7 @@ fun MyPageScreen(
             modifier = Modifier
                 .padding(Dimens.Medium)
         ) {
-            profile?.let { ProfileSection(user = it) }
+            state.user?.let { ProfileSection(user = it) }
 
             Spacer(modifier = Modifier.height(Dimens.XXLarge))
 
@@ -62,8 +94,42 @@ fun MyPageScreen(
                 onLogoutClick = {
                     viewModel.logout()
                 },
-                onDeleteAccountClick = {}
+                onDeleteAccountClick = {
+                    showDeleteDialog = true
+                }
             )
         }
+    }
+    if (showDeleteDialog) {
+        AlertDialog(
+            containerColor = White,
+            onDismissRequest = {
+                if (!state.isDeleting) showDeleteDialog = false
+            },
+            title = { Text("회원 탈퇴") },
+            text = {
+                Text(
+                    "정말 탈퇴하시겠어요?\n이 작업은 되돌릴 수 없어요."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = !state.isDeleting,
+                    onClick = {
+                        if (!state.isDeleting) {
+                            viewModel.deleteAccount()
+                        }
+                    }
+                ) {
+                    Text(if (state.isDeleting) "탈퇴 중..." else "탈퇴")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    enabled = !state.isDeleting,
+                    onClick = { showDeleteDialog = false }
+                ) { Text("취소", color = Red) }
+            }
+        )
     }
 }
