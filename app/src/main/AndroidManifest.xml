@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
-
-    <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:name=".TodoriApplication"
         android:allowBackup="true"
@@ -15,6 +13,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Todori"
         tools:targetApi="31" >
+        <meta-data
+            android:name="com.google.android.gms.auth.api.signin.v2.DEFAULT_SIGN_IN"
+            android:value="true" />
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="@string/kakao_app_key" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -26,6 +30,31 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="kakao624a1648f6ecbab870213f45df5af14d" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.navercorp.nid.oauth.NidOAuthBridgeActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="@string/naverredirect"/>
+            </intent-filter>
+        </activity>
+
+
+
+
+
     </application>
 
 </manifest>
