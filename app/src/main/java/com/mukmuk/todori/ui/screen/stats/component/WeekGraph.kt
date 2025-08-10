@@ -55,6 +55,13 @@ fun WeekGraph(record: List<DailyRecord>) {
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT
                         )
+                        //제스처 비활성화
+                        setTouchEnabled(false)
+                        isDragEnabled = false
+                        setScaleEnabled(false)
+                        setPinchZoom(false)
+                        isDoubleTapToZoomEnabled = false
+
 
                         axisLeft.apply {
                             isEnabled = false

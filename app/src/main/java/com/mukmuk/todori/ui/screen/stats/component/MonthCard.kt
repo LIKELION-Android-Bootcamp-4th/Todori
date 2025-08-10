@@ -43,7 +43,7 @@ fun MonthCard(
     val avgHours = avgStudyMinutes / 60
     val avgMinutes = avgStudyMinutes % 60
 
-    val totalStudyMinutes = (totalStudyTimeMillis / 1000 / 60)
+    val totalStudyMinutes = (totalStudyTimeMillis / 1000 / 60).toInt()
     val totalHours = totalStudyMinutes / 60
     val totalMinutes = totalStudyMinutes % 60
 

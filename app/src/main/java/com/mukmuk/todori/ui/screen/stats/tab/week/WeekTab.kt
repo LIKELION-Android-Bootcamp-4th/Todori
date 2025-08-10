@@ -47,10 +47,8 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
     }
 
     val viewModel: WeekViewModel = hiltViewModel()
-    val weeklyTodos by viewModel.todos.collectAsState()
-    val weeklyCompletedTodos by viewModel.completedTodos.collectAsState()
+    val state by viewModel.state.collectAsState()
 
-    val weeklyRecords by viewModel.dailyRecords.collectAsState()
 
     val uid = "testuser"
 
@@ -120,13 +118,20 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                 }
             }
 
-            val DailyRecordFiltered = weeklyRecords
+            val dailyRecordFiltered = state.dailyRecords
 
-            WeekCard(record = DailyRecordFiltered, allTodos = weeklyTodos, completedTodos = weeklyCompletedTodos)
+            WeekCard(
+                record = state.dailyRecords,
+                allTodos = state.todos,
+                completedTodos = state.completedTodoItems
+            )
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekGraph(record = DailyRecordFiltered)
+            WeekGraph(record = dailyRecordFiltered)
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekProgress(week = selectedWeek,allTodos = weeklyTodos, completedTodos= weeklyCompletedTodos)
+            WeekProgress(
+                week = selectedWeek,
+                allTodos = state.todos,
+                completedTodos = state.completedTodoItems)
         }
     }
 }
