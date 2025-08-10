@@ -1,5 +1,6 @@
 package com.mukmuk.todori.di
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mukmuk.todori.data.repository.DailyRecordRepository
 import com.mukmuk.todori.data.repository.GoalRepository
@@ -33,6 +34,11 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
     // TodoCategoryService
     @Provides
