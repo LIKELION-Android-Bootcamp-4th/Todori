@@ -163,10 +163,13 @@ class HomeViewModel @Inject constructor(
             _state.update { it.copy(totalRecordTimeMills = newRecordTime) }
             recordRepository.saveTotalRecordTime(newRecordTime)
 
+            val dailyRecord = DailyRecord(
+                date = currentDate.toString(),
+                studyTimeMillis = _state.value.totalStudyTimeMills
+            )
             try {
                 todoRepository.updateTodo(uid, updated)
-                loadTodosForHomeScreen(uid, LocalDate.parse(todo.date))
-                loadDailyRecordAndSetTotalTime(uid, LocalDate.parse(todo.date))
+                homeRepository.updateDailyRecord(currentUid, dailyRecord)
             } catch (e: Exception) {
                 Log.e("todorilog", e.toString())
             }
