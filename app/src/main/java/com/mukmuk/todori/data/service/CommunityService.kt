@@ -8,6 +8,7 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
+import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import kotlinx.coroutines.tasks.await
 
@@ -28,7 +29,7 @@ class CommunityService(
 
     suspend fun getPosts(filter: String? = null, data: String? = null): List<StudyPost> {
         val snapshot: QuerySnapshot = if (filter == "맴버 수") {
-            communityRef().orderBy("memberCount").get().await()
+            communityRef().orderBy("").get().await()
         }
         else if(filter == "날짜순"){
             communityRef().orderBy("createdAt", Query.Direction.DESCENDING).get().await()
@@ -105,6 +106,16 @@ class CommunityService(
     suspend fun getCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
         val snapshot: QuerySnapshot = communityRef().document(postId).collection("studyPostReply").whereEqualTo("parentCommentId", commentId).get().await()
         return snapshot.documents.mapNotNull { it.toObject(StudyPostComment::class.java) }
+    }
+
+    suspend fun loadStudyById(studyId: String): Study? {
+        val snapshot = firestore.collection("studies").document(studyId).get().await()
+        return snapshot.toObject(Study::class.java)
+    }
+
+    suspend fun getStudyMembers(studyId: String): List<StudyMember> {
+        val snapshot: QuerySnapshot = firestore.collection("studyMembers").whereEqualTo("studyId", studyId).get().await()
+        return snapshot.documents.mapNotNull { it.toObject(StudyMember::class.java) }
     }
 
     suspend fun updateStudyMember(studyId: String, member: StudyMember) {

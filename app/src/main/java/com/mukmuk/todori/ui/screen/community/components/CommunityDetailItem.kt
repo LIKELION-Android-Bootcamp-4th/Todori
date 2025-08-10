@@ -39,23 +39,13 @@ import com.mukmuk.todori.ui.theme.White
 @Composable
 fun CommunityDetailItem(
     studyId: String,
+    study: Study,
+    memberList: List<StudyMember>,
 ) {
 
     val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
 
-    val studyDetailViewModel: StudyDetailViewModel = hiltViewModel()
-
-
-
-    val state by studyDetailViewModel.state.collectAsState()
-
-    LaunchedEffect(Unit) {
-        if(studyId.isNotBlank()) {
-            studyDetailViewModel.loadStudyDetail("testuser", studyId, null)
-        }
-    }
-
-    val study: Study = state.study ?: return
+    val state by communityDetailViewModel.state.collectAsState()
 
     Card (
         modifier = Modifier
@@ -72,21 +62,19 @@ fun CommunityDetailItem(
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            Text(state.study!!.description, style = AppTextStyle.Body.copy(color = DarkGray))
+            Text(study.description, style = AppTextStyle.Body.copy(color = DarkGray))
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            val memberCount = state.members.size
-
             StudyMetaInfoRow(
-                createdAt = state.study!!.createdAt,
-                memberCount = memberCount,
-                activeDays = state.study!!.activeDays
+                createdAt = study.createdAt,
+                memberCount = memberList.size,
+                activeDays = study.activeDays,
             )
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            if(state.members.find { it.uid == "testuser" } != null){
+            if(memberList.find { it.uid == "testuser" } != null){
                 Button(
                     enabled = false,
                     colors = ButtonDefaults.buttonColors(

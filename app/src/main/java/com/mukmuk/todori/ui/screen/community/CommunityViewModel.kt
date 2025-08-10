@@ -20,7 +20,6 @@ import javax.inject.Inject
 @HiltViewModel
 class CommunityViewModel @Inject constructor(
     private val communityRepository: CommunityRepository,
-    private val studyRepository: StudyRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CommunityState())
@@ -28,36 +27,24 @@ class CommunityViewModel @Inject constructor(
 
     var memberCount = 0
 
-    fun loadPosts(filter: String? = null) {
+    fun loadPosts(filter: String? = _state.value.selectedOption) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
+                if(filter == "맴버 수")
+                    _state.update { it.copy(selectedOption = "참가자 수") }
+                else if(filter == "날짜순")
+                    _state.update { it.copy(selectedOption = "날짜순") }
                 val posts = communityRepository.getPosts(filter = filter)
                 _state.update {
                     it.copy(
-                        allPostList = if(filter.isNullOrBlank()) posts else it.allPostList,
+                        allPostList = posts,
                         postList = posts,
                         isLoading = false,
                         error = null
                     )
                 }
 
-                val updatedPosts = coroutineScope {
-                    posts.map { post ->
-                        async {
-                            if (post.studyId.isNotBlank()) {
-                                val members = studyRepository.getMembersForStudies(listOf(post.studyId))
-                                post.copy(memberCount = members.size)
-                            } else {
-                                post
-                            }
-                        }
-                    }.awaitAll()
-                }
-
-                _state.update {
-                    it.copy(postList = updatedPosts)
-                }
             }
             catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -101,6 +88,8 @@ class CommunityViewModel @Inject constructor(
             }
         }
     }
+
+
 
     fun createCommunitySearch(uid: String, query: String) {
         viewModelScope.launch {

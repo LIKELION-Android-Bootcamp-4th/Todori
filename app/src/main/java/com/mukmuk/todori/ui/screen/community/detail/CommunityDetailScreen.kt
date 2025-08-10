@@ -72,7 +72,6 @@ fun CommunityDetailScreen(
 
     var expanded by remember { mutableStateOf(false) }
 
-
     var commentContent by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
@@ -237,10 +236,12 @@ fun CommunityDetailScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            if(state.post?.studyId != null) {
+            if(state.post?.studyId != null && state.study != null) {
 
                 CommunityDetailItem(
                     studyId = state.post!!.studyId,
+                    study = state.study!!,
+                    memberList = state.memberList
                 )
 
             }

@@ -32,9 +32,8 @@ class CommunityDetailViewModel@Inject constructor(
         if ((_state.value.post?.postId ?: "") == postId) {
             return
         }
-
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true, study = null) }
             try {
                 val post = repository.getPostById(postId)
                 _state.update {
@@ -43,6 +42,11 @@ class CommunityDetailViewModel@Inject constructor(
                         isLoading = false,
                         error = null
                     )
+                }
+                if (post != null) {
+                    if(post.studyId.isNotBlank()) {
+                        loadStudyById(post.studyId)
+                    }
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -69,6 +73,7 @@ class CommunityDetailViewModel@Inject constructor(
 
     fun updatePost(postId: String, updatedPost: StudyPost) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, study = null) }
             try {
                 repository.updatePost(postId, updatedPost)
                 _state.update {
@@ -77,6 +82,11 @@ class CommunityDetailViewModel@Inject constructor(
                         isLoading = false,
                         error = null
                     )
+                }
+                if (updatedPost != null) {
+                    if (updatedPost.studyId.isNotBlank()) {
+                        loadStudyById(updatedPost.studyId)
+                    }
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -171,6 +181,45 @@ class CommunityDetailViewModel@Inject constructor(
                     )
                 }
                 } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    fun loadStudyById(studyId: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            try {
+                val study = repository.loadStudyById(studyId)
+                _state.update {
+                    it.copy(
+                        study = study,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+                if (study != null) {
+                    loadStudyMember(studyId)
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    fun loadStudyMember(studyId: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            try {
+                val members = repository.getStudyMembers(studyId)
+                _state.update {
+                    it.copy(
+                        memberList = members,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
         }

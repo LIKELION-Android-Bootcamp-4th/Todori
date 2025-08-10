@@ -81,18 +81,24 @@ fun CreateCommunityScreen(
     var showListSheet by remember { mutableStateOf(false) }
     var pickedItem by remember { mutableStateOf<String?>(null) }
 
-    var studyId: String = ""
+    var studyId by remember { mutableStateOf("") }
 
     val td = remember { mutableStateListOf<String>() }
 
-    LaunchedEffect(Unit) {
-        if (postId != null) {
+    LaunchedEffect(postId) {
+        if (postId == null) {
+            title = ""
+            content = ""
+            studyId = ""
+            td.clear()
+        } else {
             viewModel.loadPostById(postId)
         }
     }
 
-    LaunchedEffect(state.post) {
-        state.post?.let { post ->
+    LaunchedEffect(postId, state.post) {
+        if (postId != null && state.post?.postId == postId) {
+            val post = state.post!!
             title = post.title
             content = post.content
             studyId = post.studyId
@@ -248,14 +254,14 @@ fun CreateCommunityScreen(
                     if (pickedItem != null) {
                         studyId = pickedItem!!
                     }
-                    if (title != "") {
+                    if (title.isNotBlank()) {
                         if (postId != null) {
                             viewModel.updatePost(
                                 postId,
                                 StudyPost(
                                     title = title,
                                     content = content,
-                                    tags = td,
+                                    tags = td.toList(),
                                     postId = postId,
                                     studyId = studyId,
                                     createdAt = state.post?.createdAt
@@ -267,7 +273,7 @@ fun CreateCommunityScreen(
                                 StudyPost(
                                     title = title,
                                     content = content,
-                                    tags = td,
+                                    tags = td.toList(),
                                     postId = "",
                                     studyId = studyId,
                                     createdAt = Timestamp.now()

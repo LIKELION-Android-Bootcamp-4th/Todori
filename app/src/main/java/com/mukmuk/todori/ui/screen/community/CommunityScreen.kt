@@ -60,31 +60,32 @@ import com.mukmuk.todori.ui.theme.White
 fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewModel) {
 
     var selectedCategory by remember { mutableStateOf("전체") }
-    var categories by remember { mutableStateOf(mutableListOf<String>()) }
+
 
     val state by viewModel.state.collectAsState()
+
+
 
     var selectedOption by remember { mutableStateOf("참가자 수") }
 
     LaunchedEffect(Unit) {
         viewModel.loadPosts()
+    }
 
-        categories.clear()
-
-        val list = mutableListOf<String>()
-        for(data in state.allPostList) {
-            for (tag in data.tags) {
-                if(tag != ""){
-                    list.add(tag)
-                }
-            }
+    val categories = remember(state.allPostList){
+        buildList{
+            add("전체")
+            addAll(
+                state.allPostList
+                    .flatMap { it.tags }
+                    .filter { it.isNotBlank() }
+                    .groupingBy { it }
+                    .eachCount()
+                    .toList()
+                    .sortedByDescending { it.second }
+                    .map { it.first }
+            )
         }
-
-        val result = list.groupingBy { it }.eachCount().toList().sortedByDescending { it.second }.map { it.first }
-
-        categories.add("전체")
-
-        categories.addAll(result)
     }
 
     Scaffold(
@@ -94,6 +95,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                 actions = {
                     IconButton(
                         onClick = {
+
                             navController.navigate("community/search")
                         }
                     ) {
@@ -145,9 +147,8 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     CommunityListOption(
-                        selectedOption = selectedOption,
+                        selectedOption = state.selectedOption,
                         setData = { option ->
-                            selectedOption = option
                             selectedCategory = "전체"
                             viewModel.setData(selectedCategory)
                             if(option == "참가자 수"){
@@ -206,6 +207,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                             .padding(top = 16.dp)
                     ) {
                         items(state.postList) { post ->
+
                             CommunityListItem(
                                 post = post,
                                 memberCount = 0,
