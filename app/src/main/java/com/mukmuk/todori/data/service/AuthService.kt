@@ -53,20 +53,19 @@ class AuthService @Inject constructor(
     /**
      * 회원 탈퇴:
      * 1) provider 서비스 연동 해제(동의 철회)
-     * 2) Firestore soft delete (deleted = true, fcmToken = null 등)
+     * 2) Firestore soft delete (deleted = true)
      * 3) Firebase Auth 계정 삭제
      * 4) 로컬 세션/캐시 정리
      */
     suspend fun deleteAccount(uid: String, authProvider: String?) {
-        // 1) 연동 해제/동의 철회
         when (authProvider) {
-            "google.com" -> googleRevokeAccess() // 탈퇴 시에는 revokeAccess 권장
+            "google.com" -> googleRevokeAccess()
             "kakao"      -> kakaoUnlink()
             "naver"      -> naverRevokeToken()
-            else         -> { /* no-op */ }
+            else         -> { /* 그 외.. 추가되면 */ }
         }
 
-        // 2) Firestore soft delete
+        // 2 Firestore delete
         runCatching {
             db.collection("users").document(uid).update(
                 mapOf(
@@ -76,19 +75,17 @@ class AuthService @Inject constructor(
             )
         }
 
-        // 3) Firebase Auth 계정 삭제 (최근 로그인 필요 시 예외)
+        // 3 Firebase Auth 계정 삭제
         try {
             firebaseAuth.currentUser?.delete()?.await()
         } catch (e: FirebaseAuthRecentLoginRequiredException) {
-            // 화면에서 "다시 로그인 후 탈퇴를 재시도하세요" 안내 필요
             throw e
         }
 
-        // 4) 세션 정리
+        // 4 세션 정리
         runCatching { firebaseAuth.signOut() }
     }
 
-    // ===== Provider helpers =====
 
     private suspend fun kakaoUnlink() = suspendCancellableCoroutine<Unit> { cont ->
         // 카카오 계정 연결 해제(동의 철회)
@@ -98,13 +95,11 @@ class AuthService @Inject constructor(
     }
 
     private fun naverRevokeToken() {
-        // 최신 시그니처: context 없이 callback만
         NidOAuthLogin().callDeleteTokenApi(object : OAuthLoginCallback {
             override fun onSuccess() { /* no-op */ }
-            override fun onFailure(httpStatus: Int, message: String) { /* 로그원하면 여기에 */ }
+            override fun onFailure(httpStatus: Int, message: String) { /* log~~ */ }
             override fun onError(errorCode: Int, message: String) { onFailure(errorCode, message) }
         })
-        // 덤으로 로그아웃도
         NaverIdLoginSDK.logout()
     }
 
@@ -114,7 +109,6 @@ class AuthService @Inject constructor(
         client.revokeAccess().await()
     }
 
-    // Task → suspend helper
     private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { cont ->
         addOnCompleteListener { task ->
             if (task.isSuccessful) cont.resume(task.result)
