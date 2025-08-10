@@ -1,5 +1,10 @@
 package com.mukmuk.todori.ui.screen.login
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,104 +14,106 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mukmuk.todori.navigation.BottomNavItem
-import com.mukmuk.todori.ui.theme.Dimens
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel,
     navController: NavController
 ) {
+    val viewModel: LoginViewModel = hiltViewModel()
     val state = viewModel.state
+    val context = LocalContext.current
+    val activity = LocalContext.current as Activity
 
 
-    // 상태 변화 감지 후 이동 처리
+    // 구글 로그인 런처
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        viewModel.handleGoogleSignInResult(result.data)
+    }
+
+    // 상태 변화 시 네비게이션 / 에러 처리
     LaunchedEffect(state.status) {
-        if (state.status == LoginStatus.SUCCESS) {
-            navController.navigate(BottomNavItem.Todo.route) {
-                popUpTo("login") { inclusive = true }
+        when (state.status) {
+            LoginStatus.SUCCESS -> {
+                navController.navigate(BottomNavItem.Todo.route) {
+                    popUpTo("login") { inclusive = true }
+                }
             }
+            LoginStatus.ERROR -> {
+                Toast.makeText(context, state.errorMessage ?: "로그인 실패", Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            contentAlignment = Alignment.Center
-        ) {
-            // 로고나 이미지
-//            Image(
-//                painter = painterResource(id = R.drawable.fire_squirrel),
-//                contentDescription = "Fire Squirrel",
-//                modifier = Modifier.size(200.dp)
-//            )
+    when (state.status) {
+        LoginStatus.LOADING -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) { CircularProgressIndicator() }
         }
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Button(
-                onClick = {
-                    viewModel.onEvent(LoginEvent.KakaoLogin)
-                },
+        else -> {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
+                    .fillMaxSize()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("카카오로 시작하기")
+                Spacer(modifier = Modifier.weight(1f))
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Google
+                    Button(
+                        onClick = {
+                            launcher.launch(viewModel.getGoogleSignInIntent(context))
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) { Text("Google로 시작하기") }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Kakao
+                    Button(
+                        onClick = {
+                            viewModel.kakaoLogin(context)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) { Text("카카오로 시작하기") }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Naver
+                    Button(
+                        onClick = {
+                            viewModel.naverLogin(activity)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) { Text("Naver로 시작하기") }
+                }
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = {
-                    viewModel.onEvent(LoginEvent.GoogleLogin)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Text("Google로 시작하기")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = {
-                    viewModel.onEvent(LoginEvent.NaverLogin)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Text("Naver로 시작하기")
-            }
-
-            Spacer(modifier = Modifier.height(Dimens.XXLarge))
-
-            Text(
-                text = "계속 진행 시 이용약관 동의 및 개인정보 처리방침 확인으로 간주합니다.",
-                style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
         }
     }
 }
