@@ -64,4 +64,12 @@ class DailyRecordRepository @Inject constructor(
         val studied = records.filter { it.studyTimeMillis > 0L }
         if (studied.isNotEmpty()) studied.sumOf { it.studyTimeMillis } / studied.size else 0L
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getRecordByDate(uid: String, date: LocalDate): DailyRecord? =
+        dailyRecordService.getRecordByDate(uid, date)
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getRecordsByMonth(uid: String, year: Int, month: Int): List<DailyRecord> =
+        withContext(Dispatchers.IO) { dailyRecordService.getRecordsByMonth(uid, year, month) }
 }

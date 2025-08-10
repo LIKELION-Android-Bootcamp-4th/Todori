@@ -45,4 +45,16 @@ class DailyRecordService @Inject constructor(
 
         return snapshot.toObjects(DailyRecord::class.java)
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getRecordByDate(uid: String, date: LocalDate): DailyRecord? {
+        val snapshot = firestore.collection("users")
+            .document(uid)
+            .collection("dailyRecord")
+            .document(date.toString())
+            .get()
+            .await()
+
+        return snapshot.toObject(DailyRecord::class.java)
+    }
 }
