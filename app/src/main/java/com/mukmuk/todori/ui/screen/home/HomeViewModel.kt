@@ -282,8 +282,10 @@ class HomeViewModel @Inject constructor(
         }
     }
     fun startObservingTodos(uid: String) {
+        val today = LocalDate.now()
         todoRepository.observeTodos(uid) { updatedTodos ->
-            _todoList.value = updatedTodos
+            val filteredTodos = updatedTodos.filter { it.date == today.toString() }
+            _todoList.value = filteredTodos
         }
     }
 }
