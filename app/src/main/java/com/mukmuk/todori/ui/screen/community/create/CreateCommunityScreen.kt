@@ -63,12 +63,11 @@ fun CreateCommunityScreen(
     postId: String? = null,
     navController: NavController,
     onBack: () -> Unit,
-    communityViewModel: CommunityViewModel,
-    communityDetailViewModel: CommunityDetailViewModel
+    viewModel: CommunityDetailViewModel
 ) {
     val scrollState = rememberScrollState()
 
-    val state by communityDetailViewModel.state.collectAsState()
+    val state by viewModel.state.collectAsState()
 
     var title by remember { mutableStateOf("") }
     var isTitleError by remember { mutableStateOf(false) }
@@ -88,7 +87,7 @@ fun CreateCommunityScreen(
 
     LaunchedEffect(Unit) {
         if (postId != null) {
-            communityDetailViewModel.loadPostById(postId)
+            viewModel.loadPostById(postId)
         }
     }
 
@@ -251,7 +250,7 @@ fun CreateCommunityScreen(
                     }
                     if (title != "") {
                         if (postId != null) {
-                            communityViewModel.updatePost(
+                            viewModel.updatePost(
                                 postId,
                                 StudyPost(
                                     title = title,
@@ -259,12 +258,12 @@ fun CreateCommunityScreen(
                                     tags = td,
                                     postId = postId,
                                     studyId = studyId,
-                                    createdAt = Timestamp.now()
+                                    createdAt = state.post?.createdAt
                                 )
                             )
                         }
                         else {
-                            communityViewModel.createPost(
+                            viewModel.createPost(
                                 StudyPost(
                                     title = title,
                                     content = content,

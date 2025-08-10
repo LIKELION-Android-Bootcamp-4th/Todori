@@ -2,6 +2,7 @@ package com.mukmuk.todori.data.repository
 
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
+import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.service.CommunityService
 import jakarta.inject.Inject
 
@@ -55,6 +56,10 @@ class CommunityRepository @Inject constructor(
 
     suspend fun getCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
         return communityService.getCommentReplies(postId, commentId)
+    }
+
+    suspend fun updateStudyMember(studyId: String, member: StudyMember) {
+        communityService.updateStudyMember(studyId, member)
     }
 
 }

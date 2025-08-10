@@ -26,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.screen.todo.component.StudyMetaInfoRow
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -38,16 +39,19 @@ import com.mukmuk.todori.ui.theme.White
 @Composable
 fun CommunityDetailItem(
     studyId: String,
-    onClick: () -> Unit
 ) {
 
-    val viewModel: StudyDetailViewModel = hiltViewModel()
+    val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
 
-    val state by viewModel.state.collectAsState()
+    val studyDetailViewModel: StudyDetailViewModel = hiltViewModel()
+
+
+
+    val state by studyDetailViewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        if(studyId != null) {
-            viewModel.loadStudyDetail("testuser", studyId, null)
+        if(studyId.isNotBlank()) {
+            studyDetailViewModel.loadStudyDetail("testuser", studyId, null)
         }
     }
 
@@ -100,7 +104,7 @@ fun CommunityDetailItem(
             else {
                 Button(
                     onClick = {
-                        viewModel.updateStudyMember(
+                        communityDetailViewModel.updateStudyMember(
                             studyId,
                             StudyMember(
                                 uid = "testuser",

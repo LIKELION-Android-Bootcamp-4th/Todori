@@ -14,6 +14,6 @@ data class StudyPost (
     val createdBy: String = "",
     val createdAt: Timestamp? = null,
     val updatedAt: Timestamp? = null,
-    val isDeleted: Boolean = false
+    val deleted: Boolean = false
 
 )

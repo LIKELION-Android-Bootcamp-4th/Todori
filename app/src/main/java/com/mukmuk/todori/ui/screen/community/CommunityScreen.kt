@@ -34,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,13 +53,14 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.White
 
-@SuppressLint("UnrememberedMutableState")
+
+@SuppressLint("MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewModel) {
 
     var selectedCategory by remember { mutableStateOf("전체") }
-    var categories = mutableStateListOf("전체")
+    var categories by remember { mutableStateOf(mutableListOf<String>()) }
 
     val state by viewModel.state.collectAsState()
 
@@ -68,6 +68,23 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
 
     LaunchedEffect(Unit) {
         viewModel.loadPosts()
+
+        categories.clear()
+
+        val list = mutableListOf<String>()
+        for(data in state.allPostList) {
+            for (tag in data.tags) {
+                if(tag != ""){
+                    list.add(tag)
+                }
+            }
+        }
+
+        val result = list.groupingBy { it }.eachCount().toList().sortedByDescending { it.second }.map { it.first }
+
+        categories.add("전체")
+
+        categories.addAll(result)
     }
 
     Scaffold(
@@ -104,20 +121,6 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
             }
         }
     ){innerPadding ->
-        val list = mutableListOf<String>()
-        for(data in state.allPostList) {
-            for (tag in data.tags) {
-                if(tag != ""){
-                    list.add(tag)
-                    }
-            }
-        }
-
-        val result = list.groupingBy { it }.eachCount().toList().sortedByDescending { it.second }.map { it.first }
-
-        categories.addAll(result)
-
-
         Column (
             modifier = Modifier
                 .fillMaxSize()

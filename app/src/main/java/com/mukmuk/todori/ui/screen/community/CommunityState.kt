@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community
 
 import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.data.remote.community.StudyPostComment
 
 data class CommunityState (
 
@@ -10,6 +11,5 @@ data class CommunityState (
     val communitySearchList: List<String> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
-    val data: Int = 1
 
-)
+    )

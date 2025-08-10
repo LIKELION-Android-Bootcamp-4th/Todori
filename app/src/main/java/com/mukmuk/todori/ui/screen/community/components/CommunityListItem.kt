@@ -80,7 +80,7 @@ fun CommunityListItem(
                 )
 
 
-                if(post.studyId != null) {
+                if(post.studyId.isNotBlank()) {
 
                     Row(
                         modifier = Modifier

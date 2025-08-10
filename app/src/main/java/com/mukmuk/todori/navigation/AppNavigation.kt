@@ -79,9 +79,8 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
-            val communityViewModel: CommunityViewModel = hiltViewModel(parentEntry)
-            val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
-            CreateCommunityScreen(postId, navController, onBack = { navController.popBackStack() }, communityViewModel, communityDetailViewModel)
+            val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
+            CreateCommunityScreen(postId, navController, onBack = { navController.popBackStack() }, viewModel)
         }
         composable("community/search"){ backStackEntry ->
             val parentEntry = remember(backStackEntry) {
@@ -102,14 +101,12 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
             val postId = backStackEntry.arguments?.getString("postId") ?: ""
-            val communityViewModel: CommunityViewModel = hiltViewModel(parentEntry)
-            val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
+            val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
             CommunityDetailScreen(
                 postId = postId,
                 onBack = { navController.popBackStack() },
                 navController,
-                communityViewModel,
-                communityDetailViewModel
+                viewModel,
             )
         }
 

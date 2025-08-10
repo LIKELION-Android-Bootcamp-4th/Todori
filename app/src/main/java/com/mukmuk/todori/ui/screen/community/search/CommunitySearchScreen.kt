@@ -67,6 +67,8 @@ fun CommunitySearchScreen(
 
     var showCommunitySearch by remember { mutableStateOf(false) }
 
+    var showDialog by remember { mutableStateOf(false) }
+
     val uid = "testuser"
 
     val state by viewModel.state.collectAsState()
@@ -194,5 +196,6 @@ fun CommunitySearchScreen(
 
 
         }
+
     }
 }

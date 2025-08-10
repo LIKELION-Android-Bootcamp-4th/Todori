@@ -2,19 +2,22 @@ package com.mukmuk.todori.ui.screen.community.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
+import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.CommunityRepository
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 @HiltViewModel
 class CommunityDetailViewModel@Inject constructor(
-    private val repository: CommunityRepository
+    private val repository: CommunityRepository,
 ): ViewModel() {
 
     private val _state = MutableStateFlow(CommunityDetailState())
@@ -46,6 +49,58 @@ class CommunityDetailViewModel@Inject constructor(
             }
         }
     }
+
+    fun createPost(post: StudyPost) {
+        viewModelScope.launch {
+            try {
+                repository.createPost(post)
+                _state.update {
+                    it.copy(
+                        post = post,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    fun updatePost(postId: String, updatedPost: StudyPost) {
+        viewModelScope.launch {
+            try {
+                repository.updatePost(postId, updatedPost)
+                _state.update {
+                    it.copy(
+                        post = updatedPost,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    fun deletePost(postId: String) {
+        viewModelScope.launch {
+            try {
+                repository.deletePost(postId)
+                _state.update {
+                    it.copy(
+                        post = null,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
 
     fun createReply(postId: String, reply: StudyPostComment) {
         viewModelScope.launch {
@@ -117,6 +172,16 @@ class CommunityDetailViewModel@Inject constructor(
                 }
                 } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    fun updateStudyMember(studyId: String, member: StudyMember) {
+        viewModelScope.launch {
+            try {
+                repository.updateStudyMember(studyId, member)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(error = "저장 실패, 다시 시도해주세요.")
             }
         }
     }

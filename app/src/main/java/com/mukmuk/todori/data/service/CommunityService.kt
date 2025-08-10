@@ -8,6 +8,7 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
+import com.mukmuk.todori.data.remote.study.StudyMember
 import kotlinx.coroutines.tasks.await
 
 
@@ -106,6 +107,12 @@ class CommunityService(
         return snapshot.documents.mapNotNull { it.toObject(StudyPostComment::class.java) }
     }
 
+    suspend fun updateStudyMember(studyId: String, member: StudyMember) {
+        val docId = member.uid
+        firestore.collection("studyMembers").document(docId)
+            .set(member, SetOptions.merge())
+            .await()
+    }
 
 
 }

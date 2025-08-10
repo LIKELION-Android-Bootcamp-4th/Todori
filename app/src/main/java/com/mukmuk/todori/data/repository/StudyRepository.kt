@@ -53,7 +53,4 @@ class StudyRepository @Inject constructor(
     suspend fun updateStudy(study: Study) =
         studyService.updateStudy(study)
 
-    suspend fun updateStudyMember(studyId: String, member: StudyMember) =
-        studyService.updateStudyMember(studyId, member)
-
 }

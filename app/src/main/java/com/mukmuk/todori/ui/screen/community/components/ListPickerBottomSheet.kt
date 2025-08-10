@@ -59,8 +59,9 @@ fun ListPickerBottomSheet(
 
     if (show) {
         ModalBottomSheet(
+            modifier = Modifier.fillMaxHeight()
+            .padding(top = 120.dp),
             onDismissRequest = onDismissRequest,
-            modifier = Modifier.fillMaxHeight(),
             sheetState = sheetState,
             containerColor = White
         ) {

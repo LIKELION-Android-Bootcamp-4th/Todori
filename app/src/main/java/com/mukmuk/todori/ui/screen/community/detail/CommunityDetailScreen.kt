@@ -64,10 +64,9 @@ fun CommunityDetailScreen(
     postId: String,
     onBack: () -> Unit,
     navController: NavController,
-    communityViewModel: CommunityViewModel,
-    communityDetailViewModel: CommunityDetailViewModel
+    viewModel: CommunityDetailViewModel
 ) {
-    val state by communityDetailViewModel.state.collectAsState()
+    val state by viewModel.state.collectAsState()
 
     var scrollState = rememberScrollState()
 
@@ -77,8 +76,8 @@ fun CommunityDetailScreen(
     var commentContent by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        communityDetailViewModel.loadPostById(postId)
-        communityDetailViewModel.getReplies(postId)
+        viewModel.loadPostById(postId)
+        viewModel.getReplies(postId)
     }
 
     Scaffold(
@@ -111,7 +110,7 @@ fun CommunityDetailScreen(
                                 .background(White, RoundedCornerShape(10.dp))
                                 .border(1.dp, Gray)
                         ) {
-                            communityDetailViewModel.menu.forEach { item ->
+                            viewModel.menu.forEach { item ->
                                 DropdownMenuItem(
                                     text = { Text(item, style = AppTextStyle.BodySmall) },
                                     onClick = {
@@ -120,7 +119,7 @@ fun CommunityDetailScreen(
                                             navController.navigate("community/create?postId=$postId")
                                         }
                                         else if(item == "삭제") {
-                                            communityViewModel.deletePost(postId)
+                                            viewModel.deletePost(postId)
                                             onBack()
                                         }
                                     }
@@ -242,9 +241,6 @@ fun CommunityDetailScreen(
 
                 CommunityDetailItem(
                     studyId = state.post!!.studyId,
-                    onClick = {
-
-                    }
                 )
 
             }
