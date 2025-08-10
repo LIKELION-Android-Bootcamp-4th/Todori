@@ -166,6 +166,7 @@ class HomeViewModel @Inject constructor(
             try {
                 todoRepository.updateTodo(uid, updated)
                 loadTodosForHomeScreen(uid, LocalDate.parse(todo.date))
+                loadDailyRecordAndSetTotalTime(uid, LocalDate.parse(todo.date))
             } catch (e: Exception) {
                 Log.e("todorilog", e.toString())
             }
