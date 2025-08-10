@@ -27,6 +27,7 @@ import com.mukmuk.todori.ui.theme.White
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.UserPrimary
+import java.time.LocalDate
 
 @Composable
 fun WeekGraph(record: List<DailyRecord>) {
@@ -55,47 +56,44 @@ fun WeekGraph(record: List<DailyRecord>) {
                             ViewGroup.LayoutParams.MATCH_PARENT
                         )
 
-                        // 데이터 생성
-                        val entries = listOf(
-                            BarEntry(0f, 2.5f),
-                            BarEntry(1f, 3.0f),
-                            BarEntry(2f, 1.5f),
-                            BarEntry(3f, 4.0f),
-                            BarEntry(4f, 3.5f),
-                            BarEntry(5f, 2.0f),
-                            BarEntry(6f, 5.0f)
-                        )
-
-                        val dataSet = BarDataSet(entries, "시간(h)").apply {
-                            color = UserPrimary.toArgb()
-                            setDrawValues(false)  // 막대 위에 값 안 보이게
+                        axisLeft.apply {
+                            isEnabled = false
+                            axisMinimum = 0f
                         }
-
-                        data = BarData(dataSet).apply {
-                            barWidth = 0.4f
-                        }
-
-                        //눈금, 단위 표시 제거
-                        axisLeft.isEnabled = false
                         axisRight.isEnabled = false
                         legend.isEnabled = false
-
-                        //X축
                         xAxis.apply {
                             position = XAxis.XAxisPosition.BOTTOM
                             setDrawGridLines(false)
                             setDrawAxisLine(false)
                             granularity = 1f
                             textSize = 12f
-                            valueFormatter =
-                                IndexAxisValueFormatter(listOf("일", "월", "화", "수", "목", "금", "토"))
+                            valueFormatter = IndexAxisValueFormatter(listOf("일","월","화","수","목","금","토"))
                         }
-                        
                         description.isEnabled = false
-                        invalidate()
                     }
+                },
+                update = { chart ->
+                    val hoursByDay = FloatArray(7) { 0f }
+                    record.forEach { r ->
+                        runCatching {
+                            val dayIndex = LocalDate.parse(r.date).dayOfWeek.value % 7
+                            val hours = r.studyTimeMillis.toFloat() / 3600f
+                            hoursByDay[dayIndex] += hours
+                        }
+                    }
+
+                    val entries = (0..6).map { i -> BarEntry(i.toFloat(), hoursByDay[i]) }
+                    val dataSet = BarDataSet(entries, "시간(h)").apply {
+                        color = UserPrimary.toArgb()
+                        setDrawValues(false)
+                    }
+
+                    chart.data = BarData(dataSet).apply { barWidth = 0.4f }
+                    chart.invalidate()
                 }
             )
+
 
         }
     }

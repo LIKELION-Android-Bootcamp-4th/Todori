@@ -50,11 +50,13 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
     val weeklyTodos by viewModel.todos.collectAsState()
     val weeklyCompletedTodos by viewModel.completedTodos.collectAsState()
 
+    val weeklyRecords by viewModel.dailyRecords.collectAsState()
+
     val uid = "testuser"
-    val weeklyFiltered = viewModel.getWeekRange(selectedWeek) //주차 선택
 
     LaunchedEffect(uid, selectedWeek) {
         viewModel.loadWeekTodos(uid = uid, date = selectedWeek)
+        viewModel.loadWeekStudy(uid = uid, date = selectedWeek)
     }
 
 
@@ -118,11 +120,7 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                 }
             }
 
-            val DailyRecordFiltered = remember(weekRecords, weeklyFiltered) {
-                weekRecords.filter { record ->
-                    LocalDate.parse(record.date) in weeklyFiltered
-                }
-            }
+            val DailyRecordFiltered = weeklyRecords
 
             WeekCard(record = DailyRecordFiltered, allTodos = weeklyTodos, completedTodos = weeklyCompletedTodos)
             Spacer(modifier = Modifier.height(Dimens.Large))
