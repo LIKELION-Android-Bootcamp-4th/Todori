@@ -28,18 +28,19 @@ fun WeekCard(
     allTodos: List<Todo>,
     completedTodos: List<Todo>
 ) {
-    val totalStudySeconds = record.sumOf { it.studyTimeMillis }
+    val totalStudyMillis = record.sumOf { it.studyTimeMillis }
+    val studiedCount = record.count { it.studyTimeMillis > 0L }
     val TodoTotalPer = if (allTodos.isNotEmpty()) {
         (completedTodos.size.toFloat() / allTodos.size * 100).toInt()
     } else 0
 
-    val avgStudyMinutes = if (record.size > 1) {
-        totalStudySeconds / 60 / record.size
+    val avgStudyMinutes = if (studiedCount > 0) {
+        (totalStudyMillis / 1000 / 60 / studiedCount).toInt()
     } else 0
     val avgHours = avgStudyMinutes / 60
     val avgMinutes = avgStudyMinutes % 60
 
-    val totalStudyMinutes = totalStudySeconds / 60
+    val totalStudyMinutes = (totalStudyMillis / 1000 / 60).toInt()
     val totalHours = totalStudyMinutes / 60
     val totalMinutes = totalStudyMinutes % 60
 

@@ -3,9 +3,13 @@ package com.mukmuk.todori.data.service
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.todo.Todo
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -90,4 +94,9 @@ class TodoService(
     suspend fun deleteTodo(uid: String, todoId: String) {
         userTodosRef(uid).document(todoId).delete().await()
     }
+
+    fun getTodosCollection(uid: String) =
+        firestore.collection("users")
+            .document(uid)
+            .collection("todos")
 }

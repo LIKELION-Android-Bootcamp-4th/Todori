@@ -40,23 +40,30 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayStatsCard(
+    selectedDate: LocalDate,
+    studyTimeMillis: Long,
+    reflection: String?,
     date: LocalDate,
     record: List<DailyRecord>,
     todos: List<Todo>,
     completedTodos: List<Todo>,
     onReflectionChange: (String) -> Unit
 ) {
+    val year = selectedDate.year
+    val month = selectedDate.monthValue
+    val day = selectedDate.dayOfMonth
     val dailyRecord = record.firstOrNull()
     val studyTime = dailyRecord?.studyTimeMillis ?: 0L
-    val year = date.year
-    val month = date.monthValue
-    val day = date.dayOfMonth
     val hour = studyTime / 3600
     val minute = (studyTime % 3600) / 60
     val second = studyTime % 60
 
+    val totalSeconds = studyTimeMillis / 1000
+
     var text by remember(dailyRecord?.reflection) { mutableStateOf(dailyRecord?.reflection ?: "") }
     var isEditing by remember { mutableStateOf(false) }
+
+    val completedTodos = todos.count { it.completed }
 
     Card(
         modifier = Modifier

@@ -35,15 +35,20 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 
 @Composable
 fun MonthTab(
     uid: String
 ) {
-    var selectedMonth by remember {
-        mutableStateOf(LocalDate.parse("2025-08-04"))
+    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    var selectedMonth by rememberSaveable {
+        mutableStateOf(LocalDate(today.year, today.monthNumber, 1))
     }
     val viewModel: MonthViewModel = hiltViewModel()
     val state by viewModel.monthState.collectAsState()

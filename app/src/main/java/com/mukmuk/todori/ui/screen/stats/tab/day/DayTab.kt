@@ -9,12 +9,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,14 +24,23 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DayTab(dayRecords: List<DailyRecord>) {
-    var selectedDay by remember { mutableStateOf(LocalDate.now()) }
+fun DayTab(
+) {
     val viewModel: DayViewModel = hiltViewModel()
-    val uid = "testuser"
+    val fetchedRecord by viewModel.selectedRecord.collectAsState()
+    val monthRecords by viewModel.monthRecords.collectAsState()
+    val selectedDay by viewModel.selectedDate.collectAsState()
+    val todos by viewModel.todos.collectAsState()
 
     val dailyTodos by viewModel.todos.collectAsState()
     val dailyCompletedTodos by viewModel.completedTodos.collectAsState()
     val dailyRecord by viewModel.dailyRecord.collectAsState()
+    val recordFromList = remember(selectedDay, monthRecords) {
+        monthRecords.firstOrNull {
+            runCatching { LocalDate.parse(it.date.trim()) }.getOrNull() == selectedDay
+        }
+    }
+    val recordForSelected = recordFromList ?: fetchedRecord
 
     LaunchedEffect(uid, selectedDay) {
         viewModel.loadTodos(uid = uid, date = selectedDay)
@@ -47,20 +54,23 @@ fun DayTab(dayRecords: List<DailyRecord>) {
             .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(Dimens.XLarge))
+
         CalendarCard(
-            record = dayRecords,
+            record = monthRecords,
             selectedDate = selectedDay,
-            onDateSelected = { selectedDay = it })
-        Spacer(modifier = Modifier.height(Dimens.Large))
-        DayStatsCard(
-            date = selectedDay,
-            record = dailyRecord,
-            todos = dailyTodos,
-            completedTodos = dailyCompletedTodos,
-            onReflectionChange = { newReflection ->
-                viewModel.updateDailyRecord(uid, selectedDay, newReflection)
-            }
+            onDateSelected = viewModel::onDateSelected,
+            onMonthChanged = { ym -> viewModel.onMonthChanged(ym) }
         )
+
+        Spacer(modifier = Modifier.height(Dimens.Large))
+
+        DayStatsCard(
+            selectedDate = selectedDay,
+            studyTimeMillis = recordForSelected?.studyTimeMillis ?: 0L,
+            reflection = recordForSelected?.reflection,
+            todos = todos
+        )
+
         Spacer(modifier = Modifier.height(Dimens.Large))
     }
 }

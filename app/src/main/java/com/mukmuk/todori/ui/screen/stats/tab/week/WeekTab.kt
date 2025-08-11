@@ -41,20 +41,20 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeekTab(weekRecords: List<DailyRecord>) {
+fun WeekTab() {
     var selectedWeek by remember {
         mutableStateOf(LocalDate.now())
     }
 
     val viewModel: WeekViewModel = hiltViewModel()
-    val weeklyTodos by viewModel.todos.collectAsState()
-    val weeklyCompletedTodos by viewModel.completedTodos.collectAsState()
+    val state by viewModel.state.collectAsState()
+
 
     val uid = "testuser"
-    val weeklyFiltered = viewModel.getWeekRange(selectedWeek) //주차 선택
 
     LaunchedEffect(uid, selectedWeek) {
         viewModel.loadWeekTodos(uid = uid, date = selectedWeek)
+        viewModel.loadWeekStudy(uid = uid, date = selectedWeek)
     }
 
 
@@ -118,17 +118,20 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                 }
             }
 
-            val DailyRecordFiltered = remember(weekRecords, weeklyFiltered) {
-                weekRecords.filter { record ->
-                    LocalDate.parse(record.date) in weeklyFiltered
-                }
-            }
+            val dailyRecordFiltered = state.dailyRecords
 
-            WeekCard(record = DailyRecordFiltered, allTodos = weeklyTodos, completedTodos = weeklyCompletedTodos)
+            WeekCard(
+                record = state.dailyRecords,
+                allTodos = state.todos,
+                completedTodos = state.completedTodoItems
+            )
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekGraph(record = DailyRecordFiltered)
+            WeekGraph(record = dailyRecordFiltered)
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekProgress(week = selectedWeek,allTodos = weeklyTodos, completedTodos= weeklyCompletedTodos)
+            WeekProgress(
+                week = selectedWeek,
+                allTodos = state.todos,
+                completedTodos = state.completedTodoItems)
         }
     }
 }
