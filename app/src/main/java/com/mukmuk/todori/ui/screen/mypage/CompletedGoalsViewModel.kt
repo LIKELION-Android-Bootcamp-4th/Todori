@@ -21,6 +21,7 @@ class CompletedGoalsViewModel @Inject constructor(
     private val _completedGoals = MutableStateFlow<List<Goal?>>(emptyList())
     val goals: StateFlow<List<Goal?>> = _completedGoals
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     @RequiresApi(Build.VERSION_CODES.O)
