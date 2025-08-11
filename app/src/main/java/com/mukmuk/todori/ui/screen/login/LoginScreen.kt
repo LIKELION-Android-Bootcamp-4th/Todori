@@ -5,6 +5,8 @@ import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,10 +23,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mukmuk.todori.R
 import com.mukmuk.todori.navigation.BottomNavItem
+import com.mukmuk.todori.ui.screen.login.components.LoginButton
+import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.ButtonKakao
+import com.mukmuk.todori.ui.theme.ButtonNaver
+import com.mukmuk.todori.ui.theme.White
 
 @SuppressLint("ContextCastToActivity")
 @Composable
@@ -79,39 +88,37 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Google
-                    Button(
+                    LoginButton(
+                        imageRes = R.drawable.ic_google_logo,
+                        text = "Google 계정으로 로그인",
+                        textColor = Black,
+                        backgroundColor = White,
                         onClick = {
                             launcher.launch(viewModel.getGoogleSignInIntent(context))
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
-                    ) { Text("Google로 시작하기") }
-
+                        }
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Kakao
-                    Button(
-                        onClick = {
-                            viewModel.kakaoLogin(context)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
-                    ) { Text("카카오로 시작하기") }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Naver
-                    Button(
+                    LoginButton(
+                        imageRes = R.drawable.ic_naver_logo,
+                        text = "네이버로 시작하기",
+                        textColor = White,
+                        backgroundColor = ButtonNaver,
                         onClick = {
                             viewModel.naverLogin(activity)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
-                    ) { Text("Naver로 시작하기") }
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    LoginButton(
+                        imageRes = R.drawable.ic_kakao_logo,
+                        text = "카카오로 시작하기",
+                        textColor = Black,
+                        backgroundColor = ButtonKakao,
+                        onClick = {
+                            viewModel.kakaoLogin(context)
+                        }
+                    )
                 }
             }
         }
