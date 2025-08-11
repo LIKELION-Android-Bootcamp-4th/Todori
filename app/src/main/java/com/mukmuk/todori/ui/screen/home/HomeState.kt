@@ -18,5 +18,4 @@ data class TimerState(
     val pomodoroMode: PomodoroTimerMode = PomodoroTimerMode.FOCUSED,
     val completedFocusCycles: Int = 0,
     val isPomodoroEnabled: Boolean = true,
-    val selectedTodoIndex: Int? = null
 )

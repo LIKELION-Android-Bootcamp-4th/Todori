@@ -55,12 +55,10 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         composable(BottomNavItem.Todo.route) { TodoScreen(navController) }
         composable(BottomNavItem.Stats.route) { StatsScreen() }
         composable(BottomNavItem.Home.route) {
-            val homeViewModel: HomeViewModel = viewModel()
-            HomeScreen(viewModel = homeViewModel, navController = navController)
+            HomeScreen(navController = navController)
         }
         composable("home_setting") {
-            val homeSettingViewModel: HomeSettingViewModel = viewModel()
-            HomeSettingScreen(viewModel = homeSettingViewModel, navController = navController)
+            HomeSettingScreen(navController = navController)
         }
 
         composable(BottomNavItem.Study.route) { backStackEntry ->

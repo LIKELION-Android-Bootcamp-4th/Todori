@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
 
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.datastore.preferences)
 
     // Hilt
     implementation(libs.hilt.android)

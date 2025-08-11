@@ -1,39 +1,78 @@
 package com.mukmuk.todori.ui.screen.home
 
-import androidx.lifecycle.SavedStateHandle
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
+import com.mukmuk.todori.data.local.datastore.RecordRepository
+import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
+import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.repository.HomeRepository
+import com.mukmuk.todori.data.repository.TodoCategoryRepository
+import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest // collectLatest import
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.toLocalDate
+import java.time.LocalDate
+import javax.inject.Inject
 
-class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+@RequiresApi(Build.VERSION_CODES.O)
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val homeSettingRepository: HomeSettingRepository,
+    private val todoRepository: TodoRepository,
+    private val homeRepository: HomeRepository,
+    private val recordRepository: RecordRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(TimerState())
     val state: StateFlow<TimerState> = _state
 
+    private val _homeSettingState = MutableStateFlow(HomeSettingState())
+    val homeSettingState: StateFlow<HomeSettingState> = _homeSettingState.asStateFlow()
+
+    private val _todoList = MutableStateFlow<List<Todo>>(emptyList())
+    val todoList: StateFlow<List<Todo>> = _todoList.asStateFlow()
+
+    private val currentUid: String = "testuser"
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val currentDate = LocalDate.now()
+
     private var timerJob: Job? = null
     private var currentSettings: HomeSettingState = HomeSettingState()
 
-    // 초기값 반영
     init {
-        val initialSettings = savedStateHandle.get<HomeSettingState>("homeSetting") ?: HomeSettingState()
-        updateInitialTimerSettings(initialSettings)
+        viewModelScope.launch {
+            val initialLoadedSettings = homeSettingRepository.homeSettingStateFlow.first()
+            currentSettings = initialLoadedSettings
+            _homeSettingState.value = initialLoadedSettings
+            updateInitialTimerSettings(initialLoadedSettings)
 
-        savedStateHandle.getStateFlow<HomeSettingState?>("homeSetting", null)
-            .filterNotNull()
-            .onEach { newSettings ->
-                updateInitialTimerSettings(newSettings)
-                savedStateHandle["homeSetting"] = null // 1회성 값이므로 반영 후 제거
+            homeSettingRepository.homeSettingStateFlow.collectLatest { settings ->
+                currentSettings = settings
+                _homeSettingState.value = settings
             }
-            .launchIn(viewModelScope)
+        }
+
+        viewModelScope.launch {
+            recordRepository.totalRecordTimeFlow.collectLatest { savedTime ->
+                _state.update { it.copy(totalRecordTimeMills = savedTime) }
+            }
+        }
+
+        loadDailyRecordAndSetTotalTime(currentUid, currentDate)
     }
 
     fun onEvent(event: TimerEvent) {
@@ -80,6 +119,18 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
     private fun stopTimer() {
         timerJob?.cancel()
         _state.update { it.copy(status = TimerStatus.IDLE) }
+
+        viewModelScope.launch {
+            val dailyRecord = DailyRecord(
+                date = currentDate.toString(),
+                studyTimeMillis = _state.value.totalStudyTimeMills
+            )
+            try {
+                homeRepository.updateDailyRecord(currentUid, dailyRecord)
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error updating daily record: ${e.message}")
+            }
+        }
     }
 
     private fun resetTimer() {
@@ -99,21 +150,38 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
         _state.update { it.copy(status = TimerStatus.RECORDING) }
     }
 
-    fun setTotalRecordTimeMills(recordTime: Long) {
-        _state.update { it.copy(totalRecordTimeMills = _state.value.totalRecordTimeMills + recordTime) }
+    fun setTotalRecordTimeMills(recordTime: Long, uid: String, todo: Todo) {
+        viewModelScope.launch {
+            val updated = if (todo.totalFocusTimeMillis > 0L) {
+                todo.copy(totalFocusTimeMillis = todo.totalFocusTimeMillis + recordTime)
+            } else {
+                todo.copy(totalFocusTimeMillis = recordTime)
+            }
 
+            val newRecordTime = _state.value.totalStudyTimeMills
+            _state.update { it.copy(totalRecordTimeMills = newRecordTime) }
+            recordRepository.saveTotalRecordTime(newRecordTime)
+
+            val dailyRecord = DailyRecord(
+                date = currentDate.toString(),
+                studyTimeMillis = _state.value.totalStudyTimeMills
+            )
+            try {
+                todoRepository.updateTodo(uid, updated)
+                homeRepository.updateDailyRecord(currentUid, dailyRecord)
+            } catch (e: Exception) {
+                Log.e("todorilog", e.toString())
+            }
+        }
     }
 
-
-    fun updateInitialTimerSettings(settings: HomeSettingState) {
-        currentSettings = settings
-
+    private fun updateInitialTimerSettings(settings: HomeSettingState) {
         _state.update {
             it.copy(
                 timeLeftInMillis = (settings.focusMinutes * 60 + settings.focusSeconds) * 1000L,
                 pomodoroMode = PomodoroTimerMode.FOCUSED,
                 completedFocusCycles = 0,
-                isPomodoroEnabled = settings.isPomodoroEnabled
+                isPomodoroEnabled = settings.isPomodoroEnabled,
             )
         }
     }
@@ -125,7 +193,6 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                 status = TimerStatus.IDLE,
             )
         }
-
         if (currentSettings.isPomodoroEnabled) {
             when (_state.value.pomodoroMode) {
                 PomodoroTimerMode.FOCUSED -> {
@@ -136,7 +203,7 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                             currentState.copy(
                                 pomodoroMode = PomodoroTimerMode.LONG_RESTED,
                                 timeLeftInMillis = (currentSettings.longRestMinutes * 60 + currentSettings.longRestSeconds) * 1000L,
-                                completedFocusCycles = nextCompletedCycles
+                                completedFocusCycles = nextCompletedCycles,
                             )
                         }
                     } else {
@@ -144,7 +211,7 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                             currentState.copy(
                                 pomodoroMode = PomodoroTimerMode.SHORT_RESTED,
                                 timeLeftInMillis = (currentSettings.shortRestMinutes * 60 + currentSettings.shortRestSeconds) * 1000L,
-                                completedFocusCycles = nextCompletedCycles
+                                completedFocusCycles = nextCompletedCycles,
                             )
                         }
                     }
@@ -154,7 +221,7 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                     _state.update { currentState ->
                         currentState.copy(
                             pomodoroMode = PomodoroTimerMode.FOCUSED,
-                            timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L
+                            timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
                         )
                     }
                 }
@@ -164,7 +231,7 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                         currentState.copy(
                             pomodoroMode = PomodoroTimerMode.FOCUSED,
                             timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
-                            completedFocusCycles = 0 // 긴 휴식 후에는 사이클 초기화
+                            completedFocusCycles = 0
                         )
                     }
                 }
@@ -174,10 +241,42 @@ class HomeViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                 currentState.copy(
                     pomodoroMode = PomodoroTimerMode.FOCUSED,
                     timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
-                    completedFocusCycles = 0 // 사이클 초기화
+                    completedFocusCycles = 0
                 )
             }
         }
         startTimer()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun toggleTodoCompleted(uid: String, todo: Todo) {
+        viewModelScope.launch {
+            val updated = todo.copy(completed = !todo.completed)
+            try {
+                todoRepository.updateTodo(uid, updated)
+            } catch (e: Exception) {
+                Log.e("todorilog", e.toString())
+            }
+        }
+    }
+
+    private fun loadDailyRecordAndSetTotalTime(uid: String, date: LocalDate) {
+        viewModelScope.launch {
+            try {
+                val dailyRecords = homeRepository.getDailyRecord(uid, date)
+                val totalTime = dailyRecords.firstOrNull()?.studyTimeMillis ?: 0L
+                _state.update { it.copy(totalStudyTimeMills = totalTime) }
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error loading daily record: ${e.message}")
+            }
+        }
+    }
+
+    fun startObservingTodos(uid: String) {
+        val today = LocalDate.now()
+        todoRepository.observeTodos(uid) { updatedTodos ->
+            val filteredTodos = updatedTodos.filter { it.date == today.toString() }
+            _todoList.value = filteredTodos.sortedBy { it.completed }
+        }
     }
 }
