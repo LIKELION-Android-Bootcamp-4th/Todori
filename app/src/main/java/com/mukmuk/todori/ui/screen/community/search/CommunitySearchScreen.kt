@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -108,6 +109,7 @@ fun CommunitySearchScreen(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .height(80.dp)
                                 .background(LightGray, RoundedCornerShape(30.dp)),
                             shape = RoundedCornerShape(30.dp),
                             placeholder = { Text("검색어를 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
