@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -23,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
@@ -125,6 +128,10 @@ fun DayStatsCard(
                             value = text,
                             onValueChange = { if (it.length <= 20) text = it },
                             modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done), // 엔터 대신 완료 버튼
+                            keyboardActions = KeyboardActions {
+                                isEditing = false
+                            }
                         )
                     } else {
                         Text(
@@ -144,7 +151,7 @@ fun DayStatsCard(
                         isDone = todo.completed,
                         isRecordMode = false,
                         recordTime = null,
-                        onCheckedChange = {  },
+                        onCheckedChange = { },
                         onItemClick = { }
                     )
                     Spacer(modifier = Modifier.height(Dimens.Medium))

@@ -162,16 +162,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDailyRecordService(firestore: FirebaseFirestore): DailyRecordService =
-        DailyRecordService(firestore)
-
-    @Provides
-    @Singleton
-    fun provideDailyRecordRepository(dailyRecordService: DailyRecordService): DailyRecordRepository =
-        DailyRecordRepository(dailyRecordService)
-
-    @Provides
-    @Singleton
     fun provideHomeService(firestore: FirebaseFirestore): HomeService =
         HomeService(firestore)
 

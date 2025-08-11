@@ -88,7 +88,7 @@ class DayViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val records = dailyRecordRepository.getRecordByDate(uid, date)
-                val record = records.firstOrNull() ?: DailyRecord(date = date.toString(), uid = uid)
+                val record = records ?: DailyRecord(date = date.toString(), uid = uid)
 
                 val updatedRecord = record.copy(reflection = newReflection)
 

@@ -3,24 +3,15 @@ package com.mukmuk.todori.data.service
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.YearMonth
 import javax.inject.Inject
-import java.time.format.DateTimeFormatter
 
 class DailyRecordService @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
-    // users/{uid}/dailyRecord 컬렉션 참조
-    private fun userDailyRecordRef(uid: String) =
-        firestore.collection("users").document(uid).collection("dailyRecord")
-
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getRecordsByMonth(uid: String, year: Int, month: Int): List<DailyRecord> {
         val ym = YearMonth.of(year, month)
@@ -67,9 +58,12 @@ class DailyRecordService @Inject constructor(
     }
 
     suspend fun updateDailyRecord(uid: String, record: DailyRecord) {
-        val documentId = record.date
-        userDailyRecordRef(uid).document(documentId)
-            .set(record, SetOptions.merge())
+        val selectedDate = record.date
+        val snapshot = firestore.collection("users")
+            .document(uid)
+            .collection("dailyRecord")
+            .document(selectedDate)
+            .set(record)
             .await()
     }
 }
