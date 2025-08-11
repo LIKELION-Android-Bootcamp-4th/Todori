@@ -165,6 +165,10 @@ class CommunityDetailViewModel@Inject constructor(
             try {
                 val comments = repository.getReplies(postId)
                 for (comment in comments) {
+                    val replies = repository.getCommentReplies(postId, comment.commentId)
+                    for (reply in replies) {
+                        repository.deleteReply(postId, reply.commentId)
+                        }
                     repository.deleteReply(postId, comment.commentId)
                 }
                 getComments(postId)

@@ -59,7 +59,7 @@ fun CommunityDetailCommentReply(
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(Modifier.width(Dimens.Tiny))
+        Spacer(Modifier.width(Dimens.Large))
 
         Box(
             modifier = Modifier

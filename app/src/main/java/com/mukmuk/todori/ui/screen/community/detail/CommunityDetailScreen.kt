@@ -317,7 +317,7 @@ fun CommunityDetailScreen(
                         .background(Gray)
                 )
 
-                Spacer(Modifier.height(Dimens.Tiny))
+
 
                 Column(
                     modifier = Modifier.fillMaxHeight()
