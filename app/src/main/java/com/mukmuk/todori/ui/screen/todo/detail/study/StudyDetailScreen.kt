@@ -240,7 +240,8 @@ fun StudyDetailScreen(
                     MemberProgressCard(
                         members = members,
                         todos = todos,
-                        progresses = memberProgressMap
+                        progresses = memberProgressMap,
+                        usersById = state.usersById,
                     ) {
                         navController.navigate("member_progress_detail/${study.studyId}?date=$selectedDate")
                     }
