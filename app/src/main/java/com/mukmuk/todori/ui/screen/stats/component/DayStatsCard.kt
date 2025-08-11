@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -25,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
@@ -43,24 +40,19 @@ fun DayStatsCard(
     selectedDate: LocalDate,
     studyTimeMillis: Long,
     reflection: String?,
-    date: LocalDate,
-    record: List<DailyRecord>,
-    todos: List<Todo>,
-    completedTodos: List<Todo>,
-    onReflectionChange: (String) -> Unit
+    todos: List<Todo>
 ) {
     val year = selectedDate.year
     val month = selectedDate.monthValue
     val day = selectedDate.dayOfMonth
-    val dailyRecord = record.firstOrNull()
-    val studyTime = dailyRecord?.studyTimeMillis ?: 0L
-    val hour = studyTime / 3600
-    val minute = (studyTime % 3600) / 60
-    val second = studyTime % 60
 
     val totalSeconds = studyTimeMillis / 1000
+    val hour = totalSeconds / 3600
+    val minute = (totalSeconds % 3600) / 60
+    val second = totalSeconds % 60
 
-    var text by remember(dailyRecord?.reflection) { mutableStateOf(dailyRecord?.reflection ?: "") }
+
+    var text by remember { mutableStateOf(reflection ?: "") }
     var isEditing by remember { mutableStateOf(false) }
 
     val completedTodos = todos.count { it.completed }
@@ -103,7 +95,7 @@ fun DayStatsCard(
             ) {
                 Text("달성 TODO", style = AppTextStyle.Body)
                 Text(
-                    "${completedTodos.count()} / ${todos.size}",
+                    "$completedTodos / ${todos.size}",
                     style = AppTextStyle.BodyLarge
                 )
             }
@@ -131,17 +123,8 @@ fun DayStatsCard(
                     if (isEditing) {
                         BasicTextField(
                             value = text,
-                            onValueChange = {
-                                if (it.length <= 20) {
-                                    text = it
-                                    onReflectionChange(it)
-                                }
-                            },
+                            onValueChange = { if (it.length <= 20) text = it },
                             modifier = Modifier.fillMaxWidth(),
-                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done), // 엔터 대신 완료 버튼
-                            keyboardActions = KeyboardActions {
-                                isEditing = false
-                            }
                         )
                     } else {
                         Text(
@@ -161,7 +144,7 @@ fun DayStatsCard(
                         isDone = todo.completed,
                         isRecordMode = false,
                         recordTime = null,
-                        onCheckedChange = { },
+                        onCheckedChange = {  },
                         onItemClick = { }
                     )
                     Spacer(modifier = Modifier.height(Dimens.Medium))

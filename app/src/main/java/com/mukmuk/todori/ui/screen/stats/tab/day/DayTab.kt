@@ -31,21 +31,13 @@ fun DayTab(
     val monthRecords by viewModel.monthRecords.collectAsState()
     val selectedDay by viewModel.selectedDate.collectAsState()
     val todos by viewModel.todos.collectAsState()
-
-    val dailyTodos by viewModel.todos.collectAsState()
     val dailyCompletedTodos by viewModel.completedTodos.collectAsState()
-    val dailyRecord by viewModel.dailyRecord.collectAsState()
     val recordFromList = remember(selectedDay, monthRecords) {
         monthRecords.firstOrNull {
             runCatching { LocalDate.parse(it.date.trim()) }.getOrNull() == selectedDay
         }
     }
     val recordForSelected = recordFromList ?: fetchedRecord
-
-    LaunchedEffect(uid, selectedDay) {
-        viewModel.loadTodos(uid = uid, date = selectedDay)
-        viewModel.loadDailyRecord(uid = uid, date = selectedDay)
-    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
