@@ -63,7 +63,7 @@ fun DayTab(
             reflection = recordForSelected?.reflection,
             todos = todos,
             onReflectionChanged = { newReflection ->
-                viewModel.updateDailyRecord(uid, selectedDay, selectedReflection)
+                viewModel.updateDailyRecord(uid, selectedDay, newReflection)
             }
         )
 
