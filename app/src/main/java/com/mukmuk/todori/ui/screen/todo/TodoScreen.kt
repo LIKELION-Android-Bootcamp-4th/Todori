@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.ui.screen.todo.component.MenuAction
 import com.mukmuk.todori.ui.screen.todo.component.TodoTopBar
 import com.mukmuk.todori.ui.screen.todo.component.WeekCalendar
@@ -48,7 +50,8 @@ fun TodoScreen(navController: NavHostController) {
 
     val tabs = listOf("개인", "목표", "스터디")
 
-    val uid= "testuser"
+//    val uid= "testuser"
+    val uid = Firebase.auth.currentUser?.uid.toString()
     LaunchedEffect(Unit) {
         val start = selectedDate.minus(selectedDate.dayOfWeek.isoDayNumber - 1, kotlinx.datetime.DateTimeUnit.DAY)
         val end = start.plus(6, kotlinx.datetime.DateTimeUnit.DAY)
