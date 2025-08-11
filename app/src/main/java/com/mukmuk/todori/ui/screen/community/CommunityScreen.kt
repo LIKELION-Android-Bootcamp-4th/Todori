@@ -64,10 +64,6 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
 
     val state by viewModel.state.collectAsState()
 
-
-
-    var selectedOption by remember { mutableStateOf("참가자 수") }
-
     LaunchedEffect(Unit) {
         viewModel.loadPosts()
     }
@@ -207,10 +203,10 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                             .padding(top = 16.dp)
                     ) {
                         items(state.postList) { post ->
-
+                            val memberCount = state.memberList[post.postId] ?: 0
                             CommunityListItem(
                                 post = post,
-                                memberCount = 0,
+                                memberCount = memberCount,
                                 navController = navController,
                             )
                         }

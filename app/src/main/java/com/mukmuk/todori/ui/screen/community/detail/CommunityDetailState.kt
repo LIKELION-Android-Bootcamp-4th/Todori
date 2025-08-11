@@ -9,6 +9,7 @@ data class CommunityDetailState(
 
     val post: StudyPost? = null,
     val isLoading: Boolean = false,
+    val studyId: String = "",
     val study: Study? = null,
     val memberList: List<StudyMember> = emptyList(),
     val error: String? = null,

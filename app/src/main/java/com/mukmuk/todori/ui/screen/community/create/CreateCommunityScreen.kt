@@ -294,6 +294,7 @@ fun CreateCommunityScreen(
 
         if (showListSheet) {
             ListPickerBottomSheet(
+                studyId = studyId,
                 show = showListSheet,
                 onDismissRequest = { showListSheet = false },
                 onSelect = {

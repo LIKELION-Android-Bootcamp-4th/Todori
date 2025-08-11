@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -32,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,6 +75,8 @@ fun CommunityDetailScreen(
     var expanded by remember { mutableStateOf(false) }
 
     var commentContent by remember { mutableStateOf("") }
+
+    var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadPostById(postId)
@@ -118,8 +122,7 @@ fun CommunityDetailScreen(
                                             navController.navigate("community/create?postId=$postId")
                                         }
                                         else if(item == "삭제") {
-                                            viewModel.deletePost(postId)
-                                            onBack()
+                                            showDialog = true
                                         }
                                     }
                                 )
@@ -263,6 +266,34 @@ fun CommunityDetailScreen(
                 }
             }
 
+        }
+
+        if(showDialog){
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text("삭제", style = AppTextStyle.Title) },
+                text = { Text("해당 게시글을 삭제하시겠습니까?", style = AppTextStyle.Body) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDialog = false
+                            viewModel.deletePost(postId)
+                            onBack()
+                        },
+                    ) {
+                        Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showDialog = false
+                        },
+                        ) {
+                        Text("취소", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                    }
+                }
+            )
         }
 
     }

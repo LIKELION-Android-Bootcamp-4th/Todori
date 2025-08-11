@@ -8,7 +8,7 @@ data class CommunityState (
 
     val postList: List<StudyPost> = emptyList(),
     val allPostList: List<StudyPost> = emptyList(),
-    val memberList: Map<String, StudyMember> = emptyMap(),
+    val memberList: Map<String, Int> = emptyMap(),
     val selectedOption: String = "참가자 수",
     val communitySearchPostList: List<StudyPost> = emptyList(),
     val communitySearchList: List<String> = emptyList(),

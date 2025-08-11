@@ -25,8 +25,6 @@ class CommunityViewModel @Inject constructor(
     private val _state = MutableStateFlow(CommunityState())
     val state: StateFlow<CommunityState> = _state.asStateFlow()
 
-    var memberCount = 0
-
     fun loadPosts(filter: String? = _state.value.selectedOption) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
@@ -36,15 +34,22 @@ class CommunityViewModel @Inject constructor(
                 else if(filter == "날짜순")
                     _state.update { it.copy(selectedOption = "날짜순") }
                 val posts = communityRepository.getPosts(filter = filter)
+                val memberList: MutableMap<String, Int> = mutableMapOf()
+                posts.map {
+                    if(it.studyId.isNotBlank()) {
+                        val memberCount = communityRepository.getStudyMembers(it.studyId)
+                        memberList[it.postId] = memberCount.size
+                    }
+                }
                 _state.update {
                     it.copy(
                         allPostList = posts,
                         postList = posts,
+                        memberList = memberList,
                         isLoading = false,
                         error = null
                     )
                 }
-
             }
             catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -57,9 +62,17 @@ class CommunityViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true) }
             try {
                 val posts = communityRepository.getPosts(data = data)
+                val memberList: MutableMap<String, Int> = mutableMapOf()
+                posts.map {
+                    if(it.studyId.isNotBlank()) {
+                        val memberCount = communityRepository.getStudyMembers(it.studyId)
+                        memberList[it.postId] = memberCount.size
+                    }
+                }
                 _state.update {
                     it.copy(
                         communitySearchPostList = posts,
+                        memberList = memberList,
                         isLoading = false,
                         error = null,
                     )

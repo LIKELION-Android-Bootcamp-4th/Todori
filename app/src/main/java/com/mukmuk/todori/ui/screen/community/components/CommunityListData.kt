@@ -28,6 +28,7 @@ import com.mukmuk.todori.ui.theme.White
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CommunityListData(
+    studyId: String,
     study: Study,
     memberCount: Int,
     activeDays: List<String>,
@@ -42,7 +43,13 @@ fun CommunityListData(
             onClick()
         },
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
+        colors = CardDefaults.cardColors(
+            containerColor =
+            if(study.studyId == studyId || studyId.isBlank()) {
+                White
+            }else{
+                Gray
+            })
     ) {
         Column(
             modifier = Modifier.padding(Dimens.Medium)

@@ -37,6 +37,7 @@ import com.mukmuk.todori.ui.theme.White
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListPickerBottomSheet(
+    studyId: String,
     show: Boolean,
     onDismissRequest: () -> Unit,
     onSelect: (String) -> Unit
@@ -75,6 +76,7 @@ fun ListPickerBottomSheet(
                 items(studies) { study ->
                     val memberCount = membersMap[study.studyId]?.size ?: 0
                     CommunityListData(
+                        studyId = studyId,
                         study = study,
                         memberCount = memberCount,
                         activeDays = study.activeDays,
