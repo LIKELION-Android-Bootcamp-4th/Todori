@@ -74,8 +74,6 @@ class HomeViewModel @Inject constructor(
                 _state.update { it.copy(totalRecordTimeMills = savedTime) }
             }
         }
-
-        loadDailyRecordAndSetTotalTime(_state.value.uid, currentDate)
     }
 
     fun onEvent(event: TimerEvent) {
@@ -263,7 +261,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun loadDailyRecordAndSetTotalTime(uid: String, date: LocalDate) {
+    fun loadDailyRecordAndSetTotalTime(uid: String, date: LocalDate) {
         viewModelScope.launch {
             try {
                 val dailyRecords = homeRepository.getDailyRecord(uid, date)
