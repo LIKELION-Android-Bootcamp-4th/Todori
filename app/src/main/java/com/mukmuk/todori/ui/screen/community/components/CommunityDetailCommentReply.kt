@@ -30,7 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.Timestamp
+import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -43,13 +46,15 @@ import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun CommunityDetailCommentReply(
-    userName: String,
-    comment: String,
-    createdAt: Timestamp?,
-    viewModel: CommunityDetailViewModel,
+    post: StudyPost,
+    commentList: StudyPostComment,
+    onReplyClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
 
     var expanded by remember { mutableStateOf(false) }
+
+    val viewModel: CommunityDetailViewModel = hiltViewModel()
 
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -78,7 +83,7 @@ fun CommunityDetailCommentReply(
 
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
 
-                    Text(userName, style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
+                    Text(commentList.nickname, style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
 
                     Spacer(modifier = Modifier.weight(1f))
 
@@ -95,7 +100,15 @@ fun CommunityDetailCommentReply(
                         viewModel.td.forEach { item ->
                             DropdownMenuItem(
                                 text = { Text(item, style = AppTextStyle.BodySmall) },
-                                onClick = {  expanded = false }
+                                onClick = {
+                                    expanded = false
+                                    if(item == "답글 달기") {
+                                        onReplyClick()
+                                    }
+                                    else if(item == "삭제") {
+                                        onDeleteClick()
+                                    }
+                                }
                             )
                         }
                     }
@@ -103,11 +116,11 @@ fun CommunityDetailCommentReply(
 
                 Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-                Text(comment, style = AppTextStyle.Body)
+                Text(commentList.content, style = AppTextStyle.Body)
 
                 Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-                Text(createdAt?.toDate().toString(), style = AppTextStyle.BodySmall)
+                Text(commentList.createdAt?.toDate().toString(), style = AppTextStyle.BodySmall)
 
 
             }

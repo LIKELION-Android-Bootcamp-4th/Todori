@@ -44,7 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.mukmuk.todori.ui.screen.community.components.CommunityListItem
+import com.mukmuk.todori.ui.screen.community.components.CommunityPost
 import com.mukmuk.todori.ui.screen.community.components.CommunityListOption
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
@@ -212,7 +212,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                             .padding(top = 16.dp)
                     ) {
                         items(state.postList) { post ->
-                            CommunityListItem(
+                            CommunityPost(
                                 post = post,
                                 memberCount = post.memberCount,
                                 navController = navController,

@@ -20,33 +20,26 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.remote.community.StudyPost
-import com.mukmuk.todori.ui.screen.community.CommunityViewModel
-import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupSecondary
-import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.White
 
 
 @Composable
-fun CommunityListItem(
+fun CommunityPost(
     post: StudyPost,
     memberCount: Int,
     navController: NavHostController,

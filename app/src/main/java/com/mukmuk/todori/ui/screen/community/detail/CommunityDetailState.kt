@@ -9,10 +9,11 @@ data class CommunityDetailState(
 
     val post: StudyPost? = null,
     val isLoading: Boolean = false,
-    val studyId: String = "",
     val study: Study? = null,
     val memberList: List<StudyMember> = emptyList(),
     val error: String? = null,
-    val commentList: Map<String, List<StudyPostComment>> = emptyMap(),
+    val commentList: List<StudyPostComment> = emptyList(),
+    val commentReplyList: Map<String, List<StudyPostComment>> = emptyMap(),
+    val replyToCommentId: String? = null,
 
 )

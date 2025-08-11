@@ -2,7 +2,6 @@ package com.mukmuk.todori.ui.screen.community.components
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +15,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,7 +24,6 @@ import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.screen.todo.component.StudyMetaInfoRow
-import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
@@ -37,7 +32,7 @@ import com.mukmuk.todori.ui.theme.White
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CommunityDetailItem(
+fun StudyDetailCard(
     studyId: String,
     study: Study,
     memberList: List<StudyMember>,

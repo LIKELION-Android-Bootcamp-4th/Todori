@@ -6,7 +6,6 @@ import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.CommunityRepository
-import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,14 +23,11 @@ class CommunityDetailViewModel@Inject constructor(
     val state: StateFlow<CommunityDetailState> = _state
 
 
-    var menu = listOf("수정", "삭제")
+    val menu = listOf("수정", "삭제")
 
-    var td = listOf("답글 달기", "삭제")
+    val td = listOf("답글 달기", "삭제")
 
     fun loadPostById(postId: String) {
-        if ((_state.value.post?.postId ?: "") == postId) {
-            return
-        }
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, study = null) }
             try {
@@ -83,10 +79,8 @@ class CommunityDetailViewModel@Inject constructor(
                         error = null
                     )
                 }
-                if (updatedPost != null) {
-                    if (updatedPost.studyId.isNotBlank()) {
-                        loadStudyById(updatedPost.studyId)
-                    }
+                if (updatedPost.studyId.isNotBlank()) {
+                    loadStudyById(updatedPost.studyId)
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -98,6 +92,7 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             try {
                 repository.deletePost(postId)
+                deleteAllComments(postId)
                 _state.update {
                     it.copy(
                         post = null,
@@ -112,11 +107,12 @@ class CommunityDetailViewModel@Inject constructor(
     }
 
 
-    fun createReply(postId: String, reply: StudyPostComment) {
+    fun createComment(postId: String, reply: StudyPostComment) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             try {
                 repository.createReply(postId, reply)
-                getReplies(postId)
+                getComments(postId)
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
@@ -124,19 +120,19 @@ class CommunityDetailViewModel@Inject constructor(
 
     }
 
-    fun getReplies(postId: String) {
+    fun getComments(postId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
                 val comments = repository.getReplies(postId)
-                val commentList: MutableMap<String, List<StudyPostComment>> = mutableMapOf()
-                comments.forEach { comment ->
-                    val replies = repository.getCommentReplies(postId, comment.commentId)
-                    commentList[comment.commentId] = replies
+                val commentsMap = mutableMapOf<String, List<StudyPostComment>>()
+                for(comment in comments) {
+                    commentsMap[comment.commentId] = repository.getCommentReplies(postId, comment.commentId)
                 }
                 _state.update {
                     it.copy(
-                        commentList = commentList,
+                        commentList = comments,
+                        commentReplyList = commentsMap.toMap(),
                         isLoading = false,
                         error = null
                     )
@@ -147,12 +143,31 @@ class CommunityDetailViewModel@Inject constructor(
         }
     }
 
-    fun deleteReply(postId: String, replyId: String) {
+    fun deleteComment(postId: String, replyId: String) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             try {
+                val replies = repository.getCommentReplies(postId, replyId)
+                for (reply in replies) {
+                    repository.deleteReply(postId, reply.commentId)
+                }
                 repository.deleteReply(postId, replyId)
-                loadPostById(postId)
-                getReplies(postId)
+                getComments(postId)
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    fun deleteAllComments(postId: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            try {
+                val comments = repository.getReplies(postId)
+                for (comment in comments) {
+                    repository.deleteReply(postId, comment.commentId)
+                }
+                getComments(postId)
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
@@ -161,30 +176,39 @@ class CommunityDetailViewModel@Inject constructor(
 
     fun createCommentReply(postId: String, commentId: String, reply: StudyPostComment) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             try {
                 repository.createCommentReply(postId, commentId, reply)
-                getReplies(postId)
+                _state.update { it.copy(replyToCommentId = null) }
+                getComments(postId)
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
         }
     }
 
-    fun getCommentReplies(postId: String, commentId: String) {
+    private fun getCommentReplies(postId: String, commentId: String) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             try {
                 val replies = repository.getCommentReplies(postId, commentId)
-                _state.update {
-                    it.copy(
-                        commentList = mapOf(commentId to replies),
+                _state.update { state ->
+                    val updatedCommentReplyList = state.commentReplyList.toMutableMap()
+                    updatedCommentReplyList[commentId] = replies
+                    state.copy(
+                        commentReplyList = updatedCommentReplyList.toMap(),
                         isLoading = false,
-                        error = null,
+                        error = null
                     )
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
         }
+    }
+
+    fun setReplyToCommentId(commentId: String? = null) {
+        _state.update { it.copy(replyToCommentId = commentId) }
     }
 
     fun loadStudyById(studyId: String) {

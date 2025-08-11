@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.Timestamp
+import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
@@ -46,8 +47,10 @@ import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun CommunityDetailComment(
+    post: StudyPost,
     commentList: StudyPostComment,
-    onClick: () -> Unit
+    onReplyClick: () -> Unit,
+    onDeleteClick: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -96,13 +99,10 @@ fun CommunityDetailComment(
                             onClick = {
                                 expanded = false
                                 if(item == "답글 달기") {
-                                    onClick()
+                                    onReplyClick()
                                 }
                                 else if(item == "삭제") {
-                                    viewModel.deleteReply(
-                                        commentList.studyId,
-                                        commentList.commentId
-                                    )
+                                    onDeleteClick()
                                 }
                             }
                         )

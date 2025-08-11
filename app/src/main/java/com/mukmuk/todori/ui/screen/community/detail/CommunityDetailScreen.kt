@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,10 +50,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailComment
-import com.mukmuk.todori.ui.screen.community.components.CommunityDetailItem
+import com.mukmuk.todori.ui.screen.community.components.CommunityDetailCommentReply
+import com.mukmuk.todori.ui.screen.community.components.StudyDetailCard
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -79,13 +84,11 @@ fun CommunityDetailScreen(
 
     var showDialog by remember { mutableStateOf(false) }
 
-    var commentTextField by remember { mutableStateOf(true) }
-
-    var replyTextField by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadPostById(postId)
-        viewModel.getReplies(postId)
+        viewModel.getComments(postId)
+        viewModel.setReplyToCommentId(null)
     }
 
     Scaffold(
@@ -152,23 +155,41 @@ fun CommunityDetailScreen(
                         .weight(1f)
                         .padding(end = 8.dp)
                         .background(White, RoundedCornerShape(10.dp))
-                        .border(1.dp, Gray, RoundedCornerShape(10.dp))
-                        .clickable(
-                            onClick = {
-                                commentTextField = true
-                                replyTextField = false
-                            }
-                        ),
+                        .border(1.dp, Gray, RoundedCornerShape(10.dp)),
                     shape = RoundedCornerShape(10.dp),
-                    placeholder = { Text("댓글을 작성해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
+                    placeholder = { Text(if(state.replyToCommentId != null) "답글을 작성해주세요" else "댓글을 작성해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                     singleLine = true,
-                    maxLines = 1
+                    maxLines = 1,
                 )
 
 
                 Button(
                     onClick = {
+                        if(state.replyToCommentId != null){
+                            viewModel.createCommentReply(postId,
+                                state.replyToCommentId!!, StudyPostComment(
+                                commentId = "",
+                                studyId = "",
+                                uid = "",
+                                nickname = "",
+                                content = commentContent,
+                                createdAt = Timestamp.now()
+                            ))
+                        }
+                        else {
+                            viewModel.createComment(
+                                postId, StudyPostComment(
+                                    commentId = "",
+                                    studyId = "",
+                                    uid = "",
+                                    nickname = "",
+                                    content = commentContent,
+                                    createdAt = Timestamp.now()
+                                )
+                            )
+                        }
                         commentContent = ""
+                        viewModel.getComments(postId)
                     },
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -182,139 +203,183 @@ fun CommunityDetailScreen(
         }
 
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .verticalScroll(scrollState)
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(top = 20.dp, start = 16.dp, end = 16.dp)
-        ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(Gray, CircleShape)
-                )
-                Spacer(Modifier.width(Dimens.Tiny))
-                Text("사용자 이름", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
-
-                Spacer(Modifier.weight(1f))
-
-                Text(state.post?.createdAt?.toDate().toString(), style = AppTextStyle.BodySmall.copy(color = DarkGray))
+                CircularProgressIndicator(color = ButtonPrimary)
             }
-
-            Spacer(Modifier.height(8.dp))
-
-            state.post?.title?.let { Text(it, style = AppTextStyle.Title.copy(fontWeight = FontWeight.Bold)) }
-
-            Spacer(Modifier.height(4.dp))
-
-
-
-
-
-            state.post?.let {
+        } else if (postId.isBlank() || state.post == null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    it.content,
-                    style = AppTextStyle.Body
+                    "게시글을 불러오지 못했습니다",
+                    style = AppTextStyle.Body.copy(color = DarkGray, fontWeight = FontWeight.Bold)
                 )
             }
-
-            Spacer(Modifier.height(Dimens.Large))
-
-            Row(
-
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                state.post?.tags?.forEach{ tag ->
-                    Box(
-                        modifier = Modifier
-                            .background(GroupSecondary, RoundedCornerShape(32.dp))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .width(60.dp),
-                        contentAlignment = Alignment.Center
-                    ){
-                        Text(
-                            text = tag,
-                            style = AppTextStyle.BodySmall
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            if(state.post?.studyId != null && state.study != null) {
-
-                CommunityDetailItem(
-                    studyId = state.post!!.studyId,
-                    study = state.study!!,
-                    memberList = state.memberList
-                )
-
-            }
-
-            Spacer(
-                modifier = Modifier
-                    .height(1.dp)
-                    .fillMaxWidth()
-                    .background(Gray)
-            )
-
+        } else {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-            ){
-                state.commentList.forEach { comment ->
-                    CommunityDetailComment(
-                        commentList = comment.value[0],
-                        onClick = {
-                            commentContent = ""
-                            commentTextField = false
-                            replyTextField = true
-                        }
+                    .verticalScroll(scrollState)
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(top = 20.dp, start = 16.dp, end = 16.dp)
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(Gray, CircleShape)
+                    )
+                    Spacer(Modifier.width(Dimens.Tiny))
+                    Text("사용자 이름", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
+
+                    Spacer(Modifier.weight(1f))
+
+                    Text(
+                        state.post?.createdAt?.toDate().toString(),
+                        style = AppTextStyle.BodySmall.copy(color = DarkGray)
                     )
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                state.post?.title?.let {
+                    Text(
+                        it,
+                        style = AppTextStyle.Title.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+
+                Spacer(Modifier.height(4.dp))
+
+
+
+
+
+                state.post?.let {
+                    Text(
+                        it.content,
+                        style = AppTextStyle.Body
+                    )
+                }
+
+                Spacer(Modifier.height(Dimens.Large))
+
+                Row(
+
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    state.post?.tags?.forEach { tag ->
+                        Box(
+                            modifier = Modifier
+                                .background(GroupSecondary, RoundedCornerShape(32.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .width(60.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = tag,
+                                style = AppTextStyle.BodySmall
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                if (state.post?.studyId != null && state.study != null) {
+
+                    StudyDetailCard(
+                        studyId = state.post!!.studyId,
+                        study = state.study!!,
+                        memberList = state.memberList
+                    )
+
+                }
+
+                Spacer(
+                    modifier = Modifier
+                        .height(1.dp)
+                        .fillMaxWidth()
+                        .background(Gray)
+                )
+
+                Spacer(Modifier.height(Dimens.Tiny))
+
+                Column(
+                    modifier = Modifier.fillMaxHeight()
+                ) {
+                    state.commentList.forEach { comment ->
+                        CommunityDetailComment(
+                            post = state.post!!,
+                            commentList = comment,
+                            onReplyClick = {
+                                viewModel.setReplyToCommentId(comment.commentId)
+                            },
+                            onDeleteClick = {
+                                viewModel.deleteComment(postId, comment.commentId)
+                            }
+                        )
+                        if (state.commentReplyList.containsKey(comment.commentId)) {
+                            state.commentReplyList[comment.commentId]?.forEach { reply ->
+                                CommunityDetailCommentReply(
+                                    post = state.post!!,
+                                    commentList = reply,
+                                    onReplyClick = {
+                                        viewModel.setReplyToCommentId(comment.commentId)
+                                    },
+                                    onDeleteClick = {
+                                        viewModel.deleteComment(postId, reply.commentId)
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                }
+
+            }
+
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = { Text("삭제", style = AppTextStyle.Title) },
+                    text = { Text("해당 게시글을 삭제하시겠습니까?", style = AppTextStyle.Body) },
+                    containerColor = White,
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showDialog = false
+                                viewModel.deletePost(postId)
+                                onBack()
+                            },
+                        ) {
+                            Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showDialog = false
+                            },
+                        ) {
+                            Text("취소", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                        }
+                    }
+                )
             }
 
         }
-
-        if(showDialog){
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = { Text("삭제", style = AppTextStyle.Title) },
-                text = { Text("해당 게시글을 삭제하시겠습니까?", style = AppTextStyle.Body) },
-                containerColor = White,
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            showDialog = false
-                            viewModel.deletePost(postId)
-                            onBack()
-                        },
-                    ) {
-                        Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            showDialog = false
-                        },
-                        ) {
-                        Text("취소", style = AppTextStyle.Body.copy(color = ButtonPrimary))
-                    }
-                }
-            )
-        }
-
     }
 
 }

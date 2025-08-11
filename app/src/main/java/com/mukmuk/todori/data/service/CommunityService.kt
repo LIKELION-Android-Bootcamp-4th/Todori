@@ -1,5 +1,6 @@
 package com.mukmuk.todori.data.service
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -83,13 +84,16 @@ class CommunityService(
     suspend fun createReply(postId: String, reply: StudyPostComment){
         val ref = communityRef().document(postId).collection("studyPostReply").document()
         val autoId = ref.id
-        val replyWithId = reply.copy(commentId = autoId)
-        ref.set(replyWithId).await()
+        val replyWithId = reply.copy(commentId = autoId, parentCommentId = null, createdAt = Timestamp.now())
+        ref.set(replyWithId, SetOptions.merge()).await()
     }
 
     suspend fun getReplies(postId: String): List<StudyPostComment> {
-        val snapshot: QuerySnapshot = communityRef().document(postId).collection("studyPostReply").get().await()
-        return snapshot.documents.mapNotNull { it.toObject(StudyPostComment::class.java) }
+        val snapshot: QuerySnapshot = communityRef().document(postId).collection("studyPostReply")
+            .whereEqualTo("parentCommentId", null)
+            .get().await()
+        return snapshot.documents.mapNotNull {
+            it.toObject(StudyPostComment::class.java)?.copy(commentId = it.id) }
     }
 
     suspend fun deleteReply(postId: String, replyId: String) {
@@ -99,13 +103,15 @@ class CommunityService(
     suspend fun createCommentReply(postId: String, commentId: String, reply: StudyPostComment){
         val ref = communityRef().document(postId).collection("studyPostReply").document()
         val autoId = ref.id
-        val replyWithId = reply.copy(parentCommentId = commentId, commentId = autoId)
-        ref.set(replyWithId).await()
+        val replyWithId = reply.copy(commentId = autoId, parentCommentId = commentId, createdAt = Timestamp.now())
+        ref.set(replyWithId, SetOptions.merge()).await()
     }
 
     suspend fun getCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
         val snapshot: QuerySnapshot = communityRef().document(postId).collection("studyPostReply").whereEqualTo("parentCommentId", commentId).get().await()
-        return snapshot.documents.mapNotNull { it.toObject(StudyPostComment::class.java) }
+        return snapshot.documents.mapNotNull {
+            it.toObject(StudyPostComment::class.java)?.copy(commentId = it.id)
+        }
     }
 
     suspend fun loadStudyById(studyId: String): Study? {
