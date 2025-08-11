@@ -29,23 +29,33 @@ class CommunityViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                if(filter == "맴버 수")
+                if(filter == "참가자 수")
                     _state.update { it.copy(selectedOption = "참가자 수") }
                 else if(filter == "날짜순")
                     _state.update { it.copy(selectedOption = "날짜순") }
-                val posts = communityRepository.getPosts(filter = filter)
-                val memberList: MutableMap<String, Int> = mutableMapOf()
+                var posts = communityRepository.getPosts(filter = filter)
                 posts.map {
                     if(it.studyId.isNotBlank()) {
                         val memberCount = communityRepository.getStudyMembers(it.studyId)
-                        memberList[it.postId] = memberCount.size
+                        updatePost(it.postId, StudyPost(
+                            postId = it.postId,
+                            studyId = it.studyId,
+                            title = it.title,
+                            content = it.content,
+                            tags = it.tags,
+                            memberCount = memberCount.size,
+                            createdBy = it.createdBy,
+                            createdAt = it.createdAt,
+                            updatedAt = it.updatedAt,
+                            deleted = it.deleted
+                        ))
                     }
                 }
+                posts = communityRepository.getPosts(filter = filter)
                 _state.update {
                     it.copy(
                         allPostList = posts,
                         postList = posts,
-                        memberList = memberList,
                         isLoading = false,
                         error = null
                     )
@@ -61,18 +71,28 @@ class CommunityViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                val posts = communityRepository.getPosts(data = data)
-                val memberList: MutableMap<String, Int> = mutableMapOf()
+                var posts = communityRepository.getPosts(data = data)
                 posts.map {
                     if(it.studyId.isNotBlank()) {
                         val memberCount = communityRepository.getStudyMembers(it.studyId)
-                        memberList[it.postId] = memberCount.size
+                        updatePost(it.postId, StudyPost(
+                            postId = it.postId,
+                            studyId = it.studyId,
+                            title = it.title,
+                            content = it.content,
+                            tags = it.tags,
+                            memberCount = memberCount.size,
+                            createdBy = it.createdBy,
+                            createdAt = it.createdAt,
+                            updatedAt = it.updatedAt,
+                            deleted = it.deleted
+                        ))
                     }
                 }
+                posts = communityRepository.getPosts(data = data)
                 _state.update {
                     it.copy(
                         communitySearchPostList = posts,
-                        memberList = memberList,
                         isLoading = false,
                         error = null,
                     )
@@ -80,6 +100,17 @@ class CommunityViewModel @Inject constructor(
             }
             catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    fun updatePost(postId: String, studyPost: StudyPost) {
+        viewModelScope.launch {
+            try {
+                communityRepository.updatePost(postId, studyPost)
+                _state.update { it.copy(error = null) }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
             }
         }
     }

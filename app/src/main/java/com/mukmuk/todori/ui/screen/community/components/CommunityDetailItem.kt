@@ -45,8 +45,6 @@ fun CommunityDetailItem(
 
     val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
 
-    val state by communityDetailViewModel.state.collectAsState()
-
     Card (
         modifier = Modifier
             .fillMaxWidth()

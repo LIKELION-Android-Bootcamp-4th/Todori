@@ -224,7 +224,10 @@ fun CreateCommunityScreen(
                 data.forEach { tag ->
                     Box(
                         modifier = Modifier
-                            .background(GroupSecondary, RoundedCornerShape(32.dp))
+                            .background(
+                                if (td.contains(tag)) GroupSecondary else GroupPrimary,
+                                RoundedCornerShape(32.dp)
+                            )
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                             .clickable {
                                 if (!td.contains(tag)) {

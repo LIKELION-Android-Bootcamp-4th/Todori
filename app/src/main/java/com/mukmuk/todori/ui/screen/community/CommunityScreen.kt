@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -124,17 +125,6 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (state.postList.isEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text("게시글이 없습니다", style = AppTextStyle.Body.copy(color = DarkGray, fontWeight = FontWeight.Bold))
-                }
-            }
-            else {
 
                 Column(
                     modifier = Modifier
@@ -148,7 +138,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                             selectedCategory = "전체"
                             viewModel.setData(selectedCategory)
                             if(option == "참가자 수"){
-                                viewModel.loadPosts("맴버 수")
+                                viewModel.loadPosts("참가자 수")
                             }
                             else if(option == "날짜순"){
                                 viewModel.loadPosts("날짜순")
@@ -191,6 +181,25 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     }
                 }
 
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = ButtonPrimary)
+                }
+            }
+            else if (state.postList.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("게시글이 없습니다", style = AppTextStyle.Body.copy(color = DarkGray, fontWeight = FontWeight.Bold))
+                }
+            }
+            else {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -203,10 +212,9 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                             .padding(top = 16.dp)
                     ) {
                         items(state.postList) { post ->
-                            val memberCount = state.memberList[post.postId] ?: 0
                             CommunityListItem(
                                 post = post,
-                                memberCount = memberCount,
+                                memberCount = post.memberCount,
                                 navController = navController,
                             )
                         }

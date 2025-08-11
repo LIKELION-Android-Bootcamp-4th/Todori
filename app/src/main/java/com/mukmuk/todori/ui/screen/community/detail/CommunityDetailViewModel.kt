@@ -116,7 +116,7 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             try {
                 repository.createReply(postId, reply)
-                loadPostById(postId)
+                getReplies(postId)
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
@@ -128,13 +128,15 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                val replies = repository.getReplies(postId)
-                replies.forEach {
-                    it.parentCommentId?.let { it1 -> getCommentReplies(postId, it1) }
+                val comments = repository.getReplies(postId)
+                val commentList: MutableMap<String, List<StudyPostComment>> = mutableMapOf()
+                comments.forEach { comment ->
+                    val replies = repository.getCommentReplies(postId, comment.commentId)
+                    commentList[comment.commentId] = replies
                 }
                 _state.update {
                     it.copy(
-                        commentList = replies,
+                        commentList = commentList,
                         isLoading = false,
                         error = null
                     )
@@ -161,7 +163,6 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             try {
                 repository.createCommentReply(postId, commentId, reply)
-                loadPostById(postId)
                 getReplies(postId)
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -175,12 +176,12 @@ class CommunityDetailViewModel@Inject constructor(
                 val replies = repository.getCommentReplies(postId, commentId)
                 _state.update {
                     it.copy(
-                        commentList = replies,
+                        commentList = mapOf(commentId to replies),
                         isLoading = false,
-                        error = null
+                        error = null,
                     )
                 }
-                } catch (e: Exception) {
+            } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
         }

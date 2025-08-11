@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +73,10 @@ fun CommunitySearchScreen(
     val uid = "testuser"
 
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getCommunitySearch(uid)
+    }
 
     Scaffold(
         topBar = {
@@ -187,7 +192,7 @@ fun CommunitySearchScreen(
                     items(state.communitySearchPostList) { post ->
                         CommunityListItem(
                             post = post,
-                            memberCount = 0,
+                            memberCount = post.memberCount,
                             navController = navController,
                         )
                     }
@@ -196,6 +201,7 @@ fun CommunitySearchScreen(
 
 
         }
+
 
     }
 }

@@ -13,6 +13,6 @@ data class CommunityDetailState(
     val study: Study? = null,
     val memberList: List<StudyMember> = emptyList(),
     val error: String? = null,
-    val commentList: List<StudyPostComment> = emptyList()
+    val commentList: Map<String, List<StudyPostComment>> = emptyMap(),
 
 )

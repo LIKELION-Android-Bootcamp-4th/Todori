@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -70,13 +71,17 @@ fun CommunityDetailScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    var scrollState = rememberScrollState()
+    val scrollState = rememberScrollState()
 
     var expanded by remember { mutableStateOf(false) }
 
     var commentContent by remember { mutableStateOf("") }
 
     var showDialog by remember { mutableStateOf(false) }
+
+    var commentTextField by remember { mutableStateOf(true) }
+
+    var replyTextField by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadPostById(postId)
@@ -147,7 +152,13 @@ fun CommunityDetailScreen(
                         .weight(1f)
                         .padding(end = 8.dp)
                         .background(White, RoundedCornerShape(10.dp))
-                        .border(1.dp, Gray, RoundedCornerShape(10.dp)),
+                        .border(1.dp, Gray, RoundedCornerShape(10.dp))
+                        .clickable(
+                            onClick = {
+                                commentTextField = true
+                                replyTextField = false
+                            }
+                        ),
                     shape = RoundedCornerShape(10.dp),
                     placeholder = { Text("댓글을 작성해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                     singleLine = true,
@@ -262,7 +273,14 @@ fun CommunityDetailScreen(
                     .padding(top = 16.dp)
             ){
                 state.commentList.forEach { comment ->
-
+                    CommunityDetailComment(
+                        commentList = comment.value[0],
+                        onClick = {
+                            commentContent = ""
+                            commentTextField = false
+                            replyTextField = true
+                        }
+                    )
                 }
             }
 
@@ -273,6 +291,7 @@ fun CommunityDetailScreen(
                 onDismissRequest = { showDialog = false },
                 title = { Text("삭제", style = AppTextStyle.Title) },
                 text = { Text("해당 게시글을 삭제하시겠습니까?", style = AppTextStyle.Body) },
+                containerColor = White,
                 confirmButton = {
                     TextButton(
                         onClick = {

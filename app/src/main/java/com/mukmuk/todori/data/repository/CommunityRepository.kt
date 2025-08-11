@@ -5,7 +5,7 @@ import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.service.CommunityService
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class CommunityRepository @Inject constructor(
     private val communityService: CommunityService

@@ -28,8 +28,8 @@ class CommunityService(
     }
 
     suspend fun getPosts(filter: String? = null, data: String? = null): List<StudyPost> {
-        val snapshot: QuerySnapshot = if (filter == "맴버 수") {
-            communityRef().orderBy("").get().await()
+        val snapshot: QuerySnapshot = if (filter == "참가자 수") {
+            communityRef().orderBy("memberCount", Query.Direction.DESCENDING).get().await()
         }
         else if(filter == "날짜순"){
             communityRef().orderBy("createdAt", Query.Direction.DESCENDING).get().await()
