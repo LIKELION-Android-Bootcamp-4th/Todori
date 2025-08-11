@@ -44,6 +44,7 @@ import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier) {
+    val homeViewModel: HomeViewModel = hiltViewModel()
     NavHost(
         navController = navController,
         startDestination = "splash",
@@ -55,7 +56,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         composable(BottomNavItem.Todo.route) { TodoScreen(navController) }
         composable(BottomNavItem.Stats.route) { StatsScreen() }
         composable(BottomNavItem.Home.route) {
-            HomeScreen(navController = navController)
+            HomeScreen(navController = navController, viewModel = homeViewModel)
         }
         composable("home_setting") {
             HomeSettingScreen(navController = navController)
