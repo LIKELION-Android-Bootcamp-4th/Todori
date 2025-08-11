@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.screen.home.components.MainTodoItemEditableRow
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -43,7 +42,8 @@ fun DayStatsCard(
     selectedDate: LocalDate,
     studyTimeMillis: Long,
     reflection: String?,
-    todos: List<Todo>
+    todos: List<Todo>,
+    onReflectionChanged: (String) -> Unit
 ) {
     val year = selectedDate.year
     val month = selectedDate.monthValue
@@ -55,7 +55,7 @@ fun DayStatsCard(
     val second = totalSeconds % 60
 
 
-    var text by remember { mutableStateOf(reflection ?: "") }
+    var text by remember(reflection) { mutableStateOf(reflection ?: "") }
     var isEditing by remember { mutableStateOf(false) }
 
     val completedTodos = todos.count { it.completed }
@@ -129,9 +129,12 @@ fun DayStatsCard(
                             onValueChange = { if (it.length <= 20) text = it },
                             modifier = Modifier.fillMaxWidth(),
                             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done), // 엔터 대신 완료 버튼
-                            keyboardActions = KeyboardActions {
-                                isEditing = false
-                            }
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    isEditing = false
+                                    onReflectionChanged(text)
+                                }
+                            )
                         )
                     } else {
                         Text(

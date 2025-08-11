@@ -26,18 +26,19 @@ import java.time.LocalDate
 @Composable
 fun DayTab(
 ) {
+    val uid = "testuser"
     val viewModel: DayViewModel = hiltViewModel()
     val fetchedRecord by viewModel.selectedRecord.collectAsState()
     val monthRecords by viewModel.monthRecords.collectAsState()
     val selectedDay by viewModel.selectedDate.collectAsState()
     val todos by viewModel.todos.collectAsState()
-    val dailyCompletedTodos by viewModel.completedTodos.collectAsState()
     val recordFromList = remember(selectedDay, monthRecords) {
         monthRecords.firstOrNull {
             runCatching { LocalDate.parse(it.date.trim()) }.getOrNull() == selectedDay
         }
     }
     val recordForSelected = recordFromList ?: fetchedRecord
+    val selectedReflection = fetchedRecord?.reflection.toString()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -60,7 +61,10 @@ fun DayTab(
             selectedDate = selectedDay,
             studyTimeMillis = recordForSelected?.studyTimeMillis ?: 0L,
             reflection = recordForSelected?.reflection,
-            todos = todos
+            todos = todos,
+            onReflectionChanged = { newReflection ->
+                viewModel.updateDailyRecord(uid, selectedDay, selectedReflection)
+            }
         )
 
         Spacer(modifier = Modifier.height(Dimens.Large))

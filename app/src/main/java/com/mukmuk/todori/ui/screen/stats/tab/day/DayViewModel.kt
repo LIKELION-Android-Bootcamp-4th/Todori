@@ -84,17 +84,18 @@ class DayViewModel @Inject constructor(
             .onFailure { _selectedRecord.value = null }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun updateDailyRecord(uid: String, date: LocalDate, newReflection: String) {
         viewModelScope.launch {
             try {
-                val records = dailyRecordRepository.getRecordByDate(uid, date)
-                val record = records ?: DailyRecord(date = date.toString(), uid = uid)
+                val record = dailyRecordRepository.getRecordByDate(uid, date)
+                    ?: DailyRecord(date = date.toString(), uid = uid)
 
                 val updatedRecord = record.copy(reflection = newReflection)
 
                 dailyRecordRepository.updateDailyRecord(uid, updatedRecord)
             } catch (e: Exception) {
-                Log.d("DayViewModel", "DailyRecord 수정 실패 : ${e.message}")
+                Log.e("DayViewModel", "DailyRecord 수정 실패", e)
             }
         }
     }
