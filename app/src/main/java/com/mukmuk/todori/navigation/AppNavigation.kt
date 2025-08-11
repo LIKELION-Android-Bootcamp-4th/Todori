@@ -25,11 +25,11 @@ import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
 import com.mukmuk.todori.ui.screen.login.LoginScreen
-import com.mukmuk.todori.ui.screen.login.LoginViewModel
 import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
 import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.mypage.ProfileManagementScreen
+import com.mukmuk.todori.ui.screen.splash.SplashScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateCategoryScreen
@@ -46,18 +46,19 @@ import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        startDestination = BottomNavItem.Todo.route,
+        startDestination = "splash",
         modifier = modifier
     ) {
+        composable("splash") {
+            SplashScreen(navController)
+        }
         composable(BottomNavItem.Todo.route) { TodoScreen(navController) }
         composable(BottomNavItem.Stats.route) { StatsScreen() }
         composable(BottomNavItem.Home.route) {
-            val homeViewModel: HomeViewModel = viewModel()
-            HomeScreen(viewModel = homeViewModel, navController = navController)
+            HomeScreen(navController = navController)
         }
         composable("home_setting") {
-            val homeSettingViewModel: HomeSettingViewModel = viewModel()
-            HomeSettingScreen(viewModel = homeSettingViewModel, navController = navController)
+            HomeSettingScreen(navController = navController)
         }
 
         composable(BottomNavItem.Study.route) { backStackEntry ->
@@ -117,8 +118,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             )
         }
         composable("login") {
-            val loginViewModel: LoginViewModel = viewModel()
-            LoginScreen(viewModel = loginViewModel, navController = navController)
+            LoginScreen(navController = navController)
         }
         composable("goal/create") { backStackEntry ->
             val navEntry = navController.previousBackStackEntry

@@ -1,7 +1,7 @@
 package com.mukmuk.todori.ui.screen.login
 
 enum class LoginStatus {
-    IDLE, LOADING, SUCCESS, FAILURE
+    IDLE, LOADING, SUCCESS, ERROR
 }
 
 data class LoginState(
