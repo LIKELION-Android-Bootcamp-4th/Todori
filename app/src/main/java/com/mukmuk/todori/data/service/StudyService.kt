@@ -77,6 +77,7 @@ class StudyService(
                 studyTodoId = data["studyTodoId"] as? String ?: "",
                 studyId = data["studyId"] as? String ?: "",
                 uid = data["uid"] as? String ?: "",
+                date = data["date"] as? String ?: "",
                 done = isDone,
                 completedAt = data["completedAt"] as? com.google.firebase.Timestamp
             )

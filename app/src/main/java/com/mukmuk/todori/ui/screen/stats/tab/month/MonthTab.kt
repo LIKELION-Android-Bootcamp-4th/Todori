@@ -18,6 +18,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +29,6 @@ import com.mukmuk.todori.ui.screen.stats.component.MonthProgress
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import androidx.compose.runtime.mutableStateOf
-import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.Black
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -35,11 +36,39 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun MonthTab(monthRecords: List<DailyRecord>) {
+fun MonthTab(
+    uid: String
+) {
     var selectedMonth by remember {
         mutableStateOf(LocalDate.parse("2025-08-04"))
+    }
+    val viewModel: MonthViewModel = hiltViewModel()
+    val state by viewModel.monthState.collectAsState()
+
+    LaunchedEffect(selectedMonth) {
+        viewModel.loadTodoStats(
+            uid = uid,
+            year = selectedMonth.year,
+            month = selectedMonth.monthNumber
+        )
+        viewModel.loadGoalStats(
+            uid = uid,
+            year = selectedMonth.year,
+            month = selectedMonth.monthNumber
+        )
+        viewModel.loadStudyTodosStats(
+            uid = uid,
+            year = selectedMonth.year,
+            month = selectedMonth.monthNumber
+        )
+        viewModel.loadStudyTimeStats(
+            uid = uid,
+            year = selectedMonth.year,
+            month = selectedMonth.monthNumber
+        )
     }
 
     Column(
@@ -97,16 +126,21 @@ fun MonthTab(monthRecords: List<DailyRecord>) {
             }
         }
 
-        val filteredMonthly = remember(selectedMonth, monthRecords) {
-            monthRecords.filter {
-                val recordDate = LocalDate.parse(it.date)
-                recordDate.year == selectedMonth.year &&
-                        recordDate.monthNumber == selectedMonth.monthNumber
-            }
-        }
-
-        MonthCard(record = filteredMonthly)
+        MonthCard(
+            completedTodos = state.completedTodos,
+            totalTodos = state.totalTodos,
+            completedGoals = state.completedGoals,
+            avgStudyTimeMillis = state.avgStudyTimeMillis,
+            totalStudyTimeMillis = state.totalStudyTimeMillis
+        )
         Spacer(modifier = Modifier.height(Dimens.Large))
-        MonthProgress(record = filteredMonthly)
+        MonthProgress(
+            completedTodos = state.completedTodos,
+            totalTodos = state.totalTodos,
+            completedGoals = state.completedGoals,
+            totalGoals = state.totalGoals,
+            completedStudyTodos = state.completedStudyTodos,
+            totalStudyTodos = state.totalStudyTodos
+        )
     }
 }
