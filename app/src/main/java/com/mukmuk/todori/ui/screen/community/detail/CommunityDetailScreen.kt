@@ -165,31 +165,34 @@ fun CommunityDetailScreen(
 
                 Button(
                     onClick = {
-                        if(state.replyToCommentId != null){
-                            viewModel.createCommentReply(postId,
-                                state.replyToCommentId!!, StudyPostComment(
-                                commentId = "",
-                                studyId = "",
-                                uid = "",
-                                nickname = "",
-                                content = commentContent,
-                                createdAt = Timestamp.now()
-                            ))
-                        }
-                        else {
-                            viewModel.createComment(
-                                postId, StudyPostComment(
-                                    commentId = "",
-                                    studyId = "",
-                                    uid = "",
-                                    nickname = "",
-                                    content = commentContent,
-                                    createdAt = Timestamp.now()
+                        if(commentContent.isNotBlank()) {
+                            if (state.replyToCommentId != null) {
+                                viewModel.createCommentReply(
+                                    postId,
+                                    state.replyToCommentId!!, StudyPostComment(
+                                        commentId = "",
+                                        studyId = "",
+                                        uid = "",
+                                        nickname = "",
+                                        content = commentContent,
+                                        createdAt = Timestamp.now()
+                                    )
                                 )
-                            )
+                            } else {
+                                viewModel.createComment(
+                                    postId, StudyPostComment(
+                                        commentId = "",
+                                        studyId = "",
+                                        uid = "",
+                                        nickname = "",
+                                        content = commentContent,
+                                        createdAt = Timestamp.now()
+                                    )
+                                )
+                            }
+                            commentContent = ""
+                            viewModel.getComments(postId)
                         }
-                        commentContent = ""
-                        viewModel.getComments(postId)
                     },
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
