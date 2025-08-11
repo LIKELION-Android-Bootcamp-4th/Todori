@@ -11,8 +11,16 @@ import javax.inject.Inject
 class StudyRepository @Inject constructor(
     private val studyService: StudyService
 ) {
-    suspend fun createStudy(study: Study, leaderMember: StudyMember) =
-        studyService.createStudy(study, leaderMember)
+    suspend fun createStudy(study: Study, leaderMember: StudyMember,uid: String) {
+        val myStudy = MyStudy(
+            studyId = study.studyId,
+            studyName = study.studyName,
+            joinedAt = study.createdAt,
+            role = leaderMember.role,
+            nickname = leaderMember.nickname,
+        )
+        studyService.createStudy(study, leaderMember, myStudy,uid)
+    }
 
     suspend fun getMyStudies(uid: String): List<MyStudy> =
         studyService.getMyStudies(uid)

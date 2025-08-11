@@ -140,8 +140,7 @@ fun WeekCalendar(
                             text = date.dayOfMonth.toString(),
                             color = when {
                                 isSelected -> Black
-                                isToday -> White
-                                date > today -> Gray
+                                isToday -> Black
                                 else -> Black
                             }
                         )
