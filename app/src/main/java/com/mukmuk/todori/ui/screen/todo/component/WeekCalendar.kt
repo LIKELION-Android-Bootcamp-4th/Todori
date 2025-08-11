@@ -47,7 +47,8 @@ fun WeekCalendar(
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
     studyRecordsMillis: Map<LocalDate, Long>,
-    onWeekVisible: (start: LocalDate, end: LocalDate) -> Unit
+    onWeekVisible: (start: LocalDate, end: LocalDate) -> Unit,
+    anchorDate: LocalDate = selectedDate
 ) {
     val startPage = 10_000
     val pagerState = rememberPagerState(pageCount = { Int.MAX_VALUE })
@@ -55,15 +56,19 @@ fun WeekCalendar(
 
     LaunchedEffect(Unit) { pagerState.scrollToPage(startPage) }
 
+    LaunchedEffect(anchorDate) {
+        pagerState.scrollToPage(startPage)
+        val weekStart = anchorDate.startOfWeek()
+        onWeekVisible(weekStart, weekStart.plus(6, DateTimeUnit.DAY))
+    }
 
-    LaunchedEffect(pagerState) {
+    LaunchedEffect(pagerState, anchorDate) {
+        val base = anchorDate.startOfWeek()
         snapshotFlow { pagerState.currentPage }
             .distinctUntilChanged()
             .collect { pageIndex ->
-                val weekStart = today.startOfWeek()
-                    .plus((pageIndex - startPage) * 7, DateTimeUnit.DAY)
-                val weekEnd = weekStart.plus(6, DateTimeUnit.DAY)
-                onWeekVisible(weekStart, weekEnd)
+                val weekStart = base.plus((pageIndex - startPage) * 7, DateTimeUnit.DAY)
+                onWeekVisible(weekStart, weekStart.plus(6, DateTimeUnit.DAY))
             }
     }
 
@@ -86,9 +91,8 @@ fun WeekCalendar(
                 .fillMaxWidth()
                 .height(40.dp)
         ) { pageIndex ->
-            val weekStart = today.startOfWeek()
-                .plus((pageIndex - startPage) * 7, DateTimeUnit.DAY)
-
+            val base = anchorDate.startOfWeek()
+            val weekStart = base.plus((pageIndex - startPage) * 7, DateTimeUnit.DAY)
             val weekDates = (0..6).map { weekStart.plus(it, DateTimeUnit.DAY) }
 
             Row(

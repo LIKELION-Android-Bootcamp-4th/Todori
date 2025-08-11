@@ -44,10 +44,6 @@ fun TodoScreen(navController: NavHostController) {
     val viewModel: TodoViewModel = hiltViewModel()
     val selectedDate by viewModel.selectedDate.collectAsState()
     val studyRecordsMillis by viewModel.studyRecordsMillis.collectAsState()
-//
-//    var selectedDate by remember {
-//        mutableStateOf(Clock.System.todayIn(TimeZone.currentSystemDefault()))
-//    }
     var selectedTabIndex by remember { mutableStateOf(0) }
 
     val tabs = listOf("개인", "목표", "스터디")
@@ -85,7 +81,8 @@ fun TodoScreen(navController: NavHostController) {
             selectedDate = selectedDate,
             onDateSelected = { viewModel.setSelectedDate(it) },
             studyRecordsMillis = studyRecordsMillis,
-            onWeekVisible = { start, end -> viewModel.onWeekVisible(uid, start, end) }
+            onWeekVisible = { start, end -> viewModel.onWeekVisible(uid, start, end) },
+            anchorDate = selectedDate
         )
 
         //탭 생성
