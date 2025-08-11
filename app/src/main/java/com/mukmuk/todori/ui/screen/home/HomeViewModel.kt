@@ -72,7 +72,6 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        loadTodosForHomeScreen(currentUid, currentDate)
         loadDailyRecordAndSetTotalTime(currentUid, currentDate)
     }
 
@@ -163,9 +162,13 @@ class HomeViewModel @Inject constructor(
             _state.update { it.copy(totalRecordTimeMills = newRecordTime) }
             recordRepository.saveTotalRecordTime(newRecordTime)
 
+            val dailyRecord = DailyRecord(
+                date = currentDate.toString(),
+                studyTimeMillis = _state.value.totalStudyTimeMills
+            )
             try {
                 todoRepository.updateTodo(uid, updated)
-                loadTodosForHomeScreen(uid, LocalDate.parse(todo.date))
+                homeRepository.updateDailyRecord(currentUid, dailyRecord)
             } catch (e: Exception) {
                 Log.e("todorilog", e.toString())
             }
@@ -246,24 +249,11 @@ class HomeViewModel @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun loadTodosForHomeScreen(uid: String, date: LocalDate) {
-        viewModelScope.launch {
-            try {
-                val todos = todoRepository.getTodosByDate(uid, date)
-                _todoList.value = todos
-            } catch (e: Exception) {
-                _todoList.value = emptyList()
-            }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
     fun toggleTodoCompleted(uid: String, todo: Todo) {
         viewModelScope.launch {
             val updated = todo.copy(completed = !todo.completed)
             try {
                 todoRepository.updateTodo(uid, updated)
-                loadTodosForHomeScreen(uid, LocalDate.parse(todo.date))
             } catch (e: Exception) {
                 Log.e("todorilog", e.toString())
             }
@@ -281,9 +271,12 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
     fun startObservingTodos(uid: String) {
+        val today = LocalDate.now()
         todoRepository.observeTodos(uid) { updatedTodos ->
-            _todoList.value = updatedTodos
+            val filteredTodos = updatedTodos.filter { it.date == today.toString() }
+            _todoList.value = filteredTodos.sortedBy { it.completed }
         }
     }
 }

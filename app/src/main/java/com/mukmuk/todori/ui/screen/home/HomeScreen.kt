@@ -72,6 +72,7 @@ fun HomeScreen(navController: NavHostController) {
     var selectedIndex by remember { mutableStateOf(-1) }
     var recordTime by remember { mutableStateOf(0L) }
     var recordButtonText by remember { mutableStateOf("기록") }
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
 
     LaunchedEffect(state.status == TimerStatus.RECORDING) {
         if (state.status != TimerStatus.RECORDING) {
@@ -85,8 +86,6 @@ fun HomeScreen(navController: NavHostController) {
     LaunchedEffect("testuser") {
         viewModel.startObservingTodos("testuser")
     }
-
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
 
     LaunchedEffect(savedStateHandle) {
         savedStateHandle?.getLiveData<HomeSettingState>("homeSetting")
@@ -251,7 +250,7 @@ fun HomeScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(todoList) { todo ->
+                    items(todoList, key = {it.todoId}) { todo ->
                         MainTodoItemEditableRow(
                             title = todo.title,
                             isDone = todo.completed,
