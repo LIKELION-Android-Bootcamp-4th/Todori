@@ -41,6 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
@@ -65,7 +67,8 @@ fun GoalDetailScreen(
     navController: NavHostController,
     onBack: ()-> Unit
 ) {
-    val uid = "testuser"
+//    val uid = "testuser"
+    val uid = Firebase.auth.currentUser?.uid.toString()
     val viewModel: GoalDetailViewModel = hiltViewModel()
 
     val state by viewModel.state.collectAsState()

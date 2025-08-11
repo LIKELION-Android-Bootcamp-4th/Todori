@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.todo.component
 
+import android.R.attr.level
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
@@ -35,6 +37,7 @@ fun MemberProgressCard(
     members: List<StudyMember>,
     todos: List<StudyTodo>,
     progresses: Map<String, Map<String, TodoProgress>>,
+    usersById: Map<String, User>,
     onClick: () -> Unit
 ) {
     val memberProgressList = members.map { member ->
@@ -77,11 +80,13 @@ fun MemberProgressCard(
 
             Column(modifier = Modifier.fillMaxWidth()) {
                 memberProgressList.forEach { (member, completed, progress) ->
+                    val level = usersById[member.uid]?.level ?: 1
                     MemberProgressRow(
                         member = member,
                         completed = completed,
                         total = todos.size,
-                        progress = progress
+                        progress = progress,
+                        level = level,
                     )
                 }
             }

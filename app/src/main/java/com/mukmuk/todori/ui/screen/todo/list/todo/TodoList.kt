@@ -10,6 +10,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.ui.screen.todo.component.TodoCard
 import com.mukmuk.todori.util.toJavaLocalDate
 import kotlinx.datetime.LocalDate
@@ -21,7 +23,9 @@ fun TodoList(selectedDate: LocalDate, navController: NavHostController) {
 
 
     val state by viewModel.state.collectAsState()
-    val uid = "testuser"
+//    val uid = "testuser"
+
+    val uid = Firebase.auth.currentUser?.uid.toString()
 
     LaunchedEffect(selectedDate) {
         viewModel.loadTodoList(uid, selectedDate.toJavaLocalDate())

@@ -33,6 +33,7 @@ fun MemberProgressDetailScreen(
     val members = state.members
     val todos = state.todos
     val progresses = state.progresses
+    val usersById = state.usersById
     val progressMap = progresses.groupBy { it.uid }
         .mapValues { it.value.associateBy { p -> p.studyTodoId } }
 
@@ -63,17 +64,19 @@ fun MemberProgressDetailScreen(
         LazyColumn(
             Modifier.fillMaxSize().padding(Dimens.Tiny)
         ) {
-            items(filteredMembers) { member ->
+            items(filteredMembers, key = { it.uid }) { member ->
                 val todoProgresses = progressMap[member.uid] ?: emptyMap()
                 val completedCount = todoProgresses.values.count { it.done }
                 val totalCount = todos.size
                 val progress = if (totalCount > 0) completedCount / totalCount.toFloat() else 0f
+                val level = usersById[member.uid]?.level ?: 1
 
                 MemberProgressRow(
                     member = member,
                     completed = completedCount,
                     total = todos.size,
                     progress = progress,
+                    level = level,
                     modifier = Modifier.fillMaxWidth().padding(Dimens.Tiny)
                 )
             }

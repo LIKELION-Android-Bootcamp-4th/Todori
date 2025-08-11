@@ -15,14 +15,19 @@ class StudyService(
 ) {
     private fun studiesRef(): CollectionReference = firestore.collection("studies")
 
-    suspend fun createStudy(study: Study, leaderMember: StudyMember): String {
+    suspend fun createStudy(study: Study, leaderMember: StudyMember,myStudy: MyStudy,uid: String): String {
         val ref = studiesRef().document()
         val autoId = ref.id
         val studyWithId = study.copy(studyId = autoId)
+        val leaderMemberWithStudyId = leaderMember.copy(studyId = autoId)
+        val myStudyWithStudyId = myStudy.copy(studyId = autoId)
         ref.set(studyWithId, SetOptions.merge()).await()
-        ref.collection("members").document(leaderMember.uid)
-            .set(leaderMember, SetOptions.merge()).await()
+        firestore.collection("studyMembers").document("${autoId}_${leaderMember.uid}")
+            .set(leaderMemberWithStudyId, SetOptions.merge()).await()
+        firestore.collection("users").document(uid).collection("myStudies").document(autoId)
+            .set(myStudyWithStudyId, SetOptions.merge()).await()
         return autoId
+
     }
 
     suspend fun getMyStudies(uid: String): List<MyStudy> {

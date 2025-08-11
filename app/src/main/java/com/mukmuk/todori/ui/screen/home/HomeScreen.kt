@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,6 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.navigation.BottomNavItem
 import com.mukmuk.todori.ui.screen.home.components.MainTodoItemEditableRow
 import com.mukmuk.todori.ui.screen.home.components.PomoModeTextBox
@@ -83,8 +87,25 @@ fun HomeScreen(navController: NavHostController) {
             recordButtonText = "취소"
         }
     }
-    LaunchedEffect("testuser") {
-        viewModel.startObservingTodos("testuser")
+
+    val auth = Firebase.auth
+    DisposableEffect(auth) {
+        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user != null) {
+                viewModel.loadProfile(user.uid)
+                viewModel.loadDailyRecordAndSetTotalTime(user.uid, LocalDate.now())
+                viewModel.startObservingTodos(user.uid)
+            } else {
+                navController.navigate("login") {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
+        auth.addAuthStateListener(listener)
+        onDispose {
+            auth.removeAuthStateListener(listener)
+        }
     }
 
     LaunchedEffect(savedStateHandle) {
@@ -250,7 +271,7 @@ fun HomeScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(todoList, key = {it.todoId}) { todo ->
+                    items(todoList, key = { it.todoId }) { todo ->
                         MainTodoItemEditableRow(
                             title = todo.title,
                             isDone = todo.completed,
@@ -261,11 +282,15 @@ fun HomeScreen(navController: NavHostController) {
                                 null
                             },
                             onCheckedChange = { checked ->
-                                viewModel.toggleTodoCompleted(uid = "testuser", todo = todo)
+                                viewModel.toggleTodoCompleted(uid = state.uid, todo = todo)
                             },
                             onItemClick = {
                                 if (state.status == TimerStatus.RECORDING && !todo.completed) {
-                                    viewModel.setTotalRecordTimeMills(recordTime, uid = "testuser", todo = todo)
+                                    viewModel.setTotalRecordTimeMills(
+                                        recordTime,
+                                        uid = state.uid,
+                                        todo = todo
+                                    )
                                     viewModel.onEvent(TimerEvent.Stop)
                                 }
                             }
