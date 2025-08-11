@@ -2,7 +2,9 @@ package com.mukmuk.todori.ui.screen.todo.create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.StudyRepository
@@ -29,7 +31,9 @@ class StudyViewModel @Inject constructor(
             // val user = FirebaseAuth.getInstance().currentUser
             // val leaderId = user?.uid ?: throw Exception("로그인 필요")
 
-            val leaderId = "testuser"
+//            val leaderId = "testuser"
+            val leaderId = Firebase.auth.currentUser?.uid.toString()
+
             val leaderNickname = "edittest"
             try {
                 val now = Timestamp.now()
@@ -50,7 +54,7 @@ class StudyViewModel @Inject constructor(
                     joinedAt = now
                 )
 
-                repository.createStudy(study, leaderMember)
+                repository.createStudy(study, leaderMember,leaderId)
 
                 withContext(Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {

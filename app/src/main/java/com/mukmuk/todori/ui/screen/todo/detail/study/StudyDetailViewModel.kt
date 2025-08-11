@@ -7,6 +7,7 @@ import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.data.repository.StudyRepository
+import com.mukmuk.todori.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StudyDetailViewModel @Inject constructor(
-    private val studyRepository: StudyRepository
+    private val studyRepository: StudyRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(StudyDetailState())
@@ -34,12 +36,21 @@ class StudyDetailViewModel @Inject constructor(
                 } else {
                     studyRepository.getMyAllProgresses(uid).filter { it.studyId == studyId }
                 }
+
+                val current = _state.value.usersById
+                val targetUids = members.map { it.uid }.toSet()
+                val missing = targetUids - current.keys
+                val fetched = if (missing.isNotEmpty()) {
+                    userRepository.getUsers(missing).associateBy { it.uid }
+                } else emptyMap()
+
                 _state.value = _state.value.copy(
                     isLoading = false,
                     study = study,
                     members = members,
                     todos = todos,
                     progresses = progresses,
+                    usersById = current + fetched,
                     error = null
                 )
             } catch (e: Exception) {

@@ -1,7 +1,6 @@
 package com.mukmuk.todori.ui.screen.todo.list.study
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
@@ -10,7 +9,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.ui.screen.todo.component.StudyCard
 import kotlinx.datetime.LocalDate
 
@@ -19,9 +20,9 @@ import kotlinx.datetime.LocalDate
 @Composable
 fun StudyTodoList(selectedDate: LocalDate,navController: NavHostController) {
     val viewModel: StudyListViewModel = hiltViewModel()
-    val uid = "testuser"
+//    val uid = "testuser"
 
-    Log.d("TODORI", "selectedDate = $selectedDate")
+    val uid = Firebase.auth.currentUser?.uid.toString()
 
     val state by viewModel.state.collectAsState()
 
