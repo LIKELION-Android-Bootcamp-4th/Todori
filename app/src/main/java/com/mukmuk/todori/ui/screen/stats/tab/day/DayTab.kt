@@ -38,7 +38,6 @@ fun DayTab(
         }
     }
     val recordForSelected = recordFromList ?: fetchedRecord
-    val selectedReflection = fetchedRecord?.reflection.toString()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

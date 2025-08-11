@@ -93,6 +93,7 @@ class DayViewModel @Inject constructor(
                 val updatedRecord = record.copy(reflection = newReflection)
 
                 dailyRecordRepository.updateDailyRecord(uid, updatedRecord)
+                refreshSelected()
             } catch (e: Exception) {
                 Log.e("DayViewModel", "DailyRecord 수정 실패", e)
             }
