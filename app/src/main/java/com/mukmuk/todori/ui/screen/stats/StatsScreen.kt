@@ -28,22 +28,6 @@ import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.UserPrimary
 
-//더미데이터
-val records = listOf(
-    DailyRecord("2025-07-24", "11111", 35432, null),
-    DailyRecord("2025-07-25", "11111", 21541, null),
-    DailyRecord("2025-07-26", "11111", 1513, null),
-    DailyRecord("2025-07-27", "11111", 38414, null),
-    DailyRecord("2025-07-28", "11111", 7100, null),
-    DailyRecord("2025-07-29", "11111", 1479, "오늘은 뭔가 부족하다"),
-    DailyRecord("2025-07-30", "11111", 12955, null),
-    DailyRecord("2025-07-31", "11111", 20201, null),
-    DailyRecord("2025-08-01", "11111", 12447, "투두 모두 완료ㅎㅎ"),
-    DailyRecord("2025-08-02", "11111", 0, "복습하자"),
-    DailyRecord("2025-08-03", "11111", 35431, null),
-    DailyRecord("2025-08-04", "11111", 12437, null),
-    DailyRecord("2025-08-05", "11111", 2249, "오류지옥")
-)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -79,8 +63,8 @@ fun StatsScreen() {
         }
 
         when (selectedTabIndex) {
-            0 -> DayTab(dayRecords = records)
-            1 -> WeekTab(weekRecords = records)
+            0 -> DayTab()
+            1 -> WeekTab()
             2 -> MonthTab(uid = uid)
         }
     }

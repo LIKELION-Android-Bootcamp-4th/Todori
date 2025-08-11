@@ -41,7 +41,7 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeekTab(weekRecords: List<DailyRecord>) {
+fun WeekTab() {
     var selectedWeek by remember {
         mutableStateOf(LocalDate.now())
     }

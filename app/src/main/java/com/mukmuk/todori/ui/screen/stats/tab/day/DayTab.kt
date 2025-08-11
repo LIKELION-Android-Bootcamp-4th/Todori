@@ -1,7 +1,6 @@
 package com.mukmuk.todori.ui.screen.stats.tab.day
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,12 +9,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.screen.stats.component.CalendarCard
 import com.mukmuk.todori.ui.screen.stats.component.DayStatsCard
@@ -24,12 +23,21 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DayTab(dayRecords: List<DailyRecord>) {
-    var selectedDay by remember { mutableStateOf(LocalDate.now()) }
+fun DayTab(
+) {
+    val viewModel: DayViewModel = hiltViewModel()
+    val fetchedRecord by viewModel.selectedRecord.collectAsState()
+    val monthRecords by viewModel.monthRecords.collectAsState()
+    val selectedDay by viewModel.selectedDate.collectAsState()
+    val todos by viewModel.todos.collectAsState()
 
-    Log.d("aa", "선택날짜 : $selectedDay")
+    val recordFromList = remember(selectedDay, monthRecords) {
+        monthRecords.firstOrNull {
+            runCatching { LocalDate.parse(it.date.trim()) }.getOrNull() == selectedDay
+        }
+    }
+    val recordForSelected = recordFromList ?: fetchedRecord
 
-    val todayRecord = dayRecords.firstOrNull { LocalDate.parse(it.date) == selectedDay }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -38,15 +46,23 @@ fun DayTab(dayRecords: List<DailyRecord>) {
             .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(Dimens.XLarge))
+
         CalendarCard(
-            record = dayRecords,
+            record = monthRecords,
             selectedDate = selectedDay,
-            onDateSelected = { selectedDay = it })
+            onDateSelected = viewModel::onDateSelected,
+            onMonthChanged = { ym -> viewModel.onMonthChanged(ym) }
+        )
+
         Spacer(modifier = Modifier.height(Dimens.Large))
-//        todayRecord?.let {
-//            DayStatsCard(record = it)
-//        }
-        DayStatsCard(record = dayRecords[11])
+
+        DayStatsCard(
+            selectedDate = selectedDay,
+            studyTimeMillis = recordForSelected?.studyTimeMillis ?: 0L,
+            reflection = recordForSelected?.reflection,
+            todos = todos
+        )
+
         Spacer(modifier = Modifier.height(Dimens.Large))
     }
 }
