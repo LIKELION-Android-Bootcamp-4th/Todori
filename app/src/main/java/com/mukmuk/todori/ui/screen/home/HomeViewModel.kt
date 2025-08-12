@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.data.local.datastore.RecordRepository
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
@@ -72,6 +74,22 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             recordRepository.totalRecordTimeFlow.collectLatest { savedTime ->
                 _state.update { it.copy(totalRecordTimeMills = savedTime) }
+            }
+        }
+    }
+
+    private var hasLoaded = false
+
+    fun observeAuthAndLoadData() {
+        val auth = Firebase.auth
+        auth.addAuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user != null && !hasLoaded) {
+                hasLoaded = true
+                Log.d("todorilog", "호출")
+                loadProfile(user.uid)
+                loadDailyRecordAndSetTotalTime(user.uid, LocalDate.now())
+                startObservingTodos(user.uid)
             }
         }
     }

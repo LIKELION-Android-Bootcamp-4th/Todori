@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.home
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.firebase.Firebase
@@ -67,8 +71,7 @@ import java.util.concurrent.TimeUnit
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController) {
-    val viewModel: HomeViewModel = hiltViewModel()
+fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel) {
     val state by viewModel.state.collectAsState()
     val homeSettingState by viewModel.homeSettingState.collectAsState()
     val todoList by viewModel.todoList.collectAsState()
@@ -77,6 +80,23 @@ fun HomeScreen(navController: NavHostController) {
     var recordTime by remember { mutableStateOf(0L) }
     var recordButtonText by remember { mutableStateOf("기록") }
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var isUiVisible by remember { mutableStateOf(true) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> isUiVisible = true
+                Lifecycle.Event.ON_PAUSE -> isUiVisible = false
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(state.status == TimerStatus.RECORDING) {
         if (state.status != TimerStatus.RECORDING) {
@@ -88,24 +108,8 @@ fun HomeScreen(navController: NavHostController) {
         }
     }
 
-    val auth = Firebase.auth
-    DisposableEffect(auth) {
-        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            val user = firebaseAuth.currentUser
-            if (user != null) {
-                viewModel.loadProfile(user.uid)
-                viewModel.loadDailyRecordAndSetTotalTime(user.uid, LocalDate.now())
-                viewModel.startObservingTodos(user.uid)
-            } else {
-                navController.navigate("login") {
-                    popUpTo(0) { inclusive = true }
-                }
-            }
-        }
-        auth.addAuthStateListener(listener)
-        onDispose {
-            auth.removeAuthStateListener(listener)
-        }
+    LaunchedEffect(Unit) {
+        viewModel.observeAuthAndLoadData()
     }
 
     LaunchedEffect(savedStateHandle) {
@@ -115,6 +119,7 @@ fun HomeScreen(navController: NavHostController) {
             }
     }
 
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -123,7 +128,6 @@ fun HomeScreen(navController: NavHostController) {
                 actions = {
                     IconButton(onClick = {
                         navController.navigate("home_setting")
-                        viewModel.onEvent(TimerEvent.Stop) // 타이머 멈춤
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Settings,
@@ -141,161 +145,163 @@ fun HomeScreen(navController: NavHostController) {
                 .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "누적 공부 시간",
-                    style = AppTextStyle.BodyLarge
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = totalFormatTime(state.totalStudyTimeMills),
-                    style = AppTextStyle.Timer,
-                    textAlign = TextAlign.Center
-                )
-            }
-            if (homeSettingState.isPomodoroEnabled) {
+            if (isUiVisible) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    PomoModeTextBox(state.pomodoroMode)
-                    Spacer(modifier = Modifier.width(Dimens.Large))
                     Text(
-                        text = pomodoroFormatTime(state.timeLeftInMillis),
-                        style = AppTextStyle.TitleLarge,
+                        text = "누적 공부 시간",
+                        style = AppTextStyle.BodyLarge
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = totalFormatTime(state.totalStudyTimeMills),
+                        style = AppTextStyle.Timer,
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.width(Dimens.Large))
-                    IconButton(
-                        onClick = { viewModel.onEvent(TimerEvent.Reset) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Refresh,
-                            contentDescription = "Timer Reset"
-                        )
-                    }
-
                 }
-            }
-            Spacer(modifier = Modifier.height(Dimens.XXLarge))
-            Row {
-                Button(
-                    onClick = {
-                        if (state.status == TimerStatus.RUNNING) {
-                            viewModel.onEvent(TimerEvent.Record)
-                            recordTime = state.totalStudyTimeMills - state.totalRecordTimeMills
-                        } else {
-                            viewModel.onEvent(TimerEvent.Stop)
+                if (homeSettingState.isPomodoroEnabled) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        PomoModeTextBox(state.pomodoroMode)
+                        Spacer(modifier = Modifier.width(Dimens.Large))
+                        Text(
+                            text = pomodoroFormatTime(state.timeLeftInMillis),
+                            style = AppTextStyle.TitleLarge,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(Dimens.Large))
+                        IconButton(
+                            onClick = { viewModel.onEvent(TimerEvent.Reset) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Refresh,
+                                contentDescription = "Timer Reset"
+                            )
                         }
-                    },
-                    modifier = Modifier.size(76.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Gray,
-                        contentColor = Black
-                    ),
-                    shape = CircleShape
-                ) {
-                    Text(text = recordButtonText, style = AppTextStyle.TitleSmall)
-                }
-                Spacer(modifier = Modifier.width(Dimens.XXLarge))
-                if (state.status == TimerStatus.RUNNING) {
-                    Button(
-                        onClick = { viewModel.onEvent(TimerEvent.Stop) },
-                        shape = CircleShape,
-                        modifier = Modifier.size(76.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = UserPrimary)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Pause,
-                            contentDescription = "Time Start",
-                            modifier = Modifier.size(50.dp),
-                            tint = Color.White
-                        )
+
                     }
-                } else {
+                }
+                Spacer(modifier = Modifier.height(Dimens.XXLarge))
+                Row {
                     Button(
                         onClick = {
-                            viewModel.onEvent(TimerEvent.Start)
-                            if (state.status == TimerStatus.RECORDING) viewModel.onEvent(TimerEvent.Stop)
+                            if (state.status == TimerStatus.RUNNING) {
+                                viewModel.onEvent(TimerEvent.Record)
+                                recordTime = state.totalStudyTimeMills - state.totalRecordTimeMills
+                            } else {
+                                viewModel.onEvent(TimerEvent.Stop)
+                            }
                         },
-                        shape = CircleShape,
                         modifier = Modifier.size(76.dp),
                         contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = UserPrimary)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray,
+                            contentColor = Black
+                        ),
+                        shape = CircleShape
                     ) {
-                        Icon(
-                            imageVector = Icons.Rounded.PlayArrow,
-                            contentDescription = "Time Start",
-                            modifier = Modifier.size(50.dp),
-                            tint = Color.White
-                        )
+                        Text(text = recordButtonText, style = AppTextStyle.TitleSmall)
+                    }
+                    Spacer(modifier = Modifier.width(Dimens.XXLarge))
+                    if (state.status == TimerStatus.RUNNING) {
+                        Button(
+                            onClick = { viewModel.onEvent(TimerEvent.Stop) },
+                            shape = CircleShape,
+                            modifier = Modifier.size(76.dp),
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = UserPrimary)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Pause,
+                                contentDescription = "Time Start",
+                                modifier = Modifier.size(50.dp),
+                                tint = Color.White
+                            )
+                        }
+                    } else {
+                        Button(
+                            onClick = {
+                                viewModel.onEvent(TimerEvent.Start)
+                                if (state.status == TimerStatus.RECORDING) viewModel.onEvent(TimerEvent.Stop)
+                            },
+                            shape = CircleShape,
+                            modifier = Modifier.size(76.dp),
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = UserPrimary)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.PlayArrow,
+                                contentDescription = "Time Start",
+                                modifier = Modifier.size(50.dp),
+                                tint = Color.White
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(Dimens.XXLarge))
+
+                    Button(
+                        onClick = {
+                            if (state.status == TimerStatus.RECORDING) viewModel.onEvent(TimerEvent.Stop)
+                        },
+                        modifier = Modifier.size(76.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray,
+                            contentColor = Black
+                        ),
+                        shape = CircleShape
+                    ) {
+                        Text(text = "추가", style = AppTextStyle.TitleSmall)
                     }
                 }
-
-                Spacer(modifier = Modifier.width(Dimens.XXLarge))
-
-                Button(
-                    onClick = {
-                        if (state.status == TimerStatus.RECORDING) viewModel.onEvent(TimerEvent.Stop)
-                    },
-                    modifier = Modifier.size(76.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Gray,
-                        contentColor = Black
-                    ),
-                    shape = CircleShape
+                Spacer(modifier = Modifier.height(Dimens.XXLarge))
+                Spacer(
+                    modifier = Modifier
+                        .height(1.dp)
+                        .fillMaxWidth()
+                        .background(Gray)
+                )
+                Spacer(modifier = Modifier.height(Dimens.XXLarge))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimens.Medium),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "추가", style = AppTextStyle.TitleSmall)
-                }
-            }
-            Spacer(modifier = Modifier.height(Dimens.XXLarge))
-            Spacer(
-                modifier = Modifier
-                    .height(1.dp)
-                    .fillMaxWidth()
-                    .background(Gray)
-            )
-            Spacer(modifier = Modifier.height(Dimens.XXLarge))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimens.Medium),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(todoList, key = { it.todoId }) { todo ->
-                        MainTodoItemEditableRow(
-                            title = todo.title,
-                            isDone = todo.completed,
-                            isRecordMode = state.status == TimerStatus.RECORDING,
-                            recordTime = if (todo.totalFocusTimeMillis > 0L) {
-                                totalFormatTime(todo.totalFocusTimeMillis)
-                            } else {
-                                null
-                            },
-                            onCheckedChange = { checked ->
-                                viewModel.toggleTodoCompleted(uid = state.uid, todo = todo)
-                            },
-                            onItemClick = {
-                                if (state.status == TimerStatus.RECORDING && !todo.completed) {
-                                    viewModel.setTotalRecordTimeMills(
-                                        recordTime,
-                                        uid = state.uid,
-                                        todo = todo
-                                    )
-                                    viewModel.onEvent(TimerEvent.Stop)
+                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                        items(todoList, key = { it.todoId }) { todo ->
+                            MainTodoItemEditableRow(
+                                title = todo.title,
+                                isDone = todo.completed,
+                                isRecordMode = state.status == TimerStatus.RECORDING,
+                                recordTime = if (todo.totalFocusTimeMillis > 0L) {
+                                    totalFormatTime(todo.totalFocusTimeMillis)
+                                } else {
+                                    null
+                                },
+                                onCheckedChange = { checked ->
+                                    viewModel.toggleTodoCompleted(uid = state.uid, todo = todo)
+                                },
+                                onItemClick = {
+                                    if (state.status == TimerStatus.RECORDING && !todo.completed) {
+                                        viewModel.setTotalRecordTimeMills(
+                                            recordTime,
+                                            uid = state.uid,
+                                            todo = todo
+                                        )
+                                        viewModel.onEvent(TimerEvent.Stop)
+                                    }
                                 }
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(Dimens.Medium))
+                            )
+                            Spacer(modifier = Modifier.height(Dimens.Medium))
+                        }
                     }
                 }
             }

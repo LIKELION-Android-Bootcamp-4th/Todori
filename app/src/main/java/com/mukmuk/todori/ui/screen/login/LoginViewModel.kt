@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.repository.AuthRepository
 import com.mukmuk.todori.data.repository.UserRepository
@@ -18,10 +19,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     var state by mutableStateOf(LoginState())
@@ -69,6 +72,17 @@ class LoginViewModel @Inject constructor(
                 state = state.copy(status = LoginStatus.ERROR, errorMessage = e.localizedMessage)
             }
         }
+    }
+
+    fun loginWithTestAccount(
+        email: String = "test@test.com",
+        password: String = "test1234",
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { e -> onError(e.message ?: "로그인 실패") }
     }
 
     fun kakaoLogin(context: Context) {
