@@ -22,7 +22,11 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
-import java.time.LocalDate
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -31,12 +35,15 @@ fun WeekProgress(
     allTodos: List<Todo>,
     completedTodos: List<Todo>
 ) {
-    Column() {
-
+    Column {
         val weekDays = listOf("일", "월", "화", "수", "목", "금", "토")
 
-        val sunday = week.minusDays(week.dayOfWeek.value % 7L)
-        val thisWeekDates = (0..6).map { sunday.plusDays(it.toLong()) }
+        val daysFromSunday = when (week.dayOfWeek) {
+            DayOfWeek.SUNDAY -> 0
+            else -> week.dayOfWeek.ordinal + 1
+        } % 7
+        val sunday = week.minus(DatePeriod(days = daysFromSunday))
+        val thisWeekDates = (0..6).map { sunday.plus(DatePeriod(days = it)) }
 
         val dailyProgress = thisWeekDates.map { date ->
             val dailyTotal = allTodos.count { it.date == date.toString() }

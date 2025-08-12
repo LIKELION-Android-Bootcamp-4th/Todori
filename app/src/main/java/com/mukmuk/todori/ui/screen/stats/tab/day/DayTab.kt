@@ -25,14 +25,23 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayTab(
-    uid : String
+    uid: String,
+    date: kotlinx.datetime.LocalDate,
+    onDateChange: (kotlinx.datetime.LocalDate) -> Unit
 ) {
-
     val viewModel: DayViewModel = hiltViewModel()
+
     val fetchedRecord by viewModel.selectedRecord.collectAsState()
     val monthRecords by viewModel.monthRecords.collectAsState()
     val selectedDay by viewModel.selectedDate.collectAsState()
     val todos by viewModel.todos.collectAsState()
+
+    LaunchedEffect(date) {
+        viewModel.onDateSelected(
+            LocalDate.of(date.year, date.monthNumber, date.dayOfMonth)
+        )
+    }
+
     val recordFromList = remember(selectedDay, monthRecords) {
         monthRecords.firstOrNull {
             runCatching { LocalDate.parse(it.date.trim()) }.getOrNull() == selectedDay
@@ -51,7 +60,12 @@ fun DayTab(
         CalendarCard(
             record = monthRecords,
             selectedDate = selectedDay,
-            onDateSelected = viewModel::onDateSelected,
+            onDateSelected = { picked ->
+                viewModel.onDateSelected(picked)
+                onDateChange(
+                    kotlinx.datetime.LocalDate(picked.year, picked.monthValue, picked.dayOfMonth)
+                )
+            },
             onMonthChanged = { ym -> viewModel.onMonthChanged(ym) }
         )
 

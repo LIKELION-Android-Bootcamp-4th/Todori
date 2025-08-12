@@ -37,25 +37,35 @@ import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import androidx.hilt.navigation.compose.hiltViewModel
-import java.time.LocalDate
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeekTab(
-    uid : String
+    uid: String,
+    date: LocalDate,
+    onDateChange: (LocalDate) -> Unit
 ) {
-    var selectedWeek by remember {
-        mutableStateOf(LocalDate.now())
-    }
-
     val viewModel: WeekViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(uid, selectedWeek) {
-        viewModel.loadWeekTodos(uid = uid, date = selectedWeek)
-        viewModel.loadWeekStudy(uid = uid, date = selectedWeek)
+    LaunchedEffect(uid, date) {
+        val jDate = java.time.LocalDate.of(date.year, date.monthNumber, date.dayOfMonth)
+        viewModel.loadWeekTodos(uid = uid, date = jDate)
+        viewModel.loadWeekStudy(uid = uid, date = jDate)
     }
 
+    val weekStart = DayOfWeek.SUNDAY
+
+    val weekNo = remember(date) {
+        val firstOfMonth = LocalDate(date.year, date.monthNumber, 1)
+        val offset = (firstOfMonth.dayOfWeek.ordinal - weekStart.ordinal + 7) % 7
+        (offset + date.dayOfMonth - 1) / 7 + 1
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -77,7 +87,7 @@ fun WeekTab(
                     modifier = Modifier.align(Alignment.CenterStart)
                 ) {
                     IconButton(onClick = {
-                        selectedWeek = selectedWeek.minusWeeks(1)
+                        onDateChange(date.minus(DatePeriod(days = 7)))
                     }) {
                         Icon(
                             Icons.Default.ArrowBack,
@@ -94,8 +104,7 @@ fun WeekTab(
                     modifier = Modifier.align(Alignment.Center)
                 ) {
                     Text(
-                        "${selectedWeek.year}년 ${selectedWeek.monthValue}월" +
-                                "${(selectedWeek.dayOfMonth - 1) / 7 + 1}주차",
+                         "${date.monthNumber}월 ${weekNo}주차",
                         style = AppTextStyle.TitleSmall
                     )
                 }
@@ -105,7 +114,7 @@ fun WeekTab(
                     modifier = Modifier.align(Alignment.CenterEnd)
                 ) {
                     IconButton(onClick = {
-                        selectedWeek = selectedWeek.plusWeeks(1)
+                        onDateChange(date.plus(DatePeriod(days = 7)))
                     }) {
                         Icon(
                             Icons.Default.ArrowForward,
@@ -128,7 +137,7 @@ fun WeekTab(
             WeekGraph(record = dailyRecordFiltered)
             Spacer(modifier = Modifier.height(Dimens.Large))
             WeekProgress(
-                week = selectedWeek,
+                week = date,
                 allTodos = state.todos,
                 completedTodos = state.completedTodoItems)
         }
