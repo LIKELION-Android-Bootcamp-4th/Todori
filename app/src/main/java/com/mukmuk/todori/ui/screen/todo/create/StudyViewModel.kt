@@ -2,7 +2,9 @@ package com.mukmuk.todori.ui.screen.todo.create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.StudyRepository
@@ -29,11 +31,12 @@ class StudyViewModel @Inject constructor(
             // val user = FirebaseAuth.getInstance().currentUser
             // val leaderId = user?.uid ?: throw Exception("로그인 필요")
 
-            val leaderId = "testuser"
+//            val leaderId = "testuser"
+            val leaderId = Firebase.auth.currentUser?.uid.toString()
+
             val leaderNickname = "edittest"
             try {
                 val now = Timestamp.now()
-                // Study 객체 생성
                 val study = Study(
                     studyName = title,
                     title = title,
@@ -41,10 +44,9 @@ class StudyViewModel @Inject constructor(
                     leaderId = leaderId,
                     createdAt = now,
                     activeDays = activeDays,
-                    isDeleted = false,
+                    deleted = false,
                 )
 
-                // StudyMember 객체 생성
                 val leaderMember = StudyMember(
                     uid = leaderId,
                     nickname = leaderNickname,
@@ -52,7 +54,7 @@ class StudyViewModel @Inject constructor(
                     joinedAt = now
                 )
 
-                repository.createStudy(study, leaderMember)
+                repository.createStudy(study, leaderMember,leaderId)
 
                 withContext(Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {
@@ -60,4 +62,25 @@ class StudyViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateStudy(editStudy: Study, newTitle: String, newDescription: String, newActiveDays: List<String>,
+        onSuccess: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val updated = editStudy.copy(
+                    studyName = newTitle,
+                    title = newTitle,
+                    description = newDescription,
+                    activeDays = newActiveDays,
+                )
+                repository.updateStudy(updated)
+                withContext(Dispatchers.Main) { onSuccess() }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) { onError(e) }
+            }
+        }
+    }
+
 }

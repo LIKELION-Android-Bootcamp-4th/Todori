@@ -11,49 +11,34 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mukmuk.todori.data.remote.goal.Goal
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.screen.mypage.component.CompletedGoalCard
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun CompletedGoalsScreen(
-    onBack: () -> Unit
-    //, user: User
-    //,completedGoals: List<Goal>
-    ) {
-    val dummyGoals = listOf(
-        Goal(
-            goalId = "1",
-            uid = "user1",
-            title = "Kotlin 정복하기",
-            description = "Compose와 Firebase까지 끝내기",
-            startDate = "2025-08-01",
-            endDate = "2025-08-02",
-            isCompleted = true
-        ),
-        Goal(
-            goalId = "2",
-            uid = "user1",
-            title = "매일 영어 공부",
-            description = "매일 30분 리딩",
-            startDate = "2025-07-15",
-            endDate = "2025-08-01",
-            isCompleted = true
-        )
-    )
+fun CompletedGoalsScreen(onBack: () -> Unit) {
+    val viewModel: CompletedGoalsViewModel = hiltViewModel()
+    val completedGoals by viewModel.goals.collectAsState()
 
-    Scaffold (
+    LaunchedEffect(Unit) {
+        viewModel.loadCompletedGoals("testuser")
+    }
+
+    Scaffold(
         topBar = {
-            SimpleTopAppBar(title = "완료한 목표 ${dummyGoals.size}", onBackClick = onBack)
+            SimpleTopAppBar(title = "완료한 목표 ${completedGoals.size}", onBackClick = onBack)
         },
         containerColor = White
-    ){ innerPadding ->
-        if (dummyGoals.isEmpty()) {
+    ) { innerPadding ->
+        if (completedGoals.isEmpty()) {
             androidx.compose.foundation.layout.Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -77,8 +62,10 @@ fun CompletedGoalsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(dummyGoals) { goal ->
-                    CompletedGoalCard(goal = goal)
+                items(completedGoals) { goal ->
+                    goal?.let {
+                        CompletedGoalCard(goal = goal)
+                    }
                 }
                 item { Spacer(modifier = Modifier.height(Dimens.Tiny)) }
             }

@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.stats.component
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,24 +17,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
+import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun WeekCard(record: List<DailyRecord>) {
-    val totalStudySeconds = record.sumOf { it.studyTimeMillis }
-    val totalCompletedTodos = 3
-    val totalTodos = 10
-    val TodoTotalPer = (totalCompletedTodos.toFloat() / totalTodos * 100).toInt()
+fun WeekCard(
+    record: List<DailyRecord>,
+    allTodos: List<Todo>,
+    completedTodos: List<Todo>
+) {
+    val totalStudyMillis = record.sumOf { it.studyTimeMillis }
+    val studiedCount = record.count { it.studyTimeMillis > 0L }
+    val TodoTotalPer = if (allTodos.isNotEmpty()) {
+        (completedTodos.size.toFloat() / allTodos.size * 100).toInt()
+    } else 0
 
-    val avgStudyMinutes = if (record.size > 1) {
-        totalStudySeconds / 60 / record.size
+    val avgStudyMinutes = if (studiedCount > 0) {
+        (totalStudyMillis / 1000 / 60 / studiedCount).toInt()
     } else 0
     val avgHours = avgStudyMinutes / 60
     val avgMinutes = avgStudyMinutes % 60
 
-    val totalStudyMinutes = totalStudySeconds / 60
+    val totalStudyMinutes = (totalStudyMillis / 1000 / 60).toInt()
     val totalHours = totalStudyMinutes / 60
     val totalMinutes = totalStudyMinutes % 60
 
@@ -60,14 +67,14 @@ fun WeekCard(record: List<DailyRecord>) {
                     .fillMaxSize()
                     .padding(horizontal = Dimens.Medium)
             ) {
-                Text("평균 공부시간", style = AppTextStyle.MypageButtonText)
+                Text("평균 공부시간", style = AppTextStyle.BodyTinyNormal)
                 Text(
                     "${avgHours}시간 ${avgMinutes}분",
                     style = AppTextStyle.TitleMedium
                 )
                 Text(
                     "총합 ${totalHours}시간 ${totalMinutes}분",
-                    style = AppTextStyle.MypageButtonText
+                    style = AppTextStyle.BodyTinyNormal
                 )
             }
         }
@@ -89,14 +96,14 @@ fun WeekCard(record: List<DailyRecord>) {
                     .fillMaxSize()
                     .padding(horizontal = Dimens.Medium)
             ) {
-                Text("달성률", style = AppTextStyle.MypageButtonText)
+                Text("달성률", style = AppTextStyle.BodyTinyNormal)
                 Text(
                     "${TodoTotalPer}%",
                     style = AppTextStyle.TitleMedium
                 )
                 Text(
-                    "$totalCompletedTodos / $totalTodos",
-                    style = AppTextStyle.MypageButtonText
+                    "${completedTodos.size} / ${allTodos.size}",
+                    style = AppTextStyle.BodyTinyNormal
                 )
             }
         }

@@ -4,7 +4,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.repository.GoalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,10 +33,7 @@ class GoalViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                //todo : 로그인 유저 정보 가져오기
-//                val user = FirebaseAuth.getInstance().currentUser
-//                val uid = user?.uid ?: throw Exception("로그인이 필요합니다.")
-                val uid = "testuser"
+                val uid = Firebase.auth.currentUser?.uid.toString()
                 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 val goal = Goal(
                     uid = uid,
@@ -48,6 +47,22 @@ class GoalViewModel @Inject constructor(
                 withContext(Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) { onError(e) }
+            }
+        }
+    }
+
+    fun updateGoal(
+        uid: String,
+        goal: Goal,
+        onSuccess: () -> Unit = {},
+        onError: (Throwable) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.updateGoal(uid, goal)
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e)
             }
         }
     }

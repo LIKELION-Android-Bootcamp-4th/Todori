@@ -3,9 +3,13 @@ package com.mukmuk.todori.data.service
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.todo.Todo
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -45,6 +49,20 @@ class TodoService(
         return snapshot.documents.mapNotNull { it.toObject(Todo::class.java) }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getTodosByWeek(uid: String, sunday: LocalDate, saturday: LocalDate): List<Todo> {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val startDate = sunday.format(formatter)
+        val endDate = saturday.format(formatter)
+
+        val snapshot: QuerySnapshot = userTodosRef(uid)
+            .whereGreaterThanOrEqualTo("date", startDate)
+            .whereLessThanOrEqualTo("date", endDate)
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull { it.toObject(Todo::class.java) }
+    }
+
     suspend fun getTodosByCategoryAndDate(
         uid: String,
         categoryId: String,
@@ -76,4 +94,9 @@ class TodoService(
     suspend fun deleteTodo(uid: String, todoId: String) {
         userTodosRef(uid).document(todoId).delete().await()
     }
+
+    fun getTodosCollection(uid: String) =
+        firestore.collection("users")
+            .document(uid)
+            .collection("todos")
 }

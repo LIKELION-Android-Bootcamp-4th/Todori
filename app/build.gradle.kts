@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
 
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.datastore.preferences)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -82,7 +83,7 @@ dependencies {
     kapt(libs.room.compiler)
 
     // Coil
-    implementation(libs.coil)
+//    implementation(libs.coil)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -91,12 +92,7 @@ dependencies {
     implementation(libs.firebase.functions)
     implementation(libs.firebase.auth)
     implementation("com.google.firebase:firebase-analytics")
-    //implementation("com.google.firebase:firebase-functions-ktx")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-
-
-    //MPAndroidChart
-//    implementation(libs.mpandroidchart)
+    implementation(libs.play.services.auth)
 
     // 기타
     implementation(libs.kalendar)
@@ -114,4 +110,11 @@ dependencies {
 
     implementation(libs.lottie)
     implementation(libs.kotlinx.datetime)
+
+//    implementation(libs.kakao.user)
+    implementation("com.kakao.sdk:v2-user:2.20.3")
+
+    implementation("com.navercorp.nid:oauth:5.9.0")
+
+
 }

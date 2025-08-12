@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Pause
@@ -32,10 +32,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,8 +44,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.mukmuk.todori.data.remote.todo.Todo
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.mukmuk.todori.navigation.BottomNavItem
 import com.mukmuk.todori.ui.screen.home.components.MainTodoItemEditableRow
 import com.mukmuk.todori.ui.screen.home.components.PomoModeTextBox
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
@@ -54,40 +59,24 @@ import com.mukmuk.todori.ui.theme.Background
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.UserPrimary
 import kotlinx.coroutines.delay
+import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
+fun HomeScreen(navController: NavHostController) {
+    val viewModel: HomeViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    val homeSettingState by viewModel.homeSettingState.collectAsState()
+    val todoList by viewModel.todoList.collectAsState()
+
     var selectedIndex by remember { mutableStateOf(-1) }
     var recordTime by remember { mutableStateOf(0L) }
     var recordButtonText by remember { mutableStateOf("기록") }
-    val todos = remember {
-        mutableStateListOf(
-            Todo(title = "스트레칭 하기", completed = true),
-            Todo(title = "스쿼트 50개", completed = false),
-            Todo(title = "런닝 30분", completed = true),
-            Todo(title = "Kotlin 문법 정리", completed = false),
-            Todo(title = "Coroutine 복습", completed = true),
-            Todo(title = "Jetpack Compose", completed = false),
-            Todo(title = "10분 명상", completed = true),
-            Todo(title = "감사 일기 작성", completed = false),
-            Todo(title = "차분한 음악 듣기", completed = true)
-        )
-    }
-
-
-    LaunchedEffect(savedStateHandle) {
-        val homeSettingState = savedStateHandle?.get<HomeSettingState>("homeSetting")
-        if (homeSettingState != null) {
-            viewModel.updateInitialTimerSettings(homeSettingState)
-            savedStateHandle.remove<HomeSettingState>("homeSetting")
-        }
-    }
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
 
     LaunchedEffect(state.status == TimerStatus.RECORDING) {
         if (state.status != TimerStatus.RECORDING) {
@@ -99,6 +88,33 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
         }
     }
 
+    val auth = Firebase.auth
+    DisposableEffect(auth) {
+        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user != null) {
+                viewModel.loadProfile(user.uid)
+                viewModel.loadDailyRecordAndSetTotalTime(user.uid, LocalDate.now())
+                viewModel.startObservingTodos(user.uid)
+            } else {
+                navController.navigate("login") {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
+        auth.addAuthStateListener(listener)
+        onDispose {
+            auth.removeAuthStateListener(listener)
+        }
+    }
+
+    LaunchedEffect(savedStateHandle) {
+        savedStateHandle?.getLiveData<HomeSettingState>("homeSetting")
+            ?.observeForever {
+                viewModel.onEvent(TimerEvent.Reset)
+            }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -107,7 +123,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 actions = {
                     IconButton(onClick = {
                         navController.navigate("home_setting")
-                        viewModel.onEvent(TimerEvent.Stop)
+                        viewModel.onEvent(TimerEvent.Stop) // 타이머 멈춤
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Settings,
@@ -142,7 +158,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                     textAlign = TextAlign.Center
                 )
             }
-            if (state.isPomodoroEnabled) {
+            if (homeSettingState.isPomodoroEnabled) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -193,7 +209,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                         shape = CircleShape,
                         modifier = Modifier.size(76.dp),
                         contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF22B282)) // 예시 색상
+                        colors = ButtonDefaults.buttonColors(containerColor = UserPrimary)
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Pause,
@@ -211,7 +227,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                         shape = CircleShape,
                         modifier = Modifier.size(76.dp),
                         contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF22B282)) // 예시 색상
+                        colors = ButtonDefaults.buttonColors(containerColor = UserPrimary)
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.PlayArrow,
@@ -254,8 +270,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                LazyColumn {
-                    itemsIndexed(todos) { index, todo ->
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(todoList, key = { it.todoId }) { todo ->
                         MainTodoItemEditableRow(
                             title = todo.title,
                             isDone = todo.completed,
@@ -266,17 +282,15 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                                 null
                             },
                             onCheckedChange = { checked ->
-                                todos[index] = todo.copy(completed = checked)
+                                viewModel.toggleTodoCompleted(uid = state.uid, todo = todo)
                             },
                             onItemClick = {
                                 if (state.status == TimerStatus.RECORDING && !todo.completed) {
-                                    selectedIndex = index
-                                    if (todos[index].totalFocusTimeMillis > 0L) {
-                                        todos[index] = todo.copy(totalFocusTimeMillis = todos[index].totalFocusTimeMillis + recordTime)
-                                    } else {
-                                        todos[index] = todo.copy(totalFocusTimeMillis = recordTime)
-                                    }
-                                    viewModel.setTotalRecordTimeMills(recordTime)
+                                    viewModel.setTotalRecordTimeMills(
+                                        recordTime,
+                                        uid = state.uid,
+                                        todo = todo
+                                    )
                                     viewModel.onEvent(TimerEvent.Stop)
                                 }
                             }
@@ -298,7 +312,7 @@ fun pomodoroFormatTime(millis: Long): String {
 
 fun totalFormatTime(millis: Long): String {
     val hours = TimeUnit.MILLISECONDS.toHours((millis))
-    val minutes = TimeUnit.MILLISECONDS.toMinutes(millis)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(millis) % 60
     val seconds = TimeUnit.MILLISECONDS.toSeconds(millis) % 60
     return String.format("%02d : %02d : %02d", hours, minutes, seconds)
 }

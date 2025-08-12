@@ -29,7 +29,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.theme.Dimens
@@ -45,7 +47,8 @@ fun CreateCategoryScreen(
     val isEditMode =
         editCategory !=null
 
-    val uid = "testuser"
+//    val uid = "testuser"
+    val uid = Firebase.auth.currentUser?.uid.toString()
     var title by remember { mutableStateOf(editCategory?.name.orEmpty()) }
     var description by remember { mutableStateOf(editCategory?.description.orEmpty()) }
 
@@ -147,7 +150,7 @@ fun CreateCategoryScreen(
                             description = description,
                             createdAt = Timestamp.now()
                         )
-                        viewModel.createCategory("testuser", newCategory,
+                        viewModel.createCategory(uid, newCategory,
                             onSuccess = {
                                 Toast.makeText(context,"카테고리 생성이 완료되었습니다.",Toast.LENGTH_SHORT).show()
                                 onDone()

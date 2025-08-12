@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.stats.tab
+package com.mukmuk.todori.ui.screen.stats.tab.week
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -20,8 +20,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -32,27 +36,36 @@ import com.mukmuk.todori.ui.screen.stats.component.WeekProgress
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
-import kotlinx.datetime.LocalDate
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-
-//일주일 기준을 일~토 로
-fun getWeekRange(date: LocalDate): List<LocalDate> {
-    val dayOfWeek = (date.dayOfWeek.ordinal + 1) % 7
-    val sunday = date.minus(DatePeriod(days = dayOfWeek))
-    return (0..6).map { sunday.plus(DatePeriod(days = it)) }
-}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeekTab(weekRecords: List<DailyRecord>) {
-    var selectedWeek by remember {
-        mutableStateOf(LocalDate.parse("2025-08-04"))
+fun WeekTab(
+    uid: String,
+    date: LocalDate,
+    onDateChange: (LocalDate) -> Unit
+) {
+    val viewModel: WeekViewModel = hiltViewModel()
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(uid, date) {
+        val jDate = java.time.LocalDate.of(date.year, date.monthNumber, date.dayOfMonth)
+        viewModel.loadWeekTodos(uid = uid, date = jDate)
+        viewModel.loadWeekStudy(uid = uid, date = jDate)
     }
-    val currentWeekRange = remember(selectedWeek) { getWeekRange(selectedWeek) }
+
+    val weekStart = DayOfWeek.SUNDAY
+
+    val weekNo = remember(date) {
+        val firstOfMonth = LocalDate(date.year, date.monthNumber, 1)
+        val offset = (firstOfMonth.dayOfWeek.ordinal - weekStart.ordinal + 7) % 7
+        (offset + date.dayOfMonth - 1) / 7 + 1
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -74,7 +87,7 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                     modifier = Modifier.align(Alignment.CenterStart)
                 ) {
                     IconButton(onClick = {
-                        selectedWeek = selectedWeek.minus(DatePeriod(days = 7))
+                        onDateChange(date.minus(DatePeriod(days = 7)))
                     }) {
                         Icon(
                             Icons.Default.ArrowBack,
@@ -91,8 +104,7 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                     modifier = Modifier.align(Alignment.Center)
                 ) {
                     Text(
-                        "${selectedWeek.year}년 ${selectedWeek.monthNumber}월" +
-                                "${(selectedWeek.dayOfMonth - 1) / 7 + 1}주차",
+                         "${date.monthNumber}월 ${weekNo}주차",
                         style = AppTextStyle.TitleSmall
                     )
                 }
@@ -102,7 +114,7 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                     modifier = Modifier.align(Alignment.CenterEnd)
                 ) {
                     IconButton(onClick = {
-                        selectedWeek = selectedWeek.plus(DatePeriod(days = 7))
+                        onDateChange(date.plus(DatePeriod(days = 7)))
                     }) {
                         Icon(
                             Icons.Default.ArrowForward,
@@ -114,17 +126,20 @@ fun WeekTab(weekRecords: List<DailyRecord>) {
                 }
             }
 
-            val weeklyFiltered = remember(weekRecords, currentWeekRange) {
-                weekRecords.filter { record ->
-                    LocalDate.parse(record.date) in currentWeekRange
-                }
-            }
+            val dailyRecordFiltered = state.dailyRecords
 
-            WeekCard(record = weeklyFiltered)
+            WeekCard(
+                record = state.dailyRecords,
+                allTodos = state.todos,
+                completedTodos = state.completedTodoItems
+            )
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekGraph(record = weeklyFiltered)
+            WeekGraph(record = dailyRecordFiltered)
             Spacer(modifier = Modifier.height(Dimens.Large))
-            WeekProgress(record = weeklyFiltered)
+            WeekProgress(
+                week = date,
+                allTodos = state.todos,
+                completedTodos = state.completedTodoItems)
         }
     }
 }

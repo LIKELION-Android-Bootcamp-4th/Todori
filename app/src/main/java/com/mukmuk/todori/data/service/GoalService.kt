@@ -27,6 +27,12 @@ class GoalService(
         return snapshot.documents.mapNotNull { it.toObject(Goal::class.java) }
     }
 
+    //목표 한 개 가져오기
+    suspend fun getGoalById(uid: String, goalId: String): Goal? {
+        val doc = userGoalsRef(uid).document(goalId).get().await()
+        return doc.toObject(Goal::class.java)
+    }
+
     // 목표 수정
     suspend fun updateGoal(uid: String, goal: Goal) {
         userGoalsRef(uid).document(goal.goalId).set(goal, SetOptions.merge()).await()

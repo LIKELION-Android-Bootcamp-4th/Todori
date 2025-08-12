@@ -15,29 +15,30 @@ import androidx.navigation.navArgument
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
-import com.mukmuk.todori.ui.screen.community.CommunityViewModel
-import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailScreen
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
-import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.create.CreateCommunityScreen
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailScreen
+import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
 import com.mukmuk.todori.ui.screen.login.LoginScreen
-import com.mukmuk.todori.ui.screen.login.LoginViewModel
 import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
 import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.mypage.ProfileManagementScreen
+import com.mukmuk.todori.ui.screen.splash.SplashScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateCategoryScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateGoalScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateStudyScreen
-import com.mukmuk.todori.ui.screen.todo.detail.GoalDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.MemberProgressDetailScreen
-import com.mukmuk.todori.ui.screen.todo.detail.StudyDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.goal.GoalDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailScreen
+import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
 import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -45,18 +46,19 @@ import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        startDestination = BottomNavItem.Todo.route,
+        startDestination = "splash",
         modifier = modifier
     ) {
+        composable("splash") {
+            SplashScreen(navController)
+        }
         composable(BottomNavItem.Todo.route) { TodoScreen(navController) }
         composable(BottomNavItem.Stats.route) { StatsScreen() }
         composable(BottomNavItem.Home.route) {
-            val homeViewModel: HomeViewModel = viewModel()
-            HomeScreen(viewModel = homeViewModel, navController = navController)
+            HomeScreen(navController = navController)
         }
         composable("home_setting") {
-            val homeSettingViewModel: HomeSettingViewModel = viewModel()
-            HomeSettingScreen(viewModel = homeSettingViewModel, navController = navController)
+            HomeSettingScreen(navController = navController)
         }
 
         composable(BottomNavItem.Study.route) { backStackEntry ->
@@ -116,8 +118,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             )
         }
         composable("login") {
-            val loginViewModel: LoginViewModel = viewModel()
-            LoginScreen(viewModel = loginViewModel, navController = navController)
+            LoginScreen(navController = navController)
         }
         composable("goal/create") { backStackEntry ->
             val navEntry = navController.previousBackStackEntry
@@ -153,29 +154,47 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 onBack = { navController.popBackStack() }
             )
         }
-        composable("goal/detail") { backStackEntry ->
-            val goal = navController.previousBackStackEntry
-                ?.savedStateHandle?.get<Goal>("goal")
-            goal?.let {
+        composable("goal/detail/{goalId}") { backStackEntry ->
+            val goalId = backStackEntry.arguments?.getString("goalId") ?: ""
                 GoalDetailScreen(
-                    goal = it, navController = navController,
-                    onBack = { navController.popBackStack() })
-            }
+                    goalId = goalId, navController = navController,
+                    onBack = { navController.popBackStack() }
+                )
         }
-        composable("study/detail") {
+        composable(
+            route = "study/detail/{studyId}?date={date}",
+            arguments = listOf(
+                navArgument("studyId") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
+            val date = backStackEntry.arguments?.getString("date") ?: ""
             StudyDetailScreen(
-                navController,
+                navController = navController,
+                studyId = studyId,
+                selectedDate = date,
                 onBack = { navController.popBackStack() }
             )
         }
-        composable("member_progress_detail/{studyId}") { backStackEntry ->
+        composable(
+            "member_progress_detail/{studyId}?date={date}",
+            arguments = listOf(
+                navArgument("studyId") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
             val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
+            val date = backStackEntry.arguments?.getString("date") ?: ""
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("study/detail/$studyId?date=$date")
+            }
+            val viewModel: StudyDetailViewModel = hiltViewModel(parentEntry)
             MemberProgressDetailScreen(
                 navController = navController,
-                studyId = studyId,
+                viewModel = viewModel
             )
         }
-
 
     }
 }

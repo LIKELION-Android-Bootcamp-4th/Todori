@@ -17,13 +17,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.kizitonwose.calendar.compose.HorizontalCalendar
+import androidx.compose.runtime.*
+import androidx.compose.runtime.derivedStateOf
 import com.kizitonwose.calendar.compose.rememberCalendarState
+import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.core.DayPosition
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -46,7 +50,8 @@ import java.time.YearMonth
 fun CalendarCard(
     record: List<DailyRecord>,
     selectedDate: LocalDate,
-    onDateSelected: (LocalDate) -> Unit
+    onDateSelected: (LocalDate) -> Unit,
+    onMonthChanged: (YearMonth) -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -61,8 +66,26 @@ fun CalendarCard(
             startMonth = YearMonth.now().minusMonths(12),
             endMonth = YearMonth.now().plusMonths(12),
             firstVisibleMonth = YearMonth.now(),
-            firstDayOfWeek = java.time.DayOfWeek.MONDAY
+            firstDayOfWeek = java.time.DayOfWeek.SUNDAY
         )
+
+        LaunchedEffect(calendarState) {
+            snapshotFlow { calendarState.firstVisibleMonth.yearMonth }
+                .collect { onMonthChanged(it) }
+        }
+
+        val currentYm by remember(calendarState) {
+            derivedStateOf { calendarState.firstVisibleMonth.yearMonth }
+        }
+        val targetYm = remember(selectedDate) {
+            YearMonth.of(selectedDate.year, selectedDate.monthValue)
+        }
+
+        LaunchedEffect(targetYm) {
+            if (!calendarState.isScrollInProgress && currentYm != targetYm) {
+                calendarState.scrollToMonth(targetYm)
+            }
+        }
 
         HorizontalCalendar(
             modifier = Modifier.padding(Dimens.Medium),
@@ -72,15 +95,16 @@ fun CalendarCard(
                 val date = day.date
                 val isSelected = date == selectedDate
 
-                val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+                val today = LocalDate.now()
                 val matchedRecord = record.find { it.date == date.toString() }
-                val studyTime = matchedRecord?.studyTimeMillis ?: 0
+                val studyMillis = matchedRecord?.studyTimeMillis ?: 0L
+                val studySec = (studyMillis / 1000).toInt()
 
                 val backgroundColor = when {
                     date == today -> Gray
-                    studyTime in 1..7200 -> UserTenth
-                    studyTime in 7201..21600 -> UserHalf
-                    studyTime >= 21601 -> UserPrimary
+                    studySec in 1..7200 -> UserTenth
+                    studySec in 7201..21600 -> UserHalf
+                    studySec >= 21601 -> UserPrimary
                     else -> Color.Transparent
                 }
 
