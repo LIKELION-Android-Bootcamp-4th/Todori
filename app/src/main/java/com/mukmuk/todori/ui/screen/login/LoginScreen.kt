@@ -2,6 +2,7 @@ package com.mukmuk.todori.ui.screen.login
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -88,6 +89,22 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    LoginButton(
+                        imageRes = R.drawable.leader,
+                        text = "Test 계정으로 로그인",
+                        textColor = Black,
+                        backgroundColor = White,
+                        onClick = {
+                            viewModel.loginWithTestAccount(
+                                onSuccess = {
+                                    Log.d("Login", "테스트 계정 로그인 성공")
+                                    navController.navigate("home") // 홈 화면 이동
+                                },
+                                onError = { Log.e("Login", it) }
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                     LoginButton(
                         imageRes = R.drawable.ic_google_logo,
                         text = "Google 계정으로 로그인",
