@@ -1,7 +1,9 @@
 package com.mukmuk.todori.ui.screen.community.detail
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.StudyMember
@@ -11,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import javax.inject.Inject
 
 
@@ -34,6 +37,7 @@ class CommunityDetailViewModel@Inject constructor(
                 val post = repository.getPostById(postId)
                 _state.update {
                     it.copy(
+                        user = null,
                         post = post,
                         isLoading = false,
                         error = null
@@ -46,6 +50,17 @@ class CommunityDetailViewModel@Inject constructor(
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    fun getProfile(uid: String = state.value.post?.createdBy ?: "") {
+        viewModelScope.launch {
+            try {
+                val user = repository.getProfile(uid)
+                _state.update { it.copy(user = user) }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
             }
         }
     }
@@ -193,7 +208,6 @@ class CommunityDetailViewModel@Inject constructor(
 
     private fun getCommentReplies(postId: String, commentId: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
             try {
                 val replies = repository.getCommentReplies(postId, commentId)
                 _state.update { state ->
@@ -201,18 +215,24 @@ class CommunityDetailViewModel@Inject constructor(
                     updatedCommentReplyList[commentId] = replies
                     state.copy(
                         commentReplyList = updatedCommentReplyList.toMap(),
-                        isLoading = false,
                         error = null
                     )
                 }
             } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, error = e.message) }
+                _state.update { it.copy(error = e.message) }
             }
         }
     }
 
     fun setReplyToCommentId(commentId: String? = null) {
         _state.update { it.copy(replyToCommentId = commentId) }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    fun formatDate(timestamp: Timestamp? = null): String {
+        val date = timestamp?.toDate()
+        val format = SimpleDateFormat("yyyy-MM-dd")
+        return format.format(date)
     }
 
     fun loadStudyById(studyId: String) {

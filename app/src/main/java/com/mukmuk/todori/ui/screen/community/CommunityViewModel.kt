@@ -3,6 +3,7 @@ package com.mukmuk.todori.ui.screen.community
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.CommunityRepository
 import com.mukmuk.todori.data.repository.StudyRepository
@@ -133,7 +134,28 @@ class CommunityViewModel @Inject constructor(
         }
     }
 
+    fun getAllCommentCount(postId: String) {
+        viewModelScope.launch {
+            try {
 
+                val comments = communityRepository.getReplies(postId)
+
+                val allReplies = comments.flatMap { comment ->
+                    communityRepository.getCommentReplies(postId, comment.commentId)
+                }
+
+
+                _state.update {
+                    it.copy(
+                        commentList = it.commentList + mapOf(postId to comments),
+                        commentReplyList = it.commentReplyList + mapOf(postId to allReplies)
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
 
     fun createCommunitySearch(uid: String, query: String) {
         viewModelScope.launch {

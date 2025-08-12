@@ -37,6 +37,7 @@ fun CommunitySearchData(data: String, onClick: () -> Unit) {
         Text(
             text = data,
             style = AppTextStyle.Body,
+            maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
     }

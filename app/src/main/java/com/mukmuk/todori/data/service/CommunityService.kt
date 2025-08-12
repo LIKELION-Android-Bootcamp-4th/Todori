@@ -11,6 +11,7 @@ import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
+import com.mukmuk.todori.data.remote.user.User
 import kotlinx.coroutines.tasks.await
 
 
@@ -47,6 +48,11 @@ class CommunityService(
     suspend fun getPostById(postId: String): StudyPost? {
         val snapshot = communityRef().document(postId).get().await()
         return snapshot.toObject(StudyPost::class.java)
+    }
+
+    suspend fun getProfile(uid: String): User? {
+        val snapshot = firestore.collection("users").document(uid).get().await()
+        return snapshot.toObject(User::class.java)
     }
 
     suspend fun updatePost(postId: String, updatedPost: StudyPost) {

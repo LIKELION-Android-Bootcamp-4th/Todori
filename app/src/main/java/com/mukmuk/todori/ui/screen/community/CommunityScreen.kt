@@ -98,7 +98,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     ) {
                         Icon(Icons.Default.Search, contentDescription = "검색")
                     }
-                }
+                },
             )
         },
 
@@ -124,6 +124,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(White)
         ) {
 
                 Column(

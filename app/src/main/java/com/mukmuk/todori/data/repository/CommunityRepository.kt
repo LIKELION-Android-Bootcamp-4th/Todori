@@ -4,6 +4,7 @@ import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.service.CommunityService
 import javax.inject.Inject
 
@@ -21,6 +22,10 @@ class CommunityRepository @Inject constructor(
 
     suspend fun getPostById(postId: String): StudyPost? {
         return communityService.getPostById(postId)
+    }
+
+    suspend fun getProfile(uid: String): User? {
+        return communityService.getProfile(uid)
     }
 
     suspend fun updatePost(postId: String, updatedPost: StudyPost) {

@@ -9,6 +9,8 @@ data class CommunityState (
     val postList: List<StudyPost> = emptyList(),
     val allPostList: List<StudyPost> = emptyList(),
     val selectedOption: String = "참가자 수",
+    val commentList: Map<String, List<StudyPostComment>> = emptyMap(),
+    val commentReplyList: Map<String, List<StudyPostComment>> = emptyMap(),
     val communitySearchPostList: List<StudyPost> = emptyList(),
     val communitySearchList: List<String> = emptyList(),
     val isLoading: Boolean = false,

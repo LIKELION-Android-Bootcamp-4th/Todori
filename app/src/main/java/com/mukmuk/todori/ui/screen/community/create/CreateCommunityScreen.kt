@@ -42,9 +42,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.screen.community.components.CommunityListData
 import com.mukmuk.todori.ui.screen.community.components.ListPickerBottomSheet
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -84,6 +87,10 @@ fun CreateCommunityScreen(
     var studyId by remember { mutableStateOf("") }
 
     val td = remember { mutableStateListOf<String>() }
+
+    val currentUser = Firebase.auth.currentUser
+
+    val uid = currentUser?.uid.toString()
 
     LaunchedEffect(postId) {
         if (postId == null) {
@@ -215,6 +222,28 @@ fun CreateCommunityScreen(
                 }
             }
 
+            if(studyId.isNotBlank()){
+                viewModel.loadStudyById(studyId)
+
+                val memberCount = state.memberList.size
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    state.study?.activeDays?.let {
+                        CommunityListData(
+                            studyId = studyId,
+                            study = state.study!!,
+                            memberCount = memberCount,
+                            activeDays = it,
+                            onClick = {}
+                        )
+                    }
+                }
+            }
+
             Spacer(Modifier.height(Dimens.Large))
 
             FlowRow(
@@ -234,6 +263,9 @@ fun CreateCommunityScreen(
 
                                         td.add(tag)
 
+                                }
+                                else if(td.contains(tag)) {
+                                    td.remove(tag)
                                 }
                             }
                             .width(60.dp),
@@ -267,7 +299,8 @@ fun CreateCommunityScreen(
                                     tags = td.toList(),
                                     postId = postId,
                                     studyId = studyId,
-                                    createdAt = state.post?.createdAt
+                                    createdAt = state.post?.createdAt,
+                                    createdBy = uid
                                 )
                             )
                         }
@@ -279,7 +312,8 @@ fun CreateCommunityScreen(
                                     tags = td.toList(),
                                     postId = "",
                                     studyId = studyId,
-                                    createdAt = Timestamp.now()
+                                    createdAt = Timestamp.now(),
+                                    createdBy = uid
                                 )
                             )
                         }
@@ -301,7 +335,7 @@ fun CreateCommunityScreen(
                 show = showListSheet,
                 onDismissRequest = { showListSheet = false },
                 onSelect = {
-
+                    viewModel.loadStudyById(studyId = it)
                     pickedItem = it
                     showListSheet = false
                 }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -46,15 +47,14 @@ import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun CommunityDetailCommentReply(
-    post: StudyPost,
+    uid: String,
     commentList: StudyPostComment,
-    onReplyClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
 
-    var expanded by remember { mutableStateOf(false) }
-
     val viewModel: CommunityDetailViewModel = hiltViewModel()
+
+
 
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -87,29 +87,9 @@ fun CommunityDetailCommentReply(
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    IconButton(onClick = { expanded = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "더보기")
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier
-                            .background(White, RoundedCornerShape(10.dp))
-                            .border(1.dp, Gray)
-                    ) {
-                        viewModel.td.forEach { item ->
-                            DropdownMenuItem(
-                                text = { Text(item, style = AppTextStyle.BodySmall) },
-                                onClick = {
-                                    expanded = false
-                                    if(item == "답글 달기") {
-                                        onReplyClick()
-                                    }
-                                    else if(item == "삭제") {
-                                        onDeleteClick()
-                                    }
-                                }
-                            )
+                    if(uid == commentList.uid) {
+                        IconButton(onClick = { onDeleteClick() }) {
+                            Icon(Icons.Default.Delete, contentDescription = null)
                         }
                     }
                 }
@@ -120,7 +100,7 @@ fun CommunityDetailCommentReply(
 
                 Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-                Text(commentList.createdAt?.toDate().toString(), style = AppTextStyle.BodySmall)
+                Text(viewModel.formatDate(commentList.createdAt), style = AppTextStyle.BodySmall, color = DarkGray, fontWeight = FontWeight.Bold)
 
 
             }

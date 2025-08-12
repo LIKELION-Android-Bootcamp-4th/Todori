@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,10 +49,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
-import com.mukmuk.todori.data.remote.community.StudyPost
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.community.StudyPostComment
-import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailComment
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailCommentReply
 import com.mukmuk.todori.ui.screen.community.components.StudyDetailCard
@@ -84,12 +83,22 @@ fun CommunityDetailScreen(
 
     var showDialog by remember { mutableStateOf(false) }
 
+    val currentUser = Firebase.auth.currentUser
 
-    LaunchedEffect(Unit) {
+    val uid = currentUser?.uid.toString()
+
+
+    LaunchedEffect(postId) {
         viewModel.loadPostById(postId)
         viewModel.getComments(postId)
         viewModel.setReplyToCommentId(null)
+
     }
+
+    LaunchedEffect(state.post) {
+        viewModel.getProfile(state.post?.createdBy ?: "")
+    }
+
 
     Scaffold(
 
@@ -110,32 +119,35 @@ fun CommunityDetailScreen(
                 },
 
                 actions = {
-                    Box {
-                        IconButton(onClick = { expanded = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "더보기")
-                        }
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            modifier = Modifier
-                                .background(White, RoundedCornerShape(10.dp))
-                                .border(1.dp, Gray)
-                        ) {
-                            viewModel.menu.forEach { item ->
-                                DropdownMenuItem(
-                                    text = { Text(item, style = AppTextStyle.BodySmall) },
-                                    onClick = {
-                                        expanded = false
-                                        if(item == "수정") {
-                                            navController.navigate("community/create?postId=$postId")
+                    if (state.post?.createdBy == uid) {
+                        Box {
+                            IconButton(onClick = { expanded = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "더보기")
+                            }
+
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                modifier = Modifier
+                                    .background(White, RoundedCornerShape(10.dp))
+                                    .border(1.dp, Gray)
+                            ) {
+                                viewModel.menu.forEach { item ->
+                                    DropdownMenuItem(
+                                        text = { Text(item, style = AppTextStyle.BodySmall) },
+                                        onClick = {
+                                            expanded = false
+                                            if (item == "수정") {
+                                                navController.navigate("community/create?postId=$postId")
+                                            } else if (item == "삭제") {
+                                                showDialog = true
+                                            }
                                         }
-                                        else if(item == "삭제") {
-                                            showDialog = true
-                                        }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
+
                     }
                 },
             )
@@ -172,8 +184,8 @@ fun CommunityDetailScreen(
                                     state.replyToCommentId!!, StudyPostComment(
                                         commentId = "",
                                         studyId = "",
-                                        uid = "",
-                                        nickname = "",
+                                        uid = uid,
+                                        nickname = currentUser?.displayName?: "",
                                         content = commentContent,
                                         createdAt = Timestamp.now()
                                     )
@@ -183,8 +195,8 @@ fun CommunityDetailScreen(
                                     postId, StudyPostComment(
                                         commentId = "",
                                         studyId = "",
-                                        uid = "",
-                                        nickname = "",
+                                        uid = uid,
+                                        nickname = currentUser?.displayName ?: "",
                                         content = commentContent,
                                         createdAt = Timestamp.now()
                                     )
@@ -206,7 +218,7 @@ fun CommunityDetailScreen(
         }
 
     ) { innerPadding ->
-        if (state.isLoading) {
+        if (state.isLoading || state.user == null) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -242,13 +254,13 @@ fun CommunityDetailScreen(
                             .background(Gray, CircleShape)
                     )
                     Spacer(Modifier.width(Dimens.Tiny))
-                    Text("사용자 이름", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
+                    Text(state.user?.nickname ?: "", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
 
                     Spacer(Modifier.weight(1f))
 
                     Text(
-                        state.post?.createdAt?.toDate().toString(),
-                        style = AppTextStyle.BodySmall.copy(color = DarkGray)
+                        viewModel.formatDate(state.post?.createdAt),
+                        style = AppTextStyle.BodySmall.copy(color = DarkGray, fontWeight = FontWeight.Bold)
                     )
                 }
 
@@ -303,6 +315,7 @@ fun CommunityDetailScreen(
                 if (state.post?.studyId != null && state.study != null) {
 
                     StudyDetailCard(
+                        uid = uid,
                         studyId = state.post!!.studyId,
                         study = state.study!!,
                         memberList = state.memberList
@@ -324,7 +337,7 @@ fun CommunityDetailScreen(
                 ) {
                     state.commentList.forEach { comment ->
                         CommunityDetailComment(
-                            post = state.post!!,
+                            uid,
                             commentList = comment,
                             onReplyClick = {
                                 viewModel.setReplyToCommentId(comment.commentId)
@@ -336,11 +349,8 @@ fun CommunityDetailScreen(
                         if (state.commentReplyList.containsKey(comment.commentId)) {
                             state.commentReplyList[comment.commentId]?.forEach { reply ->
                                 CommunityDetailCommentReply(
-                                    post = state.post!!,
+                                    uid,
                                     commentList = reply,
-                                    onReplyClick = {
-                                        viewModel.setReplyToCommentId(comment.commentId)
-                                    },
                                     onDeleteClick = {
                                         viewModel.deleteComment(postId, reply.commentId)
                                     }

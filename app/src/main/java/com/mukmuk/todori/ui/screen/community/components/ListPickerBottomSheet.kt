@@ -28,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
@@ -56,8 +58,10 @@ fun ListPickerBottomSheet(
         skipPartiallyExpanded = true
     )
 
+    val uid = Firebase.auth.currentUser?.uid.toString()
+
     LaunchedEffect(Unit) {
-        studyListViewModel.loadAllStudies("testuser")
+        studyListViewModel.loadAllStudies(uid)
     }
 
     val studies = studyListState.studies.values.toList()

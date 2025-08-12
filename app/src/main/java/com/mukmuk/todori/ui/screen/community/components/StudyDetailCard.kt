@@ -33,12 +33,15 @@ import com.mukmuk.todori.ui.theme.White
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StudyDetailCard(
+    uid: String,
     studyId: String,
     study: Study,
     memberList: List<StudyMember>,
 ) {
 
     val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
+
+
 
     Card (
         modifier = Modifier
@@ -67,7 +70,7 @@ fun StudyDetailCard(
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            if(memberList.find { it.uid == "testuser" } != null){
+            if(memberList.find { it.uid ==  uid} != null){
                 Button(
                     enabled = false,
                     colors = ButtonDefaults.buttonColors(

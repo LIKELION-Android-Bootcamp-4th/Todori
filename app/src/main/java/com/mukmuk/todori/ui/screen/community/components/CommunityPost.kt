@@ -20,15 +20,20 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -44,6 +49,14 @@ fun CommunityPost(
     memberCount: Int,
     navController: NavHostController,
 ) {
+    val viewModel: CommunityViewModel = hiltViewModel()
+
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(post.postId) {
+        viewModel.getAllCommentCount(post.postId)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -149,8 +162,10 @@ fun CommunityPost(
 
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
 
+                    val commentCount = (state.commentList[post.postId]?.size ?: 0) + (state.commentReplyList[post.postId]?.size ?: 0)
+
                     Text(
-                        text = "",
+                        text = commentCount.toString(),
                         style = AppTextStyle.BodySmall
                     )
                 }

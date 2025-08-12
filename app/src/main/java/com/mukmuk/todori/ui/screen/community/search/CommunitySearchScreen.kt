@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -42,6 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.components.CommunityPost
 import com.mukmuk.todori.ui.screen.community.components.CommunitySearchData
@@ -71,7 +74,7 @@ fun CommunitySearchScreen(
 
     var showDialog by remember { mutableStateOf(false) }
 
-    val uid = "testuser"
+    val uid = Firebase.auth.currentUser?.uid.toString()
 
     val state by viewModel.state.collectAsState()
 
@@ -109,7 +112,6 @@ fun CommunitySearchScreen(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(80.dp)
                                 .background(LightGray, RoundedCornerShape(30.dp)),
                             shape = RoundedCornerShape(30.dp),
                             placeholder = { Text("검색어를 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
@@ -191,7 +193,7 @@ fun CommunitySearchScreen(
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp)
                             .fillMaxWidth(),
-
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                         state.communitySearchList.forEach { search ->
                             CommunitySearchData(
