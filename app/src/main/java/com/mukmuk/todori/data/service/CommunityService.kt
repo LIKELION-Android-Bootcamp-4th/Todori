@@ -63,29 +63,36 @@ class CommunityService(
         communityRef().document(postId).delete().await()
     }
 
-    suspend fun createCommunitySearch(uid: String, query: String) {
-        val ref = firestore.collection("users")
-            .document(uid)
-            .collection("communitySearch")
-            .document()
+    suspend fun createCommunitySearch(uid: String, query: List<String>) {
 
-        val data = mapOf("query" to query, "timestamp" to FieldValue.serverTimestamp())
-
-
-        ref.set(data).await()
     }
 
     suspend fun getCommunitySearch(uid: String): List<String> {
         val snapshot = firestore.collection("users")
             .document(uid)
             .collection("communitySearch")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(10)
+            .limit(5)
             .get()
             .await()
-
-        return snapshot.documents.mapNotNull { it.getString("query") }
+        return snapshot.documents.mapNotNull { it.get("query") as? String }.toList()
     }
+
+    suspend fun updateCommunitySearch(uid: String, query: List<String>) {
+        val ref = firestore.collection("users")
+            .document(uid)
+            .collection("communitySearch")
+            .limit(5)
+        ref.get().await().documents.forEach { it.reference.delete() }
+        query.forEach {
+            val ref = firestore.collection("users")
+                .document(uid)
+                .collection("communitySearch")
+                .document()
+            val data = listOf("query" to it)
+            ref.set(data, SetOptions.merge()).await()
+        }
+    }
+
 
     suspend fun createReply(postId: String, reply: StudyPostComment){
         val ref = communityRef().document(postId).collection("studyPostReply").document()

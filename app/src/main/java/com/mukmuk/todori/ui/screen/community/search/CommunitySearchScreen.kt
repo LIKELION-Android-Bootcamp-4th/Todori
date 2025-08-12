@@ -198,12 +198,16 @@ fun CommunitySearchScreen(
                         state.communitySearchList.forEach { search ->
                             CommunitySearchData(
                                 data = search,
-                                onClick = {
+                                onSetClick = {
                                     query = search
                                     viewModel.loadSearchPosts(data = query)
                                     showCommunitySearchData = false
                                     showCommunitySearch = true
                                     focusManager.clearFocus()
+                                },
+                                onDeleteClick = {
+                                    viewModel
+                                    viewModel.getCommunitySearch(uid)
                                 }
                             )
                             Spacer(modifier = Modifier.padding(Dimens.Tiny))

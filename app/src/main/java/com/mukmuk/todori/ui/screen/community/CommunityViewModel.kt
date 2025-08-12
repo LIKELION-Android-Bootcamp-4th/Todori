@@ -158,19 +158,10 @@ class CommunityViewModel @Inject constructor(
     }
 
     fun createCommunitySearch(uid: String, query: String) {
-        viewModelScope.launch {
-            try {
-                if(state.value.communitySearchList.find { it == query } != null) return@launch
-                communityRepository.createCommunitySearch(uid, query)
-                _state.update {
-                    it.copy(error = null)
-                }
-            }
-            catch (e: Exception) {
-                _state.update { it.copy(error = e.message) }
-            }
-        }
+
     }
+
+
 
     fun getCommunitySearch(uid: String) {
         viewModelScope.launch {

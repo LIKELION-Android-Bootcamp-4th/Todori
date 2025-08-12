@@ -46,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -92,6 +93,7 @@ fun CommunityDetailScreen(
         viewModel.loadPostById(postId)
         viewModel.getComments(postId)
         viewModel.setReplyToCommentId(null)
+
 
     }
 
@@ -167,7 +169,12 @@ fun CommunityDetailScreen(
                         .weight(1f)
                         .padding(end = 8.dp)
                         .background(White, RoundedCornerShape(10.dp))
-                        .border(1.dp, Gray, RoundedCornerShape(10.dp)),
+                        .border(1.dp, Gray, RoundedCornerShape(10.dp))
+                        .onFocusChanged {
+                            if(!it.isFocused){
+                                viewModel.setReplyToCommentId(null)
+                            }
+                        },
                     shape = RoundedCornerShape(10.dp),
                     placeholder = { Text(if(state.replyToCommentId != null) "답글을 작성해주세요" else "댓글을 작성해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                     singleLine = true,

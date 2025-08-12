@@ -36,7 +36,7 @@ class CommunityRepository @Inject constructor(
         communityService.deletePost(postId)
     }
 
-    suspend fun createCommunitySearch(uid: String, query: String) {
+    suspend fun createCommunitySearch(uid: String, query: List<String>) {
         communityService.createCommunitySearch(uid, query)
     }
 
