@@ -116,5 +116,8 @@ dependencies {
 
     implementation("com.navercorp.nid:oauth:5.9.0")
 
-
+    //위젯
+    implementation("androidx.glance:glance:1.1.1")
+    implementation("androidx.glance:glance-appwidget:1.1.0")
+    implementation("androidx.glance:glance-material3:1.1.0")
 }
