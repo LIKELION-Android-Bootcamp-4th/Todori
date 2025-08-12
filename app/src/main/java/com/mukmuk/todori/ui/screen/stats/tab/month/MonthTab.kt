@@ -35,21 +35,23 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import kotlinx.datetime.plus
+import kotlinx.datetime.minus
+import kotlinx.datetime.todayIn
 
 @Composable
 fun MonthTab(
-    uid: String
+    uid: String,
+    date: LocalDate,
+    onDateChange: (LocalDate) -> Unit
 ) {
-    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-    var selectedMonth by rememberSaveable {
-        mutableStateOf(LocalDate(today.year, today.monthNumber, 1))
-    }
+    val selectedMonth = LocalDate(date.year, date.monthNumber, 1)
+
     val viewModel: MonthViewModel = hiltViewModel()
     val state by viewModel.monthState.collectAsState()
 
@@ -93,7 +95,7 @@ fun MonthTab(
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 IconButton(onClick = {
-                    selectedMonth = selectedMonth.minus(DatePeriod(months = 1))
+                    onDateChange(selectedMonth.minus(DatePeriod(months = 1)))
                 }) {
                     Icon(
                         Icons.Default.ArrowBack,
@@ -119,7 +121,7 @@ fun MonthTab(
                 modifier = Modifier.align(Alignment.CenterEnd)
             ) {
                 IconButton(onClick = {
-                    selectedMonth = selectedMonth.plus(DatePeriod(months = 1))
+                    onDateChange(selectedMonth.plus(DatePeriod(months = 1)))
                 }) {
                     Icon(
                         Icons.Default.ArrowForward,
