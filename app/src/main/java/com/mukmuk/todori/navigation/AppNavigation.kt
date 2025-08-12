@@ -63,7 +63,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             HomeSettingScreen(navController = navController)
         }
         composable("home_ocr") {
-            HomeOcrScreen()
+            HomeOcrScreen(navController)
         }
 
         composable(BottomNavItem.Study.route) { backStackEntry ->
