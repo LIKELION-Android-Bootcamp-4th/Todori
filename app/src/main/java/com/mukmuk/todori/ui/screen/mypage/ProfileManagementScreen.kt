@@ -31,6 +31,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
@@ -44,6 +45,8 @@ fun ProfileManagementScreen(
     val state by viewModel.uiState.collectAsState()
     val profile = state.user
     val context = LocalContext.current
+
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     var nickname by remember {
         mutableStateOf(
@@ -84,8 +87,7 @@ fun ProfileManagementScreen(
     val isIntroError = intro.text.length !in 1..12
 
     LaunchedEffect(Unit) {
-        viewModel.loadProfile("testuser")
-        //viewModel.loadProfile(uid)
+        viewModel.loadProfile(uid)
         nicknameFocusRequester.requestFocus()
     }
 
@@ -148,7 +150,7 @@ fun ProfileManagementScreen(
             Button(
                 onClick = {
                     if (isNicknameError || isIntroError) return@Button
-                    viewModel.updateProfile("testuser", nickname.text, intro.text)
+                    viewModel.updateProfile(uid, nickname.text, intro.text)
                     Toast.makeText(context, "프로필이 수정되었습니다.", Toast.LENGTH_SHORT).show()
                     onBack()
                 },

@@ -12,7 +12,10 @@ import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.HomeRepository
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
+import com.mukmuk.todori.data.repository.UserRepository
+import com.mukmuk.todori.data.service.AuthService
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
+import com.mukmuk.todori.ui.screen.mypage.ProfileEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -33,7 +36,9 @@ class HomeViewModel @Inject constructor(
     private val homeSettingRepository: HomeSettingRepository,
     private val todoRepository: TodoRepository,
     private val homeRepository: HomeRepository,
-    private val recordRepository: RecordRepository
+    private val recordRepository: RecordRepository,
+    private val repository: UserRepository,
+    private val authService: AuthService
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TimerState())
@@ -44,8 +49,6 @@ class HomeViewModel @Inject constructor(
 
     private val _todoList = MutableStateFlow<List<Todo>>(emptyList())
     val todoList: StateFlow<List<Todo>> = _todoList.asStateFlow()
-
-    private val currentUid: String = "testuser"
 
     @RequiresApi(Build.VERSION_CODES.O)
     private val currentDate = LocalDate.now()
@@ -71,8 +74,6 @@ class HomeViewModel @Inject constructor(
                 _state.update { it.copy(totalRecordTimeMills = savedTime) }
             }
         }
-
-        loadDailyRecordAndSetTotalTime(currentUid, currentDate)
     }
 
     fun onEvent(event: TimerEvent) {
@@ -126,7 +127,7 @@ class HomeViewModel @Inject constructor(
                 studyTimeMillis = _state.value.totalStudyTimeMills
             )
             try {
-                homeRepository.updateDailyRecord(currentUid, dailyRecord)
+                homeRepository.updateDailyRecord(_state.value.uid, dailyRecord)
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error updating daily record: ${e.message}")
             }
@@ -168,7 +169,7 @@ class HomeViewModel @Inject constructor(
             )
             try {
                 todoRepository.updateTodo(uid, updated)
-                homeRepository.updateDailyRecord(currentUid, dailyRecord)
+                homeRepository.updateDailyRecord(_state.value.uid, dailyRecord)
             } catch (e: Exception) {
                 Log.e("todorilog", e.toString())
             }
@@ -260,7 +261,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun loadDailyRecordAndSetTotalTime(uid: String, date: LocalDate) {
+    fun loadDailyRecordAndSetTotalTime(uid: String, date: LocalDate) {
         viewModelScope.launch {
             try {
                 val dailyRecords = homeRepository.getDailyRecord(uid, date)
@@ -269,6 +270,18 @@ class HomeViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error loading daily record: ${e.message}")
             }
+        }
+    }
+
+    fun loadProfile(uid: String) {
+        viewModelScope.launch {
+            runCatching { repository.getProfile(uid) }
+                .onSuccess {
+                    _state.value = _state.value.copy(uid = uid)
+                }
+                .onFailure { e ->
+                    Log.e("todorilog", "${e.message}")
+                }
         }
     }
 

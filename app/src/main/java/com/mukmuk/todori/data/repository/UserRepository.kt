@@ -19,6 +19,16 @@ class UserRepository @Inject constructor(
         }
     }
 
+    suspend fun getUsers(uids: Set<String>): List<User> {
+        return try {
+            userService.getUsers(uids)
+        } catch (e: Exception) {
+            Log.e("UserRepository", "getUsers 실패: ${e.message}")
+            emptyList()
+        }
+    }
+
+
     //프로필 수정
     suspend fun updateUser(uid: String, nickname: String, intro: String){
             userService.updateUser(uid, nickname, intro)

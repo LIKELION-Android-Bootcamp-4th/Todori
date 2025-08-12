@@ -31,6 +31,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.ui.component.ProgressWithText
 import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
 import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
@@ -52,7 +54,8 @@ fun StudyDetailScreen(
     selectedDate: String,
     onBack: () -> Unit
 ) {
-    val uid = "testuser"
+//    val uid = "testuser"
+    val uid = Firebase.auth.currentUser?.uid.toString()
     val viewModel: StudyDetailViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
     var newTodoText by remember { mutableStateOf("") }
@@ -240,7 +243,8 @@ fun StudyDetailScreen(
                     MemberProgressCard(
                         members = members,
                         todos = todos,
-                        progresses = memberProgressMap
+                        progresses = memberProgressMap,
+                        usersById = state.usersById,
                     ) {
                         navController.navigate("member_progress_detail/${study.studyId}?date=$selectedDate")
                     }

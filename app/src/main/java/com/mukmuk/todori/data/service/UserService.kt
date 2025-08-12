@@ -41,6 +41,23 @@ class UserService @Inject constructor(
             .await()
     }
 
+    suspend fun getUsers(uids: Set<String>): List<User> {
+        if (uids.isEmpty()) return emptyList()
+
+        val chunks = uids.chunked(10)
+        val results = mutableListOf<User>()
+
+        for (chunk in chunks) {
+            val snap = firestore.collection("users")
+                .whereIn("uid", chunk)
+                .get()
+                .await()
+            results += snap.toObjects(User::class.java)
+        }
+        return results
+    }
+
+
     //마지막 로그인 시간 업데이트
     suspend fun updateLastLogin(uid: String) {
         userDoc(uid).set(

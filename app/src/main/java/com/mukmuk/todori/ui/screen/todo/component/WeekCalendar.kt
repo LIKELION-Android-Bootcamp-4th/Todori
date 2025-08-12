@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +31,7 @@ import com.mukmuk.todori.ui.theme.UserHalf
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.UserTenth
 import com.mukmuk.todori.ui.theme.White
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -44,15 +46,35 @@ fun WeekCalendar(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
-    studyRecords: Map<LocalDate, Int>
+    studyRecordsMillis: Map<LocalDate, Long>,
+    onWeekVisible: (start: LocalDate, end: LocalDate) -> Unit,
+    anchorDate: LocalDate = selectedDate
 ) {
     val startPage = 10_000
     val pagerState = rememberPagerState(pageCount = { Int.MAX_VALUE })
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
+    LaunchedEffect(Unit) { pagerState.scrollToPage(startPage) }
+
+    LaunchedEffect(anchorDate) {
+        pagerState.scrollToPage(startPage)
+        val weekStart = anchorDate.startOfWeek()
+        onWeekVisible(weekStart, weekStart.plus(6, DateTimeUnit.DAY))
+    }
+
+    LaunchedEffect(pagerState, anchorDate) {
+        val base = anchorDate.startOfWeek()
+        snapshotFlow { pagerState.currentPage }
+            .distinctUntilChanged()
+            .collect { pageIndex ->
+                val weekStart = base.plus((pageIndex - startPage) * 7, DateTimeUnit.DAY)
+                onWeekVisible(weekStart, weekStart.plus(6, DateTimeUnit.DAY))
+            }
+    }
 
     LaunchedEffect(Unit) {
-        pagerState.scrollToPage(startPage)
+        val weekStart = today.startOfWeek()
+        onWeekVisible(weekStart, weekStart.plus(6, DateTimeUnit.DAY))
     }
 
     Box(
@@ -69,9 +91,8 @@ fun WeekCalendar(
                 .fillMaxWidth()
                 .height(40.dp)
         ) { pageIndex ->
-            val weekStart = today.startOfWeek()
-                .plus((pageIndex - startPage) * 7, DateTimeUnit.DAY)
-
+            val base = anchorDate.startOfWeek()
+            val weekStart = base.plus((pageIndex - startPage) * 7, DateTimeUnit.DAY)
             val weekDates = (0..6).map { weekStart.plus(it, DateTimeUnit.DAY) }
 
             Row(
@@ -80,15 +101,26 @@ fun WeekCalendar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 weekDates.forEach { date ->
-
                     val isSelected = date == selectedDate
-                    val studyTime = studyRecords[date] ?: 0
+                    val isToday = date == today
+
+                    val studyMs = studyRecordsMillis[date] ?: 0L
                     val backgroundColor = when {
-                        date == today -> Gray
-                        studyTime >= 240 -> UserTenth
-                        studyTime in 60..239 -> UserHalf
-                        studyTime in 1..59 -> UserPrimary
+                        studyMs >= 14_400_000L -> UserPrimary      // 4h+
+                        studyMs >= 3_600_000L -> UserHalf        // 1~4h
+                        studyMs in 1 until 3_600_000L -> UserTenth // <1h
                         else -> Color.Transparent
+                    }
+
+                    val borderColor = when {
+                        isSelected -> CalendarSelectDay
+                        isToday -> Gray
+                        else -> Color.Transparent
+                    }
+                    val borderWidth = when {
+                        isSelected -> 2.dp
+                        isToday -> 1.dp
+                        else -> 0.dp
                     }
 
                     Box(
@@ -97,11 +129,9 @@ fun WeekCalendar(
                             .clip(CircleShape)
                             .background(backgroundColor)
                             .then(
-                                if (isSelected) Modifier.border(
-                                    2.dp,
-                                    CalendarSelectDay,
-                                    CircleShape
-                                ) else Modifier
+                                if (borderWidth > 0.dp)
+                                    Modifier.border(borderWidth, borderColor, CircleShape)
+                                else Modifier
                             )
                             .clickable { onDateSelected(date) },
                         contentAlignment = Alignment.Center
@@ -110,8 +140,7 @@ fun WeekCalendar(
                             text = date.dayOfMonth.toString(),
                             color = when {
                                 isSelected -> Black
-                                date == today -> White
-                                date > today -> Gray
+                                isToday -> Black
                                 else -> Black
                             }
                         )
