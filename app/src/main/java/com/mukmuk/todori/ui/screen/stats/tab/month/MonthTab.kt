@@ -47,7 +47,7 @@ fun MonthTab(
     uid: String
 ) {
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-    var selectedMonth by rememberSaveable {
+    var selectedMonth by remember {
         mutableStateOf(LocalDate(today.year, today.monthNumber, 1))
     }
     val viewModel: MonthViewModel = hiltViewModel()

@@ -32,8 +32,7 @@ import com.mukmuk.todori.ui.theme.UserPrimary
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StatsScreen() {
-    //val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-    val uid = "testuser"
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("DAY", "WEEK", "MONTH")
@@ -63,8 +62,8 @@ fun StatsScreen() {
         }
 
         when (selectedTabIndex) {
-            0 -> DayTab()
-            1 -> WeekTab()
+            0 -> DayTab(uid = uid)
+            1 -> WeekTab(uid = uid)
             2 -> MonthTab(uid = uid)
         }
     }

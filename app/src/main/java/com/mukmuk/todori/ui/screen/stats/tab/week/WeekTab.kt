@@ -41,16 +41,15 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeekTab() {
+fun WeekTab(
+    uid : String
+) {
     var selectedWeek by remember {
         mutableStateOf(LocalDate.now())
     }
 
     val viewModel: WeekViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
-
-
-    val uid = "testuser"
 
     LaunchedEffect(uid, selectedWeek) {
         viewModel.loadWeekTodos(uid = uid, date = selectedWeek)

@@ -25,8 +25,9 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayTab(
+    uid : String
 ) {
-    val uid = "testuser"
+
     val viewModel: DayViewModel = hiltViewModel()
     val fetchedRecord by viewModel.selectedRecord.collectAsState()
     val monthRecords by viewModel.monthRecords.collectAsState()
