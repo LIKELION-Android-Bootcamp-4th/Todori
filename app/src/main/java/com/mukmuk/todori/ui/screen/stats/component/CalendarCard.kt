@@ -6,9 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -18,30 +16,27 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.*
-import androidx.compose.runtime.derivedStateOf
-import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.compose.HorizontalCalendar
+import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.DayPosition
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.CalendarSelectDay
 import com.mukmuk.todori.ui.theme.Dimens
-import com.mukmuk.todori.ui.theme.White
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
-import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.UserHalf
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.UserTenth
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.todayIn
+import com.mukmuk.todori.ui.theme.White
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -90,18 +85,15 @@ fun CalendarCard(
         HorizontalCalendar(
             modifier = Modifier.padding(Dimens.Medium),
             state = calendarState,
-//            contentPadding = PaddingValues(horizontal = 8.dp),
             dayContent = { day ->
                 val date = day.date
                 val isSelected = date == selectedDate
 
-                val today = LocalDate.now()
                 val matchedRecord = record.find { it.date == date.toString() }
                 val studyMillis = matchedRecord?.studyTimeMillis ?: 0L
                 val studySec = (studyMillis / 1000).toInt()
 
                 val backgroundColor = when {
-                    date == today -> Gray
                     studySec in 1..7200 -> UserTenth
                     studySec in 7201..21600 -> UserHalf
                     studySec >= 21601 -> UserPrimary
@@ -114,7 +106,6 @@ fun CalendarCard(
                             .fillMaxWidth()
                             .padding(vertical = Dimens.Small, horizontal = Dimens.Nano)
                             .clip(CircleShape)
-//                        .height(45.dp)
                             .size(40.dp)
                             .clickable { onDateSelected(date) }
                             .clip(CircleShape)
@@ -126,7 +117,7 @@ fun CalendarCard(
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(CircleShape)
-                                    .border(1.dp, CalendarSelectDay, CircleShape),
+                                    .border(2.dp, CalendarSelectDay, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
@@ -143,7 +134,7 @@ fun CalendarCard(
             monthHeader = {
                 Text(
                     text = "${it.yearMonth.year}년 ${it.yearMonth.monthValue}월",
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.padding(Dimens.Small),
                     style = AppTextStyle.TitleSmall
                 )
             }
