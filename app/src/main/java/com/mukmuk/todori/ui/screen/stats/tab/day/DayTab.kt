@@ -3,9 +3,15 @@ package com.mukmuk.todori.ui.screen.stats.tab.day
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -19,6 +25,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.ui.screen.stats.component.CalendarCard
 import com.mukmuk.todori.ui.screen.stats.component.day.DayPaceCard
 import com.mukmuk.todori.ui.screen.stats.component.day.DayStatsCard
+import com.mukmuk.todori.ui.screen.stats.component.day.GoldenHourCard
+import com.mukmuk.todori.ui.screen.stats.component.day.LearningStreakCard
+import com.mukmuk.todori.ui.screen.stats.component.day.ReflectionCard
 import com.mukmuk.todori.ui.theme.Dimens
 import java.time.LocalDate
 
@@ -84,6 +93,40 @@ fun DayTab(
         Spacer(modifier = Modifier.height(Dimens.Large))
 
         DayPaceCard()
+        Spacer(modifier = Modifier.height(Dimens.Large))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimens.Medium)
+                .height(IntrinsicSize.Min)
+        ) {
+            LearningStreakCard(
+                currentStreak = 12,
+                bestStreak = 28,
+                qualifiedToday = true,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            )
+            Spacer(Modifier.width(Dimens.Small))
+            GoldenHourCard(
+                startHour = 21,
+                windowHours = 2,
+                completionDeltaPercent = 32,
+                modifier = Modifier.weight(1f).fillMaxHeight()
+            )
+        }
+        Spacer(modifier = Modifier.height(Dimens.Large))
+
+        ReflectionCard(
+            initialText = recordForSelected?.reflection.orEmpty(),
+            onReflectionChanged = { newText ->
+                // todo: 서버 연동
+            },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.Medium)
+        )
+
         Spacer(modifier = Modifier.height(Dimens.Large))
 
     }
