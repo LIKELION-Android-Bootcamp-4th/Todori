@@ -138,10 +138,10 @@ class CommunityViewModel @Inject constructor(
         viewModelScope.launch {
             try {
 
-                val comments = communityRepository.getReplies(postId)
+                val comments = communityRepository.getPostComments(postId)
 
                 val allReplies = comments.flatMap { comment ->
-                    communityRepository.getCommentReplies(postId, comment.commentId)
+                    communityRepository.getPostCommentReplies(postId, comment.commentId)
                 }
 
 
@@ -158,10 +158,25 @@ class CommunityViewModel @Inject constructor(
     }
 
     fun createCommunitySearch(uid: String, query: String) {
-
+        viewModelScope.launch {
+            try {
+                communityRepository.createCommunitySearch(uid, query)
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
     }
 
-
+    fun deleteCommunitySearch(uid: String, query: String) {
+        viewModelScope.launch {
+            try {
+                communityRepository.deleteCommunitySearch(uid, query)
+                getCommunitySearch(uid)
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
 
     fun getCommunitySearch(uid: String) {
         viewModelScope.launch {
