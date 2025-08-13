@@ -34,32 +34,24 @@ class CommunityViewModel @Inject constructor(
                     _state.update { it.copy(selectedOption = "참가자 수") }
                 else if(filter == "날짜순")
                     _state.update { it.copy(selectedOption = "날짜순") }
-                var posts = communityRepository.getPosts(filter = filter)
+
+                communityRepository.getPosts(filter = filter).collect { posts ->
+                    _state.update {
+                        it.copy(
+                            allPostList = posts,
+                            postList = posts,
+                            isLoading = false,
+                        )
+                    }
+                }
+
+                val posts = _state.value.postList
+
                 posts.map {
                     if(it.studyId.isNotBlank()) {
                         val memberCount = communityRepository.getStudyMembers(it.studyId)
-                        updatePost(it.postId, StudyPost(
-                            postId = it.postId,
-                            studyId = it.studyId,
-                            title = it.title,
-                            content = it.content,
-                            tags = it.tags,
-                            memberCount = memberCount.size,
-                            createdBy = it.createdBy,
-                            createdAt = it.createdAt,
-                            updatedAt = it.updatedAt,
-                            deleted = it.deleted
-                        ))
+                        communityRepository.updateMemberCountByPostId(it.postId, memberCount.size)
                     }
-                }
-                posts = communityRepository.getPosts(filter = filter)
-                _state.update {
-                    it.copy(
-                        allPostList = posts,
-                        postList = posts,
-                        isLoading = false,
-                        error = null
-                    )
                 }
             }
             catch (e: Exception) {
@@ -72,31 +64,22 @@ class CommunityViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                var posts = communityRepository.getPosts(data = data)
+                communityRepository.getPosts(data = data).collect { posts ->
+                    _state.update {
+                        it.copy(
+                            communitySearchPostList = posts,
+                            isLoading = false,
+                        )
+                    }
+                }
+
+                val posts = _state.value.communitySearchPostList
+
                 posts.map {
                     if(it.studyId.isNotBlank()) {
                         val memberCount = communityRepository.getStudyMembers(it.studyId)
-                        updatePost(it.postId, StudyPost(
-                            postId = it.postId,
-                            studyId = it.studyId,
-                            title = it.title,
-                            content = it.content,
-                            tags = it.tags,
-                            memberCount = memberCount.size,
-                            createdBy = it.createdBy,
-                            createdAt = it.createdAt,
-                            updatedAt = it.updatedAt,
-                            deleted = it.deleted
-                        ))
+                        communityRepository.updateMemberCountByPostId(it.postId, memberCount.size)
                     }
-                }
-                posts = communityRepository.getPosts(data = data)
-                _state.update {
-                    it.copy(
-                        communitySearchPostList = posts,
-                        isLoading = false,
-                        error = null,
-                    )
                 }
             }
             catch (e: Exception) {
