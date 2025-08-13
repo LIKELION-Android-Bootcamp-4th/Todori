@@ -11,6 +11,7 @@ data class StudyPost (
     val content: String = "",
     val tags: List<String> = emptyList(),
     val memberCount: Int = 0,
+    val commentsCount: Int = 0,
     val createdBy: String = "",
     val createdAt: Timestamp? = null,
     val updatedAt: Timestamp? = null,
