@@ -10,7 +10,6 @@ import com.google.firebase.functions.FirebaseFunctions
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.data.repository.AuthRepository
 import com.mukmuk.todori.data.repository.DailyRecordRepository
-import com.google.firebase.functions.FirebaseFunctions
 import com.mukmuk.todori.data.repository.GoalRepository
 import com.mukmuk.todori.data.repository.GoalStatsRepository
 import com.mukmuk.todori.data.repository.GoalTodoRepository
@@ -24,9 +23,7 @@ import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.service.QuestService
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.TodoStatsRepository
-import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.DailyRecordService
-import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.service.GoalTodoService
 import com.mukmuk.todori.data.service.HomeService
 import com.mukmuk.todori.data.service.StudyService
@@ -106,14 +103,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFirebaseFunctions(): FirebaseFunctions =
-        FirebaseFunctions.getInstance()
-
-    @Provides
-    @Singleton
     fun provideQuestRepository(
-        questService: QuestService
-    ): QuestRepository = QuestRepository(questService)
+        questService: QuestService,
+        firestore: FirebaseFirestore
+    ): QuestRepository = QuestRepository(questService, firestore)
+
     @Provides
     @Singleton
     fun provideTodoService(firestore: FirebaseFirestore): TodoService =

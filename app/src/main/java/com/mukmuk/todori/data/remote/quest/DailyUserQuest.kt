@@ -6,7 +6,7 @@ data class DailyUserQuest(
     val questId: String = "",
     val title: String = "",
     val description: String = "",
-    val point: Int = 0,
+    val points: Int = 0,
     val completed: Boolean = false,
     val completedAt: Timestamp? = null
 )

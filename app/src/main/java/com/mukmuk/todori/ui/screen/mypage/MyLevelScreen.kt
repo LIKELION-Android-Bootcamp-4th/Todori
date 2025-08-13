@@ -13,6 +13,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.screen.mypage.component.PointProgressBar
 import com.mukmuk.todori.ui.screen.mypage.component.QuestSection
@@ -26,70 +28,65 @@ fun MyLevelScreen(
     onBack: () -> Unit
 ) {
     val questViewModel: QuestViewModel = hiltViewModel()
-    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val ui by questViewModel.ui.collectAsState()
+    val uid = Firebase.auth.currentUser?.uid ?: return
 
-    val quests by questViewModel.dailyQuests.collectAsState()
-    val profile by profileViewModel.profile.collectAsState()
-
-    LaunchedEffect(Unit) {
-        questViewModel.loadDailyQuests("testuser")
-        profileViewModel.loadProfile("testuser")
-        //questViewModel.loadDailyQuests(uid)
+    LaunchedEffect(uid) {
+        questViewModel.loadDailyQuests(uid)
     }
 
-    profile?.let { user ->
-        val levelInfo = getLevelInfo(user.level)
+    Scaffold(
+        topBar = { SimpleTopAppBar(title = "나의 레벨", onBackClick = onBack) },
+        containerColor = White
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = innerPadding.calculateTopPadding())
+                .padding(Dimens.Medium)
+                .background(color = White),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(Dimens.Medium))
 
-        Scaffold(
-            topBar = {
-                SimpleTopAppBar(title = "나의 레벨", onBackClick = onBack)
-            },
-            containerColor = White
-        ) { innerPadding ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = innerPadding.calculateTopPadding())
-                    .padding(Dimens.Medium)
-                    .background(color = White),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                item {
-                    Spacer(modifier = Modifier.height(Dimens.Medium))
+                Text(
+                    text = "나의 레벨",
+                    style = AppTextStyle.Title,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    Text(
-                        text = "나의 레벨",
-                        style = AppTextStyle.Title,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                val levelInfo = getLevelInfo(ui.level)
 
-                    Text(
-                        text = levelInfo.name,
-                        style = AppTextStyle.Timer,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                Text(
+                    text = levelInfo.name,
+                    style = AppTextStyle.Timer,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    Image(
-                        painter = painterResource(id = levelInfo.imageRes),
-                        contentDescription = "레벨 이미지",
-                        modifier = Modifier.size(228.dp)
-                    )
+                Image(
+                    painter = painterResource(id = levelInfo.imageRes),
+                    contentDescription = "레벨 이미지",
+                    modifier = Modifier.size(228.dp)
+                )
 
-                    Spacer(modifier = Modifier.height(Dimens.Large))
+                Spacer(modifier = Modifier.height(Dimens.Large))
 
-                    PointProgressBar(
-                        level = user.level,
-                        currentPoint = 60, //TODO: 경험치통 정하기
-                        maxPoint = 100
-                    )
+                // 진행바: current = 현 버킷 포인트, max = current + 남은량
+                val current = ui.rewardPoint
+                val max = (ui.rewardPoint + ui.nextLevelPoint).coerceAtLeast(1)
 
-                    Spacer(modifier = Modifier.height(Dimens.Large))
+                PointProgressBar(
+                    level = ui.level,
+                    currentPoint = current,
+                    maxPoint = max
+                )
 
-                    QuestSection(quests = quests)
+                Spacer(modifier = Modifier.height(Dimens.Large))
 
-                }
+                QuestSection(quests = ui.quests)
             }
         }
     }

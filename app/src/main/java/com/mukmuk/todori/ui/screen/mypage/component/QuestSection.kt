@@ -69,7 +69,7 @@ fun QuestItem(quest: DailyUserQuest) {
         Spacer(modifier = Modifier.width(Dimens.Medium))
 
         Text(
-            text = "${quest.title} (+${quest.point})",
+            text = "${quest.title} (+${quest.points})",
             style = AppTextStyle.Body,
         )
     }

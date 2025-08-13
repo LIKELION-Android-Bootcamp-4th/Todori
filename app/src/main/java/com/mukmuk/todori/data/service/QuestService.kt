@@ -9,42 +9,107 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class QuestService @Inject constructor(
     val firestore: FirebaseFirestore
 ) {
-    private val client = OkHttpClient()
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(7, TimeUnit.SECONDS)
+        .readTimeout(12, TimeUnit.SECONDS)
+        .writeTimeout(7, TimeUnit.SECONDS)
+        .build()
 
+    // Cloud Run URL (배포 로그에서 실제 URL 확인)
     private val functionUrl = "https://updateuserquest-qbko4v5l2q-uc.a.run.app"
 
-    suspend fun callQuestCheckFunction(uid: String): Result<String> {
-        println("📦 QuestService.callQuestCheckFunction - uid 전달: '$uid'")
-
+    /** 서버에서 오늘 퀘스트 배정+판정+보상 수행 → 강타입 DTO 반환 */
+    suspend fun callQuest(uid: String): Result<QuestFunctionResponse> {
         return withContext(Dispatchers.IO) {
             try {
-                val data = JSONObject().apply {
-                    put("uid", uid)
-                }
+                val payload = JSONObject().apply { put("uid", uid) }
+                val reqBody = payload.toString().toRequestBody("application/json".toMediaType())
 
-                val requestBody = data.toString().toRequestBody("application/json".toMediaType())
-
-                val request = Request.Builder()
+                val req = Request.Builder()
                     .url(functionUrl)
-                    .post(requestBody)
+                    .post(reqBody)
                     .addHeader("Content-Type", "application/json")
                     .build()
 
-                val response = client.newCall(request).execute()
-                val responseBody = response.body?.string()
+                client.newCall(req).execute().use { resp ->
+                    val body = resp.body?.string()
+                    if (!resp.isSuccessful || body.isNullOrBlank()) {
+                        val msg = "HTTP ${resp.code} / body=${body?.take(200)}"
+                        Log.e("QuestService", "❌ Functions 실패: $msg")
+                        return@use Result.failure(RuntimeException(msg))
+                    }
+                    Log.d("QuestService", "✅ Functions 응답: ${body.take(400)}")
+                    val json = JSONObject(body)
 
-                Log.d("QuestService", "✅ HTTP 호출 응답: $responseBody")
+                    val assignedJson = json.getJSONArray("assigned")
+                    val assigned = buildList {
+                        for (i in 0 until assignedJson.length()) {
+                            val o = assignedJson.getJSONObject(i)
+                            add(
+                                AssignedQuestDTO(
+                                    questId = o.getString("questId"),
+                                    title = o.optString("title"),
+                                    completed = o.optBoolean("completed", false),
+                                    points = o.optInt("points", 0)
+                                )
+                            )
+                        }
+                    }
 
-                Result.success(responseBody ?: "성공")
+                    val rewardObj = json.optJSONObject("reward")
+                    val profileObj = json.optJSONObject("profile")
+                    val metaObj = json.optJSONObject("meta")
+
+                    val result = QuestFunctionResponse(
+                        assigned = assigned,
+                        reward = RewardDTO(
+                            gainedPoint = rewardObj?.optInt("gainedPoint") ?: 0,
+                            levelUp = rewardObj?.optBoolean("levelUp") ?: false,
+                            newLevel = rewardObj?.optInt("newLevel") ?: (profileObj?.optInt("level") ?: 1)
+                        ),
+                        profile = ProfileDTO(
+                            level = profileObj?.optInt("level") ?: 1,
+                            // 서버 의미: rewardPoint = 현 레벨 버킷 진행도
+                            rewardPoint = profileObj?.optInt("rewardPoint") ?: 0,
+                            // 서버 의미: nextLevelPoint = 다음 레벨까지 남은 포인트
+                            nextLevelPoint = profileObj?.optInt("nextLevelPoint") ?: 0
+                        ),
+                        meta = MetaDTO(
+                            today = metaObj?.optString("today"),
+                            joinedStudy = metaObj?.optBoolean("joinedStudy")
+                        )
+                    )
+                    Result.success(result)
+                }
             } catch (e: Exception) {
-                Log.e("QuestService", "❌ HTTP 호출 실패", e)
+                Log.e("QuestService", "❌ HTTP/파싱 실패", e)
                 Result.failure(e)
             }
         }
     }
 }
+
+/* ------------ DTOs ------------- */
+data class QuestFunctionResponse(
+    val assigned: List<AssignedQuestDTO>,
+    val reward: RewardDTO,
+    val profile: ProfileDTO,
+    val meta: MetaDTO?
+)
+
+data class AssignedQuestDTO(
+    val questId: String,
+    val title: String,
+    val completed: Boolean,
+    val points: Int
+)
+
+data class RewardDTO(val gainedPoint: Int, val levelUp: Boolean, val newLevel: Int)
+data class ProfileDTO(val level: Int, val rewardPoint: Int, val nextLevelPoint: Int)
+data class MetaDTO(val today: String?, val joinedStudy: Boolean?)
