@@ -15,6 +15,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,7 +44,11 @@ fun StudyDetailCard(
 
     val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
 
+    val state by communityDetailViewModel.state.collectAsState()
 
+    LaunchedEffect(Unit) {
+        communityDetailViewModel.getUserById(uid)
+    }
 
     Card (
         modifier = Modifier
@@ -91,8 +98,8 @@ fun StudyDetailCard(
                         communityDetailViewModel.updateStudyMember(
                             studyId,
                             StudyMember(
-                                uid = "testuser",
-                                nickname = "testuser",
+                                uid = uid,
+                                nickname = state.user?.nickname ?: "",
                                 studyId = studyId,
                                 role = "MEMBER",
                                 joinedAt = Timestamp.now(),
