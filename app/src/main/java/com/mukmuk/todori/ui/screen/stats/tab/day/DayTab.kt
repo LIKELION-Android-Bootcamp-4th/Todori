@@ -84,10 +84,7 @@ fun DayTab(
             selectedDate = selectedDay,
             studyTimeMillis = recordForSelected?.studyTimeMillis ?: 0L,
             reflection = recordForSelected?.reflection,
-            todos = todos,
-            onReflectionChanged = { newReflection ->
-                viewModel.updateDailyRecord(uid, selectedDay, newReflection)
-            }
+            todos = todos
         )
 
         Spacer(modifier = Modifier.height(Dimens.Large))
