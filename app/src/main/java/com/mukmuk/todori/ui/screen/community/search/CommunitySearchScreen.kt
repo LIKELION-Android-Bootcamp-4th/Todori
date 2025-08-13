@@ -224,7 +224,6 @@ fun CommunitySearchScreen(
                         items(state.communitySearchPostList) { post ->
                             CommunityPost(
                                 post = post,
-                                memberCount = post.memberCount,
                                 navController = navController,
                             )
                         }
