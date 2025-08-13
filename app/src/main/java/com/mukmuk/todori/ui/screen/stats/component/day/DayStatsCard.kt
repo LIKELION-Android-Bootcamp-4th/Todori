@@ -29,7 +29,6 @@ import java.time.LocalDate
 fun DayStatsCard(
     selectedDate: LocalDate,
     studyTimeMillis: Long,
-    reflection: String?,
     todos: List<Todo>,
 ) {
     val year = selectedDate.year

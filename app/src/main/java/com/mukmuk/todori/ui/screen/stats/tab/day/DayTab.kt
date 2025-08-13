@@ -83,7 +83,6 @@ fun DayTab(
         DayStatsCard(
             selectedDate = selectedDay,
             studyTimeMillis = recordForSelected?.studyTimeMillis ?: 0L,
-            reflection = recordForSelected?.reflection,
             todos = todos
         )
 
