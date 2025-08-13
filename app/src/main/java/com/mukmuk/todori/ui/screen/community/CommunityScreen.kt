@@ -215,7 +215,6 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                         items(state.postList) { post ->
                             CommunityPost(
                                 post = post,
-                                memberCount = post.memberCount,
                                 navController = navController,
                             )
                         }
