@@ -50,7 +50,7 @@ class CommunityService(
         return snapshot.toObject(StudyPost::class.java)
     }
 
-    suspend fun getProfile(uid: String): User? {
+    suspend fun getUserById(uid: String): User? {
         val snapshot = firestore.collection("users").document(uid).get().await()
         return snapshot.toObject(User::class.java)
     }
@@ -63,8 +63,10 @@ class CommunityService(
         communityRef().document(postId).delete().await()
     }
 
-    suspend fun createCommunitySearch(uid: String, query: List<String>) {
-
+    suspend fun createCommunitySearch(uid: String, query: String) {
+        val ref = firestore.collection("users").document(uid).collection("communitySearch").document()
+        val searchWithId = mapOf("query" to query, "timestamp" to FieldValue.serverTimestamp())
+        ref.set(searchWithId, SetOptions.merge()).await()
     }
 
     suspend fun getCommunitySearch(uid: String): List<String> {
@@ -77,31 +79,26 @@ class CommunityService(
         return snapshot.documents.mapNotNull { it.get("query") as? String }.toList()
     }
 
-    suspend fun updateCommunitySearch(uid: String, query: List<String>) {
-        val ref = firestore.collection("users")
+    suspend fun deleteCommunitySearch(uid: String, query: String) {
+        val snapshot = firestore.collection("users")
             .document(uid)
             .collection("communitySearch")
-            .limit(5)
-        ref.get().await().documents.forEach { it.reference.delete() }
-        query.forEach {
-            val ref = firestore.collection("users")
-                .document(uid)
-                .collection("communitySearch")
-                .document()
-            val data = listOf("query" to it)
-            ref.set(data, SetOptions.merge()).await()
+            .whereEqualTo("query", query)
+            .get()
+            .await()
+        for (document in snapshot.documents) {
+            document.reference.delete()
         }
     }
 
-
-    suspend fun createReply(postId: String, reply: StudyPostComment){
+    suspend fun createPostComment(postId: String, reply: StudyPostComment){
         val ref = communityRef().document(postId).collection("studyPostReply").document()
         val autoId = ref.id
         val replyWithId = reply.copy(commentId = autoId, parentCommentId = null, createdAt = Timestamp.now())
         ref.set(replyWithId, SetOptions.merge()).await()
     }
 
-    suspend fun getReplies(postId: String): List<StudyPostComment> {
+    suspend fun getPostComments(postId: String): List<StudyPostComment> {
         val snapshot: QuerySnapshot = communityRef().document(postId).collection("studyPostReply")
             .whereEqualTo("parentCommentId", null)
             .get().await()
@@ -109,18 +106,18 @@ class CommunityService(
             it.toObject(StudyPostComment::class.java)?.copy(commentId = it.id) }
     }
 
-    suspend fun deleteReply(postId: String, replyId: String) {
+    suspend fun deletePostComment(postId: String, replyId: String) {
         communityRef().document(postId).collection("studyPostReply").document(replyId).delete().await()
     }
 
-    suspend fun createCommentReply(postId: String, commentId: String, reply: StudyPostComment){
+    suspend fun createPostCommentReply(postId: String, commentId: String, reply: StudyPostComment){
         val ref = communityRef().document(postId).collection("studyPostReply").document()
         val autoId = ref.id
         val replyWithId = reply.copy(commentId = autoId, parentCommentId = commentId, createdAt = Timestamp.now())
         ref.set(replyWithId, SetOptions.merge()).await()
     }
 
-    suspend fun getCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
+    suspend fun getPostCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
         val snapshot: QuerySnapshot = communityRef().document(postId).collection("studyPostReply").whereEqualTo("parentCommentId", commentId).get().await()
         return snapshot.documents.mapNotNull {
             it.toObject(StudyPostComment::class.java)?.copy(commentId = it.id)
@@ -138,8 +135,7 @@ class CommunityService(
     }
 
     suspend fun updateStudyMember(studyId: String, member: StudyMember) {
-        val docId = member.uid
-        firestore.collection("studyMembers").document(docId)
+        firestore.collection("studyMembers").document(studyId)
             .set(member, SetOptions.merge())
             .await()
     }

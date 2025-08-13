@@ -24,8 +24,8 @@ class CommunityRepository @Inject constructor(
         return communityService.getPostById(postId)
     }
 
-    suspend fun getProfile(uid: String): User? {
-        return communityService.getProfile(uid)
+    suspend fun getUserById(uid: String): User? {
+        return communityService.getUserById(uid)
     }
 
     suspend fun updatePost(postId: String, updatedPost: StudyPost) {
@@ -36,7 +36,7 @@ class CommunityRepository @Inject constructor(
         communityService.deletePost(postId)
     }
 
-    suspend fun createCommunitySearch(uid: String, query: List<String>) {
+    suspend fun createCommunitySearch(uid: String, query: String) {
         communityService.createCommunitySearch(uid, query)
     }
 
@@ -44,24 +44,28 @@ class CommunityRepository @Inject constructor(
         return communityService.getCommunitySearch(uid)
     }
 
-    suspend fun createReply(postId: String, reply: StudyPostComment){
-        communityService.createReply(postId, reply)
+    suspend fun deleteCommunitySearch(uid: String, query: String) {
+        communityService.deleteCommunitySearch(uid, query)
     }
 
-    suspend fun getReplies(postId: String): List<StudyPostComment> {
-        return communityService.getReplies(postId)
+    suspend fun createPostComment(postId: String, reply: StudyPostComment){
+        communityService.createPostComment(postId, reply)
     }
 
-    suspend fun deleteReply(postId: String, replyId: String) {
-        communityService.deleteReply(postId, replyId)
+    suspend fun getPostComments(postId: String): List<StudyPostComment> {
+        return communityService.getPostComments(postId)
     }
 
-    suspend fun createCommentReply(postId: String, commentId: String, reply: StudyPostComment){
-        communityService.createCommentReply(postId, commentId, reply)
+    suspend fun deletePostComment(postId: String, replyId: String) {
+        communityService.deletePostComment(postId, replyId)
     }
 
-    suspend fun getCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
-        return communityService.getCommentReplies(postId, commentId)
+    suspend fun createPostCommentReply(postId: String, commentId: String, reply: StudyPostComment){
+        communityService.createPostCommentReply(postId, commentId, reply)
+    }
+
+    suspend fun getPostCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
+        return communityService.getPostCommentReplies(postId, commentId)
     }
 
     suspend fun loadStudyById(studyId: String): Study? {
