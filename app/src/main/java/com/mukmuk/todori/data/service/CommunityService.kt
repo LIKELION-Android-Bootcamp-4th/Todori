@@ -64,6 +64,14 @@ class CommunityService(
         communityRef().document(postId).set(updatedPost).await()
     }
 
+    suspend fun updateCommentsCountByPostId(postId: String, count: Int) {
+        communityRef().document(postId).update("commentsCount", count).await()
+    }
+
+    suspend fun updateMemberCountByPostId(postId: String, count: Int) {
+        communityRef().document(postId).update("memberCount", count).await()
+    }
+
     suspend fun deletePost(postId: String) {
         communityRef().document(postId).delete().await()
     }

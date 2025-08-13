@@ -33,6 +33,10 @@ class CommunityRepository @Inject constructor(
         communityService.updatePost(postId, updatedPost)
     }
 
+    suspend fun updateMemberCountByPostId(postId: String, count: Int) {
+        communityService.updateCommentsCountByPostId(postId, count)
+    }
+
     suspend fun deletePost(postId: String) {
         communityService.deletePost(postId)
     }
