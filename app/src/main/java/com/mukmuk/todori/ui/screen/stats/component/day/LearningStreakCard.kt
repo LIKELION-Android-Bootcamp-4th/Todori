@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
@@ -65,7 +66,7 @@ fun LearningStreakCard(
 
             Text(
                 text = "최고 기록: ${bestStreak ?: "—"}일",
-                style = AppTextStyle.BodySmall.copy(color = Gray)
+                style = AppTextStyle.BodySmall.copy(color = DarkGray)
             )
         }
     }
