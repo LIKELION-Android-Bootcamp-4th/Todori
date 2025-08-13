@@ -11,7 +11,9 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
@@ -33,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -59,7 +64,11 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.mukmuk.todori.ui.screen.home.components.TimerTextFieldInput2
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Background
+import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 import java.util.concurrent.Executors
 
@@ -122,10 +131,8 @@ fun HomeOcrScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -135,30 +142,36 @@ fun HomeOcrScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = Dimens.Medium),
+                        .padding(horizontal = Dimens.Medium)
+                        .clip(RoundedCornerShape(Dimens.Medium))
+                        .background(Gray)
+                        .border(1.dp, Gray, RoundedCornerShape(Dimens.Small)),
                     horizontalArrangement = Arrangement.SpaceAround,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
-                        onClick = { viewModel.setOcrMode(OcrMode.CAMERA_PREVIEW) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (state.ocrMode == OcrMode.CAMERA_PREVIEW) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                            contentColor = if (state.ocrMode == OcrMode.CAMERA_PREVIEW) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("카메라 OCR")
-                    }
-                    Spacer(modifier = Modifier.width(Dimens.Small))
-                    Button(
                         onClick = { viewModel.setOcrMode(OcrMode.SELF) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (state.ocrMode == OcrMode.SELF) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                            contentColor = if (state.ocrMode == OcrMode.SELF) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                            containerColor = if (state.ocrMode == OcrMode.SELF) White else Color.Transparent,
+                            contentColor = if (state.ocrMode == OcrMode.SELF) Black else Black
                         ),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(Dimens.XXLarge)
                     ) {
-                        Text("수동 입력")
+                        Text("직접 입력")
+                    }
+                    Button(
+                        onClick = { viewModel.setOcrMode(OcrMode.CAMERA_PREVIEW) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (state.ocrMode == OcrMode.CAMERA_PREVIEW) White else Color.Transparent,
+                            contentColor = if (state.ocrMode == OcrMode.CAMERA_PREVIEW) Black else Black
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(Dimens.XXLarge)
+                    ) {
+                        Text("카메라 OCR")
                     }
                 }
                 Spacer(modifier = Modifier.height(Dimens.Medium))
@@ -170,7 +183,132 @@ fun HomeOcrScreen(
                 )
             }
 
-            if (state.ocrMode == OcrMode.CAMERA_PREVIEW) {
+            if (state.ocrMode == OcrMode.SELF) {
+                Column (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ){
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dimens.Medium),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ElevatedCard(
+                            colors = CardDefaults.cardColors(
+                                containerColor = White
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 10.dp
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(Dimens.Medium),
+                            ) {
+                                Text(
+                                    text = "빠른 선택",
+                                    style = AppTextStyle.BodySmall,
+                                    color = DarkGray
+                                )
+                                Spacer(modifier = Modifier.height(Dimens.Medium))
+                                Row {
+                                    OutlinedButton(
+                                        onClick = {
+                                            navController.navigateUp()
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f),
+                                        border = BorderStroke(1.dp, Gray)
+                                    ) {
+                                        Text("30분", color = Black)
+                                    }
+                                    Spacer(modifier = Modifier.width(Dimens.Small))
+                                    OutlinedButton(
+                                        onClick = {
+                                            navController.navigateUp()
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f),
+                                        border = BorderStroke(1.dp, Gray)
+                                    ) {
+                                        Text("1시간", color = Black)
+                                    }
+                                }
+                                Row {
+                                    OutlinedButton (
+                                        onClick = {
+                                            navController.navigateUp()
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f),
+                                        border = BorderStroke(1.dp, Gray)
+                                    ) {
+                                        Text("1시간 30분", color = Black)
+                                    }
+                                    Spacer(modifier = Modifier.width(Dimens.Small))
+                                    OutlinedButton(
+                                        onClick = {
+                                            navController.navigateUp()
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f),
+                                        border = BorderStroke(1.dp, Gray)
+                                    ) {
+                                        Text("2시간", color = Black)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(Dimens.Medium))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(horizontal = Dimens.Medium),
+                    ) {
+                        ElevatedCard(
+                            colors = CardDefaults.cardColors(
+                                containerColor = White
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 10.dp
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(Dimens.Medium),
+                            ) {
+                                Text(
+                                    text = "시간 직접 입력",
+                                    style = AppTextStyle.BodySmall,
+                                    color = DarkGray
+                                )
+                                Spacer(modifier = Modifier.height(Dimens.Medium))
+                                TimerTextFieldInput2(
+                                    initialHours = state.selfInputHours,
+                                    initialMinutes = state.selfInputMinutes,
+                                    initialSeconds = state.selfInputSeconds,
+                                    onTimeChanged = { hours, minutes, seconds ->
+                                        viewModel.onSelfInputChanged(hours, minutes, seconds)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            } else {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -230,42 +368,6 @@ fun HomeOcrScreen(
                         style = AppTextStyle.Body
                     )
                 }
-
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f) //
-                        .padding(horizontal = Dimens.Medium),
-                    contentAlignment = Alignment.Center
-                ) {
-                    ElevatedCard(
-                        colors = CardDefaults.cardColors(
-                            containerColor = White
-                        ),
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 10.dp
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(Dimens.Medium),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            TimerTextFieldInput2(
-                                initialHours = state.selfInputHours,
-                                initialMinutes = state.selfInputMinutes,
-                                initialSeconds = state.selfInputSeconds,
-                                onTimeChanged = { hours, minutes, seconds ->
-                                    viewModel.onSelfInputChanged(hours, minutes, seconds)
-                                }
-                            )
-                        }
-                    }
-                }
             }
 
             Column(
@@ -274,16 +376,6 @@ fun HomeOcrScreen(
                     .padding(Dimens.Medium),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
-                    onClick = {
-                        Log.d("HomeOcrScreen", "수동 입력 시간 추가: ${state.selfInputHours}:${state.selfInputMinutes}:${state.selfInputSeconds}")
-                        navController.navigateUp()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("추가하기")
-                }
-
                 if (!state.hasCameraPermission) {
                     Spacer(modifier = Modifier.height(Dimens.Medium))
                     Text("카메라 권한이 필요합니다.", modifier = Modifier.padding(horizontal = Dimens.Medium))
@@ -291,6 +383,17 @@ fun HomeOcrScreen(
                         Text("권한 요청")
                     }
                 }
+            }
+
+            Button(
+                onClick = {
+                    navController.navigateUp()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dimens.Medium)
+            ) {
+                Text("추가하기")
             }
         }
     }

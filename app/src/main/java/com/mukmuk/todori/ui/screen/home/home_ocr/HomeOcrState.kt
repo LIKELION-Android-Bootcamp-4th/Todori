@@ -9,7 +9,7 @@ enum class OcrMode {
 
 data class HomeOcrState(
     val recognizedText: String = "인식된 숫자: N/A",
-    val ocrMode: OcrMode = OcrMode.CAMERA_PREVIEW,
+    val ocrMode: OcrMode = OcrMode.SELF,
     val selectedImageUri: Uri? = null,
     val isOcrProcessing: Boolean = false,
     val hasCameraPermission: Boolean = false,
