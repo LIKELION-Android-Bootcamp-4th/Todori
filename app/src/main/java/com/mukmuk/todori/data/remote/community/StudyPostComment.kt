@@ -5,7 +5,7 @@ import com.google.firebase.Timestamp
 data class StudyPostComment (
 
     val commentId: String = "",
-    val studyId: String = "",
+    val postId: String = "",
     val uid: String = "",
     val content: String = "",
     val parentCommentId: String? = null,
