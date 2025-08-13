@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -24,28 +25,48 @@ import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun LearningStreakCard(modifier: Modifier = Modifier) {
-    //todo: 서버에서 받아올 값들
-    val continueDay = 12
-    val bestRecord = 28
+fun LearningStreakCard(
+    currentStreak: Int?,                   // 연속 일수 (null이면 데이터 없음/로딩)
+    bestStreak: Int?,                      // 최고 기록 (null 가능)
+    qualifiedToday: Boolean = false,       // 오늘 30분 충족 여부(포인트 색 강조)
+    modifier: Modifier = Modifier,
+    accentColor: Color = Color(0xFFF09643) // 포인트 컬러
+) {
+    val accent = if (qualifiedToday) accentColor else Gray
+
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(DefaultCornerRadius),
-        colors = CardDefaults.cardColors(
-            containerColor = White
-        ),
+        colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(Dimens.Medium)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimens.Medium)
+        ) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Filled.LocalFireDepartment, contentDescription = null, tint = Color(0xfff09643))
+                Icon(
+                    Icons.Filled.LocalFireDepartment,
+                    contentDescription = null,
+                    tint = accent
+                )
+                Spacer(Modifier.width(Dimens.Small))
                 Text("연속 학습", style = AppTextStyle.BodyLarge)
             }
             Spacer(modifier = Modifier.height(Dimens.Small))
-            Text("${continueDay} 일", style = AppTextStyle.TitleMedium.copy(color = Color(0xfff09643)))
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
-            Text("최고 기록: ${bestRecord}일",style = AppTextStyle.BodySmall.copy(color = Gray))
 
+            Text(
+                text = currentStreak?.let { "${it}일" } ?: "— 일",
+                style = AppTextStyle.TitleMedium.copy(color = accent)
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.Tiny))
+
+            Text(
+                text = "최고 기록: ${bestStreak ?: "—"}일",
+                style = AppTextStyle.BodySmall.copy(color = Gray)
+            )
         }
     }
 }
