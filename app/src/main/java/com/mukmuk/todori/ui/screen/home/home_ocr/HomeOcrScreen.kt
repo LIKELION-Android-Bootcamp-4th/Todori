@@ -25,12 +25,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
@@ -72,6 +80,7 @@ import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 import java.time.LocalDate
@@ -174,7 +183,17 @@ fun HomeOcrScreen(
                             .weight(1f)
                             .height(Dimens.XXLarge)
                     ) {
-                        Text("직접 입력")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.AccessTime,
+                                contentDescription = "직접 입력 아이콘",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(Dimens.Small))
+                            Text("직접 입력")
+                        }
                     }
                     Button(
                         onClick = { viewModel.setOcrMode(OcrMode.CAMERA_PREVIEW) },
@@ -186,24 +205,47 @@ fun HomeOcrScreen(
                             .weight(1f)
                             .height(Dimens.XXLarge)
                     ) {
-                        Text("카메라 OCR")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.CameraAlt,
+                                contentDescription = "카메라 OCR 아이콘",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(Dimens.Small))
+                            Text("카메라 OCR")
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(Dimens.Medium))
-                Text(
-                    "추가된 시간은 되돌릴 수 없습니다.",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold
-                )
+                Card(
+                    colors = CardColors(
+                        containerColor = Color(0xFFFFE0E2),
+                        contentColor = Red,
+                        disabledContentColor = Red,
+                        disabledContainerColor = Red
+                    ) ,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimens.Medium, vertical = Dimens.Small)
+                ) {
+                    Text(
+                        " ⚠\uFE0F 경고 : 추가된 시간은 되돌릴 수 없으니 신중하게 입력해주세요.",
+                        color = Red,
+                        style = AppTextStyle.BodyTinyBold,
+                        modifier = Modifier.padding(Dimens.Medium)
+                    )
+
+                }
             }
 
             if (state.ocrMode == OcrMode.SELF) {
-                Column (
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                ){
+                ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -260,7 +302,7 @@ fun HomeOcrScreen(
                                     }
                                 }
                                 Row {
-                                    OutlinedButton (
+                                    OutlinedButton(
                                         onClick = {
                                             viewModel.setTimeState(1, 30, 0)
                                             viewModel.onAddRecordTime()
