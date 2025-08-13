@@ -45,14 +45,23 @@ class CommunityViewModel @Inject constructor(
                     }
                 }
 
-                val posts = _state.value.postList
-
-                posts.map {
+                _state.value.postList.map {
                     if(it.studyId.isNotBlank()) {
-                        val memberCount = communityRepository.getStudyMembers(it.studyId)
-                        communityRepository.updateMemberCountByPostId(it.postId, memberCount.size)
+                        val memberCount = communityRepository.getStudyMembers(it.studyId).size
+                        it.copy(memberCount = memberCount)
+                    }
+
+                    if(it.commentsCount > 0){
+                        val comments = communityRepository.getPostComments(it.postId)
+                        val allReplies = comments.flatMap { comment ->
+                            communityRepository.getPostCommentReplies(it.postId, comment.commentId)
+                        }
+                        val commentsCount = comments.size + allReplies.size
+                        it.copy(commentsCount = commentsCount)
                     }
                 }
+
+
             }
             catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -73,28 +82,15 @@ class CommunityViewModel @Inject constructor(
                     }
                 }
 
-                val posts = _state.value.communitySearchPostList
-
-                posts.map {
+                _state.value.communitySearchPostList.map {
                     if(it.studyId.isNotBlank()) {
-                        val memberCount = communityRepository.getStudyMembers(it.studyId)
-                        communityRepository.updateMemberCountByPostId(it.postId, memberCount.size)
+                        val memberCount = communityRepository.getStudyMembers(it.studyId).size
+                        it.copy(memberCount = memberCount)
                     }
                 }
             }
             catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
-            }
-        }
-    }
-
-    fun updatePost(postId: String, studyPost: StudyPost) {
-        viewModelScope.launch {
-            try {
-                communityRepository.updatePost(postId, studyPost)
-                _state.update { it.copy(error = null) }
-            } catch (e: Exception) {
-                _state.update { it.copy(error = e.message) }
             }
         }
     }
