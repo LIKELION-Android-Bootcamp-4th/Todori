@@ -52,75 +52,13 @@ class HomeOcrViewModel @Inject constructor(
         }
     }
 
-    fun processGalleryImage(uri: Uri?, context: android.content.Context) {
-        if (uri == null) {
-            setOcrMode(OcrMode.CAMERA_PREVIEW)
-            return
-        }
-
+    fun onSelfInputChanged(hours: Int, minutes: Int, seconds: Int) {
         _state.update {
             it.copy(
-                selectedImageUri = uri,
-                ocrMode = OcrMode.GALLERY_IMAGE,
-                recognizedText = "인식 중...",
-                isOcrProcessing = true
+                selfInputHours = hours,
+                selfInputMinutes = minutes,
+                selfInputSeconds = seconds
             )
-        }
-
-        viewModelScope.launch {
-            val bitmap = try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    ImageDecoder.decodeBitmap(
-                        ImageDecoder.createSource(
-                            context.contentResolver,
-                            uri
-                        )
-                    )
-                } else {
-                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-                }
-            } catch (e: Exception) {
-                Log.e("HomeOcrViewModel", "갤러리 이미지 로드 실패: ${e.message}", e)
-                _state.update {
-                    it.copy(
-                        recognizedText = "이미지 로드 실패: ${e.message}",
-                        isOcrProcessing = false
-                    )
-                }
-                return@launch
-            }
-
-            bitmap?.let { btm ->
-                val image = InputImage.fromBitmap(btm, 0)
-                textRecognizer.process(image)
-                    .addOnSuccessListener { visionText ->
-                        val fullText = visionText.text
-                        val parsedTime = parseTimeFromText(fullText)    // 시간으로 변환
-
-                        _state.update {
-                            it.copy(
-                                recognizedText = fullText,  // 일단 원본 인식 텍스트 설정
-                                isOcrProcessing = false
-                            )
-                        }
-                    }
-                    .addOnFailureListener { e ->
-                        _state.update {
-                            it.copy(
-                                recognizedText = "OCR 실패: ${e.message}",
-                                isOcrProcessing = false
-                            )
-                        }
-                        Log.e("HomeOcrViewModel", "OCR 실패", e)
-                    }
-            } ?: run {
-                _state.update {
-                    it.copy(
-                        recognizedText = "이미지를 찾을 수 없습니다.",
-                        isOcrProcessing = false
-                    )
-                }
-            }
         }
     }
 

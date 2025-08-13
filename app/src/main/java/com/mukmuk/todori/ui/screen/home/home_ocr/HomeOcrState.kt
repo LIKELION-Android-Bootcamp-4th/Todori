@@ -4,7 +4,6 @@ import android.net.Uri
 
 enum class OcrMode {
     CAMERA_PREVIEW,
-    GALLERY_IMAGE,
     SELF
 }
 
@@ -13,5 +12,8 @@ data class HomeOcrState(
     val ocrMode: OcrMode = OcrMode.CAMERA_PREVIEW,
     val selectedImageUri: Uri? = null,
     val isOcrProcessing: Boolean = false,
-    val hasCameraPermission: Boolean = false
+    val hasCameraPermission: Boolean = false,
+    val selfInputHours: Int = 0,
+    val selfInputMinutes: Int = 0,
+    val selfInputSeconds: Int = 0,
 )

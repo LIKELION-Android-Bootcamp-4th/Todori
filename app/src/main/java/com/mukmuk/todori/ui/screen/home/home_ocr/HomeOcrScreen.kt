@@ -2,11 +2,6 @@ package com.mukmuk.todori.ui.screen.home.home_ocr
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,25 +11,30 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,8 +43,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -55,12 +56,12 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.mukmuk.todori.navigation.BottomNavItem
+import com.mukmuk.todori.ui.screen.home.components.TimerTextFieldInput2
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Background
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.White
 import java.util.concurrent.Executors
-import java.util.regex.Pattern
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,12 +77,6 @@ fun HomeOcrScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         viewModel.updateCameraPermissionStatus(isGranted)
-    }
-
-    val pickImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        viewModel.processGalleryImage(uri, context)
     }
 
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
@@ -112,12 +107,6 @@ fun HomeOcrScreen(
                 colors = TopAppBarDefaults.topAppBarColors(Background),
                 navigationIcon = {
                     IconButton(onClick = {
-//                        val resultState = viewModel.state.value
-//
-//                        navController.previousBackStackEntry
-//                            ?.savedStateHandle
-//                            ?.set("homeSetting", resultState)
-
                         navController.navigateUp()
                     }) {
                         Icon(
@@ -133,157 +122,193 @@ fun HomeOcrScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            if (state.hasCameraPermission) {
-                if (state.ocrMode == OcrMode.CAMERA_PREVIEW) {
-                    AndroidView(
-                        factory = { ctx ->
-                            PreviewView(ctx).apply {
-                                this.scaleType = PreviewView.ScaleType.FILL_CENTER
-                            }
-                        },
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = Dimens.Medium),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimens.Medium),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = { viewModel.setOcrMode(OcrMode.CAMERA_PREVIEW) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (state.ocrMode == OcrMode.CAMERA_PREVIEW) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                            contentColor = if (state.ocrMode == OcrMode.CAMERA_PREVIEW) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("카메라 OCR")
+                    }
+                    Spacer(modifier = Modifier.width(Dimens.Small))
+                    Button(
+                        onClick = { viewModel.setOcrMode(OcrMode.SELF) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (state.ocrMode == OcrMode.SELF) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                            contentColor = if (state.ocrMode == OcrMode.SELF) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("수동 입력")
+                    }
+                }
+                Spacer(modifier = Modifier.height(Dimens.Medium))
+                Text(
+                    "추가된 시간은 되돌릴 수 없습니다.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            if (state.ocrMode == OcrMode.CAMERA_PREVIEW) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(horizontal = Dimens.Medium),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = Dimens.Medium)
-                            .height(300.dp),
-                    ) { previewView ->
-                        cameraProviderFuture.addListener({
-                            val cameraProvider = cameraProviderFuture.get()
-                            val preview = Preview.Builder().build().also {
-                                it.setSurfaceProvider(previewView.surfaceProvider)
-                            }
-
-                            val imageAnalysis = ImageAnalysis.Builder()
-                                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                                .build()
-                                .also {
-                                    // SimpleTextAnalyzer의 콜백이 ViewModel의 메서드를 호출
-                                    it.setAnalyzer(
-                                        analysisExecutor,
-                                        SimpleTextAnalyzer(textRecognizer) { numbers ->
-                                            viewModel.onRealtimeOcrResult(numbers)
-                                        })
+                            .height(450.dp)
+                    ) {
+                        AndroidView(
+                            factory = { ctx ->
+                                PreviewView(ctx).apply {
+                                    this.scaleType = PreviewView.ScaleType.FIT_CENTER
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize(),
+                        ) { previewView ->
+                            cameraProviderFuture.addListener({
+                                val cameraProvider = cameraProviderFuture.get()
+                                val preview = Preview.Builder().build().also {
+                                    it.setSurfaceProvider(previewView.surfaceProvider)
                                 }
 
-                            try {
-                                cameraProvider.unbindAll()
-                                cameraProvider.bindToLifecycle(
-                                    lifecycleOwner,
-                                    CameraSelector.DEFAULT_BACK_CAMERA,
-                                    preview,
-                                    imageAnalysis
-                                )
-                            } catch (exc: Exception) {
-                                Log.e("HomeOcrScreen", "유스케이스 바인딩 실패", exc)
-                            }
-                        }, ContextCompat.getMainExecutor(context))
-                    }
-                } else {
-                    state.selectedImageUri?.let { uri ->
-                        val bitmap = remember(uri) {
-                            try {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                                    ImageDecoder.decodeBitmap(
-                                        ImageDecoder.createSource(
-                                            context.contentResolver,
-                                            uri
-                                        )
+                                val imageAnalysis = ImageAnalysis.Builder()
+                                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                                    .build()
+                                    .also {
+                                        it.setAnalyzer(
+                                            analysisExecutor,
+                                            SimpleTextAnalyzer(textRecognizer) { fullText ->
+                                                viewModel.onRealtimeOcrResult(fullText)
+                                            })
+                                    }
+
+                                try {
+                                    cameraProvider.unbindAll()
+                                    cameraProvider.bindToLifecycle(
+                                        lifecycleOwner,
+                                        CameraSelector.DEFAULT_BACK_CAMERA,
+                                        preview,
+                                        imageAnalysis
                                     )
-                                } else {
-                                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                                } catch (exc: Exception) {
+                                    Log.e("HomeOcrScreen", "유스케이스 바인딩 실패", exc)
                                 }
-                            } catch (e: Exception) {
-                                Log.e("HomeOcrScreen", "이미지 미리보기 로드 실패", e)
-                                null
-                            }
+                            }, ContextCompat.getMainExecutor(context))
                         }
-                        bitmap?.let { btm ->
-                            Image(
-                                bitmap = btm.asImageBitmap(),
-                                contentDescription = "Selected Image",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(300.dp)
-                                    .padding(horizontal = Dimens.Medium)
-                            )
-                        } ?: Text("이미지 로드 오류")
                     }
-                    if (state.isOcrProcessing) {
-                        CircularProgressIndicator()
-                    }
+                    Spacer(modifier = Modifier.height(Dimens.Medium))
+                    Text(
+                        text = state.recognizedText,
+                        modifier = Modifier.padding(horizontal = Dimens.Medium),
+                        style = AppTextStyle.Body
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(100.dp))
-
-                // 모드 전환 버튼
-                Button(
-                    onClick = {
-                        viewModel.setOcrMode(OcrMode.GALLERY_IMAGE)
-                        pickImageLauncher.launch("image/*")
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Dimens.Medium)
-                ) {
-                    Text("갤러리에서 이미지 선택 🖼️")
-                }
-                Spacer(modifier = Modifier.height(Dimens.Medium))
-                Button(
-                    onClick = {
-                        viewModel.setOcrMode(OcrMode.CAMERA_PREVIEW)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Dimens.Medium)
-                ) {
-                    Text("실시간 카메라 OCR 모드 📸")
-                }
-                Spacer(modifier = Modifier.height(Dimens.Medium))
-                Button(
-                    onClick = {
-                        viewModel.setOcrMode(OcrMode.SELF)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Dimens.Medium)
-                ) {
-                    Text("직접 입력 모드 📝")
-                }
-
-
-                Spacer(modifier = Modifier.height(Dimens.Medium))
-
-                Text(text = state.recognizedText, modifier = Modifier.padding(Dimens.Medium))
             } else {
-                Spacer(modifier = Modifier.height(Dimens.XXLarge))
-                Text("카메라 권한이 필요합니다.", modifier = Modifier.padding(Dimens.Medium))
-                Button(onClick = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }) {
-                    Text("권한 요청")
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f) //
+                        .padding(horizontal = Dimens.Medium),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ElevatedCard(
+                        colors = CardDefaults.cardColors(
+                            containerColor = White
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 10.dp
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(Dimens.Medium),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            TimerTextFieldInput2(
+                                initialHours = state.selfInputHours,
+                                initialMinutes = state.selfInputMinutes,
+                                initialSeconds = state.selfInputSeconds,
+                                onTimeChanged = { hours, minutes, seconds ->
+                                    viewModel.onSelfInputChanged(hours, minutes, seconds)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Dimens.Medium),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    onClick = {
+                        Log.d("HomeOcrScreen", "수동 입력 시간 추가: ${state.selfInputHours}:${state.selfInputMinutes}:${state.selfInputSeconds}")
+                        navController.navigateUp()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("추가하기")
+                }
+
+                if (!state.hasCameraPermission) {
+                    Spacer(modifier = Modifier.height(Dimens.Medium))
+                    Text("카메라 권한이 필요합니다.", modifier = Modifier.padding(horizontal = Dimens.Medium))
+                    Button(onClick = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }) {
+                        Text("권한 요청")
+                    }
                 }
             }
         }
     }
-
 }
 
 class SimpleTextAnalyzer(
     private val textRecognizer: TextRecognizer,
     private val onNumbersRecognized: (String) -> Unit
 ) : ImageAnalysis.Analyzer {
-
     @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
         if (mediaImage != null) {
             val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-
             textRecognizer.process(image)
                 .addOnSuccessListener { visionText ->
                     val fullText = visionText.text
-
                     onNumbersRecognized(fullText)
-
                     imageProxy.close()
                 }
                 .addOnFailureListener { e ->
