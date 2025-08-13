@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,10 +53,12 @@ import com.mukmuk.todori.ui.theme.White
 fun CommunityDetailComment(
     uid: String,
     commentList: StudyPostComment,
+    userName: String,
     onReplyClick: () -> Unit,
     onDeleteClick: () -> Unit,
 ) {
     val viewModel: CommunityDetailViewModel = hiltViewModel()
+
 
     Box(
         modifier = Modifier
@@ -80,7 +83,7 @@ fun CommunityDetailComment(
                 Spacer(modifier = Modifier.width(Dimens.Tiny))
 
                 Text(
-                    commentList.nickname,
+                    userName,
                     style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
                 )
 
