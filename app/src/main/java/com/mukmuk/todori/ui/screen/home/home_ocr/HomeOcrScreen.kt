@@ -2,9 +2,11 @@ package com.mukmuk.todori.ui.screen.home.home_ocr
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -57,6 +59,8 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
@@ -70,8 +74,10 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
+import java.time.LocalDate
 import java.util.concurrent.Executors
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeOcrScreen(
@@ -101,6 +107,15 @@ fun HomeOcrScreen(
         viewModel.updateCameraPermissionStatus(isGranted)
         if (!isGranted) {
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+
+        val auth = Firebase.auth
+        auth.addAuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user != null) {
+                viewModel.loadProfile(user.uid)
+
+            }
         }
     }
 
@@ -218,6 +233,8 @@ fun HomeOcrScreen(
                                 Row {
                                     OutlinedButton(
                                         onClick = {
+                                            viewModel.setTimeState(0, 30, 0)
+                                            viewModel.onAddRecordTime()
                                             navController.navigateUp()
                                         },
                                         modifier = Modifier
@@ -230,6 +247,8 @@ fun HomeOcrScreen(
                                     Spacer(modifier = Modifier.width(Dimens.Small))
                                     OutlinedButton(
                                         onClick = {
+                                            viewModel.setTimeState(1, 0, 0)
+                                            viewModel.onAddRecordTime()
                                             navController.navigateUp()
                                         },
                                         modifier = Modifier
@@ -243,6 +262,8 @@ fun HomeOcrScreen(
                                 Row {
                                     OutlinedButton (
                                         onClick = {
+                                            viewModel.setTimeState(1, 30, 0)
+                                            viewModel.onAddRecordTime()
                                             navController.navigateUp()
                                         },
                                         modifier = Modifier
@@ -255,6 +276,8 @@ fun HomeOcrScreen(
                                     Spacer(modifier = Modifier.width(Dimens.Small))
                                     OutlinedButton(
                                         onClick = {
+                                            viewModel.setTimeState(2, 0, 0)
+                                            viewModel.onAddRecordTime()
                                             navController.navigateUp()
                                         },
                                         modifier = Modifier
@@ -387,6 +410,7 @@ fun HomeOcrScreen(
 
             Button(
                 onClick = {
+                    viewModel.onAddRecordTime()
                     navController.navigateUp()
                 },
                 modifier = Modifier
