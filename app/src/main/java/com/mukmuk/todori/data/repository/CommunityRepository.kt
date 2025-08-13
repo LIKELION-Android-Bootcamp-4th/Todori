@@ -6,6 +6,7 @@ import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.service.CommunityService
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class CommunityRepository @Inject constructor(
@@ -16,7 +17,7 @@ class CommunityRepository @Inject constructor(
         communityService.createPost(post)
     }
 
-    suspend fun getPosts(filter: String? = null, data: String? = null): List<StudyPost> {
+    fun getPosts(filter: String? = null, data: String? = null): Flow<List<StudyPost>> {
         return communityService.getPosts(filter, data)
     }
 

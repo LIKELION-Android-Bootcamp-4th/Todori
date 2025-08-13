@@ -12,6 +12,8 @@ import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.user.User
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
 
@@ -29,7 +31,7 @@ class CommunityService(
         ref.set(postWithId).await()
     }
 
-    suspend fun getPosts(filter: String? = null, data: String? = null): List<StudyPost> {
+    fun getPosts(filter: String? = null, data: String? = null): Flow<List<StudyPost>> = flow{
         val snapshot: QuerySnapshot = if (filter == "참가자 수") {
             communityRef().orderBy("memberCount", Query.Direction.DESCENDING).get().await()
         }
@@ -39,10 +41,13 @@ class CommunityService(
         else {
             communityRef().get().await()
         }
-        if(data != null){
-            return snapshot.documents.mapNotNull { it.toObject(StudyPost::class.java) }.filter { it.title.contains(data) || it.content.contains(data) || it.tags.contains(data) }
+
+        var posts = snapshot.documents.mapNotNull { it.toObject(StudyPost::class.java) }
+
+        if(!data.isNullOrBlank()){
+            posts = posts.filter { it.title.contains(data) || it.content.contains(data) || it.tags.contains(data) }
         }
-        return snapshot.documents.mapNotNull { it.toObject(StudyPost::class.java) }
+        emit(posts)
     }
 
     suspend fun getPostById(postId: String): StudyPost? {
