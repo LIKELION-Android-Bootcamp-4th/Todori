@@ -32,7 +32,7 @@ class CommunityDetailViewModel@Inject constructor(
 
     fun loadPostById(postId: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, study = null) }
+            _state.update { it.copy(isLoading = true, study = null, user = null, post = null, commentList = emptyList(), commentReplyList = emptyMap(), replyToCommentId = null) }
             try {
                 val post = repository.getPostById(postId)
                 _state.update {
@@ -69,7 +69,6 @@ class CommunityDetailViewModel@Inject constructor(
             }
         }
     }
-
 
 
     fun createPost(post: StudyPost) {

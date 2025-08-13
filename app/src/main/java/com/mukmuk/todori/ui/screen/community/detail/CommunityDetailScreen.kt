@@ -94,6 +94,7 @@ fun CommunityDetailScreen(
 
 
     LaunchedEffect(Unit) {
+        viewModel.getUserById(uid)
         viewModel.loadPostById(postId)
         viewModel.getComments(postId)
         viewModel.setReplyToCommentId(null)
@@ -190,7 +191,7 @@ fun CommunityDetailScreen(
                                     postId,
                                     state.replyToCommentId!!, StudyPostComment(
                                         commentId = "",
-                                        studyId = "",
+                                        postId = postId,
                                         uid = uid,
                                         content = commentContent,
                                         createdAt = Timestamp.now()
@@ -200,7 +201,7 @@ fun CommunityDetailScreen(
                                 viewModel.createComment(
                                     postId, StudyPostComment(
                                         commentId = "",
-                                        studyId = "",
+                                        postId = postId,
                                         uid = uid,
                                         content = commentContent,
                                         createdAt = Timestamp.now()
