@@ -12,8 +12,9 @@ import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.user.User
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 
@@ -21,7 +22,6 @@ class CommunityService(
     private val firestore: FirebaseFirestore
 ) {
     private fun communityRef(): CollectionReference = firestore.collection("posts")
-    private fun replyRef(): CollectionReference = firestore.collection("studyPostReply")
 
 
     suspend fun createPost(post: StudyPost){
@@ -31,23 +31,35 @@ class CommunityService(
         ref.set(postWithId).await()
     }
 
-    fun getPosts(filter: String? = null, data: String? = null): Flow<List<StudyPost>> = flow{
-        val snapshot: QuerySnapshot = if (filter == "참가자 수") {
-            communityRef().orderBy("memberCount", Query.Direction.DESCENDING).get().await()
-        }
-        else if(filter == "날짜순"){
-            communityRef().orderBy("createdAt", Query.Direction.DESCENDING).get().await()
-        }
-        else {
-            communityRef().get().await()
+    fun getPosts(filter: String? = null, data: String? = null): Flow<List<StudyPost>> = callbackFlow {
+        val query = if (filter == "참가자 수") {
+            communityRef().orderBy("memberCount", Query.Direction.DESCENDING)
+        } else if (filter == "날짜순") {
+            communityRef().orderBy("createdAt", Query.Direction.DESCENDING)
+        } else {
+            communityRef()
         }
 
-        var posts = snapshot.documents.mapNotNull { it.toObject(StudyPost::class.java) }
+        val listener = query.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
 
-        if(!data.isNullOrBlank()){
-            posts = posts.filter { it.title.contains(data) || it.content.contains(data) || it.tags.contains(data) }
+            if (snapshot != null) {
+                var posts = snapshot.documents.mapNotNull { it.toObject(StudyPost::class.java) }
+
+                if (!data.isNullOrBlank()) {
+                    posts = posts.filter {
+                        it.title.contains(data) || it.content.contains(data) || it.tags.contains(
+                            data
+                        )
+                    }
+                }
+                trySend(posts)
+            }
         }
-        emit(posts)
+        awaitClose { listener.remove() }
     }
 
     suspend fun getPostById(postId: String): StudyPost? {
@@ -61,15 +73,7 @@ class CommunityService(
     }
 
     suspend fun updatePost(postId: String, updatedPost: StudyPost) {
-        communityRef().document(postId).set(updatedPost).await()
-    }
-
-    suspend fun updateCommentsCountByPostId(postId: String, count: Int) {
-        communityRef().document(postId).update("commentsCount", count).await()
-    }
-
-    suspend fun updateMemberCountByPostId(postId: String, count: Int) {
-        communityRef().document(postId).update("memberCount", count).await()
+        communityRef().document(postId).set(updatedPost, SetOptions.merge()).await()
     }
 
     suspend fun deletePost(postId: String) {
