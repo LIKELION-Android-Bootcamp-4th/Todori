@@ -88,9 +88,7 @@ fun CreateCommunityScreen(
 
     val td = remember { mutableStateListOf<String>() }
 
-    val currentUser = Firebase.auth.currentUser
-
-    val uid = currentUser?.uid.toString()
+    val uid = Firebase.auth.currentUser?.uid.toString()
 
     LaunchedEffect(postId) {
         if (postId == null) {
@@ -254,7 +252,7 @@ fun CreateCommunityScreen(
                     Box(
                         modifier = Modifier
                             .background(
-                                if (td.contains(tag)) GroupSecondary else GroupPrimary,
+                                if (td.contains(tag)) GroupPrimary else GroupSecondary,
                                 RoundedCornerShape(32.dp)
                             )
                             .padding(horizontal = 8.dp, vertical = 4.dp)

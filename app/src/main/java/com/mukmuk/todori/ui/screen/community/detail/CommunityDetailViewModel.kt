@@ -54,16 +54,23 @@ class CommunityDetailViewModel@Inject constructor(
         }
     }
 
-    fun getProfile(uid: String = state.value.post?.createdBy ?: "") {
+    fun getUserById(uid: String) {
         viewModelScope.launch {
             try {
-                val user = repository.getProfile(uid)
-                _state.update { it.copy(user = user) }
+                val user = repository.getUserById(uid)
+                _state.update {
+                    it.copy(
+                        user = user,
+                        error = null
+                    )
+                }
             } catch (e: Exception) {
                 _state.update { it.copy(error = e.message) }
             }
         }
     }
+
+
 
     fun createPost(post: StudyPost) {
         viewModelScope.launch {
@@ -126,7 +133,7 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                repository.createReply(postId, reply)
+                repository.createPostComment(postId, reply)
                 getComments(postId)
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -139,10 +146,10 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                val comments = repository.getReplies(postId)
+                val comments = repository.getPostComments(postId)
                 val commentsMap = mutableMapOf<String, List<StudyPostComment>>()
                 for(comment in comments) {
-                    commentsMap[comment.commentId] = repository.getCommentReplies(postId, comment.commentId)
+                    commentsMap[comment.commentId] = repository.getPostCommentReplies(postId, comment.commentId)
                 }
                 _state.update {
                     it.copy(
@@ -162,11 +169,11 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                val replies = repository.getCommentReplies(postId, replyId)
+                val replies = repository.getPostCommentReplies(postId, replyId)
                 for (reply in replies) {
-                    repository.deleteReply(postId, reply.commentId)
+                    repository.deletePostComment(postId, reply.commentId)
                 }
-                repository.deleteReply(postId, replyId)
+                repository.deletePostComment(postId, replyId)
                 getComments(postId)
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -178,13 +185,13 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                val comments = repository.getReplies(postId)
+                val comments = repository.getPostComments(postId)
                 for (comment in comments) {
-                    val replies = repository.getCommentReplies(postId, comment.commentId)
+                    val replies = repository.getPostCommentReplies(postId, comment.commentId)
                     for (reply in replies) {
-                        repository.deleteReply(postId, reply.commentId)
+                        repository.deletePostComment(postId, reply.commentId)
                         }
-                    repository.deleteReply(postId, comment.commentId)
+                    repository.deletePostComment(postId, comment.commentId)
                 }
                 getComments(postId)
             } catch (e: Exception) {
@@ -197,7 +204,7 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                repository.createCommentReply(postId, commentId, reply)
+                repository.createPostCommentReply(postId, commentId, reply)
                 _state.update { it.copy(replyToCommentId = null) }
                 getComments(postId)
             } catch (e: Exception) {
@@ -209,7 +216,7 @@ class CommunityDetailViewModel@Inject constructor(
     private fun getCommentReplies(postId: String, commentId: String) {
         viewModelScope.launch {
             try {
-                val replies = repository.getCommentReplies(postId, commentId)
+                val replies = repository.getPostCommentReplies(postId, commentId)
                 _state.update { state ->
                     val updatedCommentReplyList = state.commentReplyList.toMutableMap()
                     updatedCommentReplyList[commentId] = replies

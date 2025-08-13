@@ -56,6 +56,7 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.White
+import kotlin.reflect.typeOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -206,8 +207,9 @@ fun CommunitySearchScreen(
                                     focusManager.clearFocus()
                                 },
                                 onDeleteClick = {
-                                    viewModel
-                                    viewModel.getCommunitySearch(uid)
+                                    viewModel.deleteCommunitySearch(uid, search)
+                                    showCommunitySearchData = true
+                                    showCommunitySearch = false
                                 }
                             )
                             Spacer(modifier = Modifier.padding(Dimens.Tiny))
