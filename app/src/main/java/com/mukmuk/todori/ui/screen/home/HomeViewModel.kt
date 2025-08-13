@@ -88,8 +88,8 @@ class HomeViewModel @Inject constructor(
                 hasLoaded = true
                 Log.d("todorilog", "호출")
                 loadProfile(user.uid)
-                loadDailyRecordAndSetTotalTime(user.uid, LocalDate.now())
                 startObservingTodos(user.uid)
+                startObservingDailyRecord(user.uid)
             }
         }
     }
@@ -279,19 +279,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun loadDailyRecordAndSetTotalTime(uid: String, date: LocalDate) {
-        viewModelScope.launch {
-            try {
-                val dailyRecords = homeRepository.getDailyRecord(uid, date)
-                val totalTime = dailyRecords.firstOrNull()?.studyTimeMillis ?: 0L
-                _state.update { it.copy(totalStudyTimeMills = totalTime) }
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error loading daily record: ${e.message}")
-            }
-        }
-    }
-
-    fun loadProfile(uid: String) {
+    private fun loadProfile(uid: String) {
         viewModelScope.launch {
             runCatching { repository.getProfile(uid) }
                 .onSuccess {
@@ -303,11 +291,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun startObservingTodos(uid: String) {
+    private fun startObservingTodos(uid: String) {
         val today = LocalDate.now()
         todoRepository.observeTodos(uid) { updatedTodos ->
             val filteredTodos = updatedTodos.filter { it.date == today.toString() }
             _todoList.value = filteredTodos.sortedBy { it.completed }
+        }
+    }
+
+    private fun startObservingDailyRecord(uid: String) {
+        val today = LocalDate.now().toString()
+        homeRepository.observeDailyRecord(uid) { updatedRecords ->
+            val totalTime = updatedRecords.firstOrNull { it.date == today }?.studyTimeMillis ?: 0L
+            _state.update { it.copy(totalStudyTimeMills = totalTime) }
         }
     }
 }
