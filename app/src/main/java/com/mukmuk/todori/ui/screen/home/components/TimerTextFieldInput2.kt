@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -46,7 +47,8 @@ fun TimerTextFieldInput2(
 
     Row(
         modifier = Modifier
-            .background(color = LightGray, shape = RoundedCornerShape(10.dp)),
+            .background(color = LightGray, shape = RoundedCornerShape(10.dp))
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -55,7 +57,9 @@ fun TimerTextFieldInput2(
             onValueChange = { newHoursString ->
                 hoursText = newHoursString
                 onTimeChanged(newHoursString.toInt(), minutesText.toInt(), secondsText.toInt())
-            }
+            },
+            modifier = Modifier.weight(1f),
+            maxValue = 23
         )
         Text(
             text = ":",
@@ -63,12 +67,14 @@ fun TimerTextFieldInput2(
                 textAlign = TextAlign.Center
             ),
         )
-        TimerUnitTextField(
+        TimerUnitTextField2(
             value = minutesText,
             onValueChange = { newMinutesString ->
                 minutesText = newMinutesString
                 onTimeChanged(hoursText.toInt(), newMinutesString.toInt(), secondsText.toInt())
-            }
+            },
+            modifier = Modifier.weight(1f),
+            maxValue = 59
         )
         Text(
             text = ":",
@@ -76,12 +82,14 @@ fun TimerTextFieldInput2(
                 textAlign = TextAlign.Center
             ),
         )
-        TimerUnitTextField(
+        TimerUnitTextField2(
             value = secondsText,
             onValueChange = { newSecondsString ->
                 secondsText = newSecondsString
                 onTimeChanged(hoursText.toInt(), minutesText.toInt(), newSecondsString.toInt())
-            }
+            },
+            modifier = Modifier.weight(1f),
+            maxValue = 59
         )
     }
 }
@@ -90,6 +98,7 @@ fun TimerTextFieldInput2(
 fun TimerUnitTextField2(
     value: String,
     onValueChange: (String) -> Unit,
+    maxValue: Int,
     modifier: Modifier = Modifier
 ) {
     // TextFieldValue를 사용해 커서 위치 제어
@@ -116,7 +125,7 @@ fun TimerUnitTextField2(
             val rawInput = input.text
             val sanitized = rawInput.filter { it.isDigit() }
                 .toIntOrNull()
-                ?.coerceIn(0, 23)
+                ?.coerceIn(0, maxValue)
                 ?.toString()
                 ?.padStart(2, '0') ?: "00"
 
