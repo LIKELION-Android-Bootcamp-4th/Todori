@@ -10,6 +10,7 @@ data class CommunityDetailState(
 
     val post: StudyPost? = null,
     val user: User? = null,
+    val userMap: Map<String, User?> = emptyMap(),
     val isLoading: Boolean = false,
     val study: Study? = null,
     val memberList: List<StudyMember> = emptyList(),
