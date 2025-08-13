@@ -84,21 +84,21 @@ fun CommunityDetailScreen(
 
     var showDialog by remember { mutableStateOf(false) }
 
-    val currentUser = Firebase.auth.currentUser
+    var showCommentDialog by remember { mutableStateOf(false) }
 
-    val uid = currentUser?.uid.toString()
+    var deleteTargetCommentId by remember { mutableStateOf<String?>(null) }
+
+    var dialogInfo by remember { mutableStateOf<String?>(null) }
+
+    val uid = Firebase.auth.currentUser?.uid.toString()
 
 
-    LaunchedEffect(postId) {
+    LaunchedEffect(Unit) {
         viewModel.loadPostById(postId)
         viewModel.getComments(postId)
         viewModel.setReplyToCommentId(null)
 
 
-    }
-
-    LaunchedEffect(state.post) {
-        viewModel.getProfile(state.post?.createdBy ?: "")
     }
 
 
@@ -192,7 +192,6 @@ fun CommunityDetailScreen(
                                         commentId = "",
                                         studyId = "",
                                         uid = uid,
-                                        nickname = currentUser?.displayName?: "",
                                         content = commentContent,
                                         createdAt = Timestamp.now()
                                     )
@@ -203,7 +202,6 @@ fun CommunityDetailScreen(
                                         commentId = "",
                                         studyId = "",
                                         uid = uid,
-                                        nickname = currentUser?.displayName ?: "",
                                         content = commentContent,
                                         createdAt = Timestamp.now()
                                     )
@@ -225,7 +223,7 @@ fun CommunityDetailScreen(
         }
 
     ) { innerPadding ->
-        if (state.isLoading || state.user == null) {
+        if (state.isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -343,23 +341,31 @@ fun CommunityDetailScreen(
                     modifier = Modifier.fillMaxHeight()
                 ) {
                     state.commentList.forEach { comment ->
+                        val userName = state.userMap[comment.uid]?.nickname ?: ""
                         CommunityDetailComment(
                             uid,
                             commentList = comment,
+                            userName = userName,
                             onReplyClick = {
                                 viewModel.setReplyToCommentId(comment.commentId)
                             },
                             onDeleteClick = {
-                                viewModel.deleteComment(postId, comment.commentId)
+                                showCommentDialog = true
+                                deleteTargetCommentId = comment.commentId
+                                dialogInfo = "댓글"
                             }
                         )
                         if (state.commentReplyList.containsKey(comment.commentId)) {
                             state.commentReplyList[comment.commentId]?.forEach { reply ->
+                                val replyUserName = state.userMap[reply.uid]?.nickname ?: ""
                                 CommunityDetailCommentReply(
                                     uid,
                                     commentList = reply,
+                                    userName = replyUserName,
                                     onDeleteClick = {
-                                        viewModel.deleteComment(postId, reply.commentId)
+                                        showCommentDialog = true
+                                        deleteTargetCommentId = reply.commentId
+                                        dialogInfo = "답글"
                                     }
                                 )
                             }
@@ -397,6 +403,39 @@ fun CommunityDetailScreen(
                         }
                     }
                 )
+            }
+
+            if(showCommentDialog) {
+
+                AlertDialog(
+                    onDismissRequest = { showCommentDialog = false },
+                    title = { Text("삭제", style = AppTextStyle.Title) },
+                    text = { Text("${dialogInfo}을 삭제하시겠습니까?", style = AppTextStyle.Body) },
+                    containerColor = White,
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showCommentDialog = false
+                                deleteTargetCommentId?.let {
+                                    viewModel.deleteComment(postId, it)
+                                }
+                            },
+                        ) {
+                            Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showCommentDialog = false
+
+                            },
+                        ) {
+                            Text("취소", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                        }
+                    }
+                )
+
             }
 
         }
