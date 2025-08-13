@@ -9,16 +9,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.screen.stats.component.CalendarCard
-import com.mukmuk.todori.ui.screen.stats.component.DayStatsCard
+import com.mukmuk.todori.ui.screen.stats.component.day.DayPaceCard
+import com.mukmuk.todori.ui.screen.stats.component.day.DayStatsCard
 import com.mukmuk.todori.ui.theme.Dimens
 import java.time.LocalDate
 
@@ -82,5 +82,9 @@ fun DayTab(
         )
 
         Spacer(modifier = Modifier.height(Dimens.Large))
+
+        DayPaceCard()
+        Spacer(modifier = Modifier.height(Dimens.Large))
+
     }
 }

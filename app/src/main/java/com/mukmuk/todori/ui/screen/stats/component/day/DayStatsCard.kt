@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.screen.stats.component
+package com.mukmuk.todori.ui.screen.stats.component.day
 
 import android.os.Build
 import androidx.annotation.RequiresApi
