@@ -33,9 +33,9 @@ fun StatsSegmentedTabs(
                 shape = SegmentedButtonDefaults.itemShape(index, StatsTab.entries.size),
                 label = { Text(tab.label, style = AppTextStyle.Body) },
                 colors = SegmentedButtonDefaults.colors(
-                    activeContainerColor = White,        // 선택: 흰색
+                    activeContainerColor = White,
                     activeContentColor = Black,
-                    inactiveContainerColor = LightGray,  // 비선택: 연회색
+                    inactiveContainerColor = LightGray,
                     inactiveContentColor = Black,
                     activeBorderColor = LightGray,
                     inactiveBorderColor = LightGray

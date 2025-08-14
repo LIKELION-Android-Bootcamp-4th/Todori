@@ -64,8 +64,13 @@ fun DayTab(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Spacer(modifier = Modifier.height(Dimens.XLarge))
+        DayStatsCard(
+            selectedDate = selectedDay,
+            studyTimeMillis = recordForSelected?.studyTimeMillis ?: 0L,
+            todos = todos
+        )
 
+        Spacer(modifier = Modifier.height(Dimens.Small))
         CalendarCard(
             record = monthRecords,
             selectedDate = selectedDay,
@@ -80,13 +85,7 @@ fun DayTab(
 
         Spacer(modifier = Modifier.height(Dimens.Large))
 
-        DayStatsCard(
-            selectedDate = selectedDay,
-            studyTimeMillis = recordForSelected?.studyTimeMillis ?: 0L,
-            todos = todos
-        )
 
-        Spacer(modifier = Modifier.height(Dimens.Large))
 
         DayPaceCard()
         Spacer(modifier = Modifier.height(Dimens.Large))
