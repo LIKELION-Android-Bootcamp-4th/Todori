@@ -9,6 +9,7 @@ import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.CommunityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -30,8 +31,13 @@ class CommunityDetailViewModel@Inject constructor(
 
     val td = listOf("답글 달기", "삭제")
 
+    private var loadPostJob: Job? = null
+
+    private var commentJob: Job? = null
+
     fun loadPostById(postId: String) {
-        viewModelScope.launch {
+        loadPostJob?.cancel()
+        loadPostJob = viewModelScope.launch {
             _state.update { it.copy(isLoading = true, study = null, user = null, post = null, commentList = emptyList(), commentReplyList = emptyMap(), replyToCommentId = null) }
             try {
                 repository.getPostById(postId).collect { post ->
@@ -53,9 +59,9 @@ class CommunityDetailViewModel@Inject constructor(
                             error = null
                         )
                     }
-                    if (post != null) {
-                        getComments(postId)
-                    }
+
+                    getComments(postId)
+
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -99,18 +105,17 @@ class CommunityDetailViewModel@Inject constructor(
 
     fun updatePost(postId: String, updatedPost: StudyPost) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, study = null) }
+            _state.update { it.copy(study = null) }
             try {
                 repository.updatePost(postId, updatedPost)
                 _state.update {
                     it.copy(
                         post = updatedPost,
-                        isLoading = false,
                         error = null
                     )
                 }
             } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, error = e.message) }
+                _state.update { it.copy(error = e.message) }
             }
         }
     }
@@ -123,12 +128,11 @@ class CommunityDetailViewModel@Inject constructor(
                 _state.update {
                     it.copy(
                         post = null,
-                        isLoading = false,
                         error = null
                     )
                 }
             } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, error = e.message) }
+                _state.update { it.copy(error = e.message) }
             }
         }
     }
@@ -148,13 +152,15 @@ class CommunityDetailViewModel@Inject constructor(
     }
 
     fun getComments(postId: String) {
-        viewModelScope.launch {
+        commentJob?.cancel()
+        commentJob = viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
                 val comments = repository.getPostComments(postId)
                 val updatedComments = comments.sortedBy {
                     it.createdAt?.toDate()?.time
                 }
+
                 val repliesMap = mutableMapOf<String, List<StudyPostComment>>()
                 for (comment in comments) {
                     val replies = repository.getPostCommentReplies(postId, comment.commentId)
@@ -258,18 +264,16 @@ class CommunityDetailViewModel@Inject constructor(
 
     fun loadStudyMember(studyId: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
             try {
                 val members = repository.getStudyMembers(studyId)
                 _state.update {
                     it.copy(
                         memberList = members,
-                        isLoading = false,
                         error = null
                     )
                 }
             } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, error = e.message) }
+                _state.update { it.copy(error = e.message) }
             }
         }
     }
