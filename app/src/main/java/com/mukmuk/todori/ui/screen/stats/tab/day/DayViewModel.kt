@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
-import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.remote.dailyRecord.ReflectionV2
 import com.mukmuk.todori.data.repository.DailyRecordRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,23 +20,15 @@ import java.time.YearMonth
 import javax.inject.Inject
 
 @HiltViewModel
+@RequiresApi(Build.VERSION_CODES.O)
 class DayViewModel @Inject constructor(
     private val auth: FirebaseAuth,
     private val todoRepository: TodoRepository,
     private val dailyRecordRepository: DailyRecordRepository
 ) : ViewModel() {
 
-    private val _selectedDate = MutableStateFlow(LocalDate.now())
-    val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
-
-    private val _monthRecords = MutableStateFlow<List<DailyRecord>>(emptyList())
-    val monthRecords: StateFlow<List<DailyRecord>> = _monthRecords.asStateFlow()
-
-    private val _todos = MutableStateFlow<List<Todo>>(emptyList())
-    val todos: StateFlow<List<Todo>> = _todos.asStateFlow()
-
-    private val _selectedRecord = MutableStateFlow<DailyRecord?>(null)
-    val selectedRecord: StateFlow<DailyRecord?> = _selectedRecord.asStateFlow()
+    private val _state = MutableStateFlow(DayState())
+    val state: StateFlow<DayState> = _state.asStateFlow()
 
     private var loadedMonth: YearMonth? = null
 
@@ -45,9 +37,11 @@ class DayViewModel @Inject constructor(
         refreshSelected()
     }
 
+
     fun onDateSelected(date: LocalDate) {
-        if (date == _selectedDate.value) return
-        _selectedDate.value = date
+        if (date == _state.value.selectedDate) return
+
+        updateState { copy(selectedDate = date) }
         refreshSelected()
 
         val now = LocalDate.now()
@@ -63,29 +57,12 @@ class DayViewModel @Inject constructor(
         }
     }
 
-    private fun uidOrNull(): String? = auth.currentUser?.uid ?: "testuser"
+    fun updateReflection(newReflection: String) {
+        val uid = uidOrNull() ?: return
+        val date = _state.value.selectedDate
 
-    private fun refreshMonth(year: Int = LocalDate.now().year, month: Int = LocalDate.now().monthValue) = viewModelScope.launch {
-        val uid = uidOrNull() ?: return@launch
-        _monthRecords.value = dailyRecordRepository.getRecordsByMonth(uid, year, month)
-    }
+        updateState { copy(isLoading = true, error = null) }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun refreshSelected() = viewModelScope.launch {
-        val uid = uidOrNull() ?: return@launch
-        val date = _selectedDate.value
-
-        runCatching { todoRepository.getTodosByDate(uid, date) }
-            .onSuccess { _todos.value = it }
-            .onFailure { _todos.value = emptyList() }
-
-        runCatching { dailyRecordRepository.getRecordByDate(uid, date) }
-            .onSuccess { _selectedRecord.value = it }
-            .onFailure { _selectedRecord.value = null }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateDailyRecord(uid: String, date: LocalDate, newReflection: String) {
         viewModelScope.launch {
             try {
                 val record = dailyRecordRepository.getRecordByDate(uid, date)
@@ -95,7 +72,129 @@ class DayViewModel @Inject constructor(
                 dailyRecordRepository.updateDailyRecord(uid, updatedRecord)
                 refreshSelected()
             } catch (e: Exception) {
-                Log.e("DayViewModel", "DailyRecord 수정 실패", e)
+                Log.e("DayViewModel", "Reflection 업데이트 실패", e)
+                updateState {
+                    copy(
+                        isLoading = false,
+                        error = "회고 저장에 실패했습니다: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    fun updateReflectionV2(reflectionV2: ReflectionV2) {
+        val uid = uidOrNull() ?: return
+        val date = _state.value.selectedDate
+
+        updateState { copy(isLoading = true, error = null) }
+
+        viewModelScope.launch {
+            try {
+                dailyRecordRepository.updateReflectionV2(uid, date, reflectionV2)
+                refreshSelected()
+            } catch (e: Exception) {
+                Log.e("DayViewModel", "ReflectionV2 업데이트 실패", e)
+                updateState {
+                    copy(
+                        isLoading = false,
+                        error = "회고 저장에 실패했습니다: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    fun updateDailyRecord(record: DailyRecord) {
+        val uid = uidOrNull() ?: return
+
+        updateState { copy(isLoading = true, error = null) }
+
+        viewModelScope.launch {
+            try {
+                dailyRecordRepository.updateDailyRecord(uid, record)
+                refreshSelected()
+            } catch (e: Exception) {
+                Log.e("DayViewModel", "DailyRecord 업데이트 실패", e)
+                updateState {
+                    copy(
+                        isLoading = false,
+                        error = "기록 저장에 실패했습니다: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    fun clearError() {
+        updateState { copy(error = null) }
+    }
+
+    private fun uidOrNull(): String? = auth.currentUser?.uid ?: "testuser"
+
+    private fun updateState(update: DayState.() -> DayState) {
+        _state.value = _state.value.update()
+    }
+
+    private fun refreshMonth(
+        year: Int = LocalDate.now().year,
+        month: Int = LocalDate.now().monthValue
+    ) = viewModelScope.launch {
+        val uid = uidOrNull() ?: return@launch
+
+        updateState { copy(isLoading = true) }
+
+        try {
+            val records = dailyRecordRepository.getRecordsByMonth(uid, year, month)
+            updateState {
+                copy(
+                    monthRecords = records,
+                    isLoading = false,
+                    error = null
+                )
+            }
+        } catch (e: Exception) {
+            Log.e("DayViewModel", "월간 기록 로딩 실패", e)
+            updateState {
+                copy(
+                    isLoading = false,
+                    error = "데이터 로딩에 실패했습니다: ${e.message}"
+                )
+            }
+        }
+    }
+
+    private fun refreshSelected() = viewModelScope.launch {
+        val uid = uidOrNull() ?: return@launch
+        val date = _state.value.selectedDate
+
+        updateState { copy(isLoading = true) }
+
+        try {
+            // 투두와 기록을 동시에 가져오기
+            val todos = runCatching {
+                todoRepository.getTodosByDate(uid, date)
+            }.getOrElse { emptyList() }
+
+            val record = runCatching {
+                dailyRecordRepository.getRecordByDate(uid, date)
+            }.getOrNull()
+
+            updateState {
+                copy(
+                    todos = todos,
+                    selectedRecord = record,
+                    isLoading = false,
+                    error = null
+                )
+            }
+        } catch (e: Exception) {
+            Log.e("DayViewModel", "선택된 날짜 데이터 로딩 실패", e)
+            updateState {
+                copy(
+                    isLoading = false,
+                    error = "데이터 로딩에 실패했습니다: ${e.message}"
+                )
             }
         }
     }
