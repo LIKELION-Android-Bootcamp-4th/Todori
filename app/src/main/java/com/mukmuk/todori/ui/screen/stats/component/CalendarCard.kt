@@ -24,8 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.kizitonwose.calendar.compose.HorizontalCalendar
+import androidx.compose.runtime.*
+import androidx.compose.runtime.derivedStateOf
 import com.kizitonwose.calendar.compose.rememberCalendarState
+import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.core.DayPosition
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -70,6 +72,19 @@ fun CalendarCard(
         LaunchedEffect(calendarState) {
             snapshotFlow { calendarState.firstVisibleMonth.yearMonth }
                 .collect { onMonthChanged(it) }
+        }
+
+        val currentYm by remember(calendarState) {
+            derivedStateOf { calendarState.firstVisibleMonth.yearMonth }
+        }
+        val targetYm = remember(selectedDate) {
+            YearMonth.of(selectedDate.year, selectedDate.monthValue)
+        }
+
+        LaunchedEffect(targetYm) {
+            if (!calendarState.isScrollInProgress && currentYm != targetYm) {
+                calendarState.scrollToMonth(targetYm)
+            }
         }
 
         HorizontalCalendar(

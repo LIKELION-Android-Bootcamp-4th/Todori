@@ -12,7 +12,6 @@ import javax.inject.Inject
 class DailyRecordService @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
-
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getRecordsByMonth(uid: String, year: Int, month: Int): List<DailyRecord> {
         val ym = YearMonth.of(year, month)
@@ -56,5 +55,15 @@ class DailyRecordService @Inject constructor(
             .await()
 
         return snapshot.toObject(DailyRecord::class.java)
+    }
+
+    suspend fun updateDailyRecord(uid: String, record: DailyRecord) {
+        val selectedDate = record.date
+        val snapshot = firestore.collection("users")
+            .document(uid)
+            .collection("dailyRecord")
+            .document(selectedDate)
+            .set(record)
+            .await()
     }
 }

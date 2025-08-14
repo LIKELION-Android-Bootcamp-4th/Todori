@@ -72,4 +72,6 @@ class DailyRecordRepository @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getRecordsByMonth(uid: String, year: Int, month: Int): List<DailyRecord> =
         withContext(Dispatchers.IO) { dailyRecordService.getRecordsByMonth(uid, year, month) }
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun updateDailyRecord(uid: String, record: DailyRecord) { dailyRecordService.updateDailyRecord(uid, record) }
 }
