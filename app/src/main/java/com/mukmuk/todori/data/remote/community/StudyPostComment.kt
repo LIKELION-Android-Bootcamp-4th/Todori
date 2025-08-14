@@ -8,6 +8,7 @@ data class StudyPostComment (
     val postId: String = "",
     val uid: String = "",
     val username: String = "",
+    val level: String = "",
     val content: String = "",
     val parentCommentId: String? = null,
     val createdAt: Timestamp? = null,

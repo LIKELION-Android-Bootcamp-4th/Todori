@@ -10,6 +10,7 @@ data class StudyPost (
     val title: String = "",
     val content: String = "",
     val userName: String = "",
+    val level: Int = 0,
     val tags: List<String> = emptyList(),
     val memberCount: Int = 0,
     val commentsCount: Int = 0,
