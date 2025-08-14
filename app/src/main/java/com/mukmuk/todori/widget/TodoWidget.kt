@@ -26,7 +26,7 @@ import com.mukmuk.todori.util.WidgetUtil
 
 object TodoWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val todos = WidgetUtil.loadWidgetTodos("testuser")
+        val todos = WidgetUtil.loadWidgetTodos("Ek8NgW6xi1fGTb0kXqHowxUweqG3")
         provideContent {
             TodoWidgetContent(todos)
         }
