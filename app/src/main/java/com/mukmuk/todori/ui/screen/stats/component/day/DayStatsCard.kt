@@ -39,7 +39,7 @@ fun DayStatsCard(
     Column(modifier = Modifier.padding(Dimens.Medium)) {
         Text(
             "${year}년 ${month}월 ${day}일",
-            style = AppTextStyle.TitleSmall
+            style = AppTextStyle.TitleLarge
         )
         Spacer(modifier = Modifier.height(Dimens.Small))
         Row(
