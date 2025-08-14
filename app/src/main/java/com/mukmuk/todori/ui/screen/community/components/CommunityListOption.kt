@@ -84,7 +84,7 @@ fun CommunityListOption(
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .background(White, RoundedCornerShape(10.dp))
-                        .border(1.dp, Gray)
+                        .border(1.dp, Gray, RoundedCornerShape(10.dp))
                 ) {
                     options.forEach { option ->
                         DropdownMenuItem(

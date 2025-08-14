@@ -50,6 +50,7 @@ fun CommunityPost(
             .padding(bottom = Dimens.Large)
             .border(1.dp, Gray, RoundedCornerShape(10.dp))
             .height(maxOf(120.dp)),
+
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         onClick = {
