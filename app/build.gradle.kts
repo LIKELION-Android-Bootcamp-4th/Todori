@@ -57,6 +57,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.play.services.mlkit.text.recognition.common)
+    implementation(libs.play.services.mlkit.text.recognition)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -105,8 +107,11 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
 
-
-
+    implementation(libs.ml.kit.text.recognition)
+    implementation(libs.camera.x.core)
+    implementation(libs.camera.x.camera2)
+    implementation(libs.camera.x.lifecycle)
+    implementation(libs.camera.x.view)
 
     implementation(libs.lottie)
     implementation(libs.kotlinx.datetime)
