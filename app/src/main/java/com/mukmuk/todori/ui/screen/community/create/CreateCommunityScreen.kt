@@ -162,9 +162,10 @@ fun CreateCommunityScreen(
                     .defaultMinSize(minHeight = 56.dp),
                 shape = RoundedCornerShape(10.dp),
                 singleLine = true,
+
                 isError = isTitleError,
                 supportingText = {
-                    if (isTitleError) Text("스터디 명을 입력해주세요", style = AppTextStyle.Body) else null
+                    if (isTitleError) Text("스터디 명을 입력해주세요", style = AppTextStyle.Body)
                 }
             )
 
@@ -313,7 +314,7 @@ fun CreateCommunityScreen(
                                     tags = td.toList(),
                                     postId = "",
                                     studyId = studyId,
-                                    memberCount = 0,
+                                    memberCount = state.post?.memberCount ?: 0,
                                     commentsCount = 0,
                                     createdAt = Timestamp.now(),
                                     createdBy = uid
