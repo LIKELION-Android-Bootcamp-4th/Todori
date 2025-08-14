@@ -320,7 +320,7 @@ fun CommunityDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                if (state.post?.studyId != null) {
+                if (state.post?.studyId != null && state.study != null) {
 
                     StudyDetailCard(
                         uid = uid,

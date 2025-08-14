@@ -53,7 +53,7 @@ class CommunityRepository @Inject constructor(
         communityService.createPostComment(postId, reply)
     }
 
-    fun getPostComments(postId: String): Flow<List<StudyPostComment>> {
+    suspend fun getPostComments(postId: String): List<StudyPostComment> {
         return communityService.getPostComments(postId)
     }
 
@@ -65,7 +65,7 @@ class CommunityRepository @Inject constructor(
         communityService.createPostCommentReply(postId, commentId, reply)
     }
 
-    fun getPostCommentReplies(postId: String, commentId: String): Flow<List<StudyPostComment>> {
+    suspend fun getPostCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
         return communityService.getPostCommentReplies(postId, commentId)
     }
 
