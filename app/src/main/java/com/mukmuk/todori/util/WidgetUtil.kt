@@ -14,8 +14,8 @@ object WidgetUtil {
 
         return snapshot.documents.mapNotNull { doc ->
             val title = doc.getString("title") ?: return@mapNotNull null
-            val done = doc.getBoolean("done") ?: false
-            title to done
+            val completed = doc.getBoolean("completed") ?: false
+            title to completed
         }
     }
 }
