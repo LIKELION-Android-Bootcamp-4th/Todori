@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 import android.os.Build
+import androidx.glance.appwidget.updateAll
 
 class WidgetViewModel @Inject constructor(
     private val todoRepository: TodoRepository
@@ -23,6 +24,7 @@ class WidgetViewModel @Inject constructor(
                 val widgetTodos = todos.map { it.title to it.completed }
 
                 WidgetUtil.saveWidgetTodos(context, widgetTodos)
+                TodoWidget.updateAll(context)
 
             } catch (e: Exception) {
                 Log.e("WidgetViewModel", "투두 로드 실패: ${e.message}")
