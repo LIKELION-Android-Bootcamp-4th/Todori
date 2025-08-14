@@ -13,18 +13,9 @@ class QuestRepository @Inject constructor(
     private val questService: QuestService,
     private val firestore: FirebaseFirestore
 ) {
-    /** 서버 1회 호출(배정+판정+보상) */
-    suspend fun callUserQuest(uid: String): Result<QuestFunctionResponse> =
-        questService.callQuest(uid)
-
-    /** 폴백용 캐시 조회 */
     suspend fun getCachedDailyQuests(uid: String): List<DailyUserQuest> =
-        withContext(Dispatchers.IO) {
-            firestore.collection("users")
-                .document(uid)
-                .collection("dailyUserQuests")
-                .get()
-                .await()
-                .toObjects(DailyUserQuest::class.java)
-        }
+        firestore.collection("users").document(uid).collection("dailyUserQuests")
+            .get().await().toObjects(DailyUserQuest::class.java)
+
+    suspend fun refreshFromServer(uid: String) = questService.callQuest(uid)
 }

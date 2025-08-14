@@ -28,11 +28,16 @@ fun MyLevelScreen(
     onBack: () -> Unit
 ) {
     val questViewModel: QuestViewModel = hiltViewModel()
-    val ui by questViewModel.ui.collectAsState()
+    val levelViewModel: LevelViewModel = hiltViewModel()
+
+    val questUi by questViewModel.ui.collectAsState()
+    val userProfile by levelViewModel.user.collectAsState()
+
     val uid = Firebase.auth.currentUser?.uid ?: return
 
     LaunchedEffect(uid) {
         questViewModel.loadDailyQuests(uid)
+        levelViewModel.observe(uid)
     }
 
     Scaffold(
@@ -57,7 +62,9 @@ fun MyLevelScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                val levelInfo = getLevelInfo(ui.level)
+                val level = userProfile?.level ?: 1
+                val rewardPoint = userProfile?.rewardPoint ?: 0
+                val levelInfo = getLevelInfo(level)
 
                 Text(
                     text = levelInfo.name,
@@ -74,19 +81,16 @@ fun MyLevelScreen(
 
                 Spacer(modifier = Modifier.height(Dimens.Large))
 
-                // 진행바: current = 현 버킷 포인트, max = current + 남은량
-                val current = ui.rewardPoint
-                val max = (ui.rewardPoint + ui.nextLevelPoint).coerceAtLeast(1)
 
                 PointProgressBar(
-                    level = ui.level,
-                    currentPoint = current,
-                    maxPoint = max
+                    level = level,
+                    currentPoint = rewardPoint,
+                    maxPoint = levelInfo.maxPoint
                 )
 
                 Spacer(modifier = Modifier.height(Dimens.Large))
 
-                QuestSection(quests = ui.quests)
+                QuestSection(quests = questUi.quests)
             }
         }
     }
