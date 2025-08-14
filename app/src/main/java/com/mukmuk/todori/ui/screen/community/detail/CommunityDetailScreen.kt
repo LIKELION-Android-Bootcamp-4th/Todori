@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.detail
 
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +29,7 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -48,8 +51,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -93,6 +98,9 @@ fun CommunityDetailScreen(
 
     var deleteTargetCommentId by remember { mutableStateOf<String?>(null) }
 
+    val textSet = LocalFocusManager.current
+
+    val td by remember { mutableStateOf(textSet) }
 
     var dialogInfo by remember { mutableStateOf<String?>(null) }
 
@@ -102,17 +110,21 @@ fun CommunityDetailScreen(
     LaunchedEffect(Unit) {
         viewModel.getUserById(uid)
         viewModel.loadPostById(postId)
-        viewModel.getComments(postId)
         viewModel.setReplyToCommentId(null)
 
 
+    }
+
+    BackHandler(enabled = state.replyToCommentId != null) {
+        viewModel.setReplyToCommentId(null)
+        commentContent = ""
     }
 
 
     Scaffold(
 
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(text = "게시글", style = AppTextStyle.AppBar)
                 },
@@ -137,9 +149,10 @@ fun CommunityDetailScreen(
                             DropdownMenu(
                                 expanded = expanded,
                                 onDismissRequest = { expanded = false },
+                                shape = RoundedCornerShape(10.dp),
                                 modifier = Modifier
                                     .background(White, RoundedCornerShape(10.dp))
-                                    .border(1.dp, Gray)
+                                    .border(1.dp, Gray, RoundedCornerShape(10.dp))
                             ) {
                                 viewModel.menu.forEach { item ->
                                     DropdownMenuItem(
@@ -159,14 +172,20 @@ fun CommunityDetailScreen(
 
                     }
                 },
+                modifier = Modifier.height(56.dp).fillMaxWidth(),
             )
         },
+
+        contentWindowInsets = WindowInsets(0.dp),
+
+        containerColor = White,
 
         bottomBar = {
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .background(White),
+                    .fillMaxWidth()
+                    .background(White)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -174,13 +193,13 @@ fun CommunityDetailScreen(
                     onValueChange = { commentContent = it },
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 8.dp)
-                        .background(White, RoundedCornerShape(10.dp))
-                        .border(1.dp, Gray, RoundedCornerShape(10.dp)),
-                    shape = RoundedCornerShape(10.dp),
+                        .background(White, RoundedCornerShape(30.dp))
+                        .border(1.dp, Gray, RoundedCornerShape(30.dp)),
+                    shape = RoundedCornerShape(30.dp),
                     placeholder = { Text(if(state.replyToCommentId != null) "답글을 작성해주세요" else "댓글을 작성해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                     singleLine = true,
                     maxLines = 1,
+
                 )
 
 
@@ -194,6 +213,7 @@ fun CommunityDetailScreen(
                                         commentId = "",
                                         postId = postId,
                                         uid = uid,
+                                        level = state.user?.level ?: 0,
                                         username = state.user?.nickname ?: "",
                                         content = commentContent,
                                         createdAt = Timestamp.now()
@@ -205,6 +225,7 @@ fun CommunityDetailScreen(
                                         commentId = "",
                                         postId = postId,
                                         uid = uid,
+                                        level = state.user?.level ?: 0,
                                         username = state.user?.nickname ?: "",
                                         content = commentContent,
                                         createdAt = Timestamp.now()
@@ -215,11 +236,11 @@ fun CommunityDetailScreen(
                             viewModel.getComments(postId)
                         }
                     },
-                    shape = RoundedCornerShape(20.dp),
+                    shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = ButtonPrimary
+                        containerColor = if(commentContent.isNotBlank()) ButtonPrimary else Gray
                     ),
-                    modifier = Modifier.padding(2.dp)
+                    modifier = Modifier.height(56.dp).padding(start = 8.dp)
                 ) {
                     Icon(Icons.Default.Send, contentDescription = "전송")
                 }
@@ -363,6 +384,7 @@ fun CommunityDetailScreen(
                                 showCommentDialog = true
                                 deleteTargetCommentId = comment.commentId
                                 dialogInfo = "댓글"
+                                viewModel.setReplyToCommentId(null)
                             }
                         )
                         if (state.commentReplyList.containsKey(comment.commentId)) {
@@ -375,6 +397,7 @@ fun CommunityDetailScreen(
                                         showCommentDialog = true
                                         deleteTargetCommentId = reply.commentId
                                         dialogInfo = "답글"
+                                        viewModel.setReplyToCommentId(null)
                                     }
                                 )
                             }
