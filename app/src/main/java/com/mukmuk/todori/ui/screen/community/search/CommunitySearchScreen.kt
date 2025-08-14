@@ -202,6 +202,8 @@ fun CommunitySearchScreen(
                                 onSetClick = {
                                     query = search
                                     viewModel.loadSearchPosts(data = query)
+                                    viewModel.createCommunitySearch(uid, query)
+                                    viewModel.getCommunitySearch(uid)
                                     showCommunitySearchData = false
                                     showCommunitySearch = true
                                     focusManager.clearFocus()
