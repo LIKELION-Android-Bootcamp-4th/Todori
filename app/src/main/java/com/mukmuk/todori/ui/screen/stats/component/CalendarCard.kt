@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -37,8 +40,11 @@ import com.mukmuk.todori.ui.theme.UserHalf
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.UserTenth
 import com.mukmuk.todori.ui.theme.White
+import kotlinx.datetime.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.TextStyle
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -57,11 +63,14 @@ fun CalendarCard(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
 
+        val firstDay = DayOfWeek.SUNDAY
+        val daysOfWeek = remember { (0..6).map { firstDay.plus(it.toLong()) } }
+
         val calendarState = rememberCalendarState(
             startMonth = YearMonth.now().minusMonths(12),
             endMonth = YearMonth.now().plusMonths(12),
             firstVisibleMonth = YearMonth.now(),
-            firstDayOfWeek = java.time.DayOfWeek.SUNDAY
+            firstDayOfWeek = firstDay
         )
 
         LaunchedEffect(calendarState) {
@@ -85,6 +94,20 @@ fun CalendarCard(
         HorizontalCalendar(
             modifier = Modifier.padding(Dimens.Medium),
             state = calendarState,
+            monthHeader = {
+                Row(Modifier.fillMaxWidth().padding(bottom = Dimens.Small)) {
+                    daysOfWeek.forEach { dow ->
+                        val label = dow.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
+                            .uppercase(Locale.US)
+                        Text(
+                            text = label,
+                            style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold),
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            },
             dayContent = { day ->
                 val date = day.date
                 val isSelected = date == selectedDate
@@ -131,13 +154,6 @@ fun CalendarCard(
                     }
                 }
             },
-            monthHeader = {
-                Text(
-                    text = "${it.yearMonth.year}년 ${it.yearMonth.monthValue}월",
-                    modifier = Modifier.padding(Dimens.Small),
-                    style = AppTextStyle.TitleSmall
-                )
-            }
         )
     }
 }
