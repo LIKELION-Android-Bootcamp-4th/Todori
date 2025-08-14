@@ -22,6 +22,7 @@ import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailScreen
 import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
+import com.mukmuk.todori.ui.screen.home.home_ocr.HomeOcrScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
 import com.mukmuk.todori.ui.screen.login.LoginScreen
@@ -60,6 +61,9 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         }
         composable("home_setting") {
             HomeSettingScreen(navController = navController)
+        }
+        composable("home_ocr") {
+            HomeOcrScreen(navController)
         }
 
         composable(BottomNavItem.Study.route) { backStackEntry ->

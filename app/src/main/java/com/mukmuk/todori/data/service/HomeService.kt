@@ -40,4 +40,7 @@ class HomeService(private val firestore: FirebaseFirestore) {
             .set(dailyRecord, SetOptions.merge())
             .await()
     }
+
+    fun getDailyRecordCollection(uid: String) =
+        dailyRecordRef(uid)
 }
