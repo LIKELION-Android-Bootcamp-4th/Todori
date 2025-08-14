@@ -36,6 +36,8 @@ class CommunityViewModel @Inject constructor(
                     _state.update { it.copy(selectedOption = "날짜순") }
 
                 communityRepository.getPosts(filter = filter).collect { posts ->
+
+
                     _state.update {
                         it.copy(
                             allPostList = posts,
