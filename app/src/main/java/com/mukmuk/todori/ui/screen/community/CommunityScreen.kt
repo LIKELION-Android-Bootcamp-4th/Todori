@@ -8,10 +8,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -42,9 +46,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.screen.community.components.CommunityPost
 import com.mukmuk.todori.ui.screen.community.components.CommunityListOption
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -88,7 +94,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text("커뮤니티", style = AppTextStyle.AppBar) },
                 actions = {
                     IconButton(
@@ -100,10 +106,13 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                         Icon(Icons.Default.Search, contentDescription = "검색")
                     }
                 },
+                modifier = Modifier.height(56.dp).fillMaxWidth(),
             )
         },
 
-        floatingActionButton = {
+        contentWindowInsets = WindowInsets(0.dp),
+
+                floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     navController.navigate("community/create")
@@ -120,70 +129,69 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                 )
             }
         }
-    ){innerPadding ->
-        Column (
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(White)
         ) {
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp, start = 16.dp, end = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CommunityListOption(
-                        selectedOption = state.selectedOption,
-                        setData = { option ->
-                            selectedCategory = "전체"
-                            viewModel.setData(selectedCategory)
-                            if(option == "참가자 수"){
-                                viewModel.loadPosts("참가자 수")
-                            }
-                            else if(option == "날짜순"){
-                                viewModel.loadPosts("날짜순")
-                            }
-                        }
-                    )
-                }
-
-            
-
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(categories) { category ->
-                        Spacer(modifier = Modifier.width(Dimens.Tiny))
-                        Box(
-                            modifier = Modifier
-                                .border(
-                                    width = 1.dp,
-                                    color = Gray,
-                                    shape = RoundedCornerShape(30)
-                                )
-                                .background(
-                                    if (selectedCategory == category) Black else White,
-                                    shape = RoundedCornerShape(30)
-                                )
-                                .clickable {
-                                    selectedCategory = category
-                                    viewModel.setData(selectedCategory)
-                                }
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = category,
-                                fontSize = 14.sp,
-                                color = if (selectedCategory == category) White else Black
-                            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp, start = 16.dp, end = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CommunityListOption(
+                    selectedOption = state.selectedOption,
+                    setData = { option ->
+                        selectedCategory = "전체"
+                        viewModel.setData(selectedCategory)
+                        if (option == "참가자 수") {
+                            viewModel.loadPosts("참가자 수")
+                        } else if (option == "날짜순") {
+                            viewModel.loadPosts("날짜순")
                         }
                     }
+                )
+            }
+
+
+
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(categories) { category ->
+                    Box(
+                        modifier = Modifier
+                            .border(
+                                width = 1.dp,
+                                color = Gray,
+                                shape = RoundedCornerShape(30)
+                            )
+                            .background(
+                                if (selectedCategory == category) Black else White,
+                                shape = RoundedCornerShape(30)
+                            )
+                            .clickable {
+                                selectedCategory = category
+                                viewModel.setData(selectedCategory)
+                            }
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = category,
+                            fontSize = 14.sp,
+                            color = if (selectedCategory == category) White else Black
+                        )
+                    }
                 }
+            }
 
             if (state.isLoading) {
                 Box(
@@ -192,18 +200,22 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                 ) {
                     CircularProgressIndicator(color = ButtonPrimary)
                 }
-            }
-            else if (state.postList.isEmpty()) {
+            } else if (state.postList.isEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("게시글이 없습니다", style = AppTextStyle.Body.copy(color = DarkGray, fontWeight = FontWeight.Bold))
+                    Text(
+                        "게시글이 없습니다",
+                        style = AppTextStyle.Body.copy(
+                            color = DarkGray,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
                 }
-            }
-            else {
+            } else {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

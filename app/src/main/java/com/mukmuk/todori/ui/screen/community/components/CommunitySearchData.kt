@@ -43,7 +43,7 @@ fun CommunitySearchData(data: String, onSetClick: () -> Unit, onDeleteClick: () 
             .background(White)
             .border(1.dp, DarkGray, RoundedCornerShape(30))
             .padding(horizontal = 8.dp, vertical = 2.dp)
-            .width(68.dp)
+            .widthIn(max = 68 .dp)
             .clickable { onSetClick() },
 
         contentAlignment = Alignment.Center

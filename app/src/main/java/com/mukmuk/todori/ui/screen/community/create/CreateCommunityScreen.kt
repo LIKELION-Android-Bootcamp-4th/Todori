@@ -259,7 +259,7 @@ fun CreateCommunityScreen(
                             )
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                             .clickable {
-                                if (!td.contains(tag)) {
+                                if (!td.contains(tag) && td.size < 6) {
 
                                         td.add(tag)
 
@@ -288,6 +288,7 @@ fun CreateCommunityScreen(
                 onClick = {
                     if (pickedItem != null) {
                         studyId = pickedItem!!
+                        viewModel.loadStudyById(studyId)
                     }
                     if (title.isNotBlank()) {
                         if (postId != null) {
@@ -314,7 +315,7 @@ fun CreateCommunityScreen(
                                     tags = td.toList(),
                                     postId = "",
                                     studyId = studyId,
-                                    memberCount = state.post?.memberCount ?: 0,
+                                    memberCount = state.memberList.size,
                                     commentsCount = 0,
                                     createdAt = Timestamp.now(),
                                     createdBy = uid
