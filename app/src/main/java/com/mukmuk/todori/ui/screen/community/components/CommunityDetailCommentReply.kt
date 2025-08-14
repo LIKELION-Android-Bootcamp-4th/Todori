@@ -49,7 +49,6 @@ import com.mukmuk.todori.ui.theme.White
 fun CommunityDetailCommentReply(
     uid: String,
     commentList: StudyPostComment,
-    userName: String,
     onDeleteClick: () -> Unit
 ) {
 
@@ -84,7 +83,7 @@ fun CommunityDetailCommentReply(
 
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
 
-                    Text(userName, style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
+                    Text(commentList.username, style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
 
                     Spacer(modifier = Modifier.weight(1f))
 
