@@ -1,33 +1,41 @@
 package com.mukmuk.todori.widget
 
 import android.content.Context
-import androidx.glance.appwidget.updateAll
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import com.google.firebase.functions.dagger.assisted.Assisted
 import com.google.firebase.functions.dagger.assisted.AssistedInject
-import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.util.WidgetUtil
+import kotlinx.coroutines.tasks.await
 
 @HiltWorker
 class TodoWidgetWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
-    private val repo: TodoRepository
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         return try {
-            // 투두 불러오기
-            val todos = WidgetUtil.loadWidgetTodos(applicationContext)
+            val db = Firebase.firestore
+            val snapshot = db.collection("todos")
+                .whereEqualTo("done", false)
+                .get()
+                .await()
 
-            // 위젯 새로고침
-            TodoWidget.updateAll(applicationContext)
+            val todos = snapshot.documents.map { doc ->
+                val title = doc.getString("title") ?: ""
+                val done = doc.getBoolean("done") ?: false
+                title to done
+            }
 
+            WidgetUtil.loadWidgetTodos("tesetuser")
             Result.success()
         } catch (e: Exception) {
+            e.printStackTrace()
             Result.failure()
         }
     }

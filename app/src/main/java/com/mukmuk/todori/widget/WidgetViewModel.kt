@@ -23,7 +23,7 @@ class WidgetViewModel @Inject constructor(
                 val todos = todoRepository.getTodosByDate(uid, LocalDate.now())
                 val widgetTodos = todos.map { it.title to it.completed }
 
-                WidgetUtil.saveWidgetTodos(context, widgetTodos)
+                WidgetUtil.loadWidgetTodos("testuser")
                 TodoWidget.updateAll(context)
 
             } catch (e: Exception) {
