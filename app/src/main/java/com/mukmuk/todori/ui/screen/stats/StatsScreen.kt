@@ -27,18 +27,22 @@ import com.mukmuk.todori.ui.screen.stats.tab.week.WeekTab
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.UserPrimary
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StatsScreen() {
-    //val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-    val uid = "testuser"
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("DAY", "WEEK", "MONTH")
 
-
+    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    var anchorDate by remember { mutableStateOf<LocalDate>(today) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TabRow(
@@ -63,9 +67,21 @@ fun StatsScreen() {
         }
 
         when (selectedTabIndex) {
-            0 -> DayTab()
-            1 -> WeekTab()
-            2 -> MonthTab(uid = uid)
+            0 -> DayTab(
+                uid = uid,
+                date = anchorDate,
+                onDateChange = { anchorDate = it }
+            )
+            1 -> WeekTab(
+                uid = uid,
+                date = anchorDate,
+                onDateChange = { anchorDate = it }
+            )
+            2 -> MonthTab(
+                uid = uid,
+                date = anchorDate,
+                onDateChange = { anchorDate = it }
+            )
         }
     }
 }

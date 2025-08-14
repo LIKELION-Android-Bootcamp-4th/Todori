@@ -19,9 +19,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Brightness1
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,7 +68,7 @@ import kotlinx.datetime.toKotlinLocalDate
 fun GoalDetailScreen(
     goalId: String,
     navController: NavHostController,
-    onBack: ()-> Unit
+    onBack: () -> Unit
 ) {
 //    val uid = "testuser"
     val uid = Firebase.auth.currentUser?.uid.toString()
@@ -99,7 +102,7 @@ fun GoalDetailScreen(
         }
     }
 
-    if (goal !=null) {
+    if (goal != null) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -195,7 +198,15 @@ fun GoalDetailScreen(
                             .size(56.dp)
                             .border(1.dp, DarkGray, RoundedCornerShape(DefaultCornerRadius))
                     ) {
-                        Icon(Icons.Outlined.CalendarMonth, contentDescription = "마감일 선택")
+                        BadgedBox(
+                            badge = {
+                                if (newTodoDueDate != null) {
+                                    Badge()
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Outlined.CalendarMonth, contentDescription = "마감일 선택")
+                        }
                     }
 
                     SingleDatePickerBottomSheet(
@@ -218,7 +229,7 @@ fun GoalDetailScreen(
                     ) {
                         IconButton(
                             onClick = {
-                                if (newTodoTitle.isNotBlank() && newTodoDueDate !=null) {
+                                if (newTodoTitle.isNotBlank() && newTodoDueDate != null) {
                                     viewModel.addGoalTodo(
                                         uid = uid,
                                         goalId = goal.goalId,
@@ -232,7 +243,8 @@ fun GoalDetailScreen(
                                         }
                                     )
                                 } else if (newTodoDueDate == null) {
-                                    Toast.makeText(context,"마감일을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "마감일을 입력해주세요.", Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             },
                             modifier = Modifier.fillMaxSize()

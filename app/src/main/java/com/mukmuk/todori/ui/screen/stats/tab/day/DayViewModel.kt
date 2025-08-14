@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.tab.day
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -81,5 +82,21 @@ class DayViewModel @Inject constructor(
         runCatching { dailyRecordRepository.getRecordByDate(uid, date) }
             .onSuccess { _selectedRecord.value = it }
             .onFailure { _selectedRecord.value = null }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun updateDailyRecord(uid: String, date: LocalDate, newReflection: String) {
+        viewModelScope.launch {
+            try {
+                val record = dailyRecordRepository.getRecordByDate(uid, date)
+                    ?: DailyRecord(date = date.toString(), uid = uid)
+                val updatedRecord = record.copy(reflection = newReflection)
+
+                dailyRecordRepository.updateDailyRecord(uid, updatedRecord)
+                refreshSelected()
+            } catch (e: Exception) {
+                Log.e("DayViewModel", "DailyRecord 수정 실패", e)
+            }
+        }
     }
 }
