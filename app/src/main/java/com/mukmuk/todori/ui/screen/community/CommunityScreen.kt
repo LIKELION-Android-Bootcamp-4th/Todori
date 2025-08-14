@@ -148,6 +148,8 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     )
                 }
 
+            
+
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()

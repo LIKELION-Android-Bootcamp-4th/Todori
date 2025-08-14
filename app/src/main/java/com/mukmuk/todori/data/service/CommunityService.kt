@@ -62,9 +62,20 @@ class CommunityService(
         awaitClose { listener.remove() }
     }
 
-    suspend fun getPostById(postId: String): StudyPost? {
-        val snapshot = communityRef().document(postId).get().await()
-        return snapshot.toObject(StudyPost::class.java)
+    fun getPostById(postId: String): Flow<StudyPost?> = callbackFlow{
+        val listener = communityRef().document(postId).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null) {
+                val post = snapshot.toObject(StudyPost::class.java)
+
+                trySend(post)
+            }
+        }
+        awaitClose { listener.remove() }
     }
 
     suspend fun getUserById(uid: String): User? {
@@ -83,6 +94,10 @@ class CommunityService(
     suspend fun createCommunitySearch(uid: String, query: String) {
         val ref = firestore.collection("users").document(uid).collection("communitySearch").document()
         val searchWithId = mapOf("query" to query, "timestamp" to FieldValue.serverTimestamp())
+        if (ref.get().await().exists()) {
+            ref.update("timestamp", FieldValue.serverTimestamp()).await()
+            return
+        }
         ref.set(searchWithId, SetOptions.merge()).await()
     }
 
@@ -91,6 +106,7 @@ class CommunityService(
             .document(uid)
             .collection("communitySearch")
             .limit(5)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .await()
         return snapshot.documents.mapNotNull { it.get("query") as? String }.toList()
@@ -113,18 +129,32 @@ class CommunityService(
         val autoId = ref.id
         val replyWithId = reply.copy(commentId = autoId, parentCommentId = null, createdAt = Timestamp.now())
         ref.set(replyWithId, SetOptions.merge()).await()
+
+        communityRef().document(postId)
+            .update("commentsCount", FieldValue.increment(1))
+            .await()
     }
 
-    suspend fun getPostComments(postId: String): List<StudyPostComment> {
-        val snapshot: QuerySnapshot = communityRef().document(postId).collection("studyPostReply")
-            .whereEqualTo("parentCommentId", null)
-            .get().await()
-        return snapshot.documents.mapNotNull {
-            it.toObject(StudyPostComment::class.java)?.copy(commentId = it.id) }
+    fun getPostComments(postId: String): Flow<List<StudyPostComment>> = callbackFlow {
+        val listener = communityRef().document(postId).collection("studyPostReply").orderBy("createdAt", Query.Direction.DESCENDING).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            if (snapshot != null) {
+                val comments = snapshot.documents.mapNotNull { it.toObject(StudyPostComment::class.java) }
+                trySend(comments)
+            }
+        }
+        awaitClose { listener.remove() }
     }
 
     suspend fun deletePostComment(postId: String, replyId: String) {
         communityRef().document(postId).collection("studyPostReply").document(replyId).delete().await()
+
+        communityRef().document(postId)
+            .update("commentsCount", FieldValue.increment(-1))
+            .await()
     }
 
     suspend fun createPostCommentReply(postId: String, commentId: String, reply: StudyPostComment){
@@ -132,18 +162,38 @@ class CommunityService(
         val autoId = ref.id
         val replyWithId = reply.copy(commentId = autoId, parentCommentId = commentId, createdAt = Timestamp.now())
         ref.set(replyWithId, SetOptions.merge()).await()
+
+        communityRef().document(postId)
+            .update("commentsCount", FieldValue.increment(1))
+            .await()
     }
 
-    suspend fun getPostCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
-        val snapshot: QuerySnapshot = communityRef().document(postId).collection("studyPostReply").whereEqualTo("parentCommentId", commentId).get().await()
-        return snapshot.documents.mapNotNull {
-            it.toObject(StudyPostComment::class.java)?.copy(commentId = it.id)
+    fun getPostCommentReplies(postId: String, commentId: String): Flow<List<StudyPostComment>> = callbackFlow{
+        val listener = communityRef().document(postId).collection("studyPostReply").whereEqualTo("parentCommentId", commentId).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            if (snapshot != null) {
+                val replies = snapshot.documents.mapNotNull { it.toObject(StudyPostComment::class.java) }
+                trySend(replies)
+            }
         }
+        awaitClose { listener.remove() }
     }
 
-    suspend fun loadStudyById(studyId: String): Study? {
-        val snapshot = firestore.collection("studies").document(studyId).get().await()
-        return snapshot.toObject(Study::class.java)
+    fun loadStudyById(studyId: String): Flow<Study?> = callbackFlow {
+        val listener = firestore.collection("studies").document(studyId).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            } else if (snapshot != null) {
+                val study = snapshot.toObject(Study::class.java)
+                trySend(study)
+            }
+
+        }
+        awaitClose { listener.remove() }
     }
 
     suspend fun getStudyMembers(studyId: String): List<StudyMember> {

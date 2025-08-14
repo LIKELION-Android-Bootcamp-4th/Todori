@@ -193,6 +193,7 @@ fun CommunityDetailScreen(
                                         commentId = "",
                                         postId = postId,
                                         uid = uid,
+                                        username = state.user?.nickname ?: "",
                                         content = commentContent,
                                         createdAt = Timestamp.now()
                                     )
@@ -203,6 +204,7 @@ fun CommunityDetailScreen(
                                         commentId = "",
                                         postId = postId,
                                         uid = uid,
+                                        username = state.user?.nickname ?: "",
                                         content = commentContent,
                                         createdAt = Timestamp.now()
                                     )
@@ -260,7 +262,7 @@ fun CommunityDetailScreen(
                             .background(Gray, CircleShape)
                     )
                     Spacer(Modifier.width(Dimens.Tiny))
-                    Text(state.user?.nickname ?: "", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
+                    Text(state.post?.userName ?: "", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
 
                     Spacer(Modifier.weight(1f))
 
@@ -318,7 +320,7 @@ fun CommunityDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                if (state.post?.studyId != null && state.study != null) {
+                if (state.post?.studyId != null) {
 
                     StudyDetailCard(
                         uid = uid,

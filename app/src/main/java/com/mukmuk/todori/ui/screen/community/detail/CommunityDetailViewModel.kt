@@ -34,18 +34,26 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, study = null, user = null, post = null, commentList = emptyList(), commentReplyList = emptyMap(), replyToCommentId = null) }
             try {
-                val post = repository.getPostById(postId)
-                _state.update {
-                    it.copy(
-                        user = null,
-                        post = post,
-                        isLoading = false,
-                        error = null
-                    )
-                }
-                if (post != null) {
+                repository.getPostById(postId).collect { post ->
+                    val user = repository.getUserById(post!!.createdBy)
+                    var members = emptyList<StudyMember>()
                     if(post.studyId.isNotBlank()) {
                         loadStudyById(post.studyId)
+                        members = repository.getStudyMembers(post.studyId)
+                    }
+
+                    _state.update {
+                        it.copy(
+                            post = post.copy(
+                                userName = user?.nickname ?: "",
+                                memberCount = members.size
+                            ),
+                            isLoading = false,
+                            error = null
+                            )
+                    }
+                    if (post != null) {
+                        getComments(postId)
                     }
                 }
             } catch (e: Exception) {
@@ -100,9 +108,6 @@ class CommunityDetailViewModel@Inject constructor(
                         error = null
                     )
                 }
-                if (updatedPost.studyId.isNotBlank()) {
-                    loadStudyById(updatedPost.studyId)
-                }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
@@ -110,10 +115,20 @@ class CommunityDetailViewModel@Inject constructor(
     }
 
     fun deletePost(postId: String) {
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
                 repository.deletePost(postId)
-                deleteAllComments(postId)
+                repository.getPostComments(postId).collect { comments ->
+                    for (comment in comments) {
+                        repository.getPostCommentReplies(postId, comment.commentId).collect { replies ->
+                            for (reply in replies) {
+                                repository.deletePostComment(postId, reply.commentId)
+                            }
+                        }
+                        repository.deletePostComment(postId, comment.commentId)
+                    }
+                }
                 _state.update {
                     it.copy(
                         post = null,
@@ -145,18 +160,22 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                val comments = repository.getPostComments(postId)
-                val commentsMap = mutableMapOf<String, List<StudyPostComment>>()
-                for(comment in comments) {
-                    commentsMap[comment.commentId] = repository.getPostCommentReplies(postId, comment.commentId)
-                }
-                _state.update {
-                    it.copy(
-                        commentList = comments,
-                        commentReplyList = commentsMap.toMap(),
-                        isLoading = false,
-                        error = null
-                    )
+                repository.getPostComments(postId).collect { comments ->
+                    val replyMap = mutableMapOf<String, List<StudyPostComment>>()
+                    for (comment in comments) {
+                        repository.getPostCommentReplies(postId, comment.commentId).collect { replies ->
+                            replyMap[comment.commentId] = replies
+                        }
+                    }
+
+                    _state.update {
+                        it.copy(
+                            commentList = comments,
+                            commentReplyList = replyMap,
+                            isLoading = false,
+                            error = null
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -168,30 +187,12 @@ class CommunityDetailViewModel@Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                val replies = repository.getPostCommentReplies(postId, replyId)
-                for (reply in replies) {
-                    repository.deletePostComment(postId, reply.commentId)
-                }
-                repository.deletePostComment(postId, replyId)
-                getComments(postId)
-            } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, error = e.message) }
-            }
-        }
-    }
-
-    fun deleteAllComments(postId: String) {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-            try {
-                val comments = repository.getPostComments(postId)
-                for (comment in comments) {
-                    val replies = repository.getPostCommentReplies(postId, comment.commentId)
+                repository.getPostCommentReplies(postId, replyId).collect { replies ->
                     for (reply in replies) {
                         repository.deletePostComment(postId, reply.commentId)
-                        }
-                    repository.deletePostComment(postId, comment.commentId)
+                    }
                 }
+                repository.deletePostComment(postId, replyId)
                 getComments(postId)
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -212,24 +213,6 @@ class CommunityDetailViewModel@Inject constructor(
         }
     }
 
-    private fun getCommentReplies(postId: String, commentId: String) {
-        viewModelScope.launch {
-            try {
-                val replies = repository.getPostCommentReplies(postId, commentId)
-                _state.update { state ->
-                    val updatedCommentReplyList = state.commentReplyList.toMutableMap()
-                    updatedCommentReplyList[commentId] = replies
-                    state.copy(
-                        commentReplyList = updatedCommentReplyList.toMap(),
-                        error = null
-                    )
-                }
-            } catch (e: Exception) {
-                _state.update { it.copy(error = e.message) }
-            }
-        }
-    }
-
     fun setReplyToCommentId(commentId: String? = null) {
         _state.update { it.copy(replyToCommentId = commentId) }
     }
@@ -243,21 +226,20 @@ class CommunityDetailViewModel@Inject constructor(
 
     fun loadStudyById(studyId: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
             try {
-                val study = repository.loadStudyById(studyId)
-                _state.update {
-                    it.copy(
-                        study = study,
-                        isLoading = false,
-                        error = null
-                    )
-                }
-                if (study != null) {
-                    loadStudyMember(studyId)
+                repository.loadStudyById(studyId).collect { study ->
+                    _state.update {
+                        it.copy(
+                            study = study,
+                            error = null
+                        )
+                    }
+                    if (study != null) {
+                        loadStudyMember(studyId)
+                    }
                 }
             } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, error = e.message) }
+                _state.update { it.copy(error = e.message) }
             }
         }
     }

@@ -89,7 +89,7 @@ fun CommunitySearchScreen(
                 title = {
                     Box(
                         modifier = Modifier
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = 8.dp)
                     ) {
                         OutlinedTextField(
                             value = query,

@@ -44,24 +44,6 @@ class CommunityViewModel @Inject constructor(
                         )
                     }
                 }
-
-                _state.value.postList.map {
-                    if(it.studyId.isNotBlank()) {
-                        val memberCount = communityRepository.getStudyMembers(it.studyId).size
-                        it.copy(memberCount = memberCount)
-                    }
-
-                    if(it.commentsCount > 0){
-                        val comments = communityRepository.getPostComments(it.postId)
-                        val allReplies = comments.flatMap { comment ->
-                            communityRepository.getPostCommentReplies(it.postId, comment.commentId)
-                        }
-                        val commentsCount = comments.size + allReplies.size
-                        it.copy(commentsCount = commentsCount)
-                    }
-                }
-
-
             }
             catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -79,13 +61,6 @@ class CommunityViewModel @Inject constructor(
                             communitySearchPostList = posts,
                             isLoading = false,
                         )
-                    }
-                }
-
-                _state.value.communitySearchPostList.map {
-                    if(it.studyId.isNotBlank()) {
-                        val memberCount = communityRepository.getStudyMembers(it.studyId).size
-                        it.copy(memberCount = memberCount)
                     }
                 }
             }
@@ -109,29 +84,6 @@ class CommunityViewModel @Inject constructor(
                 it.copy(postList = state.value.allPostList.filter { post ->
                     post.tags.contains(data)
                 })
-            }
-        }
-    }
-
-    fun getAllCommentCount(postId: String) {
-        viewModelScope.launch {
-            try {
-
-                val comments = communityRepository.getPostComments(postId)
-
-                val allReplies = comments.flatMap { comment ->
-                    communityRepository.getPostCommentReplies(postId, comment.commentId)
-                }
-
-
-                _state.update {
-                    it.copy(
-                        commentList = it.commentList + mapOf(postId to comments),
-                        commentReplyList = it.commentReplyList + mapOf(postId to allReplies)
-                    )
-                }
-            } catch (e: Exception) {
-                _state.update { it.copy(error = e.message) }
             }
         }
     }

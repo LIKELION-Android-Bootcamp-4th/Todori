@@ -91,6 +91,7 @@ fun CreateCommunityScreen(
     val uid = Firebase.auth.currentUser?.uid.toString()
 
     LaunchedEffect(postId) {
+        viewModel.getUserById(uid)
         if (postId == null) {
             title = ""
             content = ""
@@ -297,6 +298,8 @@ fun CreateCommunityScreen(
                                     tags = td.toList(),
                                     postId = postId,
                                     studyId = studyId,
+                                    memberCount = state.post?.memberCount ?: 0,
+                                    commentsCount = state.post?.commentsCount ?: 0,
                                     createdAt = state.post?.createdAt,
                                     createdBy = uid
                                 )
@@ -310,6 +313,7 @@ fun CreateCommunityScreen(
                                     tags = td.toList(),
                                     postId = "",
                                     studyId = studyId,
+                                    commentsCount = 0,
                                     createdAt = Timestamp.now(),
                                     createdBy = uid
                                 )

@@ -148,7 +148,6 @@ fun CommunityPost(
 
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
 
-
                     Text(
                         text = post.commentsCount.toString(),
                         style = AppTextStyle.BodySmall

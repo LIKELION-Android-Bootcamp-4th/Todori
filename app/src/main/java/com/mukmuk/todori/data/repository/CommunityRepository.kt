@@ -21,7 +21,7 @@ class CommunityRepository @Inject constructor(
         return communityService.getPosts(filter, data)
     }
 
-    suspend fun getPostById(postId: String): StudyPost? {
+    fun getPostById(postId: String): Flow<StudyPost?> {
         return communityService.getPostById(postId)
     }
 
@@ -53,7 +53,7 @@ class CommunityRepository @Inject constructor(
         communityService.createPostComment(postId, reply)
     }
 
-    suspend fun getPostComments(postId: String): List<StudyPostComment> {
+    fun getPostComments(postId: String): Flow<List<StudyPostComment>> {
         return communityService.getPostComments(postId)
     }
 
@@ -65,11 +65,11 @@ class CommunityRepository @Inject constructor(
         communityService.createPostCommentReply(postId, commentId, reply)
     }
 
-    suspend fun getPostCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
+    fun getPostCommentReplies(postId: String, commentId: String): Flow<List<StudyPostComment>> {
         return communityService.getPostCommentReplies(postId, commentId)
     }
 
-    suspend fun loadStudyById(studyId: String): Study? {
+    fun loadStudyById(studyId: String): Flow<Study?> {
         return communityService.loadStudyById(studyId)
     }
 
