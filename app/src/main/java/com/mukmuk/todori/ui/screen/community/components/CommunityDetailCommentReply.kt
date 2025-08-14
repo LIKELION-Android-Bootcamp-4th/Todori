@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.community.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +47,7 @@ import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.White
+import com.mukmuk.todori.util.getLevelInfo
 
 @Composable
 fun CommunityDetailCommentReply(
@@ -75,12 +79,16 @@ fun CommunityDetailCommentReply(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
+                    val levelInfo = getLevelInfo(commentList.level)
+
+                    Image(
+                        painter = painterResource(id = levelInfo.imageRes),
+                        contentDescription = "레벨 이미지",
                         modifier = Modifier
                             .size(36.dp)
-                            .background(Gray, CircleShape),
+                            .clip(CircleShape)
+                            .border(width = 1.dp, shape = CircleShape,color = Gray)
                     )
-
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
 
                     Text(commentList.username, style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
