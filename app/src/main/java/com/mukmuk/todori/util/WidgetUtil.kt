@@ -1,6 +1,7 @@
 package com.mukmuk.todori.util
 
 import android.content.Context
+import android.util.Log
 
 object WidgetUtil {
     fun saveWidgetTodos(context: Context, todos: List<Pair<String, Boolean>>) {
@@ -10,8 +11,9 @@ object WidgetUtil {
     }
     fun loadWidgetTodos(context: Context): List<Pair<String, Boolean>> {
         val prefs = context.getSharedPreferences("widget_data", Context.MODE_PRIVATE)
-        val dataString = prefs.getString("todos", "") ?: ""
-        if (dataString.isEmpty()) return emptyList()
+        val dataString = prefs.getString("todos", null)
+        Log.d("WidgetDebug", "제발~~~: $dataString")
+        if (dataString.isNullOrEmpty()) return listOf("TODO가 없습니다." to false)
         return dataString.split("|").mapNotNull { item ->
             val parts = item.split(",")
             if (parts.size == 2) {

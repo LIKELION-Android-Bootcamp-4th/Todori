@@ -25,8 +25,7 @@ class TodoWidgetReceiver: GlanceAppWidgetReceiver() {
             AppWidgetManager.ACTION_APPWIDGET_UPDATE -> {
                 TodoWidgetWorker.enqueue(context)
             }
-            Intent.ACTION_DATE_CHANGED,
-            Intent.ACTION_TIME_CHANGED -> {
+            Intent.ACTION_DATE_CHANGED-> {
                 TodoWidgetWorker.enqueue(context)
             }
         }

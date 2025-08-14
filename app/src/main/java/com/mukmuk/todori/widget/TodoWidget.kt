@@ -2,7 +2,6 @@ package com.mukmuk.todori.widget
 
 import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.glance.unit.ColorProvider
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -13,8 +12,8 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
-import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.text.Text
 import com.mukmuk.todori.R
@@ -36,11 +35,10 @@ fun TodoWidgetContent(
 ) {
     Box(
         modifier = GlanceModifier
-            .size(120.dp)
-            .padding(16.dp)
+            .fillMaxSize()
             .background(R.color.widgetBgColor),
     ) {
-        Column {
+        Column(modifier = GlanceModifier.padding(8.dp)) {
             Row {
                 Text("TODO")
                 Spacer(GlanceModifier.width(10.dp))
