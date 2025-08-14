@@ -92,7 +92,11 @@ class CommunityService(
     }
 
     suspend fun createCommunitySearch(uid: String, query: String) {
-        val ref = firestore.collection("users").document(uid).collection("communitySearch").document()
+        val ref = firestore.collection("users").document(uid).collection("communitySearch").document(query)
+        if (ref.get().await().exists()) {
+            ref.update("timestamp", FieldValue.serverTimestamp()).await()
+            return
+        }
         val searchWithId = mapOf("query" to query, "timestamp" to FieldValue.serverTimestamp())
         ref.set(searchWithId, SetOptions.merge()).await()
     }
@@ -101,10 +105,12 @@ class CommunityService(
         val snapshot = firestore.collection("users")
             .document(uid)
             .collection("communitySearch")
-            .limit(5)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(10)
             .get()
             .await()
-        return snapshot.documents.mapNotNull { it.get("query") as? String }.toList()
+
+        return snapshot.documents.mapNotNull { it.getString("query") }
     }
 
     suspend fun deleteCommunitySearch(uid: String, query: String) {
