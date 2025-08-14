@@ -46,6 +46,7 @@ class CommunityDetailViewModel@Inject constructor(
                         it.copy(
                             post = post.copy(
                                 userName = user?.nickname ?: "",
+                                level = user?.level ?: 0,
                                 memberCount = members.size
                             ),
                             isLoading = false,
@@ -151,14 +152,20 @@ class CommunityDetailViewModel@Inject constructor(
             _state.update { it.copy(isLoading = true) }
             try {
                 val comments = repository.getPostComments(postId)
+                val updatedComments = comments.sortedBy {
+                    it.createdAt?.toDate()?.time
+                }
                 val repliesMap = mutableMapOf<String, List<StudyPostComment>>()
                 for (comment in comments) {
                     val replies = repository.getPostCommentReplies(postId, comment.commentId)
-                    repliesMap[comment.commentId] = replies
+                    val updatedReplies = replies.sortedBy {
+                        it.createdAt?.toDate()?.time
+                    }
+                    repliesMap[comment.commentId] = updatedReplies
                 }
                 _state.update {
                     it.copy(
-                        commentList = comments,
+                        commentList = updatedComments,
                         commentReplyList = repliesMap,
                         isLoading = false,
                         error = null
@@ -186,7 +193,7 @@ class CommunityDetailViewModel@Inject constructor(
         }
     }
 
-    fun deleteAllComments(postId: String) {
+    private fun deleteAllComments(postId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
