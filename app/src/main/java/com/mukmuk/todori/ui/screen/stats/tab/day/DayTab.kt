@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -34,7 +33,9 @@ import com.mukmuk.todori.ui.screen.stats.component.day.DayStatsCard
 import com.mukmuk.todori.ui.screen.stats.component.day.GoldenHourCard
 import com.mukmuk.todori.ui.screen.stats.component.day.LearningStreakCard
 import com.mukmuk.todori.ui.screen.stats.component.day.ReflectionCard
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.util.parseReflection
 import java.time.LocalDate
 
@@ -146,12 +147,10 @@ fun DayTab(
 
         Spacer(modifier = Modifier.height(Dimens.Large))
 
-        // 에러 메시지 표시
         state.error?.let { error ->
             Text(
                 text = error,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
+                style = AppTextStyle.BodyLarge.copy(color = Red),
                 modifier = Modifier.padding(Dimens.Medium)
             )
         }
