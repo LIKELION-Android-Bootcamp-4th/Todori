@@ -185,7 +185,8 @@ fun CommunityDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(White)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .height(56.dp)
+                    .padding(horizontal = 16.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -240,9 +241,9 @@ fun CommunityDetailScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if(commentContent.isNotBlank()) ButtonPrimary else Gray
                     ),
-                    modifier = Modifier.height(56.dp).padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp)
                 ) {
-                    Icon(Icons.Default.Send, contentDescription = "전송")
+                    Icon(Icons.Default.Send, contentDescription = "전송", Modifier.size(24.dp))
                 }
             }
         }
