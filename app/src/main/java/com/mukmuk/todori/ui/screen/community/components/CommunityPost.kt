@@ -23,46 +23,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.R
-import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupSecondary
-import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.White
 
 
 @Composable
-fun CommunityListItem(
-    title: String,
-    description: String,
-    tags: List<String> = emptyList(),
-    comments: Int = 0,
-    members: Int = 0,
+fun CommunityPost(
+    post: StudyPost,
     navController: NavHostController,
-    viewModel: CommunityViewModel,
-    post: StudyPost
 ) {
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = Dimens.Large)
             .border(1.dp, Gray, RoundedCornerShape(10.dp))
             .height(maxOf(120.dp)),
+
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         onClick = {
-            viewModel.selectedPost = post
-            navController.navigate("community/detail")
+            navController.navigate("community/detail/${post.postId}")
         },
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -74,37 +66,42 @@ fun CommunityListItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    title,
+                    post.title,
                     modifier = Modifier.weight(1f),
-                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
+                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
-                Row(
-                    modifier = Modifier
-                        .border(1.dp, Gray, RoundedCornerShape(5.dp))
-                        .padding(horizontal = 6.dp, vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = Black
-                    )
+                if(post.studyId.isNotBlank()) {
 
-                    Spacer(Modifier.width(Dimens.Tiny))
+                    Row(
+                        modifier = Modifier
+                            .border(1.dp, Gray, RoundedCornerShape(5.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = Black
+                        )
 
-                    Text(
-                        "$members",
-                        style = AppTextStyle.BodySmall
-                    )
+                        Spacer(Modifier.width(Dimens.Tiny))
+
+                        Text(
+                            post.memberCount.toString(),
+                            style = AppTextStyle.BodySmall
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
             Text(
-                description,
+                post.content,
                 style = AppTextStyle.Body.copy(color = DarkGray),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -116,7 +113,7 @@ fun CommunityListItem(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ){
-                tags.forEach { tag ->
+                post.tags.forEach { tag ->
                     Box(
                         modifier = Modifier
                             .background(GroupSecondary, RoundedCornerShape(32.dp))
@@ -128,7 +125,11 @@ fun CommunityListItem(
                             tag,
                             style = AppTextStyle.BodySmall
                         )
+
+
                     }
+
+                    Spacer(modifier = Modifier.width(Dimens.Tiny))
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -149,7 +150,7 @@ fun CommunityListItem(
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
 
                     Text(
-                        text = "$comments",
+                        text = post.commentsCount.toString(),
                         style = AppTextStyle.BodySmall
                     )
                 }

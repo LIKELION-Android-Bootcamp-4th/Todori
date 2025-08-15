@@ -1,47 +1,127 @@
 package com.mukmuk.todori.ui.screen.community
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.mukmuk.todori.ui.screen.community.components.CommentList
-import com.mukmuk.todori.ui.screen.community.components.StudyPost
+import androidx.lifecycle.viewModelScope
+import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.data.remote.community.StudyPostComment
+import com.mukmuk.todori.data.remote.study.StudyMember
+import com.mukmuk.todori.data.repository.CommunityRepository
+import com.mukmuk.todori.data.repository.StudyRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class CommunityViewModel @Inject constructor(
+    private val communityRepository: CommunityRepository,
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(CommunityState())
+    val state: StateFlow<CommunityState> = _state.asStateFlow()
+
+    fun loadPosts(filter: String? = _state.value.selectedOption) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            try {
+                if(filter == "참가자 수")
+                    _state.update { it.copy(selectedOption = "참가자 수") }
+                else if(filter == "날짜순")
+                    _state.update { it.copy(selectedOption = "날짜순") }
+
+                communityRepository.getPosts(filter = filter).collect { posts ->
 
 
-class CommunityViewModel: ViewModel() {
-    val postList = mutableStateListOf<StudyPost>()
-
-    var selectedPost: StudyPost? by mutableStateOf(null)
-
-    var commentList = mutableStateListOf<CommentList>()
-
-    var menu = listOf("수정", "삭제")
-
-    var td = listOf("답글 달기", "삭제")
-
-
-
-    var data = 1
-
-    fun addPost(title: String, content: String) {
-        postList.add(StudyPost(title = title, content = content))
-    }
-
-    fun updatePost(post: StudyPost) {
-        data = 2
-        val index = postList.indexOf(post)
-        if (index != -1) {
-            postList[index] = post
+                    _state.update {
+                        it.copy(
+                            allPostList = posts,
+                            postList = posts,
+                            isLoading = false,
+                        )
+                    }
+                }
+            }
+            catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
         }
     }
 
-    fun deletePost(post: StudyPost) {
-        postList.remove(post)
+    fun loadSearchPosts(data: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            try {
+                communityRepository.getPosts(data = data).collect { posts ->
+                    _state.update {
+                        it.copy(
+                            communitySearchPostList = posts,
+                            isLoading = false,
+                        )
+                    }
+                }
+            }
+            catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
     }
 
-    fun deleteComment(comment: CommentList) {
-        commentList.remove(comment)
+    fun setData(data: String){
+        _state.update {
+            it.copy(postList = state.value.allPostList)
+        }
+        if(data == "전체") {
+            _state.update {
+                it.copy(postList = state.value.allPostList)
+            }
+        }
+        else {
+            _state.update {
+                it.copy(postList = state.value.allPostList.filter { post ->
+                    post.tags.contains(data)
+                })
+            }
+        }
+    }
+
+    fun createCommunitySearch(uid: String, query: String) {
+        viewModelScope.launch {
+            try {
+                communityRepository.createCommunitySearch(uid, query)
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
+
+    fun deleteCommunitySearch(uid: String, query: String) {
+        viewModelScope.launch {
+            try {
+                communityRepository.deleteCommunitySearch(uid, query)
+                getCommunitySearch(uid)
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
+
+    fun getCommunitySearch(uid: String) {
+        viewModelScope.launch {
+            try {
+                val searches = communityRepository.getCommunitySearch(uid)
+                _state.update {
+                    it.copy(communitySearchList = searches)
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
     }
 
 }

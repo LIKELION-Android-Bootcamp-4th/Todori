@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.screen.community.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -21,17 +23,25 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.Timestamp
+import com.mukmuk.todori.R
+import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -40,16 +50,17 @@ import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.NotoSans
 import com.mukmuk.todori.ui.theme.White
+import com.mukmuk.todori.util.getLevelInfo
 
 @Composable
 fun CommunityDetailComment(
-    userName: String,
-    comment: String,
-    createdAt: Timestamp?,
-    viewModel: CommunityViewModel,
-    commentData: CommentList
+    uid: String,
+    commentList: StudyPostComment,
+    onReplyClick: () -> Unit,
+    onDeleteClick: () -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    val viewModel: CommunityDetailViewModel = hiltViewModel()
+
 
     Box(
         modifier = Modifier
@@ -65,53 +76,51 @@ fun CommunityDetailComment(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
+                val levelInfo = getLevelInfo(commentList.level)
+
+                Image(
+                    painter = painterResource(id = levelInfo.imageRes),
+                    contentDescription = "레벨 이미지",
                     modifier = Modifier
                         .size(36.dp)
-                        .background(Gray, CircleShape),
+                        .clip(CircleShape)
+                        .border(width = 1.dp, shape = CircleShape,color = Gray)
                 )
 
                 Spacer(modifier = Modifier.width(Dimens.Tiny))
 
-                Text(userName, style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
+                Text(
+                    commentList.username,
+                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
+                )
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "더보기")
+                IconButton(onClick = { onReplyClick() }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_comment),
+                        modifier = Modifier.size(16.dp),
+                        contentDescription = null,
+                        tint = Black
+                    )
                 }
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier
-                        .background(White, RoundedCornerShape(10.dp))
-                        .border(1.dp, Gray, RoundedCornerShape(10.dp))
-                ) {
-                    viewModel.td.forEach { item ->
-                        DropdownMenuItem(
-                            text = { Text(item, style = AppTextStyle.BodySmall) },
-                            onClick = {
-                                expanded = false
-                                if(item == "답글 달기") {
+                if (uid == commentList.uid) {
 
-                                }
-                                else if(item == "삭제") {
-                                    viewModel.deleteComment(commentData)
-                                }
-                            }
-                        )
+                    IconButton(onClick = { onDeleteClick() }) {
+                        Icon(Icons.Default.Delete, contentDescription = null)
                     }
+
                 }
             }
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            Text(comment, style = AppTextStyle.Body)
+            Text(commentList.content, style = AppTextStyle.Body)
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            Text(createdAt?.toDate().toString(), color = DarkGray, fontSize = 12.sp, fontFamily = NotoSans)
+            Text(viewModel.formatDate(commentList.createdAt), style = AppTextStyle.BodySmall, color = DarkGray, fontWeight = FontWeight.Bold)
 
 
         }

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mukmuk.todori.data.repository.CommunityRepository
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
@@ -23,6 +24,7 @@ import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.TodoStatsRepository
 import com.mukmuk.todori.data.repository.UserRepository
+import com.mukmuk.todori.data.service.CommunityService
 import com.mukmuk.todori.data.service.DailyRecordService
 import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.service.GoalTodoService
@@ -105,6 +107,19 @@ object AppModule {
     @Singleton
     fun provideTodoRepository(todoService: TodoService): TodoRepository =
         TodoRepository(todoService)
+
+    // CommunityService
+    @Provides
+    @Singleton
+    fun provideCommunityService(
+        firestore: FirebaseFirestore
+    ): CommunityService = CommunityService(firestore)
+
+    @Provides
+    @Singleton
+    fun provideCommunityRepository(
+        communityService: CommunityService
+    ): CommunityRepository = CommunityRepository(communityService)
 
     @Provides
     @Singleton
