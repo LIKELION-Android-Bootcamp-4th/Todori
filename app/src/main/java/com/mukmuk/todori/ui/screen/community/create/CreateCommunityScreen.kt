@@ -324,7 +324,7 @@ fun CreateCommunityScreen(
                             )
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                             .clickable {
-                                if (!td.contains(tag) && td.size < 6) {
+                                if (!td.contains(tag) && td.size < 3) {
 
                                     td.add(tag)
 

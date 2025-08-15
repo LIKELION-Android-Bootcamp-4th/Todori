@@ -63,6 +63,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.community.StudyPostComment
+import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailComment
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailCommentReply
 import com.mukmuk.todori.ui.screen.community.components.StudyDetailCard
@@ -354,7 +355,20 @@ fun CommunityDetailScreen(
                         uid = uid,
                         studyId = state.post!!.studyId,
                         study = state.study!!,
-                        memberList = state.memberList
+                        memberList = state.memberList,
+                        onClick = {
+                            viewModel.updateStudyMember(
+                                state.post!!.studyId,
+                                StudyMember(
+                                    uid = uid,
+                                    nickname = state.user?.nickname ?: "",
+                                    studyId = state.post!!.studyId,
+                                    role = "MEMBER",
+                                    joinedAt = Timestamp.now(),
+                                )
+                            )
+                            viewModel.loadPostById(postId)
+                        }
                     )
 
                 }

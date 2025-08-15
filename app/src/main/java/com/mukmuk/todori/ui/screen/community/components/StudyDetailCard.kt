@@ -40,6 +40,7 @@ fun StudyDetailCard(
     studyId: String,
     study: Study,
     memberList: List<StudyMember>,
+    onClick: () -> Unit
 ) {
 
     val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
@@ -95,16 +96,7 @@ fun StudyDetailCard(
             else {
                 Button(
                     onClick = {
-                        communityDetailViewModel.updateStudyMember(
-                            studyId,
-                            StudyMember(
-                                uid = uid,
-                                nickname = state.user?.nickname ?: "",
-                                studyId = studyId,
-                                role = "MEMBER",
-                                joinedAt = Timestamp.now(),
-                            )
-                        )
+                       onClick()
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
