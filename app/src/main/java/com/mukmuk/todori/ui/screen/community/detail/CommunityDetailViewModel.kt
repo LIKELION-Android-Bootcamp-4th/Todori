@@ -278,10 +278,10 @@ class CommunityDetailViewModel@Inject constructor(
         }
     }
 
-    fun updateStudyMember(studyId: String, member: StudyMember) {
+    fun updateStudyMember(postId: String, studyId: String, member: StudyMember) {
         viewModelScope.launch {
             try {
-                repository.updateStudyMember(studyId, member)
+                repository.updateStudyMember(postId, studyId, member)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = "저장 실패, 다시 시도해주세요.")
             }
