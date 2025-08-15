@@ -158,6 +158,7 @@ fun CommunitySearchScreen(
 
         containerColor = White,
 
+
         
     ) { innerPadding ->
 

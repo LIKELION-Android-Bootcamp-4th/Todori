@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -116,7 +118,7 @@ fun CreateCommunityScreen(
     Scaffold(
 
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     if(postId != null)
                     {
@@ -133,9 +135,72 @@ fun CreateCommunityScreen(
                             contentDescription = "Back"
                         )
                     }
-                }
+                },
+                modifier = Modifier.height(56.dp).fillMaxWidth(),
             )
+        },
+
+        containerColor = White,
+
+        contentWindowInsets = WindowInsets(0.dp),
+
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+            ){
+                Button(
+                    onClick = {
+                        if (pickedItem != null) {
+                            studyId = pickedItem!!
+                            viewModel.loadStudyById(studyId)
+                        }
+                        if (title.isNotBlank()) {
+                            if (postId != null) {
+                                viewModel.updatePost(
+                                    postId,
+                                    StudyPost(
+                                        title = title,
+                                        content = content,
+                                        tags = td.toList(),
+                                        postId = postId,
+                                        studyId = studyId,
+                                        memberCount = state.post?.memberCount ?: 0,
+                                        commentsCount = state.post?.commentsCount ?: 0,
+                                        createdAt = state.post?.createdAt,
+                                        createdBy = uid
+                                    )
+                                )
+                            }
+                            else {
+                                viewModel.createPost(
+                                    StudyPost(
+                                        title = title,
+                                        content = content,
+                                        tags = td.toList(),
+                                        postId = "",
+                                        studyId = studyId,
+                                        memberCount = state.memberList.size,
+                                        commentsCount = 0,
+                                        createdAt = Timestamp.now(),
+                                        createdBy = uid
+                                    )
+                                )
+                            }
+
+                            navController.popBackStack()
+                        } else {
+                            isTitleError = true
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("작성", style = AppTextStyle.Body.copy(color = White))
+                }
+            }
         }
+
     ) { innerPadding ->
 
         Column(
@@ -222,7 +287,7 @@ fun CreateCommunityScreen(
                 }
             }
 
-            if(studyId.isNotBlank()){
+            if (studyId.isNotBlank()) {
                 viewModel.loadStudyById(studyId)
 
                 val memberCount = state.memberList.size
@@ -261,10 +326,9 @@ fun CreateCommunityScreen(
                             .clickable {
                                 if (!td.contains(tag) && td.size < 6) {
 
-                                        td.add(tag)
+                                    td.add(tag)
 
-                                }
-                                else if(td.contains(tag)) {
+                                } else if (td.contains(tag)) {
                                     td.remove(tag)
                                 }
                             }
@@ -284,54 +348,6 @@ fun CreateCommunityScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(
-                onClick = {
-                    if (pickedItem != null) {
-                        studyId = pickedItem!!
-                        viewModel.loadStudyById(studyId)
-                    }
-                    if (title.isNotBlank()) {
-                        if (postId != null) {
-                            viewModel.updatePost(
-                                postId,
-                                StudyPost(
-                                    title = title,
-                                    content = content,
-                                    tags = td.toList(),
-                                    postId = postId,
-                                    studyId = studyId,
-                                    memberCount = state.post?.memberCount ?: 0,
-                                    commentsCount = state.post?.commentsCount ?: 0,
-                                    createdAt = state.post?.createdAt,
-                                    createdBy = uid
-                                )
-                            )
-                        }
-                        else {
-                            viewModel.createPost(
-                                StudyPost(
-                                    title = title,
-                                    content = content,
-                                    tags = td.toList(),
-                                    postId = "",
-                                    studyId = studyId,
-                                    memberCount = state.memberList.size,
-                                    commentsCount = 0,
-                                    createdAt = Timestamp.now(),
-                                    createdBy = uid
-                                )
-                            )
-                        }
-
-                        navController.popBackStack()
-                    } else {
-                        isTitleError = true
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("작성", style = AppTextStyle.Body.copy(color = White))
-            }
         }
 
         if (showListSheet) {
