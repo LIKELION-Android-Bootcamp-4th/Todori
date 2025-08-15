@@ -26,7 +26,13 @@ val Red = Color(0xFFD22938)
 val Background = Color(0xFFFAF9F6)
 val CalendarSelectDay = Color(0xFF305C4C)
 val MyPageCard = Color(0xFFFFF5E5)
+val Warning = Color(0xFFFFC107)
+val Danger = Color(0xFFEF4444)
 
+//목표 시간 설정
+val Daily = Color(0xFF10B981)
+val Weekly = Color(0xFF3B82F6)
+val Monthly = Color(0xFF8B5CF6)
 // 버튼 색상 (명확히 구분)
 val ButtonPrimary = Color(0xFF22B282)
 val ButtonGoogle = Color(0xFFF2F2F2)
