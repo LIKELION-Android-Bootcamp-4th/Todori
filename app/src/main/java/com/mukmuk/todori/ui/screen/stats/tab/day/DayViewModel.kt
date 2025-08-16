@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.data.remote.dailyRecord.ReflectionV2
 import com.mukmuk.todori.data.repository.DailyRecordRepository
+import com.mukmuk.todori.data.repository.DayStatsRepository
 import com.mukmuk.todori.data.repository.StudyTargetsRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.ui.screen.mypage.studytargets.WeeklyPaceData
@@ -26,7 +27,8 @@ class DayViewModel @Inject constructor(
     private val auth: FirebaseAuth,
     private val todoRepository: TodoRepository,
     private val dailyRecordRepository: DailyRecordRepository,
-    private val studyTargetsRepository: StudyTargetsRepository
+    private val studyTargetsRepository: StudyTargetsRepository,
+    private val dayStatsRepository: DayStatsRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DayState())
@@ -225,10 +227,14 @@ class DayViewModel @Inject constructor(
                 dailyRecordRepository.getRecordByDate(uid, date)
             }.getOrNull()
 
+            val dayStat = runCatching { dayStatsRepository.getDayStat(uid, date) }.getOrNull()
+            val stats = runCatching { dayStatsRepository.getStats(uid) }.getOrNull()
             updateState {
                 copy(
                     todos = todos,
                     selectedRecord = record,
+                    dayStat = dayStat,
+                    stats = stats,
                     isLoading = false,
                     error = null
                 )

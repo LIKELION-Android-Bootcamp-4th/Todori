@@ -4,6 +4,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.dailyRecord.ReflectionV2
+import com.mukmuk.todori.data.remote.stat.DayStat
+import com.mukmuk.todori.data.remote.stat.Stats
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.remote.user.StudyTargets
 import com.mukmuk.todori.util.ReflectionState
@@ -16,6 +18,8 @@ data class DayState(
     val monthRecords: List<DailyRecord> = emptyList(),
     val selectedRecord: DailyRecord? = null,
     val todos: List<Todo> = emptyList(),
+    val dayStat: DayStat? = null,
+    val stats: Stats? = null,
     val isLoading: Boolean = false,
     val studyTargets: StudyTargets? = null,
     val error: String? = null
