@@ -85,7 +85,7 @@ fun MyPageScreen(
             MyPageMenuSection(
                 onLevelClick = {navController.navigate("myLevel")},
                 onGoalClick = {navController.navigate("completedGoals")},
-                onProfileEditClick = {navController.navigate("profileManage")}
+                onProfileEditClick = {navController.navigate("profileManage")},
             )
 
             Spacer(modifier = Modifier.height(Dimens.XXLarge))
@@ -96,7 +96,8 @@ fun MyPageScreen(
                 },
                 onDeleteAccountClick = {
                     showDeleteDialog = true
-                }
+                },
+                onStudyTargetsClick = {navController.navigate("studyTargets")}
             )
         }
     }

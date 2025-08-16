@@ -7,6 +7,8 @@ const handleGoogle = require("./google-auth");
 const handleKakao = require("./kakao-auth");
 const handleNaver = require("./n-auth");
 
+const {onDailyRecordUpdate} = require("./daily-record-update-trigger");
+const {dailyMidnightBatch} = require("./daily-midnight-batch");
 
 admin.initializeApp();
 
@@ -17,4 +19,8 @@ exports.createUserDoc = auth.user().onCreate(handleUserCreate);
 exports.googleCustomAuth = onCall(handleGoogle);
 exports.kakaoCustomAuth = onCall(handleKakao);
 exports.nCustomAuth = onCall(handleNaver);
+
+// Day 통계 관련 functions
+exports.onDailyRecordUpdate = onDailyRecordUpdate;
+exports.dailyMidnightBatch = dailyMidnightBatch;
 

@@ -1,5 +1,6 @@
 package com.mukmuk.todori.ui.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 
 object Dimens {
@@ -13,4 +14,6 @@ object Dimens {
     val XXLarge = 40.dp //버튼-제목 간격 등 큰 여백
     val DefaultCornerRadius = 10.dp //텍스트필드, 카드, 투두 탭바
     val ButtonCornerRadius = 32.dp //투두 등 완전 동그란것들
+
+    val CardDefaultRadius = RoundedCornerShape(20.dp)
 }
