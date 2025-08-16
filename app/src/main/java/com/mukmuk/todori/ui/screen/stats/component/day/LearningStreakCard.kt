@@ -16,24 +16,23 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.LearningAccent
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun LearningStreakCard(
-    currentStreak: Int?,                   // 연속 일수 (null이면 데이터 없음/로딩)
-    bestStreak: Int?,                      // 최고 기록 (null 가능)
-    qualifiedToday: Boolean = false,       // 오늘 30분 충족 여부(포인트 색 강조)
-    modifier: Modifier = Modifier,
-    accentColor: Color = Color(0xFFF09643) // 포인트 컬러
+    currentStreak: Int?,
+    bestStreak: Int?,
+    qualifiedToday: Boolean = false,
+    modifier: Modifier = Modifier
 ) {
-    val accent = if (qualifiedToday) accentColor else Gray
+    val accent = if (qualifiedToday) LearningAccent else Gray
 
     Card(
         modifier = modifier,

@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.tab.day
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -54,6 +55,7 @@ fun DayTab(
         viewModel.onDateSelected(
             LocalDate.of(date.year, date.monthNumber, date.dayOfMonth)
         )
+        Log.d("DayTab: ","dayStat: ${state.dayStat}, stats: ${state.stats}")
     }
 
     LaunchedEffect(state.error) {
@@ -112,9 +114,9 @@ fun DayTab(
                 .height(IntrinsicSize.Min)
         ) {
             LearningStreakCard(
-                currentStreak = 12,
-                bestStreak = 28,
-                qualifiedToday = true,
+                currentStreak = state.dayStat?.streakCount ?: 0,
+                bestStreak = state.stats?.bestStreak ?: 0,
+                qualifiedToday = state.dayStat?.qualified ?: false,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
@@ -124,7 +126,9 @@ fun DayTab(
                 startHour = 21,
                 windowHours = 2,
                 completionDeltaPercent = 32,
-                modifier = Modifier.weight(1f).fillMaxHeight()
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             )
         }
         Spacer(modifier = Modifier.height(Dimens.Large))
