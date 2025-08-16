@@ -3,6 +3,9 @@ package com.mukmuk.todori.data.service
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mukmuk.todori.data.remote.user.StudyTargets
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -15,6 +18,18 @@ class StudyTargetsService @Inject constructor(
             .document(uid)
             .collection("studyTargets")
             .document("default")
+
+
+    fun targetsFlow(uid: String): Flow<StudyTargets?> = callbackFlow {
+        val reg = studyTargetsRef(uid).addSnapshotListener { snap, err ->
+            if (err != null) {
+                close(err)
+                return@addSnapshotListener
+            }
+            trySend(snap?.toObject(StudyTargets::class.java))
+        }
+        awaitClose { reg.remove() }
+    }
 
     suspend fun getStudyTargets(uid: String): StudyTargets? {
         return try {
@@ -30,30 +45,5 @@ class StudyTargetsService @Inject constructor(
         studyTargetsRef(uid).set(updatedTargets).await()
     }
 
-    suspend fun updateDailyTarget(uid: String, minutes: Int) {
-        val current = getStudyTargets(uid) ?: StudyTargets()
-        val updated = current.copy(
-            dailyMinutes = minutes,
-            updatedAt = Timestamp.now()
-        )
-        studyTargetsRef(uid).set(updated).await()
-    }
 
-    suspend fun updateWeeklyTarget(uid: String, minutes: Int) {
-        val current = getStudyTargets(uid) ?: StudyTargets()
-        val updated = current.copy(
-            weeklyMinutes = minutes,
-            updatedAt = Timestamp.now()
-        )
-        studyTargetsRef(uid).set(updated).await()
-    }
-
-    suspend fun updateMonthlyTarget(uid: String, minutes: Int) {
-        val current = getStudyTargets(uid) ?: StudyTargets()
-        val updated = current.copy(
-            monthlyMinutes = minutes,
-            updatedAt = Timestamp.now()
-        )
-        studyTargetsRef(uid).set(updated).await()
-    }
 }

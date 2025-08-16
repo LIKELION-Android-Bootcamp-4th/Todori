@@ -23,91 +23,147 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.ui.component.CustomLinearProgressBar
+import com.mukmuk.todori.ui.screen.mypage.studytargets.WeeklyPaceData
 import com.mukmuk.todori.ui.theme.AppTextStyle
-import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.Danger
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
+import com.mukmuk.todori.ui.theme.Success
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun DayPaceCard() {
-    val expectedCum = 25
-    val actualCum = 18.5
-    val delta = expectedCum - actualCum
-    val todayTarget = 5
-    val todayActual = 4.5
-    val todayRemain = todayTarget - todayActual
+fun DayPaceCard(
+    paceData: WeeklyPaceData,
+    modifier: Modifier = Modifier
+) {
+    val statusColor = if (paceData.isTodayOnTrack) Success else Danger
+    val statusText = if (paceData.isTodayOnTrack) "정상" else "지연"
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth(1f)
+        modifier = modifier
+            .fillMaxWidth()
             .padding(horizontal = Dimens.Medium),
         shape = RoundedCornerShape(DefaultCornerRadius),
-        colors = CardDefaults.cardColors(
-            containerColor = White
-        ),
+        colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(Dimens.Medium)) {
-            //상단 - 상태
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimens.Medium)
+        ) {
+            // 1. 상단 상태 헤더
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row{
-                    Icon(Icons.Outlined.Speed, contentDescription = null, tint = Color.Blue)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Outlined.Speed,
+                        contentDescription = null,
+                        tint = Color.Blue
+                    )
                     Spacer(modifier = Modifier.width(Dimens.Small))
-                    Text(text = "오늘의 페이스",style = AppTextStyle.BodyLarge)
+                    Text(
+                        text = "오늘의 페이스",
+                        style = AppTextStyle.BodyLarge
+                    )
                 }
                 Box(
-                    modifier = Modifier.background(Color.Red,shape = RoundedCornerShape(Dimens.Tiny))
+                    modifier = Modifier
+                        .background(
+                            statusColor,
+                            shape = RoundedCornerShape(Dimens.Tiny)
+                        )
                         .padding(horizontal = Dimens.Tiny, vertical = Dimens.Nano),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "지연", style = AppTextStyle.BodySmallBold.copy(color = White))
+                    Text(
+                        text = statusText,
+                        style = AppTextStyle.BodySmallBold.copy(color = White)
+                    )
                 }
             }
+
             Spacer(modifier = Modifier.height(Dimens.Small))
-            //목표 텍스트
-            /**
-             * expectedCum = sum(expected) 평소 오늘까지 기대 누적 hour
-             * actualCum = sum(actual) 오늘까지 실제 누적 hour
-             * delta = autualCum - expectedCum
-             */
+
+            // 2. 목표 / 기대치 텍스트
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "이번 주 목표 ${expectedCum}h 중 ${actualCum}h", style = AppTextStyle.BodySmall)
-                Text(text = "오늘까지 기대치: ${todayTarget}h",style = AppTextStyle.BodySmall)
+                Text(
+                    text = "이번 주 ${String.format("%.1f", paceData.weeklyTargetHours)}h 중 " +
+                            "${String.format("%.1f", paceData.actualCumulativeHours)}h",
+                    style = AppTextStyle.BodySmall
+                )
+                Text(
+                    text = "기대치: ${String.format("%.1f", paceData.requiredDailyHours)}h",
+                    style = AppTextStyle.BodySmall
+                )
             }
+
             Spacer(modifier = Modifier.height(Dimens.Tiny))
-            //프로그레스바
+
+            // 3. 진행도 프로그레스바
             CustomLinearProgressBar(
-                progress = (actualCum / expectedCum).toFloat(),
+                progress = paceData.progress,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = Dimens.Medium),
-                progressColor = Black
+                progressColor = if (paceData.isTodayOnTrack) Color(0xFF4CAF50) else Color(0xFFF44336)
             )
+
             Spacer(modifier = Modifier.height(Dimens.Tiny))
-            //현재 진행률
+
+            // 4. 오늘 공부 시간 & 잔여 시간
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "현재: ${todayActual}h", style = AppTextStyle.BodySmall)
-                Text(text = "-${todayRemain}h", style = AppTextStyle.BodySmall)
+                Text(
+                    text = "오늘: ${String.format("%.1f", paceData.todayActualHours)}h",
+                    style = AppTextStyle.BodySmall
+                )
+
+                val remainText = if (paceData.todayRemainHours > 0) {
+                    "${String.format("%.1f", paceData.todayRemainHours)}h"
+                } else {
+                    "+${String.format("%.1f", -paceData.todayRemainHours)}h"
+                }
+
+                Text(
+                    text = remainText,
+                    style = AppTextStyle.BodySmall,
+                    color = if (paceData.todayRemainHours > 0) Success else Danger
+                )
             }
+
             Spacer(modifier = Modifier.height(Dimens.Tiny))
-            //콜아웃 텍스트
+
+            // 5. 콜아웃 메시지
             Box(
-                modifier = Modifier.fillMaxWidth().background(color = Color(0xfff6f5ff), shape = RoundedCornerShape(Dimens.Tiny))
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = Color(0xFFF6F5FF),
+                        shape = RoundedCornerShape(Dimens.Tiny)
+                    )
                     .padding(vertical = Dimens.Tiny, horizontal = Dimens.Small)
             ) {
-                Text("오늘 목표 ${todayTarget}h 까지 ${todayRemain}h", style = AppTextStyle.BodySmall)
+                val calloutText = if (paceData.todayRemainHours > 0) {
+                    "오늘 목표 ${String.format("%.1f", paceData.todayTargetHours)}h 까지 " +
+                            "${String.format("%.1f", paceData.todayRemainHours)}h 남았어요"
+                } else {
+                    "오늘 목표를 달성했어요! 🎉"
+                }
+                Text(
+                    text = calloutText,
+                    style = AppTextStyle.BodySmall
+                )
             }
         }
     }

@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.dailyRecord.ReflectionV2
 import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.remote.user.StudyTargets
 import com.mukmuk.todori.util.ReflectionState
 import com.mukmuk.todori.util.buildReflection
 import java.time.LocalDate
@@ -16,6 +17,7 @@ data class DayState(
     val selectedRecord: DailyRecord? = null,
     val todos: List<Todo> = emptyList(),
     val isLoading: Boolean = false,
+    val studyTargets: StudyTargets? = null,
     val error: String? = null
 ) {
     val recordForSelectedDate: DailyRecord?

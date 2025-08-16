@@ -28,6 +28,7 @@ val CalendarSelectDay = Color(0xFF305C4C)
 val MyPageCard = Color(0xFFFFF5E5)
 val Warning = Color(0xFFFFC107)
 val Danger = Color(0xFFEF4444)
+val Success = Color(0xFF4CAF50)
 
 //목표 시간 설정
 val Daily = Color(0xFF10B981)

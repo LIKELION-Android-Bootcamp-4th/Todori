@@ -72,11 +72,7 @@ fun StudyTargetsScreen(
     var tempMonthlyMinutes by remember(state.targets.monthlyMinutes) {
         mutableStateOf(state.targets.monthlyMinutes ?: 0)
     }
-
-    LaunchedEffect(tempDailyMinutes, tempWeeklyMinutes, tempMonthlyMinutes) {
-        viewModel.checkTempConsistency(tempDailyMinutes, tempWeeklyMinutes, tempMonthlyMinutes)
-    }
-
+    
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {

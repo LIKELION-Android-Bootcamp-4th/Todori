@@ -101,7 +101,8 @@ fun DayTab(
 
         Spacer(modifier = Modifier.height(Dimens.Large))
 
-        DayPaceCard()
+        val weeklyPaceData = viewModel.getWeeklyPaceData()
+        DayPaceCard(paceData = weeklyPaceData)
         Spacer(modifier = Modifier.height(Dimens.Large))
 
         Row(

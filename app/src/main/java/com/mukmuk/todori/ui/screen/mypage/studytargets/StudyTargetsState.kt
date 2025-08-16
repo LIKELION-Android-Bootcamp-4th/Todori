@@ -1,7 +1,6 @@
 package com.mukmuk.todori.ui.screen.mypage.studytargets
 
 import com.mukmuk.todori.data.remote.user.StudyTargets
-import com.mukmuk.todori.data.repository.TargetConsistency
 
 data class StudyTargetsState(
     val targets: StudyTargets = StudyTargets(),
@@ -9,8 +8,6 @@ data class StudyTargetsState(
     val isSaving: Boolean = false,
     val error: String? = null,
     val successMessage: String? = null,
-    val consistency: TargetConsistency? = null,
-    val tempConsistency: TargetConsistency? = null,
     val showConsistencyCheck: Boolean = false
 ) {
     companion object {

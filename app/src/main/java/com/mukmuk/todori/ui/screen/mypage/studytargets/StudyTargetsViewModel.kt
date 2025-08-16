@@ -47,7 +47,6 @@ class StudyTargetsViewModel @Inject constructor(
                         error = null
                     )
                 }
-                checkConsistency()
             } catch (e: Exception) {
                 Log.e("StudyTargetsViewModel", "목표 로딩 실패", e)
                 updateState {
@@ -60,41 +59,6 @@ class StudyTargetsViewModel @Inject constructor(
         }
     }
 
-    fun updateDailyTarget(minutes: Int) {
-        updateState {
-            copy(
-                targets = targets.copy(dailyMinutes = minutes),
-                successMessage = null,
-                error = null
-            )
-        }
-        checkConsistency()
-        saveTargets()
-    }
-
-    fun updateWeeklyTarget(minutes: Int) {
-        updateState {
-            copy(
-                targets = targets.copy(weeklyMinutes = minutes),
-                successMessage = null,
-                error = null
-            )
-        }
-        checkConsistency()
-        saveTargets()
-    }
-
-    fun updateMonthlyTarget(minutes: Int) {
-        updateState {
-            copy(
-                targets = targets.copy(monthlyMinutes = minutes),
-                successMessage = null,
-                error = null
-            )
-        }
-        checkConsistency()
-        saveTargets()
-    }
 
     fun updateAllTargets(dailyMinutes: Int, weeklyMinutes: Int, monthlyMinutes: Int) {
         updateState {
@@ -108,51 +72,11 @@ class StudyTargetsViewModel @Inject constructor(
                 error = null
             )
         }
-        checkConsistency()
         saveTargets()
-    }
-
-    fun checkTempConsistency(dailyMinutes: Int, weeklyMinutes: Int, monthlyMinutes: Int) {
-        val tempTargets = StudyTargets(
-            dailyMinutes = dailyMinutes.takeIf { it > 0 },
-            weeklyMinutes = weeklyMinutes.takeIf { it > 0 },
-            monthlyMinutes = monthlyMinutes.takeIf { it > 0 }
-        )
-        val consistency = studyTargetsRepository.validateTargetConsistency(tempTargets)
-        updateState { copy(tempConsistency = consistency) }
-    }
-
-    fun updateDailyTargetFromText(text: String) {
-        val minutes = text.toIntOrNull()
-        if (minutes != null && minutes >= 0) {
-            updateDailyTarget(minutes)
-        }
-    }
-
-    fun updateWeeklyTargetFromText(text: String) {
-        val minutes = text.toIntOrNull()
-        if (minutes != null && minutes >= 0) {
-            updateWeeklyTarget(minutes)
-        }
-    }
-
-    fun updateMonthlyTargetFromText(text: String) {
-        val minutes = text.toIntOrNull()
-        if (minutes != null && minutes >= 0) {
-            updateMonthlyTarget(minutes)
-        }
     }
 
     fun toggleConsistencyCheck() {
         updateState { copy(showConsistencyCheck = !showConsistencyCheck) }
-    }
-
-    fun applySuggestion(type: TargetType, suggestedMinutes: Int) {
-        when (type) {
-            TargetType.DAILY -> updateDailyTarget(suggestedMinutes)
-            TargetType.WEEKLY -> updateWeeklyTarget(suggestedMinutes)
-            TargetType.MONTHLY -> updateMonthlyTarget(suggestedMinutes)
-        }
     }
 
     fun clearMessages() {
@@ -188,10 +112,6 @@ class StudyTargetsViewModel @Inject constructor(
         }
     }
 
-    private fun checkConsistency() {
-        val consistency = studyTargetsRepository.validateTargetConsistency(_state.value.targets)
-        updateState { copy(consistency = consistency) }
-    }
 
     private fun updateState(update: StudyTargetsState.() -> StudyTargetsState) {
         _state.value = _state.value.update()
@@ -201,8 +121,4 @@ class StudyTargetsViewModel @Inject constructor(
 sealed class StudyTargetsEffect {
     object SaveSuccess : StudyTargetsEffect()
     data class ShowMessage(val message: String) : StudyTargetsEffect()
-}
-
-enum class TargetType {
-    DAILY, WEEKLY, MONTHLY
 }
