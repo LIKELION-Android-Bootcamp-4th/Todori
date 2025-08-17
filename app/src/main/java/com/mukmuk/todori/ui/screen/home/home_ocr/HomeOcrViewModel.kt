@@ -9,7 +9,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.mlkit.vision.text.TextRecognizer
 import com.mukmuk.todori.data.local.datastore.RecordRepository
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
@@ -30,7 +29,6 @@ import javax.inject.Inject
 class HomeOcrViewModel @Inject constructor(
     private val homeRepository: HomeRepository,
     private val repository: UserRepository,
-    private val textRecognizer: TextRecognizer
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeOcrState())

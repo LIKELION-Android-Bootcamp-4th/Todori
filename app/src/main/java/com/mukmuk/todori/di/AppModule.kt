@@ -7,9 +7,6 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.functions.FirebaseFunctions
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.TextRecognizer
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.data.repository.AuthRepository
 import com.mukmuk.todori.data.repository.DailyRecordRepository
@@ -172,24 +169,5 @@ object AppModule {
     @Singleton
     fun provideHomeRepository(homeService: HomeService): HomeRepository =
         HomeRepository(homeService)
-
-    @Provides
-    @Singleton
-    fun provideHomeSettingRepository(@ApplicationContext context: Context): HomeSettingRepository {
-        return HomeSettingRepository(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideTextRecognizer(): TextRecognizer {
-        return TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    }
-
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "todori_prefs")
-    @Provides
-    @Singleton
-    fun provideDataStore(
-        @ApplicationContext context: Context
-    ): DataStore<Preferences> = context.dataStore
 
 }
