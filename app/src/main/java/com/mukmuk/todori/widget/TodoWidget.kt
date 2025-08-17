@@ -22,6 +22,9 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.work.ListenableWorker
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.MainActivity
 import com.mukmuk.todori.R
 import com.mukmuk.todori.util.WidgetUtil
@@ -29,7 +32,9 @@ import com.mukmuk.todori.util.WidgetUtil
 
 object TodoWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val todos = WidgetUtil.loadWidgetTodos("Ek8NgW6xi1fGTb0kXqHowxUweqG3")
+        val currentUser = Firebase.auth.currentUser
+        val uid = currentUser?.uid ?: return "Ek8NgW6xi1fGTb0kXqHowxUweqG3"
+        val todos = WidgetUtil.loadWidgetTodos(uid)
         provideContent {
             TodoWidgetContent(todos)
         }
