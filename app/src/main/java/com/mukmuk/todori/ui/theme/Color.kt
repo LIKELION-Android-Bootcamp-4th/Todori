@@ -30,6 +30,7 @@ val Warning = Color(0xFFFFC107)
 val Danger = Color(0xFFEF4444)
 val Success = Color(0xFF4CAF50)
 val LearningAccent = Color(0xFFF09643)
+val GoldenHourAccent = Color(0xFF9D53BB)
 
 //목표 시간 설정
 val Daily = Color(0xFF10B981)

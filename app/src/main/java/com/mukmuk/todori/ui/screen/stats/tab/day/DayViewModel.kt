@@ -229,6 +229,16 @@ class DayViewModel @Inject constructor(
 
             val dayStat = runCatching { dayStatsRepository.getDayStat(uid, date) }.getOrNull()
             val stats = runCatching { dayStatsRepository.getStats(uid) }.getOrNull()
+
+            val goldenHourRange = record?.hourlyMinutes?.let { hourly ->
+                calculateGoldenHour(hourly)
+            }
+
+            val goldenHourText = goldenHourRange?.let { (start, end) ->
+                if (start == end) "${start}시 집중"
+                else "${start}:00 ~${end}:00"
+            }
+
             updateState {
                 copy(
                     todos = todos,
@@ -236,6 +246,8 @@ class DayViewModel @Inject constructor(
                     dayStat = dayStat,
                     stats = stats,
                     isLoading = false,
+                    goldenHourRange = goldenHourRange,
+                    goldenHour = goldenHourText,
                     error = null
                 )
             }
@@ -249,6 +261,51 @@ class DayViewModel @Inject constructor(
             }
         }
     }
+
+
+    private fun calculateGoldenHour(hourlyMinutes: Map<String, Long>): Pair<Int, Int>? {
+        if (hourlyMinutes.isEmpty()) return null
+
+        // 1. bestHour 찾기
+        val (bestHourStr, bestHourValue) = hourlyMinutes.maxByOrNull { it.value } ?: return null
+
+        val bestHour = bestHourStr.toInt()
+        // 2. 후보 구간 3개까지 검색
+        val ranges = listOf(
+            (bestHour - 2)..bestHour,
+            (bestHour - 1)..(bestHour + 1),
+            bestHour..(bestHour + 2)
+        )
+
+        var bestRange = ranges.first()
+        var maxSum = 0L
+
+        for (range in ranges) {
+            val currentSum = range.sumOf { hour ->
+                hourlyMinutes[hour.toString()] ?: 0L
+            }
+            if (currentSum > maxSum) {
+                maxSum = currentSum
+                bestRange = range
+            }
+        }
+
+        // 3. 1시간 체크
+        val otherValue = maxSum - bestHourValue
+        if (bestHourValue >= otherValue * 2) {
+            return (bestHour to bestHour)
+        }
+
+        // 4. 범위 끝 trim (0인 경우 잘라내기)
+        var start = bestRange.first
+        var end = bestRange.last
+        while (end > start && (hourlyMinutes[end.toString()] ?: 0L) == 0L) {
+            end--
+        }
+
+        return (start to end)
+    }
+
 
 
 }

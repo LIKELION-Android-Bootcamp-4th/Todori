@@ -22,6 +22,8 @@ data class DayState(
     val stats: Stats? = null,
     val isLoading: Boolean = false,
     val studyTargets: StudyTargets? = null,
+    val goldenHourRange: Pair<Int, Int>? = null,
+    val goldenHour: String? = null,
     val error: String? = null
 ) {
     val recordForSelectedDate: DailyRecord?
@@ -46,4 +48,14 @@ data class DayState(
 
     val studyTimeMillis: Long
         get() = recordForSelectedDate?.studyTimeMillis ?: 0L
+
+    val completedTodoCount: Int
+        get() = todos.count { it.completed }
+
+    val completionPercent: Int?
+        get() = if (todos.isNotEmpty()) {
+            (completedTodoCount * 100) / todos.size
+        } else null
+
+
 }

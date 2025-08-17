@@ -123,9 +123,9 @@ fun DayTab(
             )
             Spacer(Modifier.width(Dimens.Small))
             GoldenHourCard(
-                startHour = 21,
-                windowHours = 2,
-                completionDeltaPercent = 32,
+                startHour = state.goldenHourRange?.first,
+                endHour = state.goldenHourRange?.second,
+                completionDeltaPercent = state.completionPercent,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
