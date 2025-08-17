@@ -136,17 +136,9 @@ class HomeViewModel @Inject constructor(
         timerJob?.cancel()
         _state.update { it.copy(status = TimerStatus.IDLE) }
 
-        viewModelScope.launch {
-            val dailyRecord = DailyRecord(
-                date = currentDate.toString(),
-                studyTimeMillis = _state.value.totalStudyTimeMills
-            )
-            try {
-                homeRepository.updateDailyRecord(_state.value.uid, dailyRecord)
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error updating daily record: ${e.message}")
-            }
-        }
+        val uid = _state.value.uid
+        val totalTime = _state.value.totalStudyTimeMills
+        saveRecord(uid, totalTime, null)
     }
 
     private fun resetTimer() {
@@ -166,29 +158,31 @@ class HomeViewModel @Inject constructor(
         _state.update { it.copy(status = TimerStatus.RECORDING) }
     }
 
-    fun setTotalRecordTimeMills(recordTime: Long, uid: String, todo: Todo) {
+    private fun saveRecord(uid: String, recordTime: Long, todo: Todo?) {
         viewModelScope.launch {
-            val updated = if (todo.totalFocusTimeMillis > 0L) {
-                todo.copy(totalFocusTimeMillis = todo.totalFocusTimeMillis + recordTime)
-            } else {
-                todo.copy(totalFocusTimeMillis = recordTime)
-            }
-
-            val newRecordTime = _state.value.totalStudyTimeMills
-            _state.update { it.copy(totalRecordTimeMills = newRecordTime) }
-            recordSettingRepository.saveTotalRecordTime(newRecordTime)
-
-            val dailyRecord = DailyRecord(
-                date = currentDate.toString(),
-                studyTimeMillis = _state.value.totalStudyTimeMills
-            )
             try {
-                todoRepository.updateTodo(uid, updated)
-                homeRepository.updateDailyRecord(_state.value.uid, dailyRecord)
+                recordSettingRepository.saveTotalRecordTime(recordTime)
+
+                val dailyRecord = DailyRecord(
+                    date = currentDate.toString(),
+                    studyTimeMillis = recordTime
+                )
+                homeRepository.updateDailyRecord(uid, dailyRecord)
+
+                todo?.let {
+                    val updatedTodo = it.copy(totalFocusTimeMillis = (it.totalFocusTimeMillis ?: 0) + recordTime)
+                    todoRepository.updateTodo(uid, updatedTodo)
+                }
+
             } catch (e: Exception) {
-                Log.e("todorilog", e.toString())
+                Log.e("HomeViewModel", "Error saving record: ${e.message}")
             }
         }
+    }
+
+    fun setTotalRecordTimeMills(recordTime: Long, uid: String, todo: Todo) {
+        _state.update { it.copy(totalRecordTimeMills = recordTime) }
+        saveRecord(uid, recordTime, todo)
     }
 
     private fun updateInitialTimerSettings(settings: HomeSettingState) {
