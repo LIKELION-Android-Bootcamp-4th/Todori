@@ -2,6 +2,7 @@ package com.mukmuk.todori.widget.totaltime
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
@@ -25,11 +26,10 @@ class TotalTimeWidget : GlanceAppWidget() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val hiltEntryPoint = EntryPointAccessors.fromApplication(
+        val repository = EntryPointAccessors.fromApplication(
             context.applicationContext,
             WidgetEntryPoint::class.java
-        )
-        val repository = hiltEntryPoint.recordSettingRepository()
+        ).recordSettingRepository()
 
         val today = LocalDate.now().toString()
         val totalTime = repository.getTotalTime()

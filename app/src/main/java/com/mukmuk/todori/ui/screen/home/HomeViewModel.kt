@@ -1,10 +1,13 @@
 package com.mukmuk.todori.ui.screen.home
 
+import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
@@ -14,9 +17,10 @@ import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.HomeRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.UserRepository
-import com.mukmuk.todori.data.service.AuthService
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
+import com.mukmuk.todori.widget.UpdateWidgetWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +41,7 @@ class HomeViewModel @Inject constructor(
     private val homeRepository: HomeRepository,
     private val recordSettingRepository: RecordSettingRepository,
     private val repository: UserRepository,
-    private val authService: AuthService
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TimerState())
@@ -162,6 +166,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 recordSettingRepository.saveTotalRecordTime(recordTime)
+                val updateWorkRequest = OneTimeWorkRequestBuilder<UpdateWidgetWorker>()
+                    .addTag(UpdateWidgetWorker.WORK_TAG)
+                    .build()
+                WorkManager.getInstance(context).enqueue(updateWorkRequest)
 
                 val dailyRecord = DailyRecord(
                     date = currentDate.toString(),
@@ -170,7 +178,7 @@ class HomeViewModel @Inject constructor(
                 homeRepository.updateDailyRecord(uid, dailyRecord)
 
                 todo?.let {
-                    val updatedTodo = it.copy(totalFocusTimeMillis = (it.totalFocusTimeMillis ?: 0) + recordTime)
+                    val updatedTodo = it.copy(totalFocusTimeMillis = (it.totalFocusTimeMillis) + recordTime)
                     todoRepository.updateTodo(uid, updatedTodo)
                 }
 

@@ -1,12 +1,10 @@
 package com.mukmuk.todori.data.local.datastore
 
-import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
-import com.mukmuk.todori.widget.WidgetUpdater
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -16,8 +14,7 @@ import javax.inject.Named
 
 @Singleton
 class RecordSettingRepository @Inject constructor(
-    @Named("record_settings") private val dataStore: DataStore<Preferences>,
-    @ApplicationContext private val context: Context
+    @Named("record_settings") private val dataStore: DataStore<Preferences>
 ) {
     companion object {
         private val TOTAL_RECORD_KEY = longPreferencesKey("total_record_time_mills")
@@ -31,14 +28,13 @@ class RecordSettingRepository @Inject constructor(
         dataStore.edit { prefs ->
             prefs[TOTAL_RECORD_KEY] = time
         }
-        WidgetUpdater.update(context)
     }
 
     suspend fun getTotalTime(): String {
         val millis = dataStore.data
             .map { prefs -> prefs[TOTAL_RECORD_KEY] ?: 0L }
             .first()
-        
+
         val h = (millis / 1000) / 3600
         val m = (millis / 1000 % 3600) / 60
         val s = (millis / 1000) % 60
