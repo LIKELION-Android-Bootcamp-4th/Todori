@@ -12,23 +12,20 @@ import com.mukmuk.todori.data.local.datastore.RecordRepository
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.HomeRepository
-import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.AuthService
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
-import com.mukmuk.todori.ui.screen.mypage.ProfileEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest // collectLatest import
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.toLocalDate
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -181,9 +178,19 @@ class HomeViewModel @Inject constructor(
             _state.update { it.copy(totalRecordTimeMills = newRecordTime) }
             recordRepository.saveTotalRecordTime(newRecordTime)
 
+            val currentHour = java.time.LocalTime.now().hour.toString().padStart(2, '0')
+            val millis = recordTime
+
+            val existingRecords = homeRepository.getDailyRecord(uid, currentDate)
+            val existing = existingRecords.firstOrNull()
+
+            val updatedHourly = existing?.hourlyMinutes?.toMutableMap() ?: mutableMapOf()
+            updatedHourly[currentHour] = (updatedHourly[currentHour] ?: 0) + millis
+
             val dailyRecord = DailyRecord(
                 date = currentDate.toString(),
-                studyTimeMillis = _state.value.totalStudyTimeMills
+                studyTimeMillis = newRecordTime,
+                hourlyMinutes = updatedHourly,
             )
             try {
                 todoRepository.updateTodo(uid, updated)
