@@ -125,5 +125,5 @@ dependencies {
 
     implementation("com.navercorp.nid:oauth:5.9.0")
 
-
+    implementation(libs.androidx.work.runtime.ktx)
 }
