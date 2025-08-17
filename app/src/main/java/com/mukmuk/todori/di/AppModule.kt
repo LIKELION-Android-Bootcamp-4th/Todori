@@ -170,17 +170,4 @@ object AppModule {
     fun provideHomeRepository(homeService: HomeService): HomeRepository =
         HomeRepository(homeService)
 
-    @Provides
-    @Singleton
-    fun provideHomeSettingRepository(@ApplicationContext context: Context): HomeSettingRepository {
-        return HomeSettingRepository(context)
-    }
-
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "todori_prefs")
-    @Provides
-    @Singleton
-    fun provideDataStore(
-        @ApplicationContext context: Context
-    ): DataStore<Preferences> = context.dataStore
-
 }
