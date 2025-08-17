@@ -11,7 +11,7 @@ import javax.inject.Singleton
 import javax.inject.Named
 
 @Singleton
-class RecordRepository @Inject constructor(
+class RecordSettingRepository @Inject constructor(
     @Named("record_settings") private val dataStore: DataStore<Preferences>
 ) {
     companion object {
