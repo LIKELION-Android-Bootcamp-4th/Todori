@@ -8,16 +8,14 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
-import com.mukmuk.todori.data.local.datastore.RecordRepository
+import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.HomeRepository
-import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.AuthService
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
-import com.mukmuk.todori.ui.screen.mypage.ProfileEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -28,7 +26,6 @@ import kotlinx.coroutines.flow.collectLatest // collectLatest import
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.toLocalDate
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -38,7 +35,7 @@ class HomeViewModel @Inject constructor(
     private val homeSettingRepository: HomeSettingRepository,
     private val todoRepository: TodoRepository,
     private val homeRepository: HomeRepository,
-    private val recordRepository: RecordRepository,
+    private val recordSettingRepository: RecordSettingRepository,
     private val repository: UserRepository,
     private val authService: AuthService
 ) : ViewModel() {
@@ -72,7 +69,7 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            recordRepository.totalRecordTimeFlow.collectLatest { savedTime ->
+            recordSettingRepository.totalRecordTimeFlow.collectLatest { savedTime ->
                 _state.update { it.copy(totalRecordTimeMills = savedTime) }
             }
         }
@@ -179,7 +176,7 @@ class HomeViewModel @Inject constructor(
 
             val newRecordTime = _state.value.totalStudyTimeMills
             _state.update { it.copy(totalRecordTimeMills = newRecordTime) }
-            recordRepository.saveTotalRecordTime(newRecordTime)
+            recordSettingRepository.saveTotalRecordTime(newRecordTime)
 
             val dailyRecord = DailyRecord(
                 date = currentDate.toString(),
