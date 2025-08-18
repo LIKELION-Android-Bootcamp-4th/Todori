@@ -12,6 +12,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
@@ -44,7 +45,7 @@ import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier) {
+fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
     val homeViewModel: HomeViewModel = hiltViewModel()
     NavHost(
         navController = navController,
@@ -56,7 +57,10 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         }
         composable(BottomNavItem.Todo.route) { TodoScreen(navController) }
         composable(BottomNavItem.Stats.route) { StatsScreen() }
-        composable(BottomNavItem.Home.route) {
+        composable(
+            BottomNavItem.Home.route,
+            deepLinks = listOf(navDeepLink { uriPattern = "todori://app.todori.com/home" })
+        ) {
             HomeScreen(navController = navController, viewModel = homeViewModel)
         }
         composable("home_setting") {
@@ -79,9 +83,13 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
-            CreateCommunityScreen(navController, onBack = { navController.popBackStack() }, viewModel)
+            CreateCommunityScreen(
+                navController,
+                onBack = { navController.popBackStack() },
+                viewModel
+            )
         }
-        composable("community/search"){ backStackEntry ->
+        composable("community/search") { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
@@ -90,7 +98,7 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 onBack = { navController.popBackStack() }
             )
         }
-        composable("community/detail"){ backStackEntry ->
+        composable("community/detail") { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
@@ -161,10 +169,10 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         }
         composable("goal/detail/{goalId}") { backStackEntry ->
             val goalId = backStackEntry.arguments?.getString("goalId") ?: ""
-                GoalDetailScreen(
-                    goalId = goalId, navController = navController,
-                    onBack = { navController.popBackStack() }
-                )
+            GoalDetailScreen(
+                goalId = goalId, navController = navController,
+                onBack = { navController.popBackStack() }
+            )
         }
         composable(
             route = "study/detail/{studyId}?date={date}",

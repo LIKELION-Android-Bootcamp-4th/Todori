@@ -2,6 +2,7 @@ package com.mukmuk.todori
 
 import android.app.Application
 import android.util.Log
+import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -13,7 +14,7 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 @HiltAndroidApp
-class TodoriApplication : Application() {
+class TodoriApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         KakaoSdk.init(this, getString(R.string.kakao_app_key))
@@ -27,6 +28,10 @@ class TodoriApplication : Application() {
 
         scheduleResetWorker()
     }
+
+    override val workManagerConfiguration: Configuration = Configuration.Builder()
+        .setMinimumLoggingLevel(Log.DEBUG)
+        .build()
 
     private fun scheduleResetWorker() {
         val currentDate = Calendar.getInstance()

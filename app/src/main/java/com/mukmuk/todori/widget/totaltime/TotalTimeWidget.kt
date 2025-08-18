@@ -1,6 +1,8 @@
 package com.mukmuk.todori.widget.totaltime
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -13,6 +15,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
@@ -46,6 +49,7 @@ class TotalTimeWidget : GlanceAppWidget() {
     private fun TotalTimeWidgetContent() {
         val PREF_KEY = longPreferencesKey("total_record_time_mills")
 
+
         val prefs = currentState<Preferences>()
         val millis = prefs[PREF_KEY] ?: 0L
 
@@ -56,7 +60,12 @@ class TotalTimeWidget : GlanceAppWidget() {
         val today = LocalDate.now().toString()
 
         Row (
-            modifier = GlanceModifier.fillMaxSize().clickable(actionStartActivity<MainActivity>()),
+            modifier = GlanceModifier.fillMaxSize().clickable(actionStartActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("todori://app.todori.com/home")
+                )
+            )),
             verticalAlignment = Alignment.CenterVertically,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
