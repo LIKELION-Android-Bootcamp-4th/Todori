@@ -23,6 +23,7 @@ import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import com.mukmuk.todori.widget.UpdateWidgetWorker
+import com.mukmuk.todori.widget.timer.TimerWidget
 import com.mukmuk.todori.widget.totaltime.TotalTimeWidget
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -183,24 +184,34 @@ class HomeViewModel @Inject constructor(
                     todoRepository.updateTodo(uid, updatedTodo)
                 }
 
-                val widget = TotalTimeWidget()
+                val totalTimeWidget = TotalTimeWidget()
+                val timerWidget = TimerWidget()
                 val manager = GlanceAppWidgetManager(context)
-                val glanceIds = manager.getGlanceIds(widget.javaClass)
+                val totalTimeGlanceIds = manager.getGlanceIds(totalTimeWidget.javaClass)
+                val timerGlanceIds = manager.getGlanceIds(timerWidget.javaClass)
 
-                if (glanceIds.isEmpty()) {
+
+                if (totalTimeGlanceIds.isEmpty() || timerGlanceIds.isEmpty()) {
                     return@launch
                 }
 
-                val PREF_KEY = longPreferencesKey("total_record_time_mills")
-
-                glanceIds.forEach { glanceId ->
+                totalTimeGlanceIds.forEach { glanceId ->
                     updateAppWidgetState(
                         context = context,
                         glanceId = glanceId
                     ) { prefs ->
-                        prefs[PREF_KEY] = recordTime
+                        prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = recordTime
                     }
-                    widget.update(context, glanceId)
+                    totalTimeWidget.update(context, glanceId)
+                }
+                timerGlanceIds.forEach { glanceId ->
+                    updateAppWidgetState(
+                        context = context,
+                        glanceId = glanceId
+                    ) { prefs ->
+                        prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = recordTime
+                    }
+                    timerWidget.update(context, glanceId)
                 }
 
             } catch (e: Exception) {
