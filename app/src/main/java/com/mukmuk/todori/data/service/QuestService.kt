@@ -2,6 +2,11 @@ package com.mukmuk.todori.data.service
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mukmuk.todori.data.remote.quest.AssignedQuestDTO
+import com.mukmuk.todori.data.remote.quest.MetaDTO
+import com.mukmuk.todori.data.remote.quest.ProfileDTO
+import com.mukmuk.todori.data.remote.quest.QuestFunctionResponse
+import com.mukmuk.todori.data.remote.quest.RewardDTO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -71,7 +76,8 @@ class QuestService @Inject constructor(
                         reward = RewardDTO(
                             gainedPoint = rewardObj?.optInt("gainedPoint") ?: 0,
                             levelUp = rewardObj?.optBoolean("levelUp") ?: false,
-                            newLevel = rewardObj?.optInt("newLevel") ?: (profileObj?.optInt("level") ?: 1)
+                            newLevel = rewardObj?.optInt("newLevel") ?: (profileObj?.optInt("level")
+                                ?: 1)
                         ),
                         profile = ProfileDTO(
                             level = profileObj?.optInt("level") ?: 1,
@@ -95,21 +101,4 @@ class QuestService @Inject constructor(
     }
 }
 
-/* ------------ DTOs ------------- */
-data class QuestFunctionResponse(
-    val assigned: List<AssignedQuestDTO>,
-    val reward: RewardDTO,
-    val profile: ProfileDTO,
-    val meta: MetaDTO?
-)
 
-data class AssignedQuestDTO(
-    val questId: String,
-    val title: String,
-    val completed: Boolean,
-    val points: Int
-)
-
-data class RewardDTO(val gainedPoint: Int, val levelUp: Boolean, val newLevel: Int)
-data class ProfileDTO(val level: Int, val rewardPoint: Int, val nextLevelPoint: Int)
-data class MetaDTO(val today: String?, val joinedStudy: Boolean?)

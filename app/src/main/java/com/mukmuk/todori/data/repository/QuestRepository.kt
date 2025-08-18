@@ -2,8 +2,8 @@ package com.mukmuk.todori.data.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mukmuk.todori.data.remote.quest.DailyUserQuest
-import com.mukmuk.todori.data.service.QuestFunctionResponse
 import com.mukmuk.todori.data.service.QuestService
+import com.mukmuk.todori.data.remote.quest.QuestFunctionResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
