@@ -3,7 +3,9 @@ package com.mukmuk.todori.data.service
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
+import com.mukmuk.todori.data.remote.dailyRecord.ReflectionV2
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.YearMonth
@@ -12,15 +14,17 @@ import javax.inject.Inject
 class DailyRecordService @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
+
+    private fun userDailyRecordRef(uid: String) =
+        firestore.collection("users").document(uid).collection("dailyRecord")
+
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getRecordsByMonth(uid: String, year: Int, month: Int): List<DailyRecord> {
         val ym = YearMonth.of(year, month)
         val startDay = ym.atDay(1).toString()
         val endDay = ym.atEndOfMonth().toString()
 
-        val snapshot = firestore.collection("users")
-            .document(uid)
-            .collection("dailyRecord")
+        val snapshot = userDailyRecordRef(uid)
             .whereGreaterThanOrEqualTo("date", startDay)
             .whereLessThanOrEqualTo("date", endDay)
             .get()
@@ -34,9 +38,7 @@ class DailyRecordService @Inject constructor(
         val startDay = start.toString()
         val endDay = end.toString()
 
-        val snapshot = firestore.collection("users")
-            .document(uid)
-            .collection("dailyRecord")
+        val snapshot = userDailyRecordRef(uid)
             .whereGreaterThanOrEqualTo("date", startDay)
             .whereLessThanOrEqualTo("date", endDay)
             .get()
@@ -47,9 +49,7 @@ class DailyRecordService @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getRecordByDate(uid: String, date: LocalDate): DailyRecord? {
-        val snapshot = firestore.collection("users")
-            .document(uid)
-            .collection("dailyRecord")
+        val snapshot = userDailyRecordRef(uid)
             .document(date.toString())
             .get()
             .await()
@@ -58,12 +58,27 @@ class DailyRecordService @Inject constructor(
     }
 
     suspend fun updateDailyRecord(uid: String, record: DailyRecord) {
-        val selectedDate = record.date
-        val snapshot = firestore.collection("users")
-            .document(uid)
-            .collection("dailyRecord")
-            .document(selectedDate)
-            .set(record)
+        userDailyRecordRef(uid)
+            .document(record.date)
+            .set(record, SetOptions.merge())
             .await()
     }
+
+    suspend fun updateReflectionV2(
+        uid: String,
+        date: LocalDate,
+        v2: ReflectionV2
+    ) {
+        val docRef = userDailyRecordRef(uid).document(date.toString())
+
+        val child = mutableMapOf<String, Any>()
+        v2.good?.takeIf { it.isNotBlank() }?.let { child["good"] = it }
+        v2.improve?.takeIf { it.isNotBlank() }?.let { child["improve"] = it }
+        v2.blocker?.takeIf { it.isNotBlank() }?.let { child["blocker"] = it }
+
+        if (child.isEmpty()) return
+
+        docRef.set(mapOf("reflectionV2" to child), SetOptions.merge()).await()
+    }
+
 }

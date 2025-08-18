@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,12 +23,12 @@ import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.home.home_ocr.HomeOcrScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
-import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
 import com.mukmuk.todori.ui.screen.login.LoginScreen
 import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
 import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.mypage.ProfileManagementScreen
+import com.mukmuk.todori.ui.screen.mypage.studytargets.StudyTargetsScreen
 import com.mukmuk.todori.ui.screen.splash.SplashScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
@@ -199,6 +198,10 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 navController = navController,
                 viewModel = viewModel
             )
+        }
+
+        composable("studyTargets") {
+            StudyTargetsScreen(navController = navController)
         }
 
     }
