@@ -184,39 +184,45 @@ class HomeViewModel @Inject constructor(
                     todoRepository.updateTodo(uid, updatedTodo)
                 }
 
-                val totalTimeWidget = TotalTimeWidget()
-                val timerWidget = TimerWidget()
-                val manager = GlanceAppWidgetManager(context)
-                val totalTimeGlanceIds = manager.getGlanceIds(totalTimeWidget.javaClass)
-                val timerGlanceIds = manager.getGlanceIds(timerWidget.javaClass)
-
-
-                if (totalTimeGlanceIds.isEmpty() || timerGlanceIds.isEmpty()) {
-                    return@launch
-                }
-
-                totalTimeGlanceIds.forEach { glanceId ->
-                    updateAppWidgetState(
-                        context = context,
-                        glanceId = glanceId
-                    ) { prefs ->
-                        prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = recordTime
-                    }
-                    totalTimeWidget.update(context, glanceId)
-                }
-                timerGlanceIds.forEach { glanceId ->
-                    updateAppWidgetState(
-                        context = context,
-                        glanceId = glanceId
-                    ) { prefs ->
-                        prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = recordTime
-                    }
-                    timerWidget.update(context, glanceId)
-                }
+                updateWidgets(recordTime)
 
             } catch (e: Exception) {
                 Log.e("todorilog", "기록 저장 및 위젯 업데이트 중 오류 발생: ${e.message}", e)
             }
+        }
+    }
+
+    private suspend fun updateWidgets(recordTime: Long) {
+        val totalTimeWidget = TotalTimeWidget()
+        val timerWidget = TimerWidget()
+        val manager = GlanceAppWidgetManager(context)
+
+        val totalTimeGlanceIds = manager.getGlanceIds(totalTimeWidget.javaClass)
+        val timerGlanceIds = manager.getGlanceIds(timerWidget.javaClass)
+
+        if (totalTimeGlanceIds.isEmpty() && timerGlanceIds.isEmpty()) {
+            return
+        }
+
+        totalTimeGlanceIds.forEach { glanceId ->
+            updateAppWidgetState(
+                context = context,
+                glanceId = glanceId
+            ) { prefs ->
+                prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = recordTime
+            }
+            totalTimeWidget.update(context, glanceId)
+        }
+
+        timerGlanceIds.forEach { glanceId ->
+            updateAppWidgetState(
+                context = context,
+                glanceId = glanceId
+            ) { prefs ->
+                prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = recordTime
+                prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = false
+            }
+            timerWidget.update(context, glanceId)
         }
     }
 
