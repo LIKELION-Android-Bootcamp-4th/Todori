@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
-import com.mukmuk.todori.data.local.datastore.RecordRepository
+import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.HomeRepository
@@ -35,7 +35,7 @@ class HomeViewModel @Inject constructor(
     private val homeSettingRepository: HomeSettingRepository,
     private val todoRepository: TodoRepository,
     private val homeRepository: HomeRepository,
-    private val recordRepository: RecordRepository,
+    private val recordSettingRepository: RecordSettingRepository,
     private val repository: UserRepository,
     private val authService: AuthService
 ) : ViewModel() {
@@ -69,7 +69,7 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            recordRepository.totalRecordTimeFlow.collectLatest { savedTime ->
+            recordSettingRepository.totalRecordTimeFlow.collectLatest { savedTime ->
                 _state.update { it.copy(totalRecordTimeMills = savedTime) }
             }
         }
@@ -176,7 +176,7 @@ class HomeViewModel @Inject constructor(
 
             val newRecordTime = _state.value.totalStudyTimeMills
             _state.update { it.copy(totalRecordTimeMills = newRecordTime) }
-            recordRepository.saveTotalRecordTime(newRecordTime)
+            recordSettingRepository.saveTotalRecordTime(newRecordTime)
 
             val currentHour = java.time.LocalTime.now().hour.toString().padStart(2, '0')
             val millis = recordTime
