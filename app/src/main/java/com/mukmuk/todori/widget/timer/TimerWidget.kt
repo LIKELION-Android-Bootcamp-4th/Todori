@@ -1,4 +1,4 @@
-package com.mukmuk.todori.widget.totaltime
+package com.mukmuk.todori.widget.timer
 
 import android.content.Context
 import android.content.Intent
@@ -9,37 +9,36 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
-import com.mukmuk.todori.MainActivity
-import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
 import com.mukmuk.todori.ui.theme.WidgetTextStyle
-import com.mukmuk.todori.widget.WidgetEntryPoint
-import dagger.hilt.android.EntryPointAccessors
-import java.time.LocalDate
-import javax.inject.Inject
 
-private val TOTAL_TIME_PREF_KEY = longPreferencesKey("total_record_time_mills")
-
-class TotalTimeWidget : GlanceAppWidget() {
+class TimerWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
+
+    companion object {
+        val TOTAL_RECORD_MILLS_KEY = longPreferencesKey("total_record_time_mills")
+        val RUNNING_STATE_PREF_KEY = booleanPreferencesKey("is_running")
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        Log.d("TotalTimeWidget", "provideGlance 호출됨. 위젯 ID: $id")
         provideContent {
             TotalTimeWidgetContent()
         }
@@ -50,26 +49,42 @@ class TotalTimeWidget : GlanceAppWidget() {
     @Composable
     private fun TotalTimeWidgetContent() {
         val prefs = currentState<Preferences>()
-        val millis = prefs[TOTAL_TIME_PREF_KEY] ?: 0L
+        val millis = prefs[TOTAL_RECORD_MILLS_KEY] ?: 0L
+        val running = prefs[RUNNING_STATE_PREF_KEY] ?: false
 
         val h = (millis / 1000) / 3600
         val m = (millis / 1000 % 3600) / 60
         val s = (millis / 1000) % 60
         val totalTime = String.format("%02d:%02d:%02d", h, m, s)
-        val today = LocalDate.now().toString()
 
-        Row (
-            modifier = GlanceModifier.fillMaxSize().clickable(actionStartActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("todori://app.todori.com/home")
+        Row(
+            modifier = GlanceModifier.fillMaxSize().clickable(
+                actionStartActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("todori://app.todori.com/home")
+                    )
                 )
-            )),
+            ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = today, modifier = GlanceModifier.padding(12.dp), style = WidgetTextStyle.TitleSmallLight)
-            Text(text = totalTime, modifier = GlanceModifier.padding(12.dp), style = WidgetTextStyle.TitleLarge)
+            Text(
+                text = totalTime,
+                modifier = GlanceModifier.padding(12.dp),
+                style = WidgetTextStyle.TitleLarge
+            )
+            Box {
+                if (running) {
+                    Button(
+                        text = "정지", onClick = actionRunCallback<TimerAction>()
+                    )
+                } else {
+                    Button(
+                        text = "시작", onClick = actionRunCallback<TimerAction>()
+                    )
+                }
+            }
         }
     }
 }

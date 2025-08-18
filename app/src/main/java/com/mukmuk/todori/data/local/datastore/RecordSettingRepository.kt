@@ -3,8 +3,10 @@ package com.mukmuk.todori.data.local.datastore
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -17,22 +19,31 @@ class RecordSettingRepository @Inject constructor(
     @Named("record_settings") private val dataStore: DataStore<Preferences>
 ) {
     companion object {
-        private val TOTAL_RECORD_KEY = longPreferencesKey("total_record_time_mills")
+        private val TOTAL_RECORD_MILLS_KEY = longPreferencesKey("total_record_time_mills")
+        private val IS_RUNNING = booleanPreferencesKey("is_running")
     }
 
     val totalRecordTimeFlow: Flow<Long> = dataStore.data.map { prefs ->
-        prefs[TOTAL_RECORD_KEY] ?: 0L
+        prefs[TOTAL_RECORD_MILLS_KEY] ?: 0L
+    }
+    val runningStateFlow: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[IS_RUNNING] ?: false
     }
 
     suspend fun saveTotalRecordTime(time: Long) {
         dataStore.edit { prefs ->
-            prefs[TOTAL_RECORD_KEY] = time
+            prefs[TOTAL_RECORD_MILLS_KEY] = time
+        }
+    }
+    suspend fun saveRunningState(isRunning: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[IS_RUNNING] = isRunning
         }
     }
 
     suspend fun clearTotalRecordTime() {
         dataStore.edit { prefs ->
-            prefs.remove(TOTAL_RECORD_KEY)
+            prefs.remove(TOTAL_RECORD_MILLS_KEY)
         }
     }
 }
