@@ -1,5 +1,8 @@
 package com.mukmuk.todori.ui.screen.todo.detail.todo
 
+import android.appwidget.AppWidgetManager
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
@@ -8,7 +11,9 @@ import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
+import com.mukmuk.todori.widget.receiver.TodoWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -18,7 +23,9 @@ import javax.inject.Inject
 @HiltViewModel
 class TodoDetailViewModel @Inject constructor(
     private val todoRepository: TodoRepository,
-    private val categoryRepository: TodoCategoryRepository
+    private val categoryRepository: TodoCategoryRepository,
+
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TodoDetailState())
@@ -78,6 +85,12 @@ class TodoDetailViewModel @Inject constructor(
                 todoRepository.updateTodo(uid, updated)
                 // 성공 시 목록 다시 로딩 등 처리
                 loadDetail(uid, todo.categoryId, todo.date)
+
+                // 위젯 업데이트
+                val intent = Intent(context, TodoWidgetReceiver::class.java).apply {
+                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                }
+                context.sendBroadcast(intent)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = e.message)
             }
