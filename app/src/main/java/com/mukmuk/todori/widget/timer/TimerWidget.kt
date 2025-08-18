@@ -14,6 +14,8 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.action.ActionParameters
+import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionRunCallback
@@ -35,6 +37,7 @@ class TimerWidget : GlanceAppWidget() {
     companion object {
         val TOTAL_RECORD_MILLS_KEY = longPreferencesKey("total_record_time_mills")
         val RUNNING_STATE_PREF_KEY = booleanPreferencesKey("is_running")
+        val TOGGLE_KEY = ActionParameters.Key<Boolean>("toggle_running")
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -75,15 +78,14 @@ class TimerWidget : GlanceAppWidget() {
                 style = WidgetTextStyle.TitleLarge
             )
             Box {
-                if (running) {
-                    Button(
-                        text = "정지", onClick = actionRunCallback<TimerAction>()
+                Button(
+                    text = if (running) "정지" else "시작",
+                    onClick = actionRunCallback<TimerAction>(
+                        parameters = actionParametersOf(
+                            TOGGLE_KEY to !running
+                        )
                     )
-                } else {
-                    Button(
-                        text = "시작", onClick = actionRunCallback<TimerAction>()
-                    )
-                }
+                )
             }
         }
     }
