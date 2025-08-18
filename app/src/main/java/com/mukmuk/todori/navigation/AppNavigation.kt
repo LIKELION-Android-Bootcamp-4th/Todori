@@ -12,6 +12,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
@@ -54,7 +55,24 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         composable("splash") {
             SplashScreen(navController)
         }
-        composable(BottomNavItem.Todo.route) { TodoScreen(navController) }
+        composable(
+            route = BottomNavItem.Todo.route + "?categoryId={categoryId}",
+            arguments = listOf(
+                navArgument("categoryId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            ),
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "https://your.domain/category?categoryId={categoryId}"
+                }
+            )
+        ) { backStackEntry ->
+            val categoryId = backStackEntry.arguments?.getString("categoryId")
+            TodoScreen(navController, selectedCategoryId = categoryId) }
+
         composable(BottomNavItem.Stats.route) { StatsScreen() }
         composable(BottomNavItem.Home.route) {
             HomeScreen(navController = navController, viewModel = homeViewModel)

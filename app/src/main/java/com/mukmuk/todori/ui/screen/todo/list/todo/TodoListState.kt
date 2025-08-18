@@ -9,6 +9,8 @@ data class TodoListState(
     val categories: List<TodoCategory> = emptyList(),
     val todosByCategory: Map<String, List<Todo>> = emptyMap(),
     val selectedDate: LocalDate? = null,
-    val error: String? = null
+    val error: String? = null,
+
+    val sendUrl: String? = null
 )
 

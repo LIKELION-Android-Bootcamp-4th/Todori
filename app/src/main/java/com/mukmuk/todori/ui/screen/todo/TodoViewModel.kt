@@ -1,14 +1,20 @@
 package com.mukmuk.todori.ui.screen.todo
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
+import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.data.repository.DailyRecordRepository
+import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.util.toJavaLocalDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -21,6 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TodoViewModel @Inject constructor(
+    private val categoryRepo: TodoCategoryRepository,
     private val dailyRepo: DailyRecordRepository
 ) : ViewModel() {
 
@@ -63,6 +70,78 @@ class TodoViewModel @Inject constructor(
             _studyRecordsMillis.value = map
 
             prefetchNeighbors(uid, start)
+        }
+    }
+
+    fun getTodoCategories(uid: String): List<TodoCategory> {
+        var categories: List<TodoCategory> = emptyList()
+        viewModelScope.launch {
+            categories = categoryRepo.getCategories(uid)
+        }
+        return categories
+    }
+
+    fun sendTodoCategory(category: TodoCategory) {
+        viewModelScope.launch {
+            try {
+                val categoryId = categoryRepository.createCategory("td", category)
+                val url = createUrl(categoryId)
+                _state.update {
+                    it.copy(
+                        sendUrl = url
+                    )
+                }
+            }
+            catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
+
+    fun clearSendTodoCategory() {
+        _state.update {
+            it.copy(
+                sendUrl = null
+            )
+        }
+    }
+
+    fun createUrl(categoryId: String): String {
+        val setCategoryId = Uri.encode(categoryId)
+        return "https://your.domain/category?categoryId=$setCategoryId"
+    }
+
+    fun addTodoCategoryFromUrl(uid: String, url: String) {
+        viewModelScope.launch {
+            try {
+                val uri = url.toUri()
+                val categoryId = uri.getQueryParameter("categoryId")
+                if (categoryId != null) {
+                    val category = categoryRepository.getCategoryById( categoryId)
+
+                    val updatedCategory = category?.copy(
+                        uid = uid,
+                        categoryId = "",
+                        createdAt = Timestamp.now()
+                    )
+
+
+                    if (category != null && updatedCategory != null) {
+                        categoryRepository.createCategory(uid, updatedCategory)
+                    }
+
+                    val categories = state.value.categories
+
+                    _state.update {
+                        it.copy(
+                            categories = categories + categories
+                        )
+                    }
+                }
+            }
+            catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
         }
     }
 
