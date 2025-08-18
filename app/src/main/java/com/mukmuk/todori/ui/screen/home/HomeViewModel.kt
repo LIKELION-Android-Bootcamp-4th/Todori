@@ -4,6 +4,10 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.OneTimeWorkRequestBuilder
@@ -19,6 +23,7 @@ import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import com.mukmuk.todori.widget.UpdateWidgetWorker
+import com.mukmuk.todori.widget.totaltime.TotalTimeWidget
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -166,10 +171,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 recordSettingRepository.saveTotalRecordTime(recordTime)
-                val updateWorkRequest = OneTimeWorkRequestBuilder<UpdateWidgetWorker>()
-                    .addTag(UpdateWidgetWorker.WORK_TAG)
-                    .build()
-                WorkManager.getInstance(context).enqueue(updateWorkRequest)
 
                 val dailyRecord = DailyRecord(
                     date = currentDate.toString(),
@@ -182,8 +183,28 @@ class HomeViewModel @Inject constructor(
                     todoRepository.updateTodo(uid, updatedTodo)
                 }
 
+                val widget = TotalTimeWidget()
+                val manager = GlanceAppWidgetManager(context)
+                val glanceIds = manager.getGlanceIds(widget.javaClass)
+
+                if (glanceIds.isEmpty()) {
+                    return@launch
+                }
+
+                val PREF_KEY = longPreferencesKey("total_record_time_mills")
+
+                glanceIds.forEach { glanceId ->
+                    updateAppWidgetState(
+                        context = context,
+                        glanceId = glanceId
+                    ) { prefs ->
+                        prefs[PREF_KEY] = recordTime
+                    }
+                    widget.update(context, glanceId)
+                }
+
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error saving record: ${e.message}")
+                Log.e("todorilog", "기록 저장 및 위젯 업데이트 중 오류 발생: ${e.message}", e)
             }
         }
     }

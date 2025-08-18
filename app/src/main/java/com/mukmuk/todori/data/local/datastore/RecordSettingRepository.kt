@@ -30,17 +30,6 @@ class RecordSettingRepository @Inject constructor(
         }
     }
 
-    suspend fun getTotalTime(): String {
-        val millis = dataStore.data
-            .map { prefs -> prefs[TOTAL_RECORD_KEY] ?: 0L }
-            .first()
-
-        val h = (millis / 1000) / 3600
-        val m = (millis / 1000 % 3600) / 60
-        val s = (millis / 1000) % 60
-        return String.format("%02d:%02d:%02d", h, m, s)
-    }
-
     suspend fun clearTotalRecordTime() {
         dataStore.edit { prefs ->
             prefs.remove(TOTAL_RECORD_KEY)
