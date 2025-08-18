@@ -39,6 +39,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="todori"
+                    android:host="app.todori.com" />
+            </intent-filter>
         </activity>
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
@@ -57,9 +64,29 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-                <data android:scheme="@string/naverredirect" />
+                <data android:scheme="@string/naverredirect"/>
             </intent-filter>
         </activity>
+
+        <receiver android:name=".widget.totaltime.TotalTimeWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_total_time" />
+        </receiver>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
 
         <receiver
             android:name=".widget.receiver.TodoWidgetReceiver"
@@ -79,15 +106,14 @@
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
-<!--            <meta-data-->
-<!--                android:name="androidx.work.WorkManagerInitializer"-->
-<!--                android:value="androidx.startup"-->
-<!--                tools:node="remove" />-->
+            <!--            <meta-data-->
+            <!--                android:name="androidx.work.WorkManagerInitializer"-->
+            <!--                android:value="androidx.startup"-->
+            <!--                tools:node="remove" />-->
         </provider>
         <meta-data
             android:name="androidx.work.WorkManagerInitializer"
             android:value="disabled" />
-
     </application>
 
 </manifest>

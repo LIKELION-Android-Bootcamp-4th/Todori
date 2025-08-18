@@ -7,9 +7,6 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.functions.FirebaseFunctions
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.TextRecognizer
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.data.repository.AuthRepository
 import com.mukmuk.todori.data.repository.DailyRecordRepository
@@ -17,14 +14,16 @@ import com.mukmuk.todori.data.repository.GoalRepository
 import com.mukmuk.todori.data.repository.GoalStatsRepository
 import com.mukmuk.todori.data.repository.GoalTodoRepository
 import com.mukmuk.todori.data.repository.HomeRepository
+import com.mukmuk.todori.data.repository.QuestRepository
+import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.StudyStatsRepository
+import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
+import com.mukmuk.todori.data.service.QuestService
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.TodoStatsRepository
-import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.DailyRecordService
-import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.service.GoalTodoService
 import com.mukmuk.todori.data.service.HomeService
 import com.mukmuk.todori.data.service.StudyService
@@ -95,6 +94,19 @@ object AppModule {
     @Singleton
     fun provideGoalRepository(goalService: GoalService): GoalRepository =
         GoalRepository(goalService)
+
+    @Provides
+    @Singleton
+    fun provideQuestService(
+        firestore: FirebaseFirestore
+    ): QuestService = QuestService(firestore)
+
+    @Provides
+    @Singleton
+    fun provideQuestRepository(
+        questService: QuestService,
+        firestore: FirebaseFirestore
+    ): QuestRepository = QuestRepository(questService, firestore)
 
     @Provides
     @Singleton
@@ -172,24 +184,5 @@ object AppModule {
     @Singleton
     fun provideHomeRepository(homeService: HomeService): HomeRepository =
         HomeRepository(homeService)
-
-    @Provides
-    @Singleton
-    fun provideHomeSettingRepository(@ApplicationContext context: Context): HomeSettingRepository {
-        return HomeSettingRepository(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideTextRecognizer(): TextRecognizer {
-        return TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    }
-
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "todori_prefs")
-    @Provides
-    @Singleton
-    fun provideDataStore(
-        @ApplicationContext context: Context
-    ): DataStore<Preferences> = context.dataStore
 
 }
