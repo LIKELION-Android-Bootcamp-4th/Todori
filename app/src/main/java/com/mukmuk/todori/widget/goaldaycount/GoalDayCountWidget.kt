@@ -1,0 +1,71 @@
+package com.mukmuk.todori.widget.goaldaycount
+
+import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.GlanceId
+import androidx.glance.GlanceModifier
+import androidx.glance.action.actionStartActivity
+import androidx.glance.action.clickable
+import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.provideContent
+import androidx.glance.background
+import androidx.glance.currentState
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
+import androidx.glance.layout.Column
+import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
+import androidx.glance.layout.padding
+import androidx.glance.state.PreferencesGlanceStateDefinition
+import androidx.glance.text.Text
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.mukmuk.todori.MainActivity
+import com.mukmuk.todori.R
+import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.ui.theme.WidgetTextStyle
+
+class GoalDayCountWidget : GlanceAppWidget() {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId
+    ) {
+        provideContent {
+            GoalDayCountWidgetContent()
+        }
+    }
+
+    @Composable
+    fun GoalDayCountWidgetContent() {
+        Box(
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .background(R.color.widgetBgColor)
+                .clickable(
+                    actionStartActivity<MainActivity>()
+                )
+        ) {
+            Row(
+                modifier = GlanceModifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "목표", style = WidgetTextStyle.TitleMedium
+                )
+                Spacer(GlanceModifier.defaultWeight())
+                Text(
+                    "D-16",
+                    style = WidgetTextStyle.TitleMediumLight
+                )
+            }
+        }
+    }
+}
