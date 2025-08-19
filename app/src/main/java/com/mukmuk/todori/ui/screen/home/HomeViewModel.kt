@@ -31,7 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest // collectLatest import
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -179,7 +179,8 @@ class HomeViewModel @Inject constructor(
                 homeRepository.updateDailyRecord(uid, dailyRecord)
 
                 todo?.let {
-                    val updatedTodo = it.copy(totalFocusTimeMillis = (it.totalFocusTimeMillis) + recordTime)
+                    val updatedTodo =
+                        it.copy(totalFocusTimeMillis = (it.totalFocusTimeMillis) + recordTime)
                     todoRepository.updateTodo(uid, updatedTodo)
                 }
 
@@ -202,6 +203,14 @@ class HomeViewModel @Inject constructor(
                     }
                     widget.update(context, glanceId)
                 }
+                val currentHour = java.time.LocalTime.now().hour.toString().padStart(2, '0')
+                val millis = recordTime
+
+                val existingRecords = homeRepository.getDailyRecord(uid, currentDate)
+                val existing = existingRecords.firstOrNull()
+
+                val updatedHourly = existing?.hourlyMinutes?.toMutableMap() ?: mutableMapOf()
+                updatedHourly[currentHour] = (updatedHourly[currentHour] ?: 0) + millis
 
             } catch (e: Exception) {
                 Log.e("todorilog", "기록 저장 및 위젯 업데이트 중 오류 발생: ${e.message}", e)
@@ -322,7 +331,8 @@ class HomeViewModel @Inject constructor(
     private fun startObservingDailyRecord(uid: String) {
         val today = LocalDate.now().toString()
         homeRepository.observeDailyRecord(uid) { updatedRecords ->
-            val totalTime = updatedRecords.firstOrNull { it.date == today }?.studyTimeMillis ?: 0L
+            val totalTime =
+                updatedRecords.firstOrNull { it.date == today }?.studyTimeMillis ?: 0L
             _state.update { it.copy(totalStudyTimeMills = totalTime) }
         }
     }
