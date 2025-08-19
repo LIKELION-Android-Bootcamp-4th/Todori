@@ -24,7 +24,6 @@ import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.service.QuestService
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.TodoStatsRepository
-import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.CommunityService
 import com.mukmuk.todori.data.service.DailyRecordService
 import com.mukmuk.todori.data.service.GoalTodoService
