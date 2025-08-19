@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.functions.FirebaseFunctions
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
+import com.mukmuk.todori.data.local.datastore.TodayTodoRepository
 import com.mukmuk.todori.data.repository.AuthRepository
 import com.mukmuk.todori.data.repository.DailyRecordRepository
 import com.mukmuk.todori.data.repository.GoalRepository
@@ -184,5 +185,11 @@ object AppModule {
     @Singleton
     fun provideHomeRepository(homeService: HomeService): HomeRepository =
         HomeRepository(homeService)
+
+    @Provides
+    @Singleton
+    fun provideTodayTodoRepository(): TodayTodoRepository = TodayTodoRepository(
+        dataStore = TODO()
+    )
 
 }

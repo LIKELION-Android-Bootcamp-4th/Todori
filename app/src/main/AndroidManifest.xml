@@ -89,7 +89,7 @@
         </provider>
 
         <receiver
-            android:name=".widget.receiver.TodoWidgetReceiver"
+            android:name=".widget.todos.TodoWidgetReceiver"
             android:exported="true">
 
             <intent-filter>

@@ -11,7 +11,7 @@ import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
-import com.mukmuk.todori.widget.receiver.TodoWidgetReceiver
+import com.mukmuk.todori.widget.todos.TodoWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
