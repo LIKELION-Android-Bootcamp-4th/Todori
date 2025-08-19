@@ -68,6 +68,8 @@ class TimerService : Service() {
             var currentTotalMillis = repository.totalRecordTimeFlow.first()
 
             while (isActive) {
+                delay(1.seconds)
+
                 currentTotalMillis += 1000L
                 repository.saveTotalRecordTime(currentTotalMillis)
 
@@ -78,7 +80,6 @@ class TimerService : Service() {
                     TimerWidget().update(applicationContext, id)
                 }
 
-                delay(1.seconds)
             }
         }
     }
