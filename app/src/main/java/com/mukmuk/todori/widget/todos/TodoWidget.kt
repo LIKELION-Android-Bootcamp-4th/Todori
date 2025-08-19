@@ -34,6 +34,7 @@ import com.google.gson.reflect.TypeToken
 import com.mukmuk.todori.MainActivity
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.ui.theme.WidgetTextStyle
 import java.time.LocalDate
 
 
@@ -62,7 +63,7 @@ class TodoWidget : GlanceAppWidget() {
         val totalTodos = todos.size
         val completedTodos = todos.count { it.completed }
 
-        val today = LocalDate.now()
+        val pendingTodos = todos.filter { !it.completed }
 
         Box(
             modifier = GlanceModifier
@@ -75,27 +76,21 @@ class TodoWidget : GlanceAppWidget() {
             Column(modifier = GlanceModifier.padding(16.dp)) {
                 Row(modifier = GlanceModifier.fillMaxWidth()) {
                     Text(
-                        "TODO", style = TextStyle(
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        "TODO", style = WidgetTextStyle.TitleMedium
                     )
                     Spacer(GlanceModifier.defaultWeight())
                     Text(
                         "$completedTodos / $totalTodos",
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                        style = WidgetTextStyle.TitleMediumLight
                     )
                 }
                 Spacer(GlanceModifier.height(16.dp))
                 if (todos.isEmpty()) {
-                    Text("TODO가 없습니다.")
+                    Text("TODO가 없습니다.", style = WidgetTextStyle.TitleSmallNormal)
                 } else {
-                    todos.take(3).forEach { todo ->
+                    pendingTodos.take(5).forEach { todo ->
                         Row {
-                            Text("${todo.title}")
+                            Text(todo.title, style = WidgetTextStyle.TitleSmallNormal)
                         }
                     }
                 }
