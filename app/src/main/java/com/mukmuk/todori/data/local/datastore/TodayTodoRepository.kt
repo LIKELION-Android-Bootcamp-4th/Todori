@@ -1,5 +1,6 @@
 package com.mukmuk.todori.data.local.datastore
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.gson.Gson
@@ -15,9 +16,9 @@ import javax.inject.Singleton
 
 @Singleton
 class TodayTodoRepository  @Inject constructor(
-    @Named("today_todo") private val dataStore: DataStore<Preferences>
+    @Named("todo_settings") private val dataStore: DataStore<Preferences>
 ) {
-    private val TODOS_KEY = stringPreferencesKey("today_todo_widget")
+    private val TODOS_KEY = stringPreferencesKey("today_todos_widget")
 
     val todayTodosFlow: Flow<List<Todo>> = dataStore.data.map { prefs ->
         val json = prefs[TODOS_KEY] ?: "[]"
@@ -26,6 +27,7 @@ class TodayTodoRepository  @Inject constructor(
 
     suspend fun saveTodayTodos(todos: List<Todo>) {
         val json = Gson().toJson(todos)
+        Log.d("TodayTodoRepository", "저장되는 JSON: $json")
         dataStore.edit { prefs ->
             prefs[TODOS_KEY] = json
         }

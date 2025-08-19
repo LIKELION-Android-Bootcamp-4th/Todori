@@ -48,20 +48,6 @@ class UpdateWidgetWorker (
             }
 
 
-            val todoWidget = TodoWidget()
-            val todoManager = GlanceAppWidgetManager(applicationContext)
-            val todoGlanceIds = todoManager.getGlanceIds(todoWidget.javaClass)
-
-            todoGlanceIds.forEach { glanceId ->
-                updateAppWidgetState(
-                    context = applicationContext,
-                    glanceId = glanceId
-                ) { prefs ->
-                    prefs[stringPreferencesKey("today_todo_widget")]
-                }
-
-                todoWidget.update(applicationContext, glanceId)
-            }
 
             Result.success()
         } catch (e: Exception) {

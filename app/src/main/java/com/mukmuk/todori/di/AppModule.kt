@@ -186,10 +186,4 @@ object AppModule {
     fun provideHomeRepository(homeService: HomeService): HomeRepository =
         HomeRepository(homeService)
 
-    @Provides
-    @Singleton
-    fun provideTodayTodoRepository(): TodayTodoRepository = TodayTodoRepository(
-        dataStore = TODO()
-    )
-
 }

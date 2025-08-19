@@ -52,11 +52,12 @@ class TodoWidget : GlanceAppWidget() {
     @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     fun TodoWidgetContent() {
-        val PREF_KEY = stringPreferencesKey("today_todo_widget")
+        val PREF_KEY = stringPreferencesKey("today_todos_widget")
         val prefs = currentState<Preferences>()
 
         val json = prefs[PREF_KEY] ?: "[]"
         val todos: List<Todo> = Gson().fromJson(json, object : TypeToken<List<Todo>>() {}.type)
+        Log.d("TodoWidget", "읽은 json: $json, todos: $todos")
 
         val totalTodos = todos.size
         val completedTodos = todos.count { it.completed }

@@ -1,22 +1,28 @@
 package com.mukmuk.todori.ui.screen.todo.detail.todo
 
-import android.appwidget.AppWidgetManager
 import android.content.Context
-import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
+import com.google.gson.Gson
+import com.mukmuk.todori.data.local.datastore.TodayTodoRepository
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
-import com.mukmuk.todori.widget.todos.TodoWidgetReceiver
+import com.mukmuk.todori.widget.todos.TodoWidget
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 
@@ -24,6 +30,7 @@ import javax.inject.Inject
 class TodoDetailViewModel @Inject constructor(
     private val todoRepository: TodoRepository,
     private val categoryRepository: TodoCategoryRepository,
+    private val todayTodoRepository: TodayTodoRepository,
 
     @ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -68,6 +75,12 @@ class TodoDetailViewModel @Inject constructor(
                 todoRepository.createTodo(uid, newTodo)
                 loadDetail(uid, categoryId, date)
                 onResult(true)
+
+                val todayTodos = todoRepository.getTodosByDate(uid, LocalDate.now())
+                if (todayTodos.isNotEmpty()) {
+                    todayTodoRepository.saveTodayTodos(todayTodos)
+                    updateTodoWidget(todayTodos)
+                }
             } catch (e: Exception) {
                 onResult(false)
                 _state.value = _state.value.copy(error = e.message)
@@ -86,11 +99,11 @@ class TodoDetailViewModel @Inject constructor(
                 // 성공 시 목록 다시 로딩 등 처리
                 loadDetail(uid, todo.categoryId, todo.date)
 
-                // 위젯 업데이트
-                val intent = Intent(context, TodoWidgetReceiver::class.java).apply {
-                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                val todayTodos = todoRepository.getTodosByDate(uid, LocalDate.now())
+                if (todayTodos.isNotEmpty()) {
+                    todayTodoRepository.saveTodayTodos(todayTodos)
+                    updateTodoWidget(todayTodos)
                 }
-                context.sendBroadcast(intent)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = e.message)
             }
@@ -103,6 +116,12 @@ class TodoDetailViewModel @Inject constructor(
             try {
                 todoRepository.deleteTodo(uid, todoId)
                 loadDetail(uid, categoryId, date)
+
+                val todayTodos = todoRepository.getTodosByDate(uid, LocalDate.now())
+                if (todayTodos.isNotEmpty()) {
+                    todayTodoRepository.saveTodayTodos(todayTodos)
+                    updateTodoWidget(todayTodos)
+                }
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = e.message)
             }
@@ -131,5 +150,31 @@ class TodoDetailViewModel @Inject constructor(
         _state.value = _state.value.copy(categoryDeleted = false)
     }
 
+    fun updateTodoWidget(todos: List<Todo>){
+        viewModelScope.launch {
+            Log.d("TodoWidgetUpdate", "저장할 todos: $todos")
+            // 위젯 업데이트
+            val widget = TodoWidget()
+            val manager = GlanceAppWidgetManager(context)
+            val glanceIds = manager.getGlanceIds(widget.javaClass)
+            val json = Gson().toJson(todos)
 
+            if (glanceIds.isEmpty()) {
+                return@launch
+            }
+
+            val PREF_KEY = stringPreferencesKey("today_todos_widget")
+
+            glanceIds.forEach { glanceId ->
+                updateAppWidgetState(
+                    context = context,
+                    glanceId = glanceId
+                ) { prefs ->
+                    Log.d("TodoWidgetUpdate", "저장할 json: $json")
+                    prefs[PREF_KEY] = json
+                }
+                widget.update(context, glanceId)
+            }
+        }
+    }
 }
