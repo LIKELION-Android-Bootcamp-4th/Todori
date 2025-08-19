@@ -31,6 +31,9 @@ class TodoViewModel @Inject constructor(
     private val dailyRepo: DailyRecordRepository
 ) : ViewModel() {
 
+    private val _state = MutableStateFlow(TodoState())
+    val state: StateFlow<TodoState> = _state
+
     private val _selectedDate =
         MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
     val selectedDate: StateFlow<LocalDate> = _selectedDate
@@ -44,6 +47,8 @@ class TodoViewModel @Inject constructor(
     fun setSelectedDate(date: LocalDate) {
         _selectedDate.value = date
     }
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun onWeekVisible(
@@ -121,20 +126,19 @@ class TodoViewModel @Inject constructor(
     }
 
     private fun createUrl(categoryId: String): String {
-        val setCategoryId = Uri.encode(categoryId)
         return Uri.Builder()
             .scheme("https")
-            .authority("todori.page.link")
-            .appendQueryParameter("categoryId", setCategoryId)
+            .authority("todori-7d791.web.app")
+            .appendPath("category")
+            .appendQueryParameter("categoryId", categoryId)
             .build()
             .toString()
     }
 
-    fun addTodoCategoryFromUrl(uid: String, url: String) {
+    fun addTodoCategoryFromUrl(uid: String?, categoryId: String?) {
         viewModelScope.launch {
             try {
-                val uri = url.toUri()
-                val categoryId = uri.getQueryParameter("categoryId")
+                val uid = uid ?: return@launch
                 if (categoryId != null) {
                     val category = categoryRepo.getSendCategory(categoryId)
 
@@ -149,13 +153,6 @@ class TodoViewModel @Inject constructor(
                         categoryRepo.createCategory(uid, updatedCategory)
 
 
-                        val categories = state.value.categories
-
-                        _state.update {
-                            it.copy(
-                                categories = categories + updatedCategory
-                            )
-                        }
                     }
                 }
             }
