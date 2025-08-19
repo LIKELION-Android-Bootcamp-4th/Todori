@@ -17,7 +17,7 @@ import com.mukmuk.todori.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoPickerBottomSheet (
+fun TodoCategoryPickerBottomSheet (
 
     todoCategoryList: List<TodoCategory>,
     onSelected: (TodoCategory) -> Unit,
