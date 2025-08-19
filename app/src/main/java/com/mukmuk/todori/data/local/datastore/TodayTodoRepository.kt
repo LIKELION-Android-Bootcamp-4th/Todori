@@ -27,7 +27,6 @@ class TodayTodoRepository  @Inject constructor(
 
     suspend fun saveTodayTodos(todos: List<Todo>) {
         val json = Gson().toJson(todos)
-        Log.d("TodayTodoRepository", "저장되는 JSON: $json")
         dataStore.edit { prefs ->
             prefs[TODOS_KEY] = json
         }

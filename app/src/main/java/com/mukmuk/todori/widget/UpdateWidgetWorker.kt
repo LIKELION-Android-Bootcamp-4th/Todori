@@ -3,12 +3,10 @@ package com.mukmuk.todori.widget
 import android.content.Context
 import android.util.Log
 import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.mukmuk.todori.widget.todos.TodoWidget
 import com.mukmuk.todori.widget.totaltime.TotalTimeWidget
 import dagger.hilt.android.EntryPointAccessors
 

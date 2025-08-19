@@ -10,11 +10,9 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
-import com.mukmuk.todori.data.local.datastore.TodayTodoRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
 @HiltWorker
