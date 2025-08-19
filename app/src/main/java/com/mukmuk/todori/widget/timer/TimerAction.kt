@@ -22,14 +22,18 @@ class TimerAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
+        val hiltEntryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            WidgetEntryPoint::class.java
+        )
+        val repository = hiltEntryPoint.recordSettingRepository()
         val newRunning = parameters[TOGGLE_KEY] ?: false
 
-        // 위젯의 DataStore 상태를 직접 업데이트
+        repository.saveRunningState(newRunning)
         updateAppWidgetState(context, glanceId) { prefs ->
             prefs[RUNNING_STATE_PREF_KEY] = newRunning
         }
 
-        // 위젯 UI 업데이트를 트리거
         TimerWidget().update(context, glanceId)
     }
 }

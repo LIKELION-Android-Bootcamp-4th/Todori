@@ -5,7 +5,9 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
@@ -23,7 +25,9 @@ import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import com.mukmuk.todori.widget.UpdateWidgetWorker
+import com.mukmuk.todori.widget.timer.TimerAction
 import com.mukmuk.todori.widget.timer.TimerWidget
+import com.mukmuk.todori.widget.timer.TimerWidget.Companion.TOGGLE_KEY
 import com.mukmuk.todori.widget.totaltime.TotalTimeWidget
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -71,7 +75,9 @@ class HomeViewModel @Inject constructor(
             currentSettings = initialLoadedSettings
             _homeSettingState.value = initialLoadedSettings
             updateInitialTimerSettings(initialLoadedSettings)
+        }
 
+        viewModelScope.launch {
             homeSettingRepository.homeSettingStateFlow.collectLatest { settings ->
                 currentSettings = settings
                 _homeSettingState.value = settings
@@ -81,6 +87,22 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             recordSettingRepository.totalRecordTimeFlow.collectLatest { savedTime ->
                 _state.update { it.copy(totalRecordTimeMills = savedTime) }
+            }
+        }
+
+        viewModelScope.launch {
+            recordSettingRepository.runningStateFlow.collectLatest { running ->
+                if (running) {
+                    startTimer()
+                } else {
+                    stopTimer()
+                }
+
+                _state.update {
+                    it.copy(
+                        status = if (running) TimerStatus.RUNNING else TimerStatus.IDLE
+                    )
+                }
             }
         }
     }
@@ -93,7 +115,6 @@ class HomeViewModel @Inject constructor(
             val user = firebaseAuth.currentUser
             if (user != null && !hasLoaded) {
                 hasLoaded = true
-                Log.d("todorilog", "호출")
                 loadProfile(user.uid)
                 startObservingTodos(user.uid)
                 startObservingDailyRecord(user.uid)
@@ -115,6 +136,14 @@ class HomeViewModel @Inject constructor(
         if (_state.value.status == TimerStatus.RUNNING) return
 
         _state.update { it.copy(status = TimerStatus.RUNNING) }
+
+        viewModelScope.launch {
+            recordSettingRepository.saveRunningState(true)
+            updateWidgets(
+                recordTime = _state.value.totalStudyTimeMills,
+                isRunning = true
+            )
+        }
 
         timerJob = viewModelScope.launch {
             while (_state.value.timeLeftInMillis > 0) {
@@ -172,6 +201,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 recordSettingRepository.saveTotalRecordTime(recordTime)
+                recordSettingRepository.saveRunningState(false)
 
                 val dailyRecord = DailyRecord(
                     date = currentDate.toString(),
@@ -180,11 +210,12 @@ class HomeViewModel @Inject constructor(
                 homeRepository.updateDailyRecord(uid, dailyRecord)
 
                 todo?.let {
-                    val updatedTodo = it.copy(totalFocusTimeMillis = (it.totalFocusTimeMillis) + recordTime)
+                    val updatedTodo =
+                        it.copy(totalFocusTimeMillis = (it.totalFocusTimeMillis) + recordTime)
                     todoRepository.updateTodo(uid, updatedTodo)
                 }
 
-                updateWidgets(recordTime)
+                updateWidgets(recordTime, false)
 
             } catch (e: Exception) {
                 Log.e("todorilog", "기록 저장 및 위젯 업데이트 중 오류 발생: ${e.message}", e)
@@ -192,7 +223,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun updateWidgets(recordTime: Long) {
+    private suspend fun updateWidgets(recordTime: Long, isRunning: Boolean) {
         val totalTimeWidget = TotalTimeWidget()
         val timerWidget = TimerWidget()
         val manager = GlanceAppWidgetManager(context)
@@ -220,7 +251,7 @@ class HomeViewModel @Inject constructor(
                 glanceId = glanceId
             ) { prefs ->
                 prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = recordTime
-                prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = false
+                prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = isRunning
             }
             timerWidget.update(context, glanceId)
         }
