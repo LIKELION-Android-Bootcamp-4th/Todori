@@ -73,18 +73,32 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    fun getTodoCategories(uid: String): List<TodoCategory> {
-        var categories: List<TodoCategory> = emptyList()
+    fun getTodoCategories(uid: String) {
         viewModelScope.launch {
-            categories = categoryRepo.getCategories(uid)
+            try {
+                val categories = categoryRepo.getCategories(uid)
+                _state.update {
+                    it.copy(
+                        categories = categories,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
         }
-        return categories
     }
 
     fun sendTodoCategory(category: TodoCategory) {
         viewModelScope.launch {
             try {
-                val categoryId = categoryRepository.createCategory("td", category)
+                val updatedCategory = category.copy(
+                    uid = "",
+                    categoryId = "",
+                    createdAt = Timestamp.now()
+                )
+
+                val categoryId = categoryRepo.createSendTodoCategory(updatedCategory)
                 val url = createUrl(categoryId)
                 _state.update {
                     it.copy(
@@ -106,9 +120,14 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    fun createUrl(categoryId: String): String {
+    private fun createUrl(categoryId: String): String {
         val setCategoryId = Uri.encode(categoryId)
-        return "https://your.domain/category?categoryId=$setCategoryId"
+        return Uri.Builder()
+            .scheme("https")
+            .authority("todori.page.link")
+            .appendQueryParameter("categoryId", setCategoryId)
+            .build()
+            .toString()
     }
 
     fun addTodoCategoryFromUrl(uid: String, url: String) {
@@ -117,25 +136,26 @@ class TodoViewModel @Inject constructor(
                 val uri = url.toUri()
                 val categoryId = uri.getQueryParameter("categoryId")
                 if (categoryId != null) {
-                    val category = categoryRepository.getCategoryById( categoryId)
+                    val category = categoryRepo.getSendCategory(categoryId)
 
-                    val updatedCategory = category?.copy(
-                        uid = uid,
-                        categoryId = "",
-                        createdAt = Timestamp.now()
-                    )
-
-
-                    if (category != null && updatedCategory != null) {
-                        categoryRepository.createCategory(uid, updatedCategory)
-                    }
-
-                    val categories = state.value.categories
-
-                    _state.update {
-                        it.copy(
-                            categories = categories + categories
+                    if(category != null) {
+                        val updatedCategory = category.copy(
+                            uid = uid,
+                            categoryId = "",
+                            createdAt = Timestamp.now()
                         )
+
+
+                        categoryRepo.createCategory(uid, updatedCategory)
+
+
+                        val categories = state.value.categories
+
+                        _state.update {
+                            it.copy(
+                                categories = categories + updatedCategory
+                            )
+                        }
                     }
                 }
             }
