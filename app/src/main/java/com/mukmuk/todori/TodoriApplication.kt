@@ -1,18 +1,22 @@
 package com.mukmuk.todori
 
 import android.app.Application
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.kakao.sdk.common.KakaoSdk
 import com.mukmuk.todori.widget.UpdateWidgetWorker
+import com.mukmuk.todori.widget.WidgetUpdateDispatcher
 import com.navercorp.nid.NaverIdLoginSDK
 import dagger.hilt.android.HiltAndroidApp
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
+@RequiresApi(Build.VERSION_CODES.O)
 @HiltAndroidApp
 class TodoriApplication : Application(), Configuration.Provider {
     override fun onCreate() {
@@ -25,6 +29,8 @@ class TodoriApplication : Application(), Configuration.Provider {
             getString(R.string.naver_client_secret),
             getString(R.string.app_name)
         )
+
+        WidgetUpdateDispatcher.getDispatcher(this).scheduleDailyUpdate()
 
         scheduleResetWorker()
     }

@@ -1,11 +1,18 @@
 package com.mukmuk.todori.widget
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.mukmuk.todori.widget.todos.TodoWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.Duration
+import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,9 +29,6 @@ class WidgetUpdateDispatcher @Inject constructor(
         )
     }
 
-    fun updateCurrentReadingBook() {
-        updateTodos()
-    }
 
     companion object {
         @Volatile
@@ -35,5 +39,23 @@ class WidgetUpdateDispatcher @Inject constructor(
                 instance ?: WidgetUpdateDispatcher(context.applicationContext).also { instance = it }
             }
         }
+    }
+
+    // 자정에 업데이트
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun scheduleDailyUpdate() {
+        val now = LocalDateTime.now()
+        val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
+        val initialDelay = Duration.between(now, nextMidnight)
+
+        val request = PeriodicWorkRequestBuilder<TodoWorker>(24, TimeUnit.HOURS)
+            .setInitialDelay(initialDelay.toMillis(), TimeUnit.MILLISECONDS)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            "TodoWidgetDailyUpdate",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            request
+        )
     }
 }
