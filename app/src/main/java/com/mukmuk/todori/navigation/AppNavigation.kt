@@ -68,7 +68,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             ),
             deepLinks = listOf(
                 navDeepLink {
-                    uriPattern = "https://your.domain/category?categoryId={categoryId}"
+                    uriPattern = "https://todori-7d791.web.app/category?categoryId={categoryId}"
                 }
             )
         ) { backStackEntry ->
