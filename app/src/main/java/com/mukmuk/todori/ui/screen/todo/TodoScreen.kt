@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,7 +35,9 @@ import com.mukmuk.todori.ui.screen.todo.list.study.StudyTodoList
 import com.mukmuk.todori.ui.screen.todo.list.todo.TodoList
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.UserPrimary
+import com.mukmuk.todori.ui.theme.White
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
@@ -42,8 +46,9 @@ import java.time.YearMonth
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TodoScreen(navController: NavHostController) {
+fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
     val viewModel: TodoViewModel = hiltViewModel()
+    var showDialog by remember { mutableStateOf(false) }
     val selectedDate by viewModel.selectedDate.collectAsState()
     val studyRecordsMillis by viewModel.studyRecordsMillis.collectAsState()
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -56,6 +61,13 @@ fun TodoScreen(navController: NavHostController) {
         val start = selectedDate.minus(selectedDate.dayOfWeek.isoDayNumber - 1, kotlinx.datetime.DateTimeUnit.DAY)
         val end = start.plus(6, kotlinx.datetime.DateTimeUnit.DAY)
         viewModel.onWeekVisible(uid, start, end)
+    }
+
+
+    LaunchedEffect(categoryId) {
+        if (categoryId != null) {
+            showDialog = true
+        }
     }
 
     Column(
@@ -73,7 +85,7 @@ fun TodoScreen(navController: NavHostController) {
                     navController.navigate("study/create")
                 }
                 else -> {
-                    // todo: DeepLink 처리
+                    viewModel.getTodoCategories(uid)
                 }
             }
         }
@@ -114,6 +126,30 @@ fun TodoScreen(navController: NavHostController) {
             0 -> TodoList(selectedDate,navController)
             1 -> GoalTodoList(selectedDate,navController)
             2 -> StudyTodoList(selectedDate,navController)
+        }
+
+        if (showDialog) {
+
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text("카테고리 추가", style = AppTextStyle.Body) },
+                text = { Text("공유 받은 카테고리를 추가하시겠습니까?", style = AppTextStyle.Body) },
+                containerColor = White,
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDialog = false
+                        viewModel.addTodoCategoryFromUrl(uid, categoryId)
+                    }) {
+                        Text("확인", color = ButtonPrimary, style = AppTextStyle.Body.copy(color = White))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("취소", color = Black, style = AppTextStyle.Body.copy(color = White))
+                    }
+                }
+            )
+
         }
     }
 
