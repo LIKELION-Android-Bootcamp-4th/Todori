@@ -22,6 +22,14 @@ class TodoCategoryService(
         ref.set(categoryWithId, SetOptions.merge()).await()
     }
 
+    suspend fun createSendTodoCategory(category: TodoCategory): String{
+        val ref = firestore.collection("sendTodoCategories").document()
+        val autoId = ref.id
+        val categoryWithId = category.copy(categoryId = autoId)
+        ref.set(categoryWithId, SetOptions.merge()).await()
+        return autoId
+    }
+
     suspend fun getCategoryById(uid: String, categoryId: String): TodoCategory? {
         val snapshot = firestore.collection("users")
             .document(uid)
@@ -36,6 +44,14 @@ class TodoCategoryService(
     suspend fun getCategories(uid: String): List<TodoCategory> {
         val snapshot: QuerySnapshot = userCategoriesRef(uid).get().await()
         return snapshot.documents.mapNotNull { it.toObject(TodoCategory::class.java) }
+    }
+
+    suspend fun getSendCategory(categoryId: String): TodoCategory? {
+        val snapshot = firestore.collection("sendTodoCategories")
+            .document(categoryId)
+            .get()
+            .await()
+        return snapshot.toObject(TodoCategory::class.java)
     }
 
     // 카테고리 수정
