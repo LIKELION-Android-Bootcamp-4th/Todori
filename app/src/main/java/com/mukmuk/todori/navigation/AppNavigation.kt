@@ -1,17 +1,18 @@
 package com.mukmuk.todori.navigation
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.todo.TodoCategory
@@ -23,13 +24,14 @@ import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
+import com.mukmuk.todori.ui.screen.home.home_ocr.HomeOcrScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
-import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
 import com.mukmuk.todori.ui.screen.login.LoginScreen
 import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
 import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.mypage.ProfileManagementScreen
+import com.mukmuk.todori.ui.screen.mypage.studytargets.StudyTargetsScreen
 import com.mukmuk.todori.ui.screen.splash.SplashScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
@@ -42,9 +44,10 @@ import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
 import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 
+@SuppressLint("ComposableDestinationInComposeScope")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier) {
+fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
     val homeViewModel: HomeViewModel = hiltViewModel()
     NavHost(
         navController = navController,
@@ -56,11 +59,17 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
         }
         composable(BottomNavItem.Todo.route) { TodoScreen(navController) }
         composable(BottomNavItem.Stats.route) { StatsScreen() }
-        composable(BottomNavItem.Home.route) {
+        composable(
+            BottomNavItem.Home.route,
+            deepLinks = listOf(navDeepLink { uriPattern = "todori://app.todori.com/home" })
+        ) {
             HomeScreen(navController = navController, viewModel = homeViewModel)
         }
         composable("home_setting") {
             HomeSettingScreen(navController = navController)
+        }
+        composable("home_ocr") {
+            HomeOcrScreen(navController)
         }
 
         composable(BottomNavItem.Study.route) { backStackEntry ->
@@ -71,20 +80,27 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunityScreen(navController, viewModel)
         }
-        composable("community/create?postId={postId}", arguments = listOf(
-            navArgument("postId") {
-                type = NavType.StringType
-                defaultValue = null
-                nullable = true
-            })) { backStackEntry ->
+        composable(
+            "community/create?postId={postId}", arguments = listOf(
+                navArgument("postId") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                })
+        ) { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId")
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
             val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
-            CreateCommunityScreen(postId, navController, onBack = { navController.popBackStack() }, viewModel)
+            CreateCommunityScreen(
+                postId,
+                navController,
+                onBack = { navController.popBackStack() },
+                viewModel
+            )
         }
-        composable("community/search"){ backStackEntry ->
+        composable("community/search") { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
@@ -95,121 +111,128 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 viewModel
             )
         }
-        composable("community/detail/{postId}", arguments = listOf(
-            navArgument("postId") { type = NavType.StringType }
-        )
-        ){ backStackEntry ->
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(BottomNavItem.Study.route)
-            }
-            val postId = backStackEntry.arguments?.getString("postId") ?: ""
-            val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
-            CommunityDetailScreen(
-                postId = postId,
-                onBack = { navController.popBackStack() },
-                navController,
-                viewModel,
-            )
-        }
-
-        composable(BottomNavItem.MyPage.route) { MyPageScreen(navController) }
-        composable("myLevel") { MyLevelScreen(onBack = { navController.popBackStack() }) }
-        composable("completedGoals") { CompletedGoalsScreen(onBack = { navController.popBackStack() }) }
-        composable("profileManage") {
-            ProfileManagementScreen(
-                onBack = { navController.popBackStack() }
-            )
-        }
-
-
-
-        composable("category/create") { backStackEntry ->
-            val navEntry = navController.previousBackStackEntry
-            val category = navEntry?.savedStateHandle?.get<TodoCategory>("editCategory")
-            CreateCategoryScreen(
-                onDone = { navController.popBackStack() },
-                onBack = { navController.popBackStack() },
-                editCategory = category
-            )
-        }
-        composable("login") {
-            LoginScreen(navController = navController)
-        }
-        composable("goal/create") { backStackEntry ->
-            val navEntry = navController.previousBackStackEntry
-            val editGoal = navEntry?.savedStateHandle?.get<Goal>("goal")
-            CreateGoalScreen(
-                onDone = { navController.popBackStack() },
-                onBack = { navController.popBackStack() },
-                editGoal = editGoal
-            )
-        }
-        composable("study/create") {
-            val navEntry = navController.previousBackStackEntry
-            val editStudy = navEntry?.savedStateHandle?.get<Study>("editStudy")
-            CreateStudyScreen(
-                onDone = { navController.popBackStack() },
-                onBack = { navController.popBackStack() },
-                editStudy = editStudy
-            )
-        }
         composable(
-            "todo/detail/{categoryId}?date={date}",
-            arguments = listOf(
-                navArgument("categoryId") { type = NavType.StringType },
-                navArgument("date") { type = NavType.StringType }
+            "community/detail/{postId}", arguments = listOf(
+                navArgument("postId") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
-            val date = backStackEntry.arguments?.getString("date") ?: ""
-            TodoDetailScreen(
-                categoryId = categoryId,
-                date = date,
-                navController = navController,
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable("goal/detail/{goalId}") { backStackEntry ->
-            val goalId = backStackEntry.arguments?.getString("goalId") ?: ""
+            composable("community/detail") { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(BottomNavItem.Study.route)
+                }
+                val postId = backStackEntry.arguments?.getString("postId") ?: ""
+                val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
+                CommunityDetailScreen(
+                    postId = postId,
+                    onBack = { navController.popBackStack() },
+                    navController,
+                    viewModel,
+                )
+            }
+
+            composable(BottomNavItem.MyPage.route) { MyPageScreen(navController) }
+            composable("myLevel") { MyLevelScreen(onBack = { navController.popBackStack() }) }
+            composable("completedGoals") { CompletedGoalsScreen(onBack = { navController.popBackStack() }) }
+            composable("profileManage") {
+                ProfileManagementScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+
+
+            composable("category/create") { backStackEntry ->
+                val navEntry = navController.previousBackStackEntry
+                val category = navEntry?.savedStateHandle?.get<TodoCategory>("editCategory")
+                CreateCategoryScreen(
+                    onDone = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() },
+                    editCategory = category
+                )
+            }
+            composable("login") {
+                LoginScreen(navController = navController)
+            }
+            composable("goal/create") { backStackEntry ->
+                val navEntry = navController.previousBackStackEntry
+                val editGoal = navEntry?.savedStateHandle?.get<Goal>("goal")
+                CreateGoalScreen(
+                    onDone = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() },
+                    editGoal = editGoal
+                )
+            }
+            composable("study/create") {
+                val navEntry = navController.previousBackStackEntry
+                val editStudy = navEntry?.savedStateHandle?.get<Study>("editStudy")
+                CreateStudyScreen(
+                    onDone = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() },
+                    editStudy = editStudy
+                )
+            }
+            composable(
+                "todo/detail/{categoryId}?date={date}",
+                arguments = listOf(
+                    navArgument("categoryId") { type = NavType.StringType },
+                    navArgument("date") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
+                val date = backStackEntry.arguments?.getString("date") ?: ""
+                TodoDetailScreen(
+                    categoryId = categoryId,
+                    date = date,
+                    navController = navController,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable("goal/detail/{goalId}") { backStackEntry ->
+                val goalId = backStackEntry.arguments?.getString("goalId") ?: ""
                 GoalDetailScreen(
                     goalId = goalId, navController = navController,
                     onBack = { navController.popBackStack() }
                 )
-        }
-        composable(
-            route = "study/detail/{studyId}?date={date}",
-            arguments = listOf(
-                navArgument("studyId") { type = NavType.StringType },
-                navArgument("date") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
-            val date = backStackEntry.arguments?.getString("date") ?: ""
-            StudyDetailScreen(
-                navController = navController,
-                studyId = studyId,
-                selectedDate = date,
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable(
-            "member_progress_detail/{studyId}?date={date}",
-            arguments = listOf(
-                navArgument("studyId") { type = NavType.StringType },
-                navArgument("date") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
-            val date = backStackEntry.arguments?.getString("date") ?: ""
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry("study/detail/$studyId?date=$date")
             }
-            val viewModel: StudyDetailViewModel = hiltViewModel(parentEntry)
-            MemberProgressDetailScreen(
-                navController = navController,
-                viewModel = viewModel
-            )
-        }
+            composable(
+                route = "study/detail/{studyId}?date={date}",
+                arguments = listOf(
+                    navArgument("studyId") { type = NavType.StringType },
+                    navArgument("date") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
+                val date = backStackEntry.arguments?.getString("date") ?: ""
+                StudyDetailScreen(
+                    navController = navController,
+                    studyId = studyId,
+                    selectedDate = date,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(
+                "member_progress_detail/{studyId}?date={date}",
+                arguments = listOf(
+                    navArgument("studyId") { type = NavType.StringType },
+                    navArgument("date") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
+                val date = backStackEntry.arguments?.getString("date") ?: ""
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("study/detail/$studyId?date=$date")
+                }
+                val viewModel: StudyDetailViewModel = hiltViewModel(parentEntry)
+                MemberProgressDetailScreen(
+                    navController = navController,
+                    viewModel = viewModel
+                )
+            }
 
+            composable("studyTargets") {
+                StudyTargetsScreen(navController = navController)
+            }
+
+        }
     }
 }

@@ -57,6 +57,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.play.services.mlkit.text.recognition.common)
+    implementation(libs.play.services.mlkit.text.recognition)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -71,6 +73,10 @@ dependencies {
 
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+    implementation(libs.androidx.glance.material)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -105,8 +111,11 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
 
-
-
+    implementation(libs.ml.kit.text.recognition)
+    implementation(libs.camera.x.core)
+    implementation(libs.camera.x.camera2)
+    implementation(libs.camera.x.lifecycle)
+    implementation(libs.camera.x.view)
 
     implementation(libs.lottie)
     implementation(libs.kotlinx.datetime)
@@ -116,5 +125,5 @@ dependencies {
 
     implementation("com.navercorp.nid:oauth:5.9.0")
 
-
+    implementation(libs.androidx.work.runtime.ktx)
 }
