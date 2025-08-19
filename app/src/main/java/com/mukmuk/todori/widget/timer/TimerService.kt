@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
@@ -25,6 +26,7 @@ class TimerService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var timerJob: Job? = null
     private lateinit var repository: RecordSettingRepository
+    private lateinit var notificationManager: NotificationManager
 
     companion object {
         const val CHANNEL_ID = "TimerServiceChannel"
@@ -38,15 +40,27 @@ class TimerService : Service() {
             applicationContext,
             WidgetEntryPoint::class.java
         ).recordSettingRepository()
+
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
-        startForeground(NOTIFICATION_ID, createNotification())
+
+        val notification = createNotification()
+        notificationManager.notify(NOTIFICATION_ID, notification)
+        startForeground(NOTIFICATION_ID, notification)
 
         serviceScope.launch {
+            repository.saveRunningState(true)
+
             val glanceIds = GlanceAppWidgetManager(applicationContext)
                 .getGlanceIds(TimerWidget::class.java)
+
+            if (glanceIds.isEmpty()) {
+                stopSelf()
+                return@launch
+            }
 
             val initialMillis = repository.totalRecordTimeFlow.first()
             glanceIds.forEach { id ->
@@ -88,6 +102,10 @@ class TimerService : Service() {
         super.onDestroy()
         timerJob?.cancel()
         serviceScope.cancel()
+        notificationManager.cancel(NOTIFICATION_ID)
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.saveRunningState(false)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -99,19 +117,18 @@ class TimerService : Service() {
                 "Timer Service Channel",
                 NotificationManager.IMPORTANCE_LOW
             )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(channel)
         }
     }
 
     private fun createNotification(): Notification {
         val pendingIntent = packageManager.getLaunchIntentForPackage(packageName)?.let { launchIntent ->
-            PendingIntent.getActivity(this, 0, launchIntent, PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.getActivity(this, 0, launchIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Todori 타이머 실행 중")
-            .setContentText("타이머 위젯이 매 초 업데이트됩니다. 배터리 사용량이 늘어날 수 있어요.")
+            .setContentText("타이머 위젯이 매 초 업데이트됩니다. \n배터리 사용량이 늘어날 수 있어요.")
             .setSmallIcon(R.drawable.ic_fire1)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
