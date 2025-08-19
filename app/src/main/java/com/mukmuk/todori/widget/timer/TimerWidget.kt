@@ -21,6 +21,7 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -30,6 +31,10 @@ import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import com.mukmuk.todori.ui.theme.WidgetTextStyle
+import com.mukmuk.todori.widget.WidgetEntryPoint
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
 
 class TimerWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
@@ -42,22 +47,30 @@ class TimerWidget : GlanceAppWidget() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val repository = EntryPointAccessors.fromApplication(
+            context,
+            WidgetEntryPoint::class.java
+        ).recordSettingRepository()
+
+        val initialMillis = repository.totalRecordTimeFlow.first()
+        val initialRunningState = repository.runningStateFlow.first()
+
+        updateAppWidgetState(context, id) { prefs ->
+            prefs[TOTAL_RECORD_MILLS_KEY] = initialMillis
+            prefs[RUNNING_STATE_PREF_KEY] = initialRunningState
+        }
         provideContent {
-            TotalTimeWidgetContent()
+            TotalTimeWidgetContent(initialMillis = initialMillis, running = initialRunningState)
         }
     }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Composable
-    private fun TotalTimeWidgetContent() {
-        val prefs = currentState<Preferences>()
-        val millis = prefs[TOTAL_RECORD_MILLS_KEY] ?: 0L
-        val running = prefs[RUNNING_STATE_PREF_KEY] ?: false
-
-        val h = (millis / 1000) / 3600
-        val m = (millis / 1000 % 3600) / 60
-        val s = (millis / 1000) % 60
+    private fun TotalTimeWidgetContent(initialMillis: Long, running: Boolean) {
+        val h = (initialMillis / 1000) / 3600
+        val m = (initialMillis / 1000 % 3600) / 60
+        val s = (initialMillis / 1000) % 60
         val totalTime = String.format("%02d:%02d:%02d", h, m, s)
 
         Row(
