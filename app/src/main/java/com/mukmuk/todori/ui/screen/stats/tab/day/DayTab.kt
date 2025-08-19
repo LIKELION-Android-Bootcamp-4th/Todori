@@ -1,25 +1,43 @@
 package com.mukmuk.todori.ui.screen.stats.tab.day
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
+import com.mukmuk.todori.data.remote.dailyRecord.ReflectionV2
 import com.mukmuk.todori.ui.screen.stats.component.CalendarCard
-import com.mukmuk.todori.ui.screen.stats.component.DayStatsCard
+import com.mukmuk.todori.ui.screen.stats.component.day.DayPaceCard
+import com.mukmuk.todori.ui.screen.stats.component.day.DayStatsCard
+import com.mukmuk.todori.ui.screen.stats.component.day.GoldenHourCard
+import com.mukmuk.todori.ui.screen.stats.component.day.LearningStreakCard
+import com.mukmuk.todori.ui.screen.stats.component.day.ReflectionCard
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Red
+import com.mukmuk.todori.util.parseReflection
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -30,24 +48,22 @@ fun DayTab(
     onDateChange: (kotlinx.datetime.LocalDate) -> Unit
 ) {
     val viewModel: DayViewModel = hiltViewModel()
-
-    val fetchedRecord by viewModel.selectedRecord.collectAsState()
-    val monthRecords by viewModel.monthRecords.collectAsState()
-    val selectedDay by viewModel.selectedDate.collectAsState()
-    val todos by viewModel.todos.collectAsState()
+    val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(date) {
         viewModel.onDateSelected(
             LocalDate.of(date.year, date.monthNumber, date.dayOfMonth)
         )
+        Log.d("DayTab: ","dayStat: ${state.dayStat}, stats: ${state.stats}")
     }
 
-    val recordFromList = remember(selectedDay, monthRecords) {
-        monthRecords.firstOrNull {
-            runCatching { LocalDate.parse(it.date.trim()) }.getOrNull() == selectedDay
+    LaunchedEffect(state.error) {
+        state.error?.let { error ->
+            snackbarHostState.showSnackbar(error)
+            viewModel.clearError()
         }
     }
-    val recordForSelected = recordFromList ?: fetchedRecord
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -55,15 +71,31 @@ fun DayTab(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Spacer(modifier = Modifier.height(Dimens.XLarge))
+        if (state.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.padding(Dimens.Medium)
+            )
+        }
+
+        DayStatsCard(
+            selectedDate = state.selectedDate,
+            studyTimeMillis = state.studyTimeMillis,
+            todos = state.todos
+        )
+
+        Spacer(modifier = Modifier.height(Dimens.Small))
 
         CalendarCard(
-            record = monthRecords,
-            selectedDate = selectedDay,
+            record = state.monthRecords,
+            selectedDate = state.selectedDate,
             onDateSelected = { picked ->
                 viewModel.onDateSelected(picked)
                 onDateChange(
-                    kotlinx.datetime.LocalDate(picked.year, picked.monthValue, picked.dayOfMonth)
+                    kotlinx.datetime.LocalDate(
+                        picked.year,
+                        picked.monthValue,
+                        picked.dayOfMonth
+                    )
                 )
             },
             onMonthChanged = { ym -> viewModel.onMonthChanged(ym) }
@@ -71,16 +103,64 @@ fun DayTab(
 
         Spacer(modifier = Modifier.height(Dimens.Large))
 
-        DayStatsCard(
-            selectedDate = selectedDay,
-            studyTimeMillis = recordForSelected?.studyTimeMillis ?: 0L,
-            reflection = recordForSelected?.reflection,
-            todos = todos,
-            onReflectionChanged = { newReflection ->
-                viewModel.updateDailyRecord(uid, selectedDay, newReflection)
-            }
+        val weeklyPaceData = viewModel.getWeeklyPaceData()
+        DayPaceCard(paceData = weeklyPaceData)
+        Spacer(modifier = Modifier.height(Dimens.Large))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimens.Medium)
+                .height(IntrinsicSize.Min)
+        ) {
+            LearningStreakCard(
+                currentStreak = state.dayStat?.streakCount ?: 0,
+                bestStreak = state.stats?.bestStreak ?: 0,
+                qualifiedToday = state.dayStat?.qualified ?: false,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            )
+            Spacer(Modifier.width(Dimens.Small))
+            GoldenHourCard(
+                startHour = state.goldenHourRange?.first,
+                endHour = state.goldenHourRange?.second,
+                completionDeltaPercent = state.completionPercent,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            )
+        }
+        Spacer(modifier = Modifier.height(Dimens.Large))
+
+        ReflectionCard(
+            initialText = state.currentReflectionPreview,
+            onReflectionChanged = { newText ->
+                val parsed = parseReflection(newText)
+                viewModel.updateReflectionV2(
+                    ReflectionV2(
+                        good = parsed.good.takeIf { it.isNotBlank() },
+                        improve = parsed.improve.takeIf { it.isNotBlank() },
+                        blocker = parsed.blocker.takeIf { it.isNotBlank() }
+                    )
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.Medium)
         )
 
         Spacer(modifier = Modifier.height(Dimens.Large))
+
+        state.error?.let { error ->
+            Text(
+                text = error,
+                style = AppTextStyle.BodyLarge.copy(color = Red),
+                modifier = Modifier.padding(Dimens.Medium)
+            )
+        }
     }
+
+    // 스낵바 호스트
+    SnackbarHost(hostState = snackbarHostState)
 }

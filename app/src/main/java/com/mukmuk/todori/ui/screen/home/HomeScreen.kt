@@ -248,6 +248,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel) {
                     Button(
                         onClick = {
                             if (state.status == TimerStatus.RECORDING) viewModel.onEvent(TimerEvent.Stop)
+                            navController.navigate("home_ocr")
                         },
                         modifier = Modifier.size(76.dp),
                         contentPadding = PaddingValues(0.dp),
