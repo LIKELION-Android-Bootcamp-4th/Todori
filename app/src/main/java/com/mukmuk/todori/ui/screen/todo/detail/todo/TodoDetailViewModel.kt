@@ -149,10 +149,9 @@ class TodoDetailViewModel @Inject constructor(
         _state.value = _state.value.copy(categoryDeleted = false)
     }
 
+    // 위젯 업데이트
     fun updateTodoWidget(todos: List<Todo>){
         viewModelScope.launch {
-            Log.d("TodoWidgetUpdate", "저장할 todos: $todos")
-            // 위젯 업데이트
             val widget = TodoWidget()
             val manager = GlanceAppWidgetManager(context)
             val glanceIds = manager.getGlanceIds(widget.javaClass)

@@ -25,6 +25,7 @@ class TodoWorker @AssistedInject constructor(
         const val UNIQUE_WORK_NAME = "Todo_worker"
     }
 
+    // 투두 목록을 가져오고 위젯 갱신
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result {
         return try {

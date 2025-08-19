@@ -17,6 +17,7 @@ class TodoWidgetReceiver : GlanceAppWidgetReceiver() {
         }
     }
 
+    // 이벤트 발생 시 갱신
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         when(intent.action) {
