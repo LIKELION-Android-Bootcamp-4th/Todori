@@ -94,6 +94,10 @@
 
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
+                <action android:name="android.appwidget.action.ACTION_MY_PACKAGE_REPLACED" />
+                <action android:name="android.appwidget.action.ACTION_DATE_CHANGED" />
+                <action android:name="android.appwidget.action.ACTION_USER_UNLOCKED" />
             </intent-filter>
 
             <meta-data
@@ -106,10 +110,6 @@
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
-            <!--            <meta-data-->
-            <!--                android:name="androidx.work.WorkManagerInitializer"-->
-            <!--                android:value="androidx.startup"-->
-            <!--                tools:node="remove" />-->
         </provider>
         <meta-data
             android:name="androidx.work.WorkManagerInitializer"

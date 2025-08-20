@@ -1,6 +1,8 @@
 package com.mukmuk.todori.ui.screen.todo.detail.todo
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -16,6 +18,7 @@ import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.widget.todos.TodoWidget
+import com.mukmuk.todori.widget.todos.TodoWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -151,28 +154,9 @@ class TodoDetailViewModel @Inject constructor(
 
     // 위젯 업데이트
     fun updateTodoWidget(todos: List<Todo>){
-        viewModelScope.launch {
-            val widget = TodoWidget()
-            val manager = GlanceAppWidgetManager(context)
-            val glanceIds = manager.getGlanceIds(widget.javaClass)
-            val json = Gson().toJson(todos)
-
-            if (glanceIds.isEmpty()) {
-                return@launch
-            }
-
-            val PREF_KEY = stringPreferencesKey("today_todos_widget")
-
-            glanceIds.forEach { glanceId ->
-                updateAppWidgetState(
-                    context = context,
-                    glanceId = glanceId
-                ) { prefs ->
-                    Log.d("TodoWidgetUpdate", "저장할 json: $json")
-                    prefs[PREF_KEY] = json
-                }
-                widget.update(context, glanceId)
-            }
+        val intent = Intent(context, TodoWidgetReceiver::class.java).apply {
+            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
         }
+        context.sendBroadcast(intent)
     }
 }

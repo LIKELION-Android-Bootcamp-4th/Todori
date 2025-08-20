@@ -24,6 +24,7 @@ class TodoWidgetReceiver : GlanceAppWidgetReceiver() {
             AppWidgetManager.ACTION_APPWIDGET_UPDATE,
             AppWidgetManager.ACTION_APPWIDGET_ENABLED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
+            Intent.ACTION_DATE_CHANGED,
             Intent.ACTION_USER_UNLOCKED -> {
                 WidgetUpdateDispatcher.getDispatcher(context).updateTodos()
             }
