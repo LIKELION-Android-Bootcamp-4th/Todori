@@ -43,7 +43,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest // collectLatest import
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -344,7 +344,8 @@ class HomeViewModel @Inject constructor(
     private fun startObservingDailyRecord(uid: String) {
         val today = LocalDate.now().toString()
         homeRepository.observeDailyRecord(uid) { updatedRecords ->
-            val totalTime = updatedRecords.firstOrNull { it.date == today }?.studyTimeMillis ?: 0L
+            val totalTime =
+                updatedRecords.firstOrNull { it.date == today }?.studyTimeMillis ?: 0L
             _state.update { it.copy(totalStudyTimeMills = totalTime) }
         }
     }
