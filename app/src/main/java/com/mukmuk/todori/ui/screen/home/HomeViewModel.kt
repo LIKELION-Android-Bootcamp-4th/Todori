@@ -1,6 +1,8 @@
 package com.mukmuk.todori.ui.screen.home
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -26,9 +28,13 @@ import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import com.mukmuk.todori.widget.UpdateWidgetWorker
 import com.mukmuk.todori.widget.timer.TimerAction
+import com.mukmuk.todori.widget.timer.TimerService
 import com.mukmuk.todori.widget.timer.TimerWidget
 import com.mukmuk.todori.widget.timer.TimerWidget.Companion.TOGGLE_KEY
 import com.mukmuk.todori.widget.totaltime.TotalTimeWidget
+import com.mukmuk.todori.widget.totaltime.TotalTimeWidget.Companion.ACTION_UPDATE_TOTAL_TIME_WIDGET
+import com.mukmuk.todori.widget.totaltime.TotalTimeWidget.Companion.EXTRA_TOTAL_TIME_MILLIS
+import com.mukmuk.todori.widget.totaltime.TotalTimeWidgetBroadcastReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -133,27 +139,25 @@ class HomeViewModel @Inject constructor(
 
         _state.update { it.copy(status = TimerStatus.RUNNING) }
 
+        val intent = Intent(context, TimerService::class.java)
+        context.startForegroundService(intent)
+
         timerJob = viewModelScope.launch(Dispatchers.Default) {
+            recordSettingRepository.saveRunningState(true)
             while (_state.value.timeLeftInMillis > 0) {
                 delay(1000)
 
                 _state.update { current ->
                     val newTotalStudy =
-                        if (current.pomodoroMode == PomodoroTimerMode.FOCUSED)
+                        if (current.pomodoroMode == PomodoroTimerMode.FOCUSED) {
                             current.totalStudyTimeMills + 1000
-                        else
+                        } else {
                             current.totalStudyTimeMills
+                        }
 
                     current.copy(
                         timeLeftInMillis = current.timeLeftInMillis - 1000,
                         totalStudyTimeMills = newTotalStudy
-                    )
-                }
-
-                withContext(Dispatchers.Main) {
-                    updateWidgets(
-                        recordTime = _state.value.totalStudyTimeMills,
-                        isRunning = true
                     )
                 }
             }
@@ -168,9 +172,16 @@ class HomeViewModel @Inject constructor(
     private fun stopTimer() {
         timerJob?.cancel()
         _state.update { it.copy(status = TimerStatus.IDLE) }
+        val intent = Intent(context, TimerService::class.java)
+        context.stopService(intent)
 
         val uid = _state.value.uid
         val totalTime = _state.value.totalStudyTimeMills
+        val broadcastIntent = Intent(context, TotalTimeWidgetBroadcastReceiver::class.java).apply {
+            action = ACTION_UPDATE_TOTAL_TIME_WIDGET
+            putExtra(EXTRA_TOTAL_TIME_MILLIS, totalTime)
+        }
+        context.sendBroadcast(broadcastIntent)
         saveRecord(uid, totalTime)
     }
 
@@ -207,33 +218,11 @@ class HomeViewModel @Inject constructor(
                 recordSettingRepository.saveTotalRecordTime(recordTime)
                 recordSettingRepository.saveRunningState(false)
 
-                updateWidgets(recordTime, false)
             } catch (e: Exception) {
                 Log.e("todorilog", "기록 저장 및 위젯 업데이트 중 오류 발생: ${e.message}", e)
             }
         }
     }
-
-    private suspend fun updateWidgets(recordTime: Long, isRunning: Boolean) {
-        val manager = GlanceAppWidgetManager(context)
-
-        manager.getGlanceIds(TotalTimeWidget::class.java).forEach { glanceId ->
-            updateAppWidgetState(context, glanceId) { prefs ->
-                prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = recordTime
-            }
-            TotalTimeWidget().update(context, glanceId)
-        }
-
-        manager.getGlanceIds(TimerWidget::class.java).forEach { glanceId ->
-            updateAppWidgetState(context, glanceId) { prefs ->
-                prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = recordTime
-                prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = isRunning
-            }
-            TimerWidget().update(context, glanceId)
-        }
-    }
-
-
 
     private fun updateInitialTimerSettings(settings: HomeSettingState) {
         _state.update {

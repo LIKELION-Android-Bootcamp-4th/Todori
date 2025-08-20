@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.first
 import kotlin.time.Duration.Companion.seconds
 
 class TimerService : Service() {
-
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var timerJob: Job? = null
     private lateinit var repository: RecordSettingRepository
@@ -43,14 +42,11 @@ class TimerService : Service() {
         ).recordSettingRepository()
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        createNotificationChannel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        createNotificationChannel()
-
-        val notification = createNotification()
-        notificationManager.notify(NOTIFICATION_ID, notification)
-        startForeground(NOTIFICATION_ID, notification)
+        startForeground(NOTIFICATION_ID, createNotification())
 
         serviceScope.launch {
             repository.saveRunningState(true)
@@ -106,6 +102,19 @@ class TimerService : Service() {
         notificationManager.cancel(NOTIFICATION_ID)
         CoroutineScope(Dispatchers.IO).launch {
             repository.saveRunningState(false)
+
+            val glanceIds = GlanceAppWidgetManager(applicationContext)
+                .getGlanceIds(TimerWidget::class.java)
+
+            val finalMillis = repository.totalRecordTimeFlow.first()
+
+            glanceIds.forEach { id ->
+                updateAppWidgetState(applicationContext, id) { prefs ->
+                    prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = finalMillis
+                    prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = false
+                }
+                TimerWidget().update(applicationContext, id)
+            }
         }
     }
 

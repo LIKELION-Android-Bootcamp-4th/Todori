@@ -32,10 +32,15 @@ import dagger.hilt.android.EntryPointAccessors
 import java.time.LocalDate
 import javax.inject.Inject
 
-private val TOTAL_TIME_PREF_KEY = longPreferencesKey("total_record_time_mills")
 
 class TotalTimeWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
+
+    companion object {
+        val TOTAL_TIME_PREF_KEY = longPreferencesKey("total_record_time_mills")
+        val ACTION_UPDATE_TOTAL_TIME_WIDGET = "com.mukmuk.todori.ACTION_UPDATE_TOTAL_TIME_WIDGET"
+        val EXTRA_TOTAL_TIME_MILLIS = "extra_total_time_millis"
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun provideGlance(context: Context, id: GlanceId) {

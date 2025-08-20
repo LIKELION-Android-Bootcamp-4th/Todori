@@ -91,6 +91,14 @@
                 android:resource="@xml/widget_timer" />
         </receiver>
 
+        <receiver
+            android:name=".widget.totaltime.TotalTimeWidgetBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.mukmuk.todori.ACTION_UPDATE_TOTAL_TIME_WIDGET"/>
+            </intent-filter>
+        </receiver>
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -107,6 +115,7 @@
             android:exported="false"
             android:foregroundServiceType="specialUse"
             tools:ignore="ForegroundServicePermission" />
+
     </application>
 
 </manifest>
