@@ -203,6 +203,10 @@ class HomeViewModel @Inject constructor(
                     studyTimeMillis = recordTime
                 )
                 homeRepository.updateDailyRecord(uid, dailyRecord)
+
+                recordSettingRepository.saveTotalRecordTime(recordTime)
+                recordSettingRepository.saveRunningState(false)
+
                 updateWidgets(recordTime, false)
             } catch (e: Exception) {
                 Log.e("todorilog", "기록 저장 및 위젯 업데이트 중 오류 발생: ${e.message}", e)
