@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.actionStartActivity
@@ -38,13 +39,13 @@ class TotalTimeWidget : GlanceAppWidget() {
 
     companion object {
         val TOTAL_TIME_PREF_KEY = longPreferencesKey("total_record_time_mills")
-        val ACTION_UPDATE_TOTAL_TIME_WIDGET = "com.mukmuk.todori.ACTION_UPDATE_TOTAL_TIME_WIDGET"
-        val EXTRA_TOTAL_TIME_MILLIS = "extra_total_time_millis"
+        const val ACTION_UPDATE_TOTAL_TIME_WIDGET = "com.mukmuk.todori.ACTION_UPDATE_TOTAL_TIME_WIDGET"
+        const val EXTRA_TOTAL_TIME_MILLIS = "extra_total_time_millis"
+        val TODAY_DATE_PREF_KEY = stringPreferencesKey("today_date_string")
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        Log.d("TotalTimeWidget", "provideGlance 호출됨. 위젯 ID: $id")
         provideContent {
             TotalTimeWidgetContent()
         }
@@ -56,12 +57,12 @@ class TotalTimeWidget : GlanceAppWidget() {
     private fun TotalTimeWidgetContent() {
         val prefs = currentState<Preferences>()
         val millis = prefs[TOTAL_TIME_PREF_KEY] ?: 0L
+        val today = prefs[TODAY_DATE_PREF_KEY] ?: LocalDate.now().toString()
 
         val h = (millis / 1000) / 3600
         val m = (millis / 1000 % 3600) / 60
         val s = (millis / 1000) % 60
         val totalTime = String.format("%02d:%02d:%02d", h, m, s)
-        val today = LocalDate.now().toString()
 
         Row (
             modifier = GlanceModifier.fillMaxSize().clickable(actionStartActivity(
