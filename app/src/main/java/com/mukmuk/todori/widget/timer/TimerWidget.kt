@@ -21,7 +21,6 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -31,9 +30,6 @@ import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import com.mukmuk.todori.ui.theme.WidgetTextStyle
-import com.mukmuk.todori.widget.WidgetEntryPoint
-import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.flow.first
 
 class TimerWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition

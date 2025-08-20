@@ -172,16 +172,9 @@ class HomeViewModel @Inject constructor(
     private fun stopTimer() {
         timerJob?.cancel()
         _state.update { it.copy(status = TimerStatus.IDLE) }
-        val intent = Intent(context, TimerService::class.java)
-        context.stopService(intent)
 
         val uid = _state.value.uid
         val totalTime = _state.value.totalStudyTimeMills
-        val broadcastIntent = Intent(context, TotalTimeWidgetBroadcastReceiver::class.java).apply {
-            action = ACTION_UPDATE_TOTAL_TIME_WIDGET
-            putExtra(EXTRA_TOTAL_TIME_MILLIS, totalTime)
-        }
-        context.sendBroadcast(broadcastIntent)
         saveRecord(uid, totalTime)
     }
 
@@ -218,6 +211,13 @@ class HomeViewModel @Inject constructor(
                 recordSettingRepository.saveTotalRecordTime(recordTime)
                 recordSettingRepository.saveRunningState(false)
 
+                val intent = Intent(context, TimerService::class.java)
+                context.stopService(intent)
+                val broadcastIntent = Intent(context, TotalTimeWidgetBroadcastReceiver::class.java).apply {
+                    action = ACTION_UPDATE_TOTAL_TIME_WIDGET
+                    putExtra(EXTRA_TOTAL_TIME_MILLIS, recordTime)
+                }
+                context.sendBroadcast(broadcastIntent)
             } catch (e: Exception) {
                 Log.e("todorilog", "기록 저장 및 위젯 업데이트 중 오류 발생: ${e.message}", e)
             }

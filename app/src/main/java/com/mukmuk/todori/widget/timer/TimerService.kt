@@ -111,7 +111,7 @@ class TimerService : Service() {
 
             glanceIds.forEach { id ->
                 updateAppWidgetState(applicationContext, id) { prefs ->
-                    prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = finalMillis + 1000L
+                    prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = finalMillis
                     prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = false
                 }
                 TimerWidget().update(applicationContext, id)
