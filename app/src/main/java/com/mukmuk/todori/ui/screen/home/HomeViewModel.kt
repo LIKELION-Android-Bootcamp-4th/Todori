@@ -143,7 +143,6 @@ class HomeViewModel @Inject constructor(
         context.startForegroundService(intent)
 
         timerJob = viewModelScope.launch(Dispatchers.Default) {
-            recordSettingRepository.saveRunningState(true)
             while (_state.value.timeLeftInMillis > 0) {
                 delay(1000)
 
@@ -151,16 +150,18 @@ class HomeViewModel @Inject constructor(
                     val newTotalStudy =
                         if (current.pomodoroMode == PomodoroTimerMode.FOCUSED) {
                             current.totalStudyTimeMills + 1000
-                        } else {
-                            current.totalStudyTimeMills
-                        }
+                        } else current.totalStudyTimeMills
 
-                    current.copy(
+                    val updated = current.copy(
                         timeLeftInMillis = current.timeLeftInMillis - 1000,
                         totalStudyTimeMills = newTotalStudy
                     )
+
+                    recordSettingRepository.saveTotalRecordTime(updated.totalStudyTimeMills)
+                    updated
                 }
             }
+
             handleTimerCompletion()
         }
     }

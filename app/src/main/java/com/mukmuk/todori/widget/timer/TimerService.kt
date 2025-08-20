@@ -19,6 +19,7 @@ import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
 import com.mukmuk.todori.widget.WidgetEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlin.time.Duration.Companion.seconds
 
@@ -75,23 +76,14 @@ class TimerService : Service() {
     }
 
     private fun startTimer(glanceIds: List<GlanceId>) {
-        timerJob?.cancel()
-        timerJob = serviceScope.launch(Dispatchers.IO) {
-            var currentTotalMillis = repository.totalRecordTimeFlow.first()
-
-            while (isActive) {
-                delay(1.seconds)
-
-                currentTotalMillis += 1000L
-                repository.saveTotalRecordTime(currentTotalMillis)
-
+        serviceScope.launch {
+            repository.totalRecordTimeFlow.collectLatest { totalTime ->
                 glanceIds.forEach { id ->
                     updateAppWidgetState(applicationContext, id) { prefs ->
-                        prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = currentTotalMillis
+                        prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = totalTime
                     }
                     TimerWidget().update(applicationContext, id)
                 }
-
             }
         }
     }
