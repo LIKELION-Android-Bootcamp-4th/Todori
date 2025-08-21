@@ -15,8 +15,14 @@ class TodoRepository @Inject constructor(
     private val todoService: TodoService,
 ) {
     suspend fun createTodo(uid: String, todo: Todo) = todoService.createTodo(uid, todo)
+
+    suspend fun createSendTodos(categoryId: String, todos: List<Todo>) = todoService.createSendTodos(categoryId, todos)
+
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getTodosByDate(uid: String, date: LocalDate) = todoService.getTodosByDate(uid, date)
+
+    suspend fun getSendTodos(categoryId: String) = todoService.getSendTodos(categoryId)
+
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getTodosByWeek(uid: String, sunday: LocalDate, saturday: LocalDate) = todoService.getTodosByWeek(uid, sunday, saturday)
 
@@ -26,6 +32,8 @@ class TodoRepository @Inject constructor(
 
     suspend fun getTodosByCategory(uid: String, categoryId: String): List<Todo> =
         todoService.getTodosByCategory(uid, categoryId)
+
+    suspend fun getAllTodos(uid: String): List<Todo> = todoService.getAllTodos(uid)
 
     suspend fun updateTodo(uid: String, todo: Todo) = todoService.updateTodo(uid, todo)
     suspend fun deleteTodo(uid: String, todoId: String) = todoService.deleteTodo(uid, todoId)
