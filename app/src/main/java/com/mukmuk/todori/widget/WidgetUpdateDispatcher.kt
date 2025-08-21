@@ -58,4 +58,8 @@ class WidgetUpdateDispatcher @Inject constructor(
             request
         )
     }
+
+    fun cancelDailyUpdate() {
+        WorkManager.getInstance(context).cancelUniqueWork("TodoWidgetDailyUpdate")
+    }
 }

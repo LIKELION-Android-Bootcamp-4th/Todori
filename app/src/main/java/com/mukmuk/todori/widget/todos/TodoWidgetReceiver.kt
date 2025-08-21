@@ -3,6 +3,8 @@ package com.mukmuk.todori.widget.todos
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import com.mukmuk.todori.widget.WidgetUpdateDispatcher
@@ -10,10 +12,21 @@ import com.mukmuk.todori.widget.WidgetUpdateDispatcher
 class TodoWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TodoWidget()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onEnabled(context: Context?) {
         super.onEnabled(context)
         context?.let {
-            WidgetUpdateDispatcher.getDispatcher(it).updateTodos()
+            val dispatcher = WidgetUpdateDispatcher.getDispatcher(it)
+            dispatcher.updateTodos()
+            dispatcher.scheduleDailyUpdate()   // 위젯 설치 → 자정 투두 시작
+        }
+    }
+
+    override fun onDisabled(context: Context?) {
+        super.onDisabled(context)
+        context?.let {
+            val dispatcher = WidgetUpdateDispatcher.getDispatcher(it)
+            dispatcher.cancelDailyUpdate()     // 위젯 모두 제거 → 자정 투두 취소
         }
     }
 

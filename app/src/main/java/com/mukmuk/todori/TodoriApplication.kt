@@ -2,6 +2,7 @@ package com.mukmuk.todori
 
 import android.app.Application
 import android.util.Log
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -15,11 +16,16 @@ import com.navercorp.nid.NaverIdLoginSDK
 import dagger.hilt.android.HiltAndroidApp
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @HiltAndroidApp
 class TodoriApplication : Application(), Configuration.Provider {
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
     override fun onCreate() {
         super.onCreate()
+        WorkManager.initialize(this, workManagerConfiguration)
         KakaoSdk.init(this, getString(R.string.kakao_app_key))
 
         NaverIdLoginSDK.initialize(
@@ -32,9 +38,13 @@ class TodoriApplication : Application(), Configuration.Provider {
         scheduleResetWorker()
     }
 
-    override val workManagerConfiguration: Configuration = Configuration.Builder()
-        .setMinimumLoggingLevel(Log.DEBUG)
-        .build()
+    override val workManagerConfiguration: Configuration
+        get() {
+            return Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .setMinimumLoggingLevel(android.util.Log.VERBOSE)
+                .build()
+        }
 
     private fun scheduleResetWorker() {
         val currentDate = Calendar.getInstance()
