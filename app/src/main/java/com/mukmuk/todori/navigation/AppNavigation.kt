@@ -57,8 +57,14 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         composable("splash") {
             SplashScreen(navController)
         }
+
+        composable(BottomNavItem.Todo.route) {
+            TodoScreen(navController, categoryId = null)
+        }
+
+
         composable(
-            route = BottomNavItem.Todo.route + "?categoryId={categoryId}",
+            BottomNavItem.Todo.route + "?categoryId={categoryId}",
             arguments = listOf(
                 navArgument("categoryId") {
                     type = NavType.StringType

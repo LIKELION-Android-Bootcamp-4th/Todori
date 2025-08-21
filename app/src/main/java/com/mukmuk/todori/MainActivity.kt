@@ -34,9 +34,10 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
+                val setDataRoute = currentRoute?.substringBefore("?")
 
                 val bottomNavRoutes = BottomNavItem.items.map { it.route }
-                val showBottomBar = currentRoute in bottomNavRoutes
+                val showBottomBar = setDataRoute in bottomNavRoutes
 
                 Scaffold(
                     bottomBar = {
@@ -48,9 +49,9 @@ class MainActivity : ComponentActivity() {
                                     NavigationBarItem(
                                         icon = { Icon(item.icon, contentDescription = item.label) },
 //                                        label = { Text(item.label) },
-                                        selected = currentRoute == item.route,
+                                        selected = setDataRoute == item.route,
                                         onClick = {
-                                            if (currentRoute != item.route) {
+                                            if (setDataRoute != item.route) {
                                                 navController.navigate(item.route) {
                                                     popUpTo(navController.graph.startDestinationId) {
                                                         saveState = true
