@@ -28,9 +28,28 @@ class TodoService(
         ref.set(todoWithId).await()
     }
 
+    suspend fun createSendTodos(categoryId: String, todos: List<Todo>){
+        val ref = firestore.collection("sendTodoCategories").document(categoryId).collection("sendTodos")
+        todos.forEach { todo ->
+            val newDoc = ref.document()
+            val autoId = newDoc.id
+            val todoWithId = todo.copy(todoId = autoId, categoryId = categoryId)
+            newDoc.set(todoWithId).await()
+        }
+    }
+
     suspend fun getTodosByCategory(uid: String, categoryId: String): List<Todo> {
         val snapshot = userTodosRef(uid)
             .whereEqualTo("categoryId", categoryId)
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull { it.toObject(Todo::class.java) }
+    }
+
+    suspend fun getSendTodos(categoryId: String): List<Todo> {
+        val snapshot = firestore.collection("sendTodoCategories")
+            .document(categoryId)
+            .collection("sendTodos")
             .get()
             .await()
         return snapshot.documents.mapNotNull { it.toObject(Todo::class.java) }

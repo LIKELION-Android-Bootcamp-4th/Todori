@@ -1,10 +1,13 @@
 package com.mukmuk.todori.ui.screen.todo.list.todo
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 
 @HiltViewModel
@@ -25,6 +29,7 @@ class TodoListViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(TodoListState())
     val state: StateFlow<TodoListState> = _state.asStateFlow()
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadTodoList(uid: String, selectedDate: LocalDate) {

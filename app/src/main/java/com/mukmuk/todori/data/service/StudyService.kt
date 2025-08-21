@@ -1,5 +1,6 @@
 package com.mukmuk.todori.data.service
 
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.study.MyStudy
@@ -12,7 +13,7 @@ import kotlinx.coroutines.tasks.await
 class StudyService(
     private val firestore: FirebaseFirestore
 ) {
-    private fun studiesRef() = firestore.collection("studies")
+    private fun studiesRef(): CollectionReference = firestore.collection("studies")
 
     suspend fun createStudy(study: Study, leaderMember: StudyMember,myStudy: MyStudy,uid: String): String {
         val ref = studiesRef().document()
@@ -48,7 +49,6 @@ class StudyService(
         }
         return result
     }
-
 
     // 2. 여러 studyId의 StudyTodo 한 번에
     suspend fun getTodosForStudies(studyIds: List<String>, date: String? = null): List<StudyTodo> {
@@ -203,7 +203,4 @@ class StudyService(
             .set(study, SetOptions.merge())
             .await()
     }
-
-
-
 }

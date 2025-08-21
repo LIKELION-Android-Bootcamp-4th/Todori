@@ -15,11 +15,21 @@ class TodoCategoryService(
         firestore.collection("users").document(uid).collection("todoCategories")
 
     // 카테고리 생성
-    suspend fun createCategory(uid: String, category: TodoCategory) {
+    suspend fun createCategory(uid: String, category: TodoCategory): String {
         val ref = userCategoriesRef(uid).document() // auto-ID 문서
         val autoId = ref.id
         val categoryWithId = category.copy(categoryId = autoId)
         ref.set(categoryWithId, SetOptions.merge()).await()
+
+        return autoId
+    }
+
+    suspend fun createSendTodoCategory(category: TodoCategory): String{
+        val ref = firestore.collection("sendTodoCategories").document()
+        val autoId = ref.id
+        val categoryWithId = category.copy(categoryId = autoId)
+        ref.set(categoryWithId, SetOptions.merge()).await()
+        return autoId
     }
 
     suspend fun getCategoryById(uid: String, categoryId: String): TodoCategory? {
@@ -36,6 +46,14 @@ class TodoCategoryService(
     suspend fun getCategories(uid: String): List<TodoCategory> {
         val snapshot: QuerySnapshot = userCategoriesRef(uid).get().await()
         return snapshot.documents.mapNotNull { it.toObject(TodoCategory::class.java) }
+    }
+
+    suspend fun getSendCategory(categoryId: String): TodoCategory? {
+        val snapshot = firestore.collection("sendTodoCategories")
+            .document(categoryId)
+            .get()
+            .await()
+        return snapshot.toObject(TodoCategory::class.java)
     }
 
     // 카테고리 수정

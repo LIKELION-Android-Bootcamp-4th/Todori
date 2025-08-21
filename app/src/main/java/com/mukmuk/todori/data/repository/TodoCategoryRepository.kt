@@ -8,12 +8,25 @@ class TodoCategoryRepository @Inject constructor(
     private val todoCategoryService: TodoCategoryService
 ) {
     // 카테고리 생성
-    suspend fun createCategory(uid: String, category: TodoCategory) {
+    suspend fun createCategory(uid: String, category: TodoCategory): String {
+        var categoryId = ""
         try {
-            todoCategoryService.createCategory(uid, category)
+            categoryId = todoCategoryService.createCategory(uid, category)
         } catch (e: Exception) {
             Log.d("CreateCategory", " Repository 에러 : ${e.message}")
         }
+
+        return categoryId
+    }
+
+    suspend fun createSendTodoCategory(category: TodoCategory): String {
+        var categoryId = ""
+        try {
+            categoryId = todoCategoryService.createSendTodoCategory(category)
+        } catch (e: Exception) {
+            Log.d("CreateCategory", " Repository 에러 : ${e.message}")
+        }
+        return categoryId
     }
 
     suspend fun getCategoryById(uid: String, categoryId: String): TodoCategory? {
@@ -23,6 +36,10 @@ class TodoCategoryRepository @Inject constructor(
     // 카테고리 목록 조회
     suspend fun getCategories(uid: String): List<TodoCategory> {
         return todoCategoryService.getCategories(uid)
+    }
+
+    suspend fun getSendCategory(categoryId: String): TodoCategory? {
+        return todoCategoryService.getSendCategory(categoryId)
     }
 
     // 카테고리 수정
