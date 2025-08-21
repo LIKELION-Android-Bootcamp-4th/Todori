@@ -1,9 +1,12 @@
 package com.mukmuk.todori
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -14,14 +17,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.messaging.FirebaseMessaging
+import com.mukmuk.todori.data.service.MyFirebaseMessagingService
 import com.mukmuk.todori.navigation.AppNavigation
 import com.mukmuk.todori.navigation.BottomNavItem
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.TodoriTheme
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
+import com.mukmuk.todori.util.installNotificationPermissionAndTokenSync
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -29,6 +36,7 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installNotificationPermissionAndTokenSync()
         setContent {
             TodoriTheme {
                 val navController = rememberNavController()
