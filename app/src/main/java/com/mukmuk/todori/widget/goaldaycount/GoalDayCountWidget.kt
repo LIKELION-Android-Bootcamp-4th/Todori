@@ -59,13 +59,16 @@ class GoalDayCountWidget : GlanceAppWidget() {
         val selectedGoal = goals.firstOrNull()
 
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        val end = kotlinx.datetime.LocalDate.parse(selectedGoal?.endDate ?: "")
+        val dDay: Int?
+        val goalTitle: String
 
-        val goalTitle = selectedGoal?.title
-        val dDay = if (selectedGoal != null) {
-            ChronoUnit.DAYS.between(today.toJavaLocalDate(), end.toJavaLocalDate()).toInt()
+        if (selectedGoal != null && selectedGoal.endDate.isNotBlank()) {
+            val end = kotlinx.datetime.LocalDate.parse(selectedGoal.endDate)
+            dDay = ChronoUnit.DAYS.between(today.toJavaLocalDate(), end.toJavaLocalDate()).toInt()
+            goalTitle = selectedGoal.title
         } else {
-            0
+            dDay = null
+            goalTitle = "설정 목표 없음"
         }
 
         Box(
@@ -74,20 +77,25 @@ class GoalDayCountWidget : GlanceAppWidget() {
                 .background(R.color.widgetBgColor)
                 .clickable(
                     actionStartActivity<MainActivity>()
-                )
+                ),
+            contentAlignment = Alignment.Center
         ) {
             Row(
                 modifier = GlanceModifier.fillMaxWidth().padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    goalTitle ?: "설정 목표 없음", style = WidgetTextStyle.TitleMedium
+                    goalTitle, style = WidgetTextStyle.TitleMedium
                 )
                 Spacer(GlanceModifier.defaultWeight())
-                Text(
-                    text = if (dDay == 0) "D-DAY" else "D-$dDay",
-                    style = WidgetTextStyle.TitleMediumLight
-                )
+                if (dDay != null) {
+                    Text(
+                        text = if (dDay > 0) "D-$dDay" else if (dDay == 0) "D-DAY" else "",
+                        style = WidgetTextStyle.TitleMediumLight
+                    )
+                } else {
+                    Text("")
+                }
             }
         }
     }
