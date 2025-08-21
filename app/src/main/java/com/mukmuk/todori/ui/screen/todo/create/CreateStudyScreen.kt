@@ -170,19 +170,21 @@ fun CreateStudyScreen(
             Button(
                 onClick = {
                     if (isEditMode) {
-                        viewModel.updateStudy(
-                            editStudy = editStudy,
-                            newTitle = title,
-                            newDescription = description,
-                            newActiveDays = selectedDays,
-                            onSuccess = {
-                                Toast.makeText(context, "스터디 수정이 완료되었습니다.", Toast.LENGTH_SHORT).show()
-                                onDone()
-                            },
-                            onError = { e ->
-                                Toast.makeText(context, "수정 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                        )
+                        if (editStudy != null) {
+                            viewModel.updateStudy(
+                                editStudy = editStudy,
+                                newTitle = title,
+                                newDescription = description,
+                                newActiveDays = selectedDays,
+                                onSuccess = {
+                                    Toast.makeText(context, "스터디 수정이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                                    onDone()
+                                },
+                                onError = { e ->
+                                    Toast.makeText(context, "수정 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
                     } else {
                         viewModel.createStudy(
                             title = title,

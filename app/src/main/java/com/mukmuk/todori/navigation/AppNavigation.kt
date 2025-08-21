@@ -1,5 +1,6 @@
 package com.mukmuk.todori.navigation
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
@@ -19,6 +20,7 @@ import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.create.CreateCommunityScreen
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailScreen
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
@@ -42,6 +44,7 @@ import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
 import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 
+@SuppressLint("ComposableDestinationInComposeScope")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -77,12 +80,21 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunityScreen(navController, viewModel)
         }
-        composable("community/create") { backStackEntry ->
+        composable(
+            "community/create?postId={postId}", arguments = listOf(
+                navArgument("postId") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                })
+        ) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId")
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
-            val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
+            val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
             CreateCommunityScreen(
+                postId,
                 navController,
                 onBack = { navController.popBackStack() },
                 viewModel
@@ -94,18 +106,26 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             }
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunitySearchScreen(
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable("community/detail") { backStackEntry ->
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(BottomNavItem.Study.route)
-            }
-            val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
-            CommunityDetailScreen(
                 onBack = { navController.popBackStack() },
                 navController,
                 viewModel
+            )
+        }
+        composable(
+            "community/detail/{postId}", arguments = listOf(
+                navArgument("postId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(BottomNavItem.Study.route)
+            }
+            val postId = backStackEntry.arguments?.getString("postId") ?: ""
+            val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
+            CommunityDetailScreen(
+                postId = postId,
+                onBack = { navController.popBackStack() },
+                navController,
+                viewModel,
             )
         }
 
