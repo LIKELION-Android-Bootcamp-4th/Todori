@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.remote.todo.TodoCategory
@@ -48,8 +49,9 @@ fun TodoCategoryPickerBottomSheet (
         ) {
             Text(
                 text = "카테고리 선택",
-                style = AppTextStyle.TitleMedium,
+                style = AppTextStyle.TitleMedium.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.fillMaxWidth(),
+
             )
 
             LazyColumn(
