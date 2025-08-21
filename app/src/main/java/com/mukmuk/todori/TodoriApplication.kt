@@ -74,6 +74,7 @@ class TodoriApplication : Application(), Configuration.Provider {
             // .setRequiresDeviceIdle(true)
             .setRequiresBatteryNotLow(true)
             .build()
+        val timeDiff = midnight.timeInMillis - now.timeInMillis
 
         val midnightResetRequest =
             PeriodicWorkRequestBuilder<UpdateWidgetWorker>(
