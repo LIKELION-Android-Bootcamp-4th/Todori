@@ -37,7 +37,7 @@ import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.todayIn
 import java.time.temporal.ChronoUnit
 
-class GoalDayCountWidget : GlanceAppWidget() {
+class DayCountWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -54,13 +54,23 @@ class GoalDayCountWidget : GlanceAppWidget() {
         val PREF_KEY = stringPreferencesKey("today_todos_widget")
         val prefs = currentState<Preferences>()
 
-        val json = prefs[PREF_KEY] ?: "[]"
-        val goals: List<Goal> = Gson().fromJson(json, object : TypeToken<List<Goal>>() {}.type)
-        val selectedGoal = goals.firstOrNull()
-
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val dDay: Int?
         val goalTitle: String
+
+        val mockGoals = listOf(
+            Goal(title = "공부하기", endDate = "2025-08-25"), // 가까운 날짜
+            Goal(title = "운동하기", endDate = "2025-09-10")
+        )
+
+        val json = prefs[PREF_KEY] ?: "[]"
+        val goals: List<Goal> = if (json == "[]") mockGoals else Gson().fromJson(json, object : TypeToken<List<Goal>>() {}.type)
+        val selectedGoal = goals
+            .filter { it.endDate.isNotBlank() }
+            .minByOrNull { goal ->
+                val end = kotlinx.datetime.LocalDate.parse(goal.endDate)
+                ChronoUnit.DAYS.between(today.toJavaLocalDate(), end.toJavaLocalDate())
+            }
 
         if (selectedGoal != null && selectedGoal.endDate.isNotBlank()) {
             val end = kotlinx.datetime.LocalDate.parse(selectedGoal.endDate)

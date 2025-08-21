@@ -89,7 +89,7 @@
         </provider>
 
         <receiver
-            android:name=".widget.goaldaycount.GoalDayCountWidgetReceiver"
+            android:name=".widget.goaldaycount.DayCountWidgetReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -97,7 +97,7 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_goal_day_count" />
+                android:resource="@xml/widget_day_count" />
         </receiver>
     </application>
 
