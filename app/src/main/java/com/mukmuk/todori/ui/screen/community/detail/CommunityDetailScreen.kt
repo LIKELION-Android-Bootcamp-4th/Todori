@@ -186,8 +186,8 @@ fun CommunityDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(White)
-                    .height(56.dp)
-                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                    .height(68.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -203,6 +203,7 @@ fun CommunityDetailScreen(
                     maxLines = 1,
 
                 )
+
 
 
                 Button(
@@ -273,105 +274,118 @@ fun CommunityDetailScreen(
                     .verticalScroll(scrollState)
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(top = 20.dp, start = 16.dp, end = 16.dp)
             ) {
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
 
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 20.dp, start = 16.dp, end = 16.dp)
                 ) {
-                    val levelInfo = getLevelInfo(state.post?.level ?: 0)
 
-                    Image(
-                        painter = painterResource(id = levelInfo.imageRes),
-                        contentDescription = "레벨 이미지",
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
-                            .border(width = 1.dp, shape = CircleShape,color = Gray)
-                    )
-                    Spacer(Modifier.width(Dimens.Tiny))
-                    Text(state.post?.userName ?: "", style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
 
-                    Spacer(Modifier.weight(1f))
+                    ) {
+                        val levelInfo = getLevelInfo(state.post?.level ?: 0)
 
-                    Text(
-                        viewModel.formatDate(state.post?.createdAt),
-                        style = AppTextStyle.BodySmall.copy(color = DarkGray, fontWeight = FontWeight.Bold)
-                    )
-                }
-
-                Spacer(Modifier.height(8.dp))
-
-                state.post?.title?.let {
-                    Text(
-                        it,
-                        style = AppTextStyle.Title.copy(fontWeight = FontWeight.Bold)
-                    )
-                }
-
-                Spacer(Modifier.height(4.dp))
-
-
-
-
-
-                state.post?.let {
-                    Text(
-                        it.content,
-                        style = AppTextStyle.Body
-                    )
-                }
-
-                Spacer(Modifier.height(Dimens.Large))
-
-                Row(
-
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    state.post?.tags?.forEach { tag ->
-                        Box(
+                        Image(
+                            painter = painterResource(id = levelInfo.imageRes),
+                            contentDescription = "레벨 이미지",
                             modifier = Modifier
-                                .background(GroupSecondary, RoundedCornerShape(32.dp))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                                .width(60.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = tag,
-                                style = AppTextStyle.BodySmall
-                            )
-                        }
+                                .size(52.dp)
+                                .clip(CircleShape)
+                                .border(width = 1.dp, shape = CircleShape, color = Gray)
+                        )
+                        Spacer(Modifier.width(Dimens.Tiny))
+                        Text(
+                            state.post?.userName ?: "",
+                            style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
+                        )
 
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(Modifier.weight(1f))
+
+                        Text(
+                            viewModel.formatDate(state.post?.createdAt),
+                            style = AppTextStyle.BodySmall.copy(
+                                color = DarkGray,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
                     }
-                }
 
-                Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(8.dp))
 
-                if (state.post?.studyId != null && state.study != null) {
+                    state.post?.title?.let {
+                        Text(
+                            it,
+                            style = AppTextStyle.Title.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
 
-                    StudyDetailCard(
-                        uid = uid,
-                        studyId = state.post!!.studyId,
-                        study = state.study!!,
-                        memberList = state.memberList,
-                        onClick = {
-                            viewModel.updateStudyMember(
-                                postId,
-                                state.post!!.studyId,
-                                StudyMember(
-                                    uid = uid,
-                                    nickname = state.user?.nickname ?: "",
-                                    studyId = state.post!!.studyId,
-                                    role = "MEMBER",
-                                    joinedAt = Timestamp.now(),
+                    Spacer(Modifier.height(4.dp))
+
+
+
+
+
+                    state.post?.let {
+                        Text(
+                            it.content,
+                            style = AppTextStyle.Body
+                        )
+                    }
+
+                    Spacer(Modifier.height(Dimens.Large))
+
+                    Row(
+
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        state.post?.tags?.forEach { tag ->
+                            Box(
+                                modifier = Modifier
+                                    .background(GroupSecondary, RoundedCornerShape(32.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .width(60.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = tag,
+                                    style = AppTextStyle.BodySmall
                                 )
-                            )
-                            viewModel.loadPostById(postId)
-                        }
-                    )
+                            }
 
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    if (state.post?.studyId != null && state.study != null) {
+
+                        StudyDetailCard(
+                            uid = uid,
+                            studyId = state.post!!.studyId,
+                            study = state.study!!,
+                            memberList = state.memberList,
+                            onClick = {
+                                viewModel.updateStudyMember(
+                                    postId,
+                                    state.post!!.studyId,
+                                    StudyMember(
+                                        uid = uid,
+                                        nickname = state.user?.nickname ?: "",
+                                        studyId = state.post!!.studyId,
+                                        role = "MEMBER",
+                                        joinedAt = Timestamp.now(),
+                                    )
+                                )
+                                viewModel.loadPostById(postId)
+                            }
+                        )
+
+                    }
                 }
 
                 Spacer(
@@ -381,111 +395,115 @@ fun CommunityDetailScreen(
                         .background(Gray)
                 )
 
-                Spacer(Modifier.height(Dimens.Large))
-
                 Column(
-                    modifier = Modifier.fillMaxHeight()
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp)
                 ) {
-                    state.commentList.forEach { comment ->
-                        val userName = state.userMap[comment.uid]?.nickname ?: ""
-                        CommunityDetailComment(
-                            uid = uid,
-                            commentList = comment,
-                            onReplyClick = {
-                                viewModel.setReplyToCommentId(comment.commentId)
-                                commentContent = ""
 
-                            },
-                            onDeleteClick = {
-                                showCommentDialog = true
-                                deleteTargetCommentId = comment.commentId
-                                dialogInfo = "댓글"
-                                viewModel.setReplyToCommentId(null)
-                            }
-                        )
-                        if (state.commentReplyList.containsKey(comment.commentId)) {
-                            state.commentReplyList[comment.commentId]?.forEach { reply ->
-                                val replyUserName = state.userMap[reply.uid]?.nickname ?: ""
-                                CommunityDetailCommentReply(
-                                    uid = uid,
-                                    commentList = reply,
-                                    onDeleteClick = {
-                                        showCommentDialog = true
-                                        deleteTargetCommentId = reply.commentId
-                                        dialogInfo = "답글"
-                                        viewModel.setReplyToCommentId(null)
-                                    }
-                                )
+                    Spacer(Modifier.height(Dimens.Large))
+
+                    Column(
+                        modifier = Modifier.fillMaxHeight()
+                    ) {
+                        state.commentList.forEach { comment ->
+                            CommunityDetailComment(
+                                uid = uid,
+                                commentList = comment,
+                                onReplyClick = {
+                                    viewModel.setReplyToCommentId(comment.commentId)
+                                    commentContent = ""
+
+                                },
+                                onDeleteClick = {
+                                    showCommentDialog = true
+                                    deleteTargetCommentId = comment.commentId
+                                    dialogInfo = "댓글"
+                                    viewModel.setReplyToCommentId(null)
+                                }
+                            )
+                            if (state.commentReplyList.containsKey(comment.commentId)) {
+                                state.commentReplyList[comment.commentId]?.forEach { reply ->
+                                    CommunityDetailCommentReply(
+                                        uid = uid,
+                                        commentList = reply,
+                                        onDeleteClick = {
+                                            showCommentDialog = true
+                                            deleteTargetCommentId = reply.commentId
+                                            dialogInfo = "답글"
+                                            viewModel.setReplyToCommentId(null)
+                                        }
+                                    )
+                                }
                             }
                         }
+
                     }
 
                 }
 
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text("삭제", style = AppTextStyle.Title) },
+                        text = { Text("해당 게시글을 삭제하시겠습니까?", style = AppTextStyle.Body) },
+                        containerColor = White,
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    showDialog = false
+                                    viewModel.deletePost(postId)
+                                    onBack()
+                                },
+                            ) {
+                                Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    showDialog = false
+                                },
+                            ) {
+                                Text("취소", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                            }
+                        }
+                    )
+                }
+
+                if (showCommentDialog) {
+
+                    AlertDialog(
+                        onDismissRequest = { showCommentDialog = false },
+                        title = { Text("삭제", style = AppTextStyle.Title) },
+                        text = { Text("${dialogInfo}을 삭제하시겠습니까?", style = AppTextStyle.Body) },
+                        containerColor = White,
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    showCommentDialog = false
+                                    deleteTargetCommentId?.let {
+                                        viewModel.deleteComment(postId, it)
+                                    }
+                                },
+                            ) {
+                                Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    showCommentDialog = false
+
+                                },
+                            ) {
+                                Text("취소", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                            }
+                        }
+                    )
+
+                }
+
             }
-
-            if (showDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDialog = false },
-                    title = { Text("삭제", style = AppTextStyle.Title) },
-                    text = { Text("해당 게시글을 삭제하시겠습니까?", style = AppTextStyle.Body) },
-                    containerColor = White,
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showDialog = false
-                                viewModel.deletePost(postId)
-                                onBack()
-                            },
-                        ) {
-                            Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                showDialog = false
-                            },
-                        ) {
-                            Text("취소", style = AppTextStyle.Body.copy(color = ButtonPrimary))
-                        }
-                    }
-                )
-            }
-
-            if(showCommentDialog) {
-
-                AlertDialog(
-                    onDismissRequest = { showCommentDialog = false },
-                    title = { Text("삭제", style = AppTextStyle.Title) },
-                    text = { Text("${dialogInfo}을 삭제하시겠습니까?", style = AppTextStyle.Body) },
-                    containerColor = White,
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showCommentDialog = false
-                                deleteTargetCommentId?.let {
-                                    viewModel.deleteComment(postId, it)
-                                }
-                            },
-                        ) {
-                            Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                showCommentDialog = false
-
-                            },
-                        ) {
-                            Text("취소", style = AppTextStyle.Body.copy(color = ButtonPrimary))
-                        }
-                    }
-                )
-
-            }
-
         }
     }
 
