@@ -58,15 +58,10 @@ class DayCountWidget : GlanceAppWidget() {
         val dDay: Int?
         val goalTitle: String
 
-        val mockGoals = listOf(
-            Goal(title = "공부하기", endDate = "2025-08-25"), // 가까운 날짜
-            Goal(title = "운동하기", endDate = "2025-09-10")
-        )
 
         val json = prefs[PREF_KEY] ?: "[]"
-        val goals: List<Goal> = if (json == "[]") mockGoals else Gson().fromJson(json, object : TypeToken<List<Goal>>() {}.type)
+        val goals: List<Goal> = Gson().fromJson(json, object : TypeToken<List<Goal>>() {}.type)
         val selectedGoal = goals
-            .filter { it.endDate.isNotBlank() }
             .minByOrNull { goal ->
                 val end = kotlinx.datetime.LocalDate.parse(goal.endDate)
                 ChronoUnit.DAYS.between(today.toJavaLocalDate(), end.toJavaLocalDate())

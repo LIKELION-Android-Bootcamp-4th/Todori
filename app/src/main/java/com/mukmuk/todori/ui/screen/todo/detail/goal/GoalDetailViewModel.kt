@@ -1,12 +1,18 @@
 package com.mukmuk.todori.ui.screen.todo.detail.goal
 
+import android.appwidget.AppWidgetManager
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
+import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.goal.GoalTodo
 import com.mukmuk.todori.data.repository.GoalRepository
 import com.mukmuk.todori.data.repository.GoalTodoRepository
+import com.mukmuk.todori.widget.goaldaycount.DayCountWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class GoalDetailViewModel @Inject constructor(
     private val goalRepository: GoalRepository,
-    private val goalTodoRepository: GoalTodoRepository
+    private val goalTodoRepository: GoalTodoRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _state = MutableStateFlow(GoalDetailState())
     val state: StateFlow<GoalDetailState> = _state
@@ -97,6 +104,11 @@ class GoalDetailViewModel @Inject constructor(
                 val todos = goalTodoRepository.getGoalTodosByGoalId(uid, goalId)
                 todos.forEach { todo ->
                     goalTodoRepository.deleteGoalTodo(uid, todo.goalTodoId)
+
+                    val selectedGoals = goalRepository.getGoals(uid)
+                    if(selectedGoals.isNotEmpty()){
+                        updateDayCountWidget(selectedGoals)
+                    }
                 }
                 goalRepository.deleteGoal(uid, goalId)
                 _state.value = _state.value.copy(goalDeleted = true)
@@ -110,7 +122,11 @@ class GoalDetailViewModel @Inject constructor(
         _state.value = _state.value.copy(goalDeleted = false)
     }
 
-
-
-
+    // 위젯 업데이트
+    fun updateDayCountWidget(goals: List<Goal>){
+        val intent = Intent(context, DayCountWidgetReceiver::class.java).apply {
+            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+        }
+        context.sendBroadcast(intent)
+    }
 }
