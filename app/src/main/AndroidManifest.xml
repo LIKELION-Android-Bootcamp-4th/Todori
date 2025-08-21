@@ -116,6 +116,33 @@
             android:foregroundServiceType="specialUse"
             tools:ignore="ForegroundServicePermission" />
 
+
+        <receiver
+            android:name=".widget.todos.TodoWidgetReceiver"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
+                <action android:name="android.appwidget.action.ACTION_MY_PACKAGE_REPLACED" />
+                <action android:name="android.appwidget.action.ACTION_DATE_CHANGED" />
+                <action android:name="android.appwidget.action.ACTION_USER_UNLOCKED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_todo" />
+        </receiver>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+        </provider>
+        <meta-data
+            android:name="androidx.work.WorkManagerInitializer"
+            android:value="disabled" />
     </application>
 
 </manifest>

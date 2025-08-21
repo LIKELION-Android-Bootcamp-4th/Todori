@@ -2,22 +2,31 @@ package com.mukmuk.todori
 
 import android.app.Application
 import android.util.Log
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.google.firebase.auth.FirebaseAuth
 import com.kakao.sdk.common.KakaoSdk
 import com.mukmuk.todori.widget.UpdateWidgetWorker
+import com.mukmuk.todori.widget.todos.TodoWorker
 import com.navercorp.nid.NaverIdLoginSDK
 import dagger.hilt.android.HiltAndroidApp
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @HiltAndroidApp
 class TodoriApplication : Application(), Configuration.Provider {
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
     override fun onCreate() {
         super.onCreate()
+        WorkManager.initialize(this, workManagerConfiguration)
         KakaoSdk.init(this, getString(R.string.kakao_app_key))
 
         NaverIdLoginSDK.initialize(
@@ -30,9 +39,13 @@ class TodoriApplication : Application(), Configuration.Provider {
         scheduleResetWorker()
     }
 
-    override val workManagerConfiguration: Configuration = Configuration.Builder()
-        .setMinimumLoggingLevel(Log.DEBUG)
-        .build()
+    override val workManagerConfiguration: Configuration
+        get() {
+            return Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .setMinimumLoggingLevel(android.util.Log.VERBOSE)
+                .build()
+        }
 
     private fun scheduleResetWorker() {
         val now = Calendar.getInstance()
@@ -61,6 +74,7 @@ class TodoriApplication : Application(), Configuration.Provider {
             // .setRequiresDeviceIdle(true)
             .setRequiresBatteryNotLow(true)
             .build()
+        val timeDiff = midnight.timeInMillis - now.timeInMillis
 
         val midnightResetRequest =
             PeriodicWorkRequestBuilder<UpdateWidgetWorker>(
@@ -78,5 +92,23 @@ class TodoriApplication : Application(), Configuration.Provider {
             midnightResetRequest
         )
         Log.d("WorkScheduler", "Midnight reset worker scheduled with constraints and specific flexPeriod.")
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            val data = workDataOf("uid" to uid)
+            val midnightTodoResetRequest =
+                PeriodicWorkRequestBuilder<TodoWorker>(
+                    1, TimeUnit.DAYS
+                )
+                    .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                    .addTag(UpdateWidgetWorker.WORK_TAG)
+                    .build()
+
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                TodoWorker.UNIQUE_WORK_NAME,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                midnightTodoResetRequest
+            )
+        }
     }
 }
