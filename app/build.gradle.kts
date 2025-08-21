@@ -95,6 +95,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.play.services.auth)
+    implementation("com.google.firebase:firebase-messaging")
 
     // 기타
     implementation(libs.kalendar)
