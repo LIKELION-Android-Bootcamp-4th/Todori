@@ -74,6 +74,10 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.datastore.preferences)
 
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+    implementation(libs.androidx.glance.material)
+
     // Hilt
     implementation(libs.hilt.android)
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
@@ -122,5 +126,12 @@ dependencies {
 
     implementation("com.navercorp.nid:oauth:5.9.0")
 
-
+    //위젯
+    implementation("androidx.glance:glance:1.1.1")
+    implementation("androidx.glance:glance-appwidget:1.1.0")
+    implementation("androidx.glance:glance-material3:1.1.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    kapt("com.google.dagger:hilt-compiler:2.51")
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+    implementation(libs.androidx.work.runtime.ktx)
 }

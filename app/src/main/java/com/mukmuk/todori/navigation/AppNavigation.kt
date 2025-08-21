@@ -1,12 +1,12 @@
 package com.mukmuk.todori.navigation
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -20,17 +20,18 @@ import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.create.CreateCommunityScreen
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailScreen
+import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
 import com.mukmuk.todori.ui.screen.home.HomeScreen
 import com.mukmuk.todori.ui.screen.home.HomeViewModel
 import com.mukmuk.todori.ui.screen.home.home_ocr.HomeOcrScreen
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingScreen
-import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingViewModel
 import com.mukmuk.todori.ui.screen.login.LoginScreen
 import com.mukmuk.todori.ui.screen.mypage.CompletedGoalsScreen
 import com.mukmuk.todori.ui.screen.mypage.MyLevelScreen
 import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.mypage.ProfileManagementScreen
+import com.mukmuk.todori.ui.screen.mypage.studytargets.StudyTargetsScreen
 import com.mukmuk.todori.ui.screen.splash.SplashScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
@@ -43,9 +44,10 @@ import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
 import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 
+@SuppressLint("ComposableDestinationInComposeScope")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier) {
+fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
     val homeViewModel: HomeViewModel = hiltViewModel()
     NavHost(
         navController = navController,
@@ -86,31 +88,52 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunityScreen(navController, viewModel)
         }
-        composable("community/create") { backStackEntry ->
+        composable(
+            "community/create?postId={postId}", arguments = listOf(
+                navArgument("postId") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                })
+        ) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId")
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
-            val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
-            CreateCommunityScreen(navController, onBack = { navController.popBackStack() }, viewModel)
+            val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
+            CreateCommunityScreen(
+                postId,
+                navController,
+                onBack = { navController.popBackStack() },
+                viewModel
+            )
         }
-        composable("community/search"){ backStackEntry ->
+        composable("community/search") { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunitySearchScreen(
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable("community/detail"){ backStackEntry ->
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(BottomNavItem.Study.route)
-            }
-            val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
-            CommunityDetailScreen(
                 onBack = { navController.popBackStack() },
                 navController,
                 viewModel
+            )
+        }
+        composable(
+            "community/detail/{postId}", arguments = listOf(
+                navArgument("postId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(BottomNavItem.Study.route)
+            }
+            val postId = backStackEntry.arguments?.getString("postId") ?: ""
+            val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
+            CommunityDetailScreen(
+                postId = postId,
+                onBack = { navController.popBackStack() },
+                navController,
+                viewModel,
             )
         }
 
@@ -220,6 +243,10 @@ fun AppNavigation(navController: NavHostController,modifier: Modifier = Modifier
                 navController = navController,
                 viewModel = viewModel
             )
+        }
+
+        composable("studyTargets") {
+            StudyTargetsScreen(navController = navController)
         }
 
     }
