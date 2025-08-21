@@ -1,10 +1,15 @@
 package com.mukmuk.todori.ui.screen.home.home_ocr
 
+import android.graphics.Bitmap
 import android.os.Build
+import android.util.Base64
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mukmuk.todori.data.remote.clova.ClovaOcrImage
+import com.mukmuk.todori.data.remote.clova.ClovaOcrRequest
+import com.mukmuk.todori.data.remote.clova.ClovaOcrService
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.repository.HomeRepository
 import com.mukmuk.todori.data.repository.UserRepository
@@ -14,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.util.regex.Pattern
 import javax.inject.Inject
@@ -23,6 +29,8 @@ import javax.inject.Inject
 class HomeOcrViewModel @Inject constructor(
     private val homeRepository: HomeRepository,
     private val repository: UserRepository,
+    private val clovaOcrService: ClovaOcrService, // 주입받음
+    private val clovaOcrSecretKey: String
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeOcrState())
@@ -45,7 +53,42 @@ class HomeOcrViewModel @Inject constructor(
                 }
         }
     }
+    fun performClovaOcr(bitmap: Bitmap) {
+        viewModelScope.launch {
+            runCatching {
+                val byteArrayOutputStream = ByteArrayOutputStream()
+                // PNG 형식으로 압축 (7-세그먼트 같이 선명한 이미지는 PNG가 유리)
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+                val base64Image = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.NO_WRAP)
 
+                val request = ClovaOcrRequest(
+                    images = listOf(
+                        ClovaOcrImage(
+                            format = "PNG", // 이미지 형식
+                            name = "image", // 이미지 이름 (자유롭게 설정)
+                            data = base64Image
+                        )
+                    )
+                )
+
+                val response = clovaOcrService.recognizeText(clovaOcrSecretKey, request)
+
+                if (response.isSuccessful) {
+                    val ocrResponse = response.body()
+                    val fullText = ocrResponse?.images?.firstOrNull()?.fields?.joinToString("") { it.inferText } ?: "인식된 텍스트 없음"
+                    Log.d("CLOVA_OCR", "CLOVA OCR Raw Result: $fullText")
+                    onRealtimeOcrResult(fullText) // 인식된 텍스트를 파싱 함수로 전달
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("CLOVA_OCR", "CLOVA OCR API Error: ${response.code()} - $errorBody")
+                    _state.update { it.copy(recognizedText = "OCR API 오류: ${response.code()}") }
+                }
+            }.onFailure { e ->
+                Log.e("CLOVA_OCR", "CLOVA OCR 요청 실패: ${e.message}", e)
+                _state.update { it.copy(recognizedText = "OCR 요청 실패: ${e.message}") }
+            }
+        }
+    }
     @RequiresApi(Build.VERSION_CODES.O)
     fun onAddRecordTime() {
         viewModelScope.launch {

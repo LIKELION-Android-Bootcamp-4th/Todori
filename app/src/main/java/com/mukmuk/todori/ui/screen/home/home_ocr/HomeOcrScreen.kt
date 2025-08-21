@@ -2,6 +2,11 @@ package com.mukmuk.todori.ui.screen.home.home_ocr
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
+import android.graphics.Rect
+import android.graphics.YuvImage
 import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -69,10 +74,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.TextRecognizer
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.mukmuk.todori.ui.screen.home.components.TimerTextFieldInput2
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Background
@@ -83,6 +84,7 @@ import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
+import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.util.concurrent.Executors
 
@@ -104,8 +106,6 @@ fun HomeOcrScreen(
     }
 
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
-    val textRecognizer =
-        remember { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
     val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
 
     LaunchedEffect(Unit) {
@@ -405,11 +405,14 @@ fun HomeOcrScreen(
                                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                                     .build()
                                     .also {
-                                        it.setAnalyzer(
-                                            analysisExecutor,
-                                            SimpleTextAnalyzer(textRecognizer) { fullText ->
-                                                viewModel.onRealtimeOcrResult(fullText)
-                                            })
+                                        it.setAnalyzer(analysisExecutor) { imageProxy ->
+                                            // 이미지 프록시를 비트맵으로 변환하고 CLOVA OCR 호출
+                                            val bitmap = imageProxyToBitmap(imageProxy)
+                                            if (bitmap != null) {
+                                                viewModel.performClovaOcr(bitmap)
+                                            }
+                                            imageProxy.close() // 리소스 해제 필수
+                                        }
                                     }
 
                                 try {
@@ -465,30 +468,28 @@ fun HomeOcrScreen(
     }
 }
 
-class SimpleTextAnalyzer(
-    private val textRecognizer: TextRecognizer,
-    private val onNumbersRecognized: (String) -> Unit
-) : ImageAnalysis.Analyzer {
-    @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
-    override fun analyze(imageProxy: ImageProxy) {
-        val mediaImage = imageProxy.image
-        if (mediaImage != null) {
-            val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-            textRecognizer.process(image)
-                .addOnSuccessListener { visionText ->
-                    val fullText = visionText.text
-                    onNumbersRecognized(fullText)
-                    imageProxy.close()
-                }
-                .addOnFailureListener { e ->
-                    Log.e("SimpleTextAnalyzer", "텍스트 인식 실패", e)
-                    onNumbersRecognized("OCR 실패")
-                }
-                .addOnCompleteListener {
-                    imageProxy.close()
-                }
-        } else {
-            imageProxy.close()
-        }
-    }
+@androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
+private fun imageProxyToBitmap(imageProxy: ImageProxy): Bitmap? {
+    val image = imageProxy.image ?: return null
+
+    val yBuffer = image.planes[0].buffer
+    val uBuffer = image.planes[1].buffer
+    val vBuffer = image.planes[2].buffer
+
+    val ySize = yBuffer.remaining()
+    val uSize = uBuffer.remaining()
+    val vSize = vBuffer.remaining()
+
+    val nv21 = ByteArray(ySize + uSize + vSize)
+
+    yBuffer.get(nv21, 0, ySize)
+    vBuffer.get(nv21, ySize, vSize)
+    uBuffer.get(nv21, ySize + vSize, uSize)
+
+    val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
+    val out = ByteArrayOutputStream()
+    // 이미지 Crop이나 Rotate가 필요하면 여기서 처리. 7-세그먼트가 중앙에 오도록 처리하면 좋습니다.
+    yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 100, out) // 퀄리티 100
+    val imageBytes = out.toByteArray()
+    return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
 }
