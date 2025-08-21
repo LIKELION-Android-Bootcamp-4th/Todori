@@ -2,6 +2,7 @@ package com.mukmuk.todori.widget.goaldaycount
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
@@ -17,12 +18,10 @@ import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
-import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
-import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
@@ -30,21 +29,45 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.mukmuk.todori.MainActivity
 import com.mukmuk.todori.R
-import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.ui.theme.WidgetTextStyle
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.todayIn
+import java.time.temporal.ChronoUnit
 
 class GoalDayCountWidget : GlanceAppWidget() {
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) {
+    override val stateDefinition = PreferencesGlanceStateDefinition
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        Log.d("D-DayWidget", "provideGlance 호출됨. 위젯 ID: $id")
         provideContent {
             GoalDayCountWidgetContent()
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     fun GoalDayCountWidgetContent() {
+        val PREF_KEY = stringPreferencesKey("today_todos_widget")
+        val prefs = currentState<Preferences>()
+
+        val json = prefs[PREF_KEY] ?: "[]"
+        val goals: List<Goal> = Gson().fromJson(json, object : TypeToken<List<Goal>>() {}.type)
+        val selectedGoal = goals.firstOrNull()
+
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val end = kotlinx.datetime.LocalDate.parse(selectedGoal?.endDate ?: "")
+
+        val goalTitle = selectedGoal?.title
+        val dDay = if (selectedGoal != null) {
+            ChronoUnit.DAYS.between(today.toJavaLocalDate(), end.toJavaLocalDate()).toInt()
+        } else {
+            0
+        }
+
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
@@ -58,11 +81,11 @@ class GoalDayCountWidget : GlanceAppWidget() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "목표", style = WidgetTextStyle.TitleMedium
+                    goalTitle ?: "설정 목표 없음", style = WidgetTextStyle.TitleMedium
                 )
                 Spacer(GlanceModifier.defaultWeight())
                 Text(
-                    "D-16",
+                    text = if (dDay == 0) "D-DAY" else "D-$dDay",
                     style = WidgetTextStyle.TitleMediumLight
                 )
             }
