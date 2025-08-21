@@ -59,15 +59,15 @@ class WidgetUpdateDispatcher @Inject constructor(
         val initialDelay = Duration.between(now, nextMidnight)
 
         // 투두 위젯
-//        val request = PeriodicWorkRequestBuilder<TodoWorker>(24, TimeUnit.HOURS)
-//            .setInitialDelay(initialDelay.toMillis(), TimeUnit.MILLISECONDS)
-//            .build()
-//
-//        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-//            "TodoWidgetDailyUpdate",
-//            ExistingPeriodicWorkPolicy.REPLACE,
-//            request
-//        )
+        val request = PeriodicWorkRequestBuilder<TodoWorker>(24, TimeUnit.HOURS)
+            .setInitialDelay(initialDelay.toMillis(), TimeUnit.MILLISECONDS)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            "TodoWidgetDailyUpdate",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            request
+        )
 
         // 디데이 위젯
         val dayCountRequest = PeriodicWorkRequestBuilder<DayCountWorker>(24, TimeUnit.HOURS)

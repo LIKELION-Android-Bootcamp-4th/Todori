@@ -51,30 +51,21 @@ class DayCountWidget : GlanceAppWidget() {
     @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     fun GoalDayCountWidgetContent() {
-        val PREF_KEY = stringPreferencesKey("today_todos_widget")
+        val PREF_KEY = stringPreferencesKey("day_count_widget")
         val prefs = currentState<Preferences>()
-
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        val dDay: Int?
-        val goalTitle: String
+        val json = prefs[PREF_KEY] ?: "null"
 
-
-        val json = prefs[PREF_KEY] ?: "[]"
-        val goals: List<Goal> = Gson().fromJson(json, object : TypeToken<List<Goal>>() {}.type)
-        val selectedGoal = goals
-            .minByOrNull { goal ->
-                val end = kotlinx.datetime.LocalDate.parse(goal.endDate)
-                ChronoUnit.DAYS.between(today.toJavaLocalDate(), end.toJavaLocalDate())
-            }
-
-        if (selectedGoal != null && selectedGoal.endDate.isNotBlank()) {
-            val end = kotlinx.datetime.LocalDate.parse(selectedGoal.endDate)
-            dDay = ChronoUnit.DAYS.between(today.toJavaLocalDate(), end.toJavaLocalDate()).toInt()
-            goalTitle = selectedGoal.title
-        } else {
-            dDay = null
-            goalTitle = "설정 목표 없음"
+        val selectedGoal: Goal? = Gson().fromJson(json, Goal::class.java)
+        val dDay: Int? = selectedGoal?.let {
+            val end = kotlinx.datetime.LocalDate.parse(it.endDate)
+            ChronoUnit.DAYS.between(today.toJavaLocalDate(), end.toJavaLocalDate()).toInt()
         }
+        val goalTitle = selectedGoal?.title ?: "설정 목표 없음"
+
+        Log.d("Widget", "goalTitle : $goalTitle")
+        Log.d("Widget", "dDAY : $dDay")
+
 
         Box(
             modifier = GlanceModifier
@@ -90,13 +81,13 @@ class DayCountWidget : GlanceAppWidget() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    goalTitle, style = WidgetTextStyle.TitleMedium
+                    goalTitle, style = WidgetTextStyle.TitleMediumLight
                 )
                 Spacer(GlanceModifier.defaultWeight())
                 if (dDay != null) {
                     Text(
                         text = if (dDay > 0) "D-$dDay" else if (dDay == 0) "D-DAY" else "",
-                        style = WidgetTextStyle.TitleMediumLight
+                        style = WidgetTextStyle.TitleMedium
                     )
                 } else {
                     Text("")
