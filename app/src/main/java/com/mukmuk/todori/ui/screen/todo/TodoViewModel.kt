@@ -101,10 +101,11 @@ class TodoViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun sendTodoCategory(category: TodoCategory) {
         viewModelScope.launch {
             try {
-                val todos = todoRepo.getTodosByCategory(uid = category.uid, categoryId = category.categoryId)
+                val todos = todoRepo.getTodosByDate(category.uid, java.time.LocalDate.now()).filter { it.categoryId == category.categoryId }
                 val updatedCategory = category.copy(
                     uid = "",
                     categoryId = "",
@@ -157,7 +158,6 @@ class TodoViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val uid = uid ?: return@launch
-                val data = 13
                 if (categoryId != null) {
                     val category = categoryRepo.getSendCategory(categoryId)
 

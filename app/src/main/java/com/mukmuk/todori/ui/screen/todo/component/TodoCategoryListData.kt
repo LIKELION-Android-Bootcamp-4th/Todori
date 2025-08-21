@@ -50,11 +50,11 @@ fun TodoCategoryListData(
 
         ) {
 
-            Text(categoryTitle, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold))
+            Text(categoryTitle, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold, color = Gray))
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            Text(description, style = AppTextStyle.Body.copy(color = Gray))
+            Text(description, style = AppTextStyle.Body)
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
