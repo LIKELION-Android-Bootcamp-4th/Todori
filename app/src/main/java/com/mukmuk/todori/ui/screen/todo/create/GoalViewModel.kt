@@ -54,7 +54,7 @@ class GoalViewModel @Inject constructor(
 
                 val selectedGoals = repository.getGoals(uid)
                 if(selectedGoals.isNotEmpty()){
-                    updateDayCountWidget(selectedGoals)
+                    updateDayCountWidget()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) { onError(e) }
@@ -75,7 +75,7 @@ class GoalViewModel @Inject constructor(
 
                 val selectedGoals = repository.getGoals(uid)
                 if(selectedGoals.isNotEmpty()){
-                    updateDayCountWidget(selectedGoals)
+                    updateDayCountWidget()
                 }
             } catch (e: Exception) {
                 onError(e)
@@ -84,7 +84,7 @@ class GoalViewModel @Inject constructor(
     }
 
     // 위젯 업데이트
-    fun updateDayCountWidget(goals: List<Goal>){
+    fun updateDayCountWidget(){
         val intent = Intent(context, DayCountWidgetReceiver::class.java).apply {
             action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
         }

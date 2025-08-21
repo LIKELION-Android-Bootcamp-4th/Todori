@@ -6,7 +6,6 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
-import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.remote.goal.GoalTodo
 import com.mukmuk.todori.data.repository.GoalRepository
 import com.mukmuk.todori.data.repository.GoalTodoRepository
@@ -107,7 +106,7 @@ class GoalDetailViewModel @Inject constructor(
 
                     val selectedGoals = goalRepository.getGoals(uid)
                     if(selectedGoals.isNotEmpty()){
-                        updateDayCountWidget(selectedGoals)
+                        updateDayCountWidget()
                     }
                 }
                 goalRepository.deleteGoal(uid, goalId)
@@ -123,7 +122,7 @@ class GoalDetailViewModel @Inject constructor(
     }
 
     // 위젯 업데이트
-    fun updateDayCountWidget(goals: List<Goal>){
+    fun updateDayCountWidget(){
         val intent = Intent(context, DayCountWidgetReceiver::class.java).apply {
             action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
         }
