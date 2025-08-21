@@ -8,6 +8,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.mukmuk.todori.widget.todos.TodoWorker
 import com.mukmuk.todori.widget.goaldaycount.DayCountWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.Duration
@@ -20,16 +21,16 @@ import javax.inject.Singleton
 class WidgetUpdateDispatcher @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-//    fun updateTodos() {
-//        val req = OneTimeWorkRequestBuilder<TodoWorker>().build()
-//        WorkManager.getInstance(context).enqueueUniqueWork(
-//            TodoWorker.UNIQUE_WORK_NAME,
-//            ExistingWorkPolicy.REPLACE,
-//            req
-//        )
-//    }
+    fun updateTodos() {
+        val req = OneTimeWorkRequestBuilder<TodoWorker>().build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            TodoWorker.UNIQUE_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            req
+        )
+    }
 
-        fun updateDayCountWidget() {
+    fun updateDayCountWidget() {
         val req = OneTimeWorkRequestBuilder<DayCountWorker>().build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             DayCountWorker.UNIQUE_WORK_NAME,
