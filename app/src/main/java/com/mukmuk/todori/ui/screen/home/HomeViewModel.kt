@@ -1,11 +1,15 @@
 package com.mukmuk.todori.ui.screen.home
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
@@ -23,9 +27,17 @@ import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import com.mukmuk.todori.widget.UpdateWidgetWorker
+import com.mukmuk.todori.widget.timer.TimerAction
+import com.mukmuk.todori.widget.timer.TimerService
+import com.mukmuk.todori.widget.timer.TimerWidget
+import com.mukmuk.todori.widget.timer.TimerWidget.Companion.TOGGLE_KEY
 import com.mukmuk.todori.widget.totaltime.TotalTimeWidget
+import com.mukmuk.todori.widget.totaltime.TotalTimeWidget.Companion.ACTION_UPDATE_TOTAL_TIME_WIDGET
+import com.mukmuk.todori.widget.totaltime.TotalTimeWidget.Companion.EXTRA_TOTAL_TIME_MILLIS
+import com.mukmuk.todori.widget.totaltime.TotalTimeWidgetBroadcastReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +47,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -66,20 +79,32 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val initialLoadedSettings = homeSettingRepository.homeSettingStateFlow.first()
-            currentSettings = initialLoadedSettings
-            _homeSettingState.value = initialLoadedSettings
-            updateInitialTimerSettings(initialLoadedSettings)
-
             homeSettingRepository.homeSettingStateFlow.collectLatest { settings ->
                 currentSettings = settings
                 _homeSettingState.value = settings
+                updateInitialTimerSettings(settings)
             }
         }
 
         viewModelScope.launch {
             recordSettingRepository.totalRecordTimeFlow.collectLatest { savedTime ->
                 _state.update { it.copy(totalRecordTimeMills = savedTime) }
+            }
+        }
+
+        viewModelScope.launch {
+            recordSettingRepository.runningStateFlow.collectLatest { running ->
+                if (running) {
+                    startTimer()
+                } else {
+                    stopTimer()
+                }
+
+                _state.update {
+                    it.copy(
+                        status = if (running) TimerStatus.RUNNING else TimerStatus.IDLE
+                    )
+                }
             }
         }
     }
@@ -92,7 +117,6 @@ class HomeViewModel @Inject constructor(
             val user = firebaseAuth.currentUser
             if (user != null && !hasLoaded) {
                 hasLoaded = true
-                Log.d("todorilog", "호출")
                 loadProfile(user.uid)
                 startObservingTodos(user.uid)
                 startObservingDailyRecord(user.uid)
@@ -115,24 +139,29 @@ class HomeViewModel @Inject constructor(
 
         _state.update { it.copy(status = TimerStatus.RUNNING) }
 
-        timerJob = viewModelScope.launch {
+        val intent = Intent(context, TimerService::class.java)
+        context.startForegroundService(intent)
+
+        timerJob = viewModelScope.launch(Dispatchers.Default) {
             while (_state.value.timeLeftInMillis > 0) {
                 delay(1000)
-                if (_state.value.pomodoroMode == PomodoroTimerMode.FOCUSED) {
-                    _state.update {
-                        it.copy(
-                            timeLeftInMillis = it.timeLeftInMillis - 1000,
-                            totalStudyTimeMills = it.totalStudyTimeMills + 1000
-                        )
-                    }
-                } else {
-                    _state.update {
-                        it.copy(
-                            timeLeftInMillis = it.timeLeftInMillis - 1000,
-                        )
-                    }
+
+                _state.update { current ->
+                    val newTotalStudy =
+                        if (current.pomodoroMode == PomodoroTimerMode.FOCUSED) {
+                            current.totalStudyTimeMills + 1000
+                        } else current.totalStudyTimeMills
+
+                    val updated = current.copy(
+                        timeLeftInMillis = current.timeLeftInMillis - 1000,
+                        totalStudyTimeMills = newTotalStudy
+                    )
+
+                    recordSettingRepository.saveTotalRecordTime(updated.totalStudyTimeMills)
+                    updated
                 }
             }
+
             handleTimerCompletion()
         }
     }
@@ -147,7 +176,7 @@ class HomeViewModel @Inject constructor(
 
         val uid = _state.value.uid
         val totalTime = _state.value.totalStudyTimeMills
-        saveRecord(uid, totalTime, null)
+        saveRecord(uid, totalTime)
     }
 
     private fun resetTimer() {
@@ -167,60 +196,33 @@ class HomeViewModel @Inject constructor(
         _state.update { it.copy(status = TimerStatus.RECORDING) }
     }
 
-    private fun saveRecord(uid: String, recordTime: Long, todo: Todo?) {
+    private fun saveRecord(uid: String, recordTime: Long) {
         viewModelScope.launch {
+            if (uid.isEmpty()) {
+                Log.e("todorilog", "기록 저장 실패: UID가 유효하지 않습니다.")
+                return@launch
+            }
             try {
-                recordSettingRepository.saveTotalRecordTime(recordTime)
-
                 val dailyRecord = DailyRecord(
                     date = currentDate.toString(),
                     studyTimeMillis = recordTime
                 )
                 homeRepository.updateDailyRecord(uid, dailyRecord)
 
-                todo?.let {
-                    val updatedTodo =
-                        it.copy(totalFocusTimeMillis = (it.totalFocusTimeMillis) + recordTime)
-                    todoRepository.updateTodo(uid, updatedTodo)
+                recordSettingRepository.saveTotalRecordTime(recordTime)
+                recordSettingRepository.saveRunningState(false)
+
+                val intent = Intent(context, TimerService::class.java)
+                context.stopService(intent)
+                val broadcastIntent = Intent(context, TotalTimeWidgetBroadcastReceiver::class.java).apply {
+                    action = ACTION_UPDATE_TOTAL_TIME_WIDGET
+                    putExtra(EXTRA_TOTAL_TIME_MILLIS, recordTime)
                 }
-
-                val widget = TotalTimeWidget()
-                val manager = GlanceAppWidgetManager(context)
-                val glanceIds = manager.getGlanceIds(widget.javaClass)
-
-                if (glanceIds.isEmpty()) {
-                    return@launch
-                }
-
-                val PREF_KEY = longPreferencesKey("total_record_time_mills")
-
-                glanceIds.forEach { glanceId ->
-                    updateAppWidgetState(
-                        context = context,
-                        glanceId = glanceId
-                    ) { prefs ->
-                        prefs[PREF_KEY] = recordTime
-                    }
-                    widget.update(context, glanceId)
-                }
-                val currentHour = java.time.LocalTime.now().hour.toString().padStart(2, '0')
-                val millis = recordTime
-
-                val existingRecords = homeRepository.getDailyRecord(uid, currentDate)
-                val existing = existingRecords.firstOrNull()
-
-                val updatedHourly = existing?.hourlyMinutes?.toMutableMap() ?: mutableMapOf()
-                updatedHourly[currentHour] = (updatedHourly[currentHour] ?: 0) + millis
-
+                context.sendBroadcast(broadcastIntent)
             } catch (e: Exception) {
                 Log.e("todorilog", "기록 저장 및 위젯 업데이트 중 오류 발생: ${e.message}", e)
             }
         }
-    }
-
-    fun setTotalRecordTimeMills(recordTime: Long, uid: String, todo: Todo) {
-        _state.update { it.copy(totalRecordTimeMills = recordTime) }
-        saveRecord(uid, recordTime, todo)
     }
 
     private fun updateInitialTimerSettings(settings: HomeSettingState) {
@@ -294,6 +296,17 @@ class HomeViewModel @Inject constructor(
             }
         }
         startTimer()
+    }
+
+    fun setTodoRecordTimeMills(recordTime: Long, uid: String, todo: Todo) {
+        viewModelScope.launch {
+            val updatedTodo = todo.copy(totalFocusTimeMillis = todo.totalFocusTimeMillis + recordTime)
+            try {
+                todoRepository.updateTodo(uid, updatedTodo)
+            } catch (e: Exception) {
+                Log.e("todorilog", "Todo 업데이트 실패: ${e.message}", e)
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

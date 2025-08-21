@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -47,24 +48,40 @@ class TodoriApplication : Application(), Configuration.Provider {
         }
 
     private fun scheduleResetWorker() {
-        val currentDate = Calendar.getInstance()
-        val dueDate = Calendar.getInstance()
-
-        dueDate.set(Calendar.HOUR_OF_DAY, 0)
-        dueDate.set(Calendar.MINUTE, 0)
-        dueDate.set(Calendar.SECOND, 0)
-
-        if (dueDate.before(currentDate)) {
-            dueDate.add(Calendar.HOUR_OF_DAY, 24)
+        val now = Calendar.getInstance()
+        val midnight = Calendar.getInstance().apply {
+            if (now.get(Calendar.HOUR_OF_DAY) >= 0 && now.get(Calendar.HOUR_OF_DAY) < 1) {
+                add(Calendar.DAY_OF_YEAR, 1)
+            } else {
+                add(Calendar.DAY_OF_YEAR, 1)
+            }
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
         }
 
-        val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
+        var initialDelay = midnight.timeInMillis - now.timeInMillis
+        if (initialDelay < 0) {
+            initialDelay += TimeUnit.DAYS.toMillis(1)
+        }
+
+        Log.d("WorkScheduler", "Current time: ${now.time}")
+        Log.d("WorkScheduler", "Next midnight target: ${midnight.time}")
+        Log.d("WorkScheduler", "Calculated initial delay for worker: $initialDelay ms")
+
+        val constraints = Constraints.Builder()
+            // .setRequiresDeviceIdle(true)
+            .setRequiresBatteryNotLow(true)
+            .build()
 
         val midnightResetRequest =
             PeriodicWorkRequestBuilder<UpdateWidgetWorker>(
-                1, TimeUnit.DAYS
+                1, TimeUnit.DAYS,
+                15, TimeUnit.MINUTES
             )
-                .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+                .setConstraints(constraints)
                 .addTag(UpdateWidgetWorker.WORK_TAG)
                 .build()
 
@@ -73,6 +90,7 @@ class TodoriApplication : Application(), Configuration.Provider {
             ExistingPeriodicWorkPolicy.UPDATE,
             midnightResetRequest
         )
+        Log.d("WorkScheduler", "Midnight reset worker scheduled with constraints and specific flexPeriod.")
 
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
