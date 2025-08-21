@@ -47,7 +47,7 @@
                 <data
                     android:scheme="https"
                     android:host="todori-7d791.web.app"
-                    android:path="/category"/>
+                    android:pathPrefix="/category" />
             </intent-filter>
         </activity>
         <activity
