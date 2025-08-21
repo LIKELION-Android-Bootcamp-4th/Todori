@@ -120,8 +120,12 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             )
         }
         composable(
-            "community/detail/{postId}", arguments = listOf(
+            route = "community/detail/{postId}",
+            arguments = listOf(
                 navArgument("postId") { type = NavType.StringType }
+            ),
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "todori://community/detail/{postId}" }
             )
         ) { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
