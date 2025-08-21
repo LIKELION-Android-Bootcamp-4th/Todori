@@ -8,12 +8,15 @@ class TodoCategoryRepository @Inject constructor(
     private val todoCategoryService: TodoCategoryService
 ) {
     // 카테고리 생성
-    suspend fun createCategory(uid: String, category: TodoCategory) {
+    suspend fun createCategory(uid: String, category: TodoCategory): String {
+        var categoryId = ""
         try {
-            todoCategoryService.createCategory(uid, category)
+            categoryId = todoCategoryService.createCategory(uid, category)
         } catch (e: Exception) {
             Log.d("CreateCategory", " Repository 에러 : ${e.message}")
         }
+
+        return categoryId
     }
 
     suspend fun createSendTodoCategory(category: TodoCategory): String {

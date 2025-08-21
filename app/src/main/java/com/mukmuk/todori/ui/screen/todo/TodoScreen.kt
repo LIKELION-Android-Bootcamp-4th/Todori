@@ -2,6 +2,7 @@ package com.mukmuk.todori.ui.screen.todo
 
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -61,7 +62,6 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     val context = LocalContext.current
     var selectedCategory by remember { mutableStateOf<TodoCategory?>(null) }
-    var setCategoryState by remember { mutableStateOf(false) }
 
     val tabs = listOf("개인", "목표", "스터디")
 
@@ -73,7 +73,8 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
         viewModel.onWeekVisible(uid, start, end)
     }
 
-    LaunchedEffect(state.sendUrl){
+    LaunchedEffect(state.sendUrl != null){
+        Log.d("TodoScreen", "state.sendUrl: ${state.sendUrl}")
         if(state.sendUrl != null){
             val url = state.sendUrl ?: ""
             val sendIntent = Intent(Intent.ACTION_SEND).apply {
@@ -86,7 +87,7 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
     }
 
     LaunchedEffect(categoryId) {
-        if (categoryId != null && !setCategoryState) {
+        if (categoryId != null && !state.setCategoryState) {
             showDialog = true
         }
     }
@@ -155,14 +156,14 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
                 title = {
-                    if (categoryId != null && !setCategoryState) {
+                    if (categoryId != null && !state.setCategoryState) {
                         Text("카테고리 추가", style = AppTextStyle.Title)
                     } else {
                         Text("카테고리 공유", style = AppTextStyle.Title)
                     }
                 },
                 text = {
-                    if (categoryId != null && !setCategoryState) {
+                    if (categoryId != null && !state.setCategoryState) {
                         Text("공유 받은 카테고리를 추가하시겠습니까?", style = AppTextStyle.Body)
                     } else {
                         Text("선택한 ${selectedCategory?.name} 카테고리를 공유하시겠습니까?", style = AppTextStyle.Body)
@@ -172,9 +173,9 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
                 containerColor = White,
                 confirmButton = {
                     TextButton(onClick = {
-                        if (categoryId != null && !setCategoryState) {
+                        if (categoryId != null && !state.setCategoryState) {
                             viewModel.addTodoCategoryFromUrl(uid, categoryId)
-                            setCategoryState = true
+                            viewModel.setCategoryState(true)
                         } else {
                             selectedCategory?.let {
                                 viewModel.sendTodoCategory(it)
@@ -191,8 +192,8 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
                 },
                 dismissButton = {
                     TextButton(onClick = {
-                        if (categoryId != null && !setCategoryState) {
-                            setCategoryState = true
+                        if (categoryId != null && !state.setCategoryState) {
+                            viewModel.setCategoryState(true)
                         }
                         showDialog = false
                     }) {

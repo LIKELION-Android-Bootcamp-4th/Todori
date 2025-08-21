@@ -81,6 +81,14 @@ class TodoViewModel @Inject constructor(
         }
     }
 
+    fun setCategoryState(state: Boolean) {
+        _state.update {
+            it.copy(
+                setCategoryState = state
+            )
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun getTodoCategories(uid: String) {
         viewModelScope.launch {
@@ -165,19 +173,6 @@ class TodoViewModel @Inject constructor(
 
                     if (category != null) {
 
-                        if (todos.isNotEmpty()) {
-                            for (todo in todos) {
-                                val todo = todo.copy(
-                                    uid = uid,
-                                    todoId = "",
-                                    categoryId = category.categoryId,
-                                    date = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString(),
-                                    completed = false,
-                                    createdAt = Timestamp.now()
-                                )
-                                todoRepo.createTodo(uid, todo) 
-                            }
-                        }
 
                         val updatedCategory = category.copy(
                             uid = uid,
@@ -186,7 +181,21 @@ class TodoViewModel @Inject constructor(
                         )
 
 
-                        categoryRepo.createCategory(uid, updatedCategory)
+                        val categoryId = categoryRepo.createCategory(uid, updatedCategory)
+
+                        if (todos.isNotEmpty()) {
+                            for (todo in todos) {
+                                val updatedTodo = todo.copy(
+                                    uid = uid,
+                                    todoId = "",
+                                    categoryId = categoryId,
+                                    date = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString(),
+                                    completed = false,
+                                    createdAt = Timestamp.now()
+                                )
+                                todoRepo.createTodo(uid, updatedTodo)
+                            }
+                        }
 
 
                     }

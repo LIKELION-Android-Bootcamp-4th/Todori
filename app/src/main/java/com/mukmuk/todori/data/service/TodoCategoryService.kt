@@ -15,11 +15,13 @@ class TodoCategoryService(
         firestore.collection("users").document(uid).collection("todoCategories")
 
     // 카테고리 생성
-    suspend fun createCategory(uid: String, category: TodoCategory) {
+    suspend fun createCategory(uid: String, category: TodoCategory): String {
         val ref = userCategoriesRef(uid).document() // auto-ID 문서
         val autoId = ref.id
         val categoryWithId = category.copy(categoryId = autoId)
         ref.set(categoryWithId, SetOptions.merge()).await()
+
+        return autoId
     }
 
     suspend fun createSendTodoCategory(category: TodoCategory): String{
