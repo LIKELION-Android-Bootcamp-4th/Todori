@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.screen.todo.component.DateRangePickerBottomSheet
@@ -61,6 +62,8 @@ fun CreateGoalScreen(
     onBack: () -> Unit,
     editGoal: Goal? = null
 ) {
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
     val viewModel: GoalViewModel = hiltViewModel()
     val isEditMode = editGoal != null
 
@@ -203,7 +206,7 @@ fun CreateGoalScreen(
                             endDate = endDate!!.format(formatter)
                         )
                         viewModel.updateGoal(
-                            uid = "testuser",
+                            uid = uid,
                             goal = updatedGoal,
                             onSuccess = {
                                 Toast.makeText(context, "목표 수정 완료", Toast.LENGTH_SHORT).show()

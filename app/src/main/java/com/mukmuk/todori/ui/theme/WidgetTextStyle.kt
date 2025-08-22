@@ -6,6 +6,11 @@ import androidx.glance.text.TextStyle
 
 
 object WidgetTextStyle {
+
+    val TitleTiny = TextStyle(
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp
+    )
     val TitleSmallLight = TextStyle(
         fontWeight = FontWeight.Medium,
         fontSize = 18.sp

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.glance.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
@@ -26,7 +27,6 @@ import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.mukmuk.todori.MainActivity
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.remote.goal.Goal
@@ -63,9 +63,11 @@ class DayCountWidget : GlanceAppWidget() {
         }
         val goalTitle = selectedGoal?.title ?: "설정 목표 없음"
 
-        Log.d("Widget", "goalTitle : $goalTitle")
-        Log.d("Widget", "dDAY : $dDay")
-
+        fun ellipsize(text: String, maxLength: Int): String {
+            return if (text.length > maxLength) {
+                text.take(maxLength) + "…"
+            } else text
+        }
 
         Box(
             modifier = GlanceModifier
@@ -76,21 +78,30 @@ class DayCountWidget : GlanceAppWidget() {
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Row(
-                modifier = GlanceModifier.fillMaxWidth().padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Column() {
                 Text(
-                    goalTitle, style = WidgetTextStyle.TitleMediumLight
+                    "가장 근접한 목표",
+                    style = WidgetTextStyle.TitleTiny,
+                    modifier = GlanceModifier.padding(horizontal = 16.dp)
                 )
-                Spacer(GlanceModifier.defaultWeight())
-                if (dDay != null) {
+
+                Row(
+                    modifier = GlanceModifier.fillMaxWidth().padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        text = if (dDay > 0) "D-$dDay" else if (dDay == 0) "D-DAY" else "",
-                        style = WidgetTextStyle.TitleMedium
+                        ellipsize(goalTitle, 12),
+                        style = WidgetTextStyle.TitleMediumLight
                     )
-                } else {
-                    Text("")
+                    Spacer(GlanceModifier.defaultWeight())
+                    if (dDay != null) {
+                        Text(
+                            text = if (dDay > 0) "D-$dDay" else if (dDay == 0) "D-DAY" else "",
+                            style = WidgetTextStyle.TitleMedium
+                        )
+                    } else {
+                        Text("")
+                    }
                 }
             }
         }
