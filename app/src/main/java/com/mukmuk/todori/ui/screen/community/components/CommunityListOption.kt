@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mukmuk.todori.ui.screen.community.CommunityState
+import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Gray
@@ -38,14 +40,12 @@ import com.mukmuk.todori.ui.theme.White
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun CommunityListOption(
-
+    selectedOption: String,
+    setData: (String) -> Unit
 ) {
 
     var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("인기순") }
-    val options = listOf("인기순", "최신순")
-
-
+    val options = listOf("참가자 수", "날짜순")
 
         Row (
             modifier = Modifier.wrapContentSize(),
@@ -81,9 +81,10 @@ fun CommunityListOption(
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
+                    shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .background(White, RoundedCornerShape(10.dp))
-                        .border(1.dp, Gray)
+                        .border(1.dp, Gray, RoundedCornerShape(10.dp))
                 ) {
                     options.forEach { option ->
                         DropdownMenuItem(
@@ -92,10 +93,7 @@ fun CommunityListOption(
                                 style = AppTextStyle.BodySmall
                             ) },
                             onClick = {
-                                selectedOption = option
-                                if (option == "인기순") {
-
-                                }
+                                setData(option)
                                 expanded = false
                             },
                         )
