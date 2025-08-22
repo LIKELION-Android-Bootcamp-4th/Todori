@@ -2,6 +2,7 @@ package com.mukmuk.todori.ui.screen.stats.tab.week
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +35,7 @@ import com.mukmuk.todori.ui.screen.stats.component.week.WeekInsights
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.White
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -69,6 +71,7 @@ fun WeekTab(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .background(White)
     ) {
         // ===== 상단 주차 이동 & 표시 =====
         Box(

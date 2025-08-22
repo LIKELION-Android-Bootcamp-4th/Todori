@@ -19,20 +19,23 @@ import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.github.mikephil.charting.charts.CombinedChart
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.LineChart
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Dimens.CardDefaultRadius
+import com.mukmuk.todori.ui.theme.White
+import com.mukmuk.todori.ui.theme.firstGradient
+import com.mukmuk.todori.ui.theme.secondGradient
 
 @Composable
 fun StudyStatisticsSection(
@@ -40,13 +43,13 @@ fun StudyStatisticsSection(
     allTodos: List<Todo> = emptyList(),
     completedTodos: List<Todo> = emptyList()
 ) {
-    // WeekCard 로직 재사용
     val totalStudyMillis = record.sumOf { it.studyTimeMillis }
     val studiedCount = record.count { it.studyTimeMillis > 0L }
 
     val avgStudyMinutes = if (studiedCount > 0) {
         (totalStudyMillis / 1000 / 60 / studiedCount).toInt()
     } else 0
+
     val avgHours = avgStudyMinutes / 60
     val avgMinutes = avgStudyMinutes % 60
 
@@ -54,111 +57,102 @@ fun StudyStatisticsSection(
     val totalHours = totalStudyMinutes / 60
     val totalMinutes = totalStudyMinutes % 60
 
-    // 달성률
     val todoTotalPer = if (allTodos.isNotEmpty()) {
         (completedTodos.size.toFloat() / allTodos.size * 100).toInt()
     } else 0
 
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(450.dp)
+            .height(600.dp) // 전체 높이 확보
+            .background(White)
     ) {
-
+        // 🔹 상단 Gradient 배경
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF4CAF50), // 진한 초록
-                            Color(0xFF81C784)  // 연한 초록
-                        )
+                        colors = listOf(firstGradient, secondGradient)
                     ),
                     shape = RoundedCornerShape(
-                        topStart = 16.dp,
-                        topEnd = 16.dp,
-                        bottomStart = 0.dp,
-                        bottomEnd = 0.dp
+                        topStart = Dimens.Medium,
+                        topEnd = Dimens.Medium
                     )
                 )
-                .clip(RoundedCornerShape(
-                    topStart = 16.dp,
-                    topEnd = 16.dp,
-                    bottomStart = 0.dp,
-                    bottomEnd = 0.dp
-                ))
         )
 
-        // 상단 통계 정보
+        // 🔹 내용
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(Dimens.Large)
         ) {
-            // 제목
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 16.dp)
-            ) {
+            // 상단 통계
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.TrendingUp,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = White,
                     modifier = Modifier.size(20.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "집중 시간",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
-                )
+                Spacer(modifier = Modifier.width(Dimens.Tiny))
+                Text(text = "집중 시간", style = AppTextStyle.BodyLargeWhite)
             }
 
-            // 통계 정보
+            Spacer(modifier = Modifier.height(Dimens.Medium))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                StatItem(
-                    label = "Total",
-                    value = "${totalHours}h ${totalMinutes}m"
-                )
-                StatItem(
-                    label = "Avg",
-                    value = "${avgHours}h ${avgMinutes}m"
-                )
-                StatItem(
-                    label = "달성률",
-                    value = "${todoTotalPer}%"
-                )
-
+                StatItem("Total", "${totalHours}h ${totalMinutes}m")
+                StatItem("Avg", "${avgHours}h ${avgMinutes}m")
+                StatItem("Rate", "${todoTotalPer}%")
             }
         }
 
-        // 차트 (하단에 겹쳐서 배치)
-        Card(
+        // 🔹 카드 2개 (Gradient 아래로 겹치게 배치)
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(320.dp)
-                .padding(horizontal = 16.dp)
-                .offset(y = 130.dp), // 상단 통계 아래로 위치
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                .offset(y = 130.dp) // 여기서 겹치게 내림
+                .padding(horizontal = Dimens.Medium)
         ) {
-            AndroidView(
-                factory = { context ->
-                    CombinedChart(context).apply {
-                        setupCombinedChart(this)
-                    }
-                },
+            Card(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-            )
+                    .fillMaxWidth()
+                    .height(220.dp),
+                shape = CardDefaultRadius,
+                colors = CardDefaults.cardColors(White),
+                elevation = CardDefaults.cardElevation(defaultElevation = Dimens.Tiny)
+            ) {
+                Column(Modifier.padding(Dimens.Small)) {
+                    AndroidView(
+                        factory = { context -> LineChart(context).apply { setupLineChart(this) } },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(Dimens.Medium))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp),
+                shape = CardDefaultRadius,
+                colors = CardDefaults.cardColors(White),
+                elevation = CardDefaults.cardElevation(defaultElevation = Dimens.Tiny)
+            ) {
+                Column(Modifier.padding(Dimens.Small)) {
+                    AndroidView(
+                        factory = { context -> BarChart(context).apply { setupBarChart(this) } },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
         }
     }
 }
