@@ -32,6 +32,9 @@
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="todori_default"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -115,6 +118,13 @@
             android:exported="false"
             android:foregroundServiceType="specialUse"
             tools:ignore="ForegroundServicePermission" />
+        <service
+            android:name=".data.service.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
 
         <receiver
@@ -133,13 +143,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_todo" />
         </receiver>
-
-        <provider
-            android:name="androidx.startup.InitializationProvider"
-            android:authorities="${applicationId}.androidx-startup"
-            android:exported="false"
-            tools:node="merge">
-        </provider>
         <meta-data
             android:name="androidx.work.WorkManagerInitializer"
             android:value="disabled" />

@@ -10,6 +10,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.google.firebase.auth.FirebaseAuth
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import com.kakao.sdk.common.KakaoSdk
 import com.mukmuk.todori.widget.UpdateWidgetWorker
 import com.mukmuk.todori.widget.todos.TodoWorker
@@ -18,6 +20,8 @@ import dagger.hilt.android.HiltAndroidApp
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+
+object PushChannels { const val DEFAULT = "todori_default" }
 
 @HiltAndroidApp
 class TodoriApplication : Application(), Configuration.Provider {
@@ -110,5 +114,11 @@ class TodoriApplication : Application(), Configuration.Provider {
                 midnightTodoResetRequest
             )
         }
+        val channel = NotificationChannel(
+            PushChannels.DEFAULT,
+            "기본 알림",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 }
