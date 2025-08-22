@@ -88,7 +88,7 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             recordSettingRepository.totalRecordTimeFlow.collectLatest { savedTime ->
-                _state.update { it.copy(totalRecordTimeMills = savedTime) }
+                _state.update { it.copy(totalStudyTimeMills = savedTime) }
             }
         }
 
