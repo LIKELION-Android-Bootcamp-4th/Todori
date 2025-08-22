@@ -137,6 +137,12 @@ class TodoDetailViewModel @Inject constructor(
                 val todos = todoRepository.getTodosByCategory(uid, categoryId)
                 todos.forEach { todo ->
                     todoRepository.deleteTodo(uid, todo.todoId)
+
+                    val todayTodos = todoRepository.getTodosByDate(uid, LocalDate.now())
+                    if (todayTodos.isNotEmpty()) {
+                        todayTodoRepository.saveTodayTodos(todayTodos)
+                        updateTodoWidget(todayTodos)
+                    }
                 }
                 categoryRepository.deleteCategory(uid, categoryId)
                 _state.value = _state.value.copy(categoryDeleted = true)
