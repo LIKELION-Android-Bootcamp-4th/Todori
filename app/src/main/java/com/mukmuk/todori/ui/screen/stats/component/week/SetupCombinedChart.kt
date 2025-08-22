@@ -75,27 +75,45 @@ fun setupLineChart(lineChart: LineChart) {
 fun setupBarChart(barChart: BarChart) {
     val days = arrayOf("일", "월", "화", "수", "목", "금", "토")
 
-    val totalTodos = floatArrayOf(0f, 5f, 4f, 6f, 8f, 5f, 0f)
-    val completedTodos = floatArrayOf(0f, 4f, 4f, 5f, 7f, 5f, 0f)
+    val totalTodos = floatArrayOf(3f, 5f, 4f, 6f, 8f, 5f, 9f)
+    val completedTodos = floatArrayOf(3f, 4f, 4f, 5f, 7f, 5f, 8f)
 
-    val totalEntries = totalTodos.mapIndexed { i, v -> BarEntry(i.toFloat(), v) }
-    val completedEntries = completedTodos.mapIndexed { i, v -> BarEntry(i.toFloat(), v) }
+    val totalEntries = totalTodos.mapIndexed { i, v ->
+        val value = if (v == 0f) 0.0001f else v  // 최소 높이 보정
+        BarEntry(i.toFloat(), value)
+    }
 
+    val completedEntries = completedTodos.mapIndexed { i, v ->
+        val value = if (v == 0f) 0.0001f else v
+        BarEntry(i.toFloat(), value)
+    }
 
     val totalSet = BarDataSet(totalEntries, "전체 TODO").apply {
-        color = Weekly.copy(alpha = 0.3f).toArgb() // 파란 계열 (차분)
+        color = Weekly.copy(alpha = 0.3f).toArgb()
         setDrawValues(false)
+        highLightAlpha = 0  // 선택 효과 없앰
     }
-
 
     val completedSet = BarDataSet(completedEntries, "완료 TODO").apply {
-        color = Success.copy(alpha = 0.3f).toArgb()
+        color = Success.copy(alpha = 0.5f).toArgb()
         setDrawValues(false)
+        highLightAlpha = 0
     }
 
+    val barSpace = 0.05f
+    val groupSpace = 0.2f
+    val barWidth = 0.35f
+
     val barData = BarData(totalSet, completedSet).apply {
-        barWidth = 0.35f
+        this.barWidth = barWidth
     }
+
+    val groupCount = days.size
+
+//
+//    val barData = BarData(totalSet, completedSet).apply {
+//        barWidth = 0.35f
+//    }
 
     barChart.apply {
         data = barData
@@ -107,8 +125,12 @@ fun setupBarChart(barChart: BarChart) {
             position = XAxis.XAxisPosition.BOTTOM
             setDrawGridLines(false)
             granularity = 1f
-            labelCount = days.size
+            isGranularityEnabled = true
+            setCenterAxisLabels(true)
             textSize = 14f
+
+            axisMinimum = 0f
+            axisMaximum = 0f + barData.getGroupWidth(groupSpace, barSpace) * groupCount
         }
 
         axisLeft.apply {
@@ -118,7 +140,7 @@ fun setupBarChart(barChart: BarChart) {
 
         axisRight.isEnabled = false
 
-        groupBars(0f, 0.4f, 0.05f)
+        groupBars(0f, groupSpace, barSpace) // ✅ 막대 & 라벨 정렬
         animateXY(1000,1000)
     }
 }
