@@ -143,6 +143,18 @@
         <meta-data
             android:name="androidx.work.WorkManagerInitializer"
             android:value="disabled" />
+
+        <receiver
+            android:name=".widget.goaldaycount.DayCountWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_day_count" />
+        </receiver>
     </application>
 
 </manifest>

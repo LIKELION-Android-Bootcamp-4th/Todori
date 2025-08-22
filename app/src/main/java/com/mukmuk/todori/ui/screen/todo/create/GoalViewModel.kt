@@ -1,5 +1,8 @@
 package com.mukmuk.todori.ui.screen.todo.create
 
+import android.appwidget.AppWidgetManager
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
@@ -9,7 +12,9 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.data.repository.GoalRepository
+import com.mukmuk.todori.widget.goaldaycount.DayCountWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,7 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GoalViewModel @Inject constructor(
-    private val repository: GoalRepository
+    private val repository: GoalRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -45,6 +51,11 @@ class GoalViewModel @Inject constructor(
                 )
                 repository.createGoal(uid, goal)
                 withContext(Dispatchers.Main) { onSuccess() }
+
+                val selectedGoals = repository.getGoals(uid)
+                if(selectedGoals.isNotEmpty()){
+                    updateDayCountWidget()
+                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) { onError(e) }
             }
@@ -61,9 +72,22 @@ class GoalViewModel @Inject constructor(
             try {
                 repository.updateGoal(uid, goal)
                 onSuccess()
+
+                val selectedGoals = repository.getGoals(uid)
+                if(selectedGoals.isNotEmpty()){
+                    updateDayCountWidget()
+                }
             } catch (e: Exception) {
                 onError(e)
             }
         }
+    }
+
+    // 위젯 업데이트
+    fun updateDayCountWidget(){
+        val intent = Intent(context, DayCountWidgetReceiver::class.java).apply {
+            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+        }
+        context.sendBroadcast(intent)
     }
 }

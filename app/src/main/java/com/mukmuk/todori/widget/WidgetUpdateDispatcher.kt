@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.mukmuk.todori.widget.todos.TodoWorker
+import com.mukmuk.todori.widget.goaldaycount.DayCountWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.Duration
 import java.time.LocalDateTime
@@ -24,6 +25,15 @@ class WidgetUpdateDispatcher @Inject constructor(
         val req = OneTimeWorkRequestBuilder<TodoWorker>().build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             TodoWorker.UNIQUE_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            req
+        )
+    }
+
+    fun updateDayCountWidget() {
+        val req = OneTimeWorkRequestBuilder<DayCountWorker>().build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            DayCountWorker.UNIQUE_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
             req
         )
@@ -48,6 +58,7 @@ class WidgetUpdateDispatcher @Inject constructor(
         val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
         val initialDelay = Duration.between(now, nextMidnight)
 
+        // 투두 위젯
         val request = PeriodicWorkRequestBuilder<TodoWorker>(24, TimeUnit.HOURS)
             .setInitialDelay(initialDelay.toMillis(), TimeUnit.MILLISECONDS)
             .build()
@@ -56,6 +67,17 @@ class WidgetUpdateDispatcher @Inject constructor(
             "TodoWidgetDailyUpdate",
             ExistingPeriodicWorkPolicy.REPLACE,
             request
+        )
+
+        // 디데이 위젯
+        val dayCountRequest = PeriodicWorkRequestBuilder<DayCountWorker>(24, TimeUnit.HOURS)
+            .setInitialDelay(initialDelay.toMillis(), TimeUnit.MILLISECONDS)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            "DayCountWidgetDailyUpdate",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            dayCountRequest
         )
     }
 
