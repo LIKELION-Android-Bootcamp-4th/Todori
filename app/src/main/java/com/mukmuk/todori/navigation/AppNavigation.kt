@@ -60,14 +60,14 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         composable(
             route = BottomNavItem.Todo.route,
             deepLinks = listOf(
-                navDeepLink { uriPattern = "todori://todo" }
+                navDeepLink { uriPattern = "todori://app.todori.com/todo" }
             )
         ) { TodoScreen(navController) }
 
         composable(
             route = BottomNavItem.Stats.route,
             deepLinks = listOf(
-                navDeepLink { uriPattern = "todori://stats" }
+                navDeepLink { uriPattern = "todori://app.todori.com/stats" }
             )
         ) { StatsScreen() }
         composable(BottomNavItem.Home.route) {
@@ -125,7 +125,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 navArgument("postId") { type = NavType.StringType }
             ),
             deepLinks = listOf(
-                navDeepLink { uriPattern = "todori://community/detail/{postId}" }
+                navDeepLink { uriPattern = "todori://app.todori.com/community/detail/{postId}" }
             )
         ) { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
@@ -201,7 +201,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         composable(
             route ="goal/detail/{goalId}",
             deepLinks = listOf(
-                navDeepLink { uriPattern = "todori://goal/detail/{goalId}" }
+                navDeepLink { uriPattern = "todori://app.todori.com/goal/detail/{goalId}" }
             )
         ) { backStackEntry ->
             val goalId = backStackEntry.arguments?.getString("goalId") ?: ""
@@ -218,7 +218,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 navArgument("date") { type = NavType.StringType }
             ),
             deepLinks = listOf(
-                navDeepLink { uriPattern = "todori://study/detail/{studyId}?date={date}" },
+                navDeepLink { uriPattern = "todori://app.todori.com/study/detail/{studyId}?date={date}" },
             )
         ) { backStackEntry ->
             val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
