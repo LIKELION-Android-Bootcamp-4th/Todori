@@ -113,23 +113,7 @@ class TodoViewModel @Inject constructor(
     fun sendTodoCategory(category: TodoCategory) {
         viewModelScope.launch {
             try {
-                val todos = todoRepo.getTodosByDate(category.uid, java.time.LocalDate.now()).filter { it.categoryId == category.categoryId }
-                val updatedCategory = category.copy(
-                    uid = "",
-                    categoryId = "",
-                )
-
-                val categoryId = categoryRepo.createSendTodoCategory(updatedCategory)
-
-                val updatedTodos = todos.map {
-                    it.copy(
-                        uid = "",
-                        todoId = "",
-                        categoryId = categoryId,
-                    )
-                }
-
-                todoRepo.createSendTodos(categoryId, updatedTodos)
+                val categoryId = categoryRepo.createSendTodoCategory(category = category)
 
                 val url = createUrl(categoryId)
                 _state.update {
@@ -167,38 +151,7 @@ class TodoViewModel @Inject constructor(
             try {
                 val uid = uid ?: return@launch
                 if (categoryId != null) {
-                    val category = categoryRepo.getSendCategory(categoryId)
-
-                    val todos = todoRepo.getSendTodos(categoryId)
-
-                    if (category != null) {
-
-
-                        val updatedCategory = category.copy(
-                            uid = uid,
-                            categoryId = "",
-                            createdAt = Timestamp.now()
-                        )
-
-
-                        val categoryId = categoryRepo.createCategory(uid, updatedCategory)
-
-                        if (todos.isNotEmpty()) {
-                            for (todo in todos) {
-                                val updatedTodo = todo.copy(
-                                    uid = uid,
-                                    todoId = "",
-                                    categoryId = categoryId,
-                                    date = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString(),
-                                    completed = false,
-                                    createdAt = Timestamp.now()
-                                )
-                                todoRepo.createTodo(uid, updatedTodo)
-                            }
-                        }
-
-
-                    }
+                    categoryRepo.getSendCategory(uid, categoryId)
                 }
             }
             catch (e: Exception) {
