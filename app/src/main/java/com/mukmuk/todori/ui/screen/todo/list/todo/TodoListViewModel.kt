@@ -55,4 +55,40 @@ class TodoListViewModel @Inject constructor(
             }
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun loadSendTodoList(uid: String, selectedDate: LocalDate) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            try {
+
+                val categories = categoryRepository.getSendCategories(uid)
+
+                val updatedCategories = categories.map { category ->
+                    categoryRepository.getCategoryById(category.uid, category.categoryId)
+                }
+
+                val todoMap: MutableMap<String, List<Todo>> = mutableMapOf()
+
+                for (category in updatedCategories) {
+                    val todos = todoRepository.getTodosByDate(category?.uid ?: "", selectedDate)
+                    todoMap.putAll(todos.groupBy { it.categoryId })
+                }
+
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        sendCategories = updatedCategories as List<TodoCategory>,
+                        sendTodosByCategory = todoMap,
+                        selectedDate = selectedDate
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+
+
+
+    }
 }
