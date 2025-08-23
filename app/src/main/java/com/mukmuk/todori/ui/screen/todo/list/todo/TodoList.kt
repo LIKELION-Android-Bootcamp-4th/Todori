@@ -29,6 +29,7 @@ fun TodoList(selectedDate: LocalDate, navController: NavHostController) {
 
     LaunchedEffect(selectedDate) {
         viewModel.loadTodoList(uid, selectedDate.toJavaLocalDate())
+        viewModel.loadSendTodoList(uid, selectedDate.toJavaLocalDate())
     }
 
 
@@ -45,6 +46,22 @@ fun TodoList(selectedDate: LocalDate, navController: NavHostController) {
                 todos = todos.map { it.title to it.completed }
             ) {
                 navController.navigate("todo/detail/${category.categoryId}?date=${selectedDate}")
+            }
+        }
+        if(state.sendCategories.isNotEmpty()){
+            items(state.sendCategories) { category ->
+                val todos = state.sendTodosByCategory[category.categoryId].orEmpty()
+                val total = todos.size
+                val progress = todos.count { it.completed }
+                TodoCard(
+                    categoryTitle = category.name,
+                    subtitle = category.description.orEmpty(),
+                    progress = progress,
+                    total = total,
+                    todos = todos.map { it.title to it.completed }
+                ) {
+                    navController.navigate("todo/detail/${category.categoryId}?date=${selectedDate}")
+                }
             }
         }
     }
