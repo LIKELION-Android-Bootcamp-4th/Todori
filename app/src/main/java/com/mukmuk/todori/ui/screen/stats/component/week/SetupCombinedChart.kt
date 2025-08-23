@@ -18,12 +18,12 @@ import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.Success
 import com.mukmuk.todori.ui.theme.Weekly
 
-// MPAndroidChart 설정 함수
-fun setupLineChart(lineChart: LineChart) {
+fun setupLineChart(
+    lineChart: LineChart,
+    plannedHours: FloatArray,
+    actualHours: FloatArray
+) {
     val days = arrayOf("일", "월", "화", "수", "목", "금", "토")
-    val plannedHours = floatArrayOf(8f, 7f, 9f, 8f, 8f, 0f, 0f)
-    val actualHours = floatArrayOf(7f, 9f, 6f, 9f, 8f, 0f, 0f)
-
     val plannedEntries = plannedHours.mapIndexed { i, v -> Entry(i.toFloat(), v) }
     val actualEntries = actualHours.mapIndexed { i, v -> Entry(i.toFloat(), v) }
 
@@ -67,37 +67,25 @@ fun setupLineChart(lineChart: LineChart) {
 
         axisRight.isEnabled = false
 
-//        animateXY(500,500)
         animateX(1000, Easing.EaseInOutQuad)
     }
 }
 
-fun setupBarChart(barChart: BarChart) {
+fun setupBarChart(
+    barChart: BarChart,
+    totalEntries: List<BarEntry>,
+    completedEntries: List<BarEntry>
+) {
     val days = arrayOf("일", "월", "화", "수", "목", "금", "토")
-
-    val totalTodos = floatArrayOf(3f, 5f, 4f, 6f, 8f, 5f, 9f)
-    val completedTodos = floatArrayOf(3f, 4f, 4f, 5f, 7f, 5f, 8f)
-
-    val totalEntries = totalTodos.mapIndexed { i, v ->
-        val value = if (v == 0f) 0.0001f else v  // 최소 높이 보정
-        BarEntry(i.toFloat(), value)
-    }
-
-    val completedEntries = completedTodos.mapIndexed { i, v ->
-        val value = if (v == 0f) 0.0001f else v
-        BarEntry(i.toFloat(), value)
-    }
 
     val totalSet = BarDataSet(totalEntries, "전체 TODO").apply {
         color = Weekly.copy(alpha = 0.3f).toArgb()
         setDrawValues(false)
-        highLightAlpha = 0  // 선택 효과 없앰
     }
 
     val completedSet = BarDataSet(completedEntries, "완료 TODO").apply {
         color = Success.copy(alpha = 0.5f).toArgb()
         setDrawValues(false)
-        highLightAlpha = 0
     }
 
     val barSpace = 0.05f
@@ -110,10 +98,6 @@ fun setupBarChart(barChart: BarChart) {
 
     val groupCount = days.size
 
-//
-//    val barData = BarData(totalSet, completedSet).apply {
-//        barWidth = 0.35f
-//    }
 
     barChart.apply {
         data = barData
@@ -140,8 +124,10 @@ fun setupBarChart(barChart: BarChart) {
 
         axisRight.isEnabled = false
 
-        groupBars(0f, groupSpace, barSpace) // ✅ 막대 & 라벨 정렬
-        animateXY(1000,1000)
+        groupBars(0f, groupSpace, barSpace)
+        animateXY(1000, 1000)
+
+        invalidate()
     }
 }
 

@@ -36,6 +36,7 @@ import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
+import com.mukmuk.todori.util.buildBarEntries
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -66,6 +67,15 @@ fun WeekTab(
         (offset + date.dayOfMonth - 1) / 7 + 1
     }
 
+    val weekRange = remember(date) {
+        val jDate = java.time.LocalDate.of(date.year, date.monthNumber, date.dayOfMonth)
+        viewModel.getWeekRange(jDate)
+    }
+
+    val (totalEntries, completedEntries) = remember(state.todos, state.completedTodoItems, weekRange) {
+        buildBarEntries(state.todos, state.completedTodoItems, weekRange)
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -73,7 +83,6 @@ fun WeekTab(
             .verticalScroll(rememberScrollState())
             .background(White)
     ) {
-        // ===== 상단 주차 이동 & 표시 =====
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -117,11 +126,12 @@ fun WeekTab(
             }
         }
 
-        // ===== 통계 + 차트 섹션 =====
         StudyStatisticsSection(
             record = state.dailyRecords,
             allTodos = state.todos,
-            completedTodos = state.completedTodoItems
+            completedTodos = state.completedTodoItems,
+            totalEntries = totalEntries,
+            completedEntries = completedEntries
         )
 
         Spacer(modifier = Modifier.height(Dimens.Large))

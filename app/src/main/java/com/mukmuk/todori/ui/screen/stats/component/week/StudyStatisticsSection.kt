@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.BarEntry
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -41,7 +42,9 @@ import com.mukmuk.todori.ui.theme.secondGradient
 fun StudyStatisticsSection(
     record: List<DailyRecord> = emptyList(),
     allTodos: List<Todo> = emptyList(),
-    completedTodos: List<Todo> = emptyList()
+    completedTodos: List<Todo> = emptyList(),
+    totalEntries: List<BarEntry> = emptyList(),
+    completedEntries: List<BarEntry> = emptyList()
 ) {
     val totalStudyMillis = record.sumOf { it.studyTimeMillis }
     val studiedCount = record.count { it.studyTimeMillis > 0L }
@@ -64,10 +67,9 @@ fun StudyStatisticsSection(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(600.dp) // 전체 높이 확보
+            .height(600.dp)
             .background(White)
     ) {
-        // 🔹 상단 Gradient 배경
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -83,13 +85,11 @@ fun StudyStatisticsSection(
                 )
         )
 
-        // 🔹 내용
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(Dimens.Large)
         ) {
-            // 상단 통계
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.TrendingUp,
@@ -113,11 +113,10 @@ fun StudyStatisticsSection(
             }
         }
 
-        // 🔹 카드 2개 (Gradient 아래로 겹치게 배치)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset(y = 130.dp) // 여기서 겹치게 내림
+                .offset(y = 130.dp)
                 .padding(horizontal = Dimens.Medium)
         ) {
             Card(
@@ -130,7 +129,15 @@ fun StudyStatisticsSection(
             ) {
                 Column(Modifier.padding(Dimens.Small)) {
                     AndroidView(
-                        factory = { context -> LineChart(context).apply { setupLineChart(this) } },
+                        factory = {
+                            context -> LineChart(context).apply {
+                                setupLineChart(
+                                    this,
+                                    plannedHours = floatArrayOf(8f, 7f, 9f, 8f, 8f, 0f, 0f), // record
+                                    actualHours = floatArrayOf(7f, 9f, 6f, 9f, 8f, 0f, 0f)   // record
+                                )
+                            }
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -148,7 +155,10 @@ fun StudyStatisticsSection(
             ) {
                 Column(Modifier.padding(Dimens.Small)) {
                     AndroidView(
-                        factory = { context -> BarChart(context).apply { setupBarChart(this) } },
+                        factory = { context -> BarChart(context).apply {
+                            setupBarChart(this, totalEntries, completedEntries)
+                        }
+                    },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
