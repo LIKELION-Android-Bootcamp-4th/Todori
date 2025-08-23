@@ -1,6 +1,7 @@
 package com.mukmuk.todori.data.service
 
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
@@ -24,11 +25,32 @@ class TodoCategoryService(
         return autoId
     }
 
-    suspend fun createSendTodoCategory(category: TodoCategory): String{
+    suspend fun createSendTodoCategory(uid: List<String> = emptyList(), category: TodoCategory): String{
         val ref = firestore.collection("sendTodoCategories").document()
+
+        if(ref.get().await().exists()){
+            val todoCategoryRef = firestore.collection("sendTodoCategories")
+            val snapshot = todoCategoryRef
+                .whereArrayContains("category", category)
+                .get()
+                .await()
+
+            if(snapshot.documents.isNotEmpty()){
+                val sendCategoryId = snapshot.documents.first().id
+
+                return sendCategoryId
+            }
+        }
+
         val autoId = ref.id
-        val categoryWithId = category.copy(categoryId = autoId)
-        ref.set(categoryWithId, SetOptions.merge()).await()
+
+        val data = mapOf(
+            "sendCategoryId" to autoId,
+            "users" to uid,
+            "category" to category
+        )
+
+        ref.set(data, SetOptions.merge()).await()
         return autoId
     }
 
@@ -48,12 +70,39 @@ class TodoCategoryService(
         return snapshot.documents.mapNotNull { it.toObject(TodoCategory::class.java) }
     }
 
-    suspend fun getSendCategory(categoryId: String): TodoCategory? {
-        val snapshot = firestore.collection("sendTodoCategories")
-            .document(categoryId)
+    suspend fun getSendCategory(uid: String, sendCategoryId: String): TodoCategory? {
+        val todoCategoryRef = firestore.collection("sendTodoCategories")
+        val snapshot = todoCategoryRef
+            .whereEqualTo("sendCategoryId", sendCategoryId)
             .get()
             .await()
-        return snapshot.toObject(TodoCategory::class.java)
+
+        val users = snapshot.documents.firstOrNull()?.get("users") as? List<String>
+
+        val category = snapshot.documents.firstOrNull()?.toObject(TodoCategory::class.java)
+
+
+        if (users?.contains(uid) != true) {
+            todoCategoryRef.document(sendCategoryId)
+                .update("users", FieldValue.arrayUnion(uid))
+                .await()
+        }
+
+        return category
+    }
+
+    suspend fun getSendCategories(uid: String): List<TodoCategory>  {
+        val todoCategoryRef = firestore.collection("sendTodoCategories")
+        val snapshot = todoCategoryRef
+            .whereArrayContains("users", uid)
+            .get()
+            .await()
+
+        val categories = snapshot.documents.mapNotNull { it.get("category") as? TodoCategory }
+
+
+
+        return categories
     }
 
     // 카테고리 수정
