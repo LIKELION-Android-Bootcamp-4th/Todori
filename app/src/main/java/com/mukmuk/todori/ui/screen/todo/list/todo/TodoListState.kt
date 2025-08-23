@@ -8,6 +8,8 @@ data class TodoListState(
     val isLoading: Boolean = false,
     val categories: List<TodoCategory> = emptyList(),
     val todosByCategory: Map<String, List<Todo>> = emptyMap(),
+    val sendCategories: List<TodoCategory> = emptyList(),
+    val sendTodosByCategory: Map<String, List<Todo>> = emptyMap(),
     val selectedDate: LocalDate? = null,
     val error: String? = null,
 
