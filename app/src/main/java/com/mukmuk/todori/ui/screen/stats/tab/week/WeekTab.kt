@@ -37,6 +37,7 @@ import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
 import com.mukmuk.todori.util.buildBarEntries
+import com.mukmuk.todori.util.buildHeatmapData
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -91,6 +92,10 @@ fun WeekTab(
 
         (record?.studyTimeMillis ?: 0L) / 1000f / 60f / 60f
     }.toFloatArray()
+
+    val heatmapData = remember(state.dailyRecords, weekRange) {
+        buildHeatmapData(weekRange, state.dailyRecords)
+    }
 
 
     Column(
@@ -155,8 +160,8 @@ fun WeekTab(
 
         Spacer(modifier = Modifier.height(Dimens.Large))
 
-        // ===== 시간대별 성과 히트맵 =====
-        TimePerformanceHeatmap()
+
+        TimePerformanceHeatmap(heatmapData)
         Spacer(modifier = Modifier.height(Dimens.Large))
 
         // ===== 주차 인사이트 =====
