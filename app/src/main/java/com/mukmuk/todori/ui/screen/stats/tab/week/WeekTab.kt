@@ -164,8 +164,7 @@ fun WeekTab(
         TimePerformanceHeatmap(heatmapData)
         Spacer(modifier = Modifier.height(Dimens.Large))
 
-        // ===== 주차 인사이트 =====
-        WeekInsights()
+        WeekInsights(state.insights)
         Spacer(modifier = Modifier.height(Dimens.Large))
     }
 }
