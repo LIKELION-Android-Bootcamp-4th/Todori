@@ -1,7 +1,6 @@
 package com.mukmuk.todori.ui.screen.stats.tab.week
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -84,23 +83,14 @@ fun WeekTab(
 
     val dailyTargetMinutes = state.studyTargets?.dailyMinutes ?: 0
 
-    Log.d("WeekTab", "dailyTargetMinutes=$dailyTargetMinutes")
 
     val plannedHours = FloatArray(7) { dailyTargetMinutes / 60f }
-    Log.d("WeekTab", "plannedHours=${plannedHours.joinToString()}")
 
     val actualHours = weekRange.map { date ->
         val record = state.dailyRecords.find { it.date == date.toString() }
-        Log.d("WeekTab", "date=$date, record=$record")
 
         (record?.studyTimeMillis ?: 0L) / 1000f / 60f / 60f
     }.toFloatArray()
-
-    Log.d("WeekTab", "actualHours=${actualHours.joinToString()}")
-
-    Log.d("WeekTab", "totalEntries=$totalEntries")
-    Log.d("WeekTab", "completedEntries=$completedEntries")
-
 
 
     Column(
