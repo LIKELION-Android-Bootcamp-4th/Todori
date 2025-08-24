@@ -44,7 +44,9 @@ fun StudyStatisticsSection(
     allTodos: List<Todo> = emptyList(),
     completedTodos: List<Todo> = emptyList(),
     totalEntries: List<BarEntry> = emptyList(),
-    completedEntries: List<BarEntry> = emptyList()
+    completedEntries: List<BarEntry> = emptyList(),
+    plannedHours: FloatArray = FloatArray(7),
+    actualHours: FloatArray = FloatArray(7)
 ) {
     val totalStudyMillis = record.sumOf { it.studyTimeMillis }
     val studiedCount = record.count { it.studyTimeMillis > 0L }
@@ -129,14 +131,9 @@ fun StudyStatisticsSection(
             ) {
                 Column(Modifier.padding(Dimens.Small)) {
                     AndroidView(
-                        factory = {
-                            context -> LineChart(context).apply {
-                                setupLineChart(
-                                    this,
-                                    plannedHours = floatArrayOf(8f, 7f, 9f, 8f, 8f, 0f, 0f), // record
-                                    actualHours = floatArrayOf(7f, 9f, 6f, 9f, 8f, 0f, 0f)   // record
-                                )
-                            }
+                        factory = { context -> LineChart(context) },
+                        update = { chart ->
+                            setupLineChart(chart, plannedHours, actualHours)
                         },
                         modifier = Modifier.fillMaxSize()
                     )
@@ -155,10 +152,10 @@ fun StudyStatisticsSection(
             ) {
                 Column(Modifier.padding(Dimens.Small)) {
                     AndroidView(
-                        factory = { context -> BarChart(context).apply {
-                            setupBarChart(this, totalEntries, completedEntries)
-                        }
-                    },
+                        factory = { context -> BarChart(context) },
+                        update = { chart ->
+                            setupBarChart(chart, totalEntries, completedEntries)
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                 }

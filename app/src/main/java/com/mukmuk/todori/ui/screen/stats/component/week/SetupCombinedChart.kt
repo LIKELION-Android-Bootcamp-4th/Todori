@@ -6,6 +6,7 @@ import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
@@ -27,13 +28,12 @@ fun setupLineChart(
     val plannedEntries = plannedHours.mapIndexed { i, v -> Entry(i.toFloat(), v) }
     val actualEntries = actualHours.mapIndexed { i, v -> Entry(i.toFloat(), v) }
 
-    val plannedSet = LineDataSet(plannedEntries, "계획 시간").apply {
+    val plannedSet = LineDataSet(plannedEntries, "목표 기준선").apply {
         color = Red.toArgb()
-        setCircleColor(Red.toArgb())
-        lineWidth = 2.5f
-        circleRadius = 4f
+        lineWidth = 2f
+        setDrawCircles(false)
         setDrawValues(false)
-
+        enableDashedLine(10f, 5f, 0f)
     }
 
     val actualSet = LineDataSet(actualEntries, "실제 시간").apply {
@@ -62,10 +62,15 @@ fun setupLineChart(
 
         axisLeft.apply {
             axisMinimum = 0f
+            axisMaximum = (maxOf(plannedHours.maxOrNull() ?: 0f, actualHours.maxOrNull() ?: 0f) + 1f)
+            granularity = 1f
             textSize = 14f
         }
 
         axisRight.isEnabled = false
+
+        setVisibleYRangeMinimum(1f, YAxis.AxisDependency.LEFT)
+        invalidate()
 
         animateX(1000, Easing.EaseInOutQuad)
     }

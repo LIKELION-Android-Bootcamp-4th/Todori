@@ -5,9 +5,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
-import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.DailyRecordRepository
+import com.mukmuk.todori.data.repository.StudyTargetsRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,13 +21,13 @@ import javax.inject.Inject
 @RequiresApi(Build.VERSION_CODES.O)
 class WeekViewModel @Inject constructor(
     private val todoRepository: TodoRepository,
-    private val dailyRecordRepository: DailyRecordRepository
+    private val dailyRecordRepository: DailyRecordRepository,
+    private val studyTargetsRepository: StudyTargetsRepository
 ): ViewModel() {
     private val _state = MutableStateFlow(WeekState())
     val state: StateFlow<WeekState> = _state.asStateFlow()
 
 
-    //선택 날짜에 해당하는 주 가져오기
     fun getWeekRange(date: LocalDate): List<LocalDate> {
         val dayOfWeek = date.dayOfWeek.value % 7
         val sunday = date.minusDays(dayOfWeek.toLong())
@@ -78,6 +77,17 @@ class WeekViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             Log.d("WeekViewModel", "주간 공부기록 불러오기 실패 : ${e.message}")
+        }
+    }
+
+    fun loadStudyTargets(uid: String) = viewModelScope.launch {
+        try {
+            val targets = studyTargetsRepository.getStudyTargets(uid)
+            _state.update {
+                it.copy(studyTargets = targets)
+            }
+        } catch (e: Exception) {
+            Log.d("WeekViewModel", "스터디 목표 불러오기 실패 : ${e.message}")
         }
     }
 }

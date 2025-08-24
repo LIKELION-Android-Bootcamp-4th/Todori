@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.tab.week
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,7 @@ fun WeekTab(
         val jDate = java.time.LocalDate.of(date.year, date.monthNumber, date.dayOfMonth)
         viewModel.loadWeekTodos(uid = uid, date = jDate)
         viewModel.loadWeekStudy(uid = uid, date = jDate)
+        viewModel.loadStudyTargets(uid)
     }
 
     val weekStart = DayOfWeek.SUNDAY
@@ -72,9 +74,34 @@ fun WeekTab(
         viewModel.getWeekRange(jDate)
     }
 
-    val (totalEntries, completedEntries) = remember(state.todos, state.completedTodoItems, weekRange) {
+    val (totalEntries, completedEntries) = remember(
+        state.todos,
+        state.completedTodoItems,
+        weekRange
+    ) {
         buildBarEntries(state.todos, state.completedTodoItems, weekRange)
     }
+
+    val dailyTargetMinutes = state.studyTargets?.dailyMinutes ?: 0
+
+    Log.d("WeekTab", "dailyTargetMinutes=$dailyTargetMinutes")
+
+    val plannedHours = FloatArray(7) { dailyTargetMinutes / 60f }
+    Log.d("WeekTab", "plannedHours=${plannedHours.joinToString()}")
+
+    val actualHours = weekRange.map { date ->
+        val record = state.dailyRecords.find { it.date == date.toString() }
+        Log.d("WeekTab", "date=$date, record=$record")
+
+        (record?.studyTimeMillis ?: 0L) / 1000f / 60f / 60f
+    }.toFloatArray()
+
+    Log.d("WeekTab", "actualHours=${actualHours.joinToString()}")
+
+    Log.d("WeekTab", "totalEntries=$totalEntries")
+    Log.d("WeekTab", "completedEntries=$completedEntries")
+
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -131,7 +158,9 @@ fun WeekTab(
             allTodos = state.todos,
             completedTodos = state.completedTodoItems,
             totalEntries = totalEntries,
-            completedEntries = completedEntries
+            completedEntries = completedEntries,
+            plannedHours = plannedHours,
+            actualHours = actualHours
         )
 
         Spacer(modifier = Modifier.height(Dimens.Large))
