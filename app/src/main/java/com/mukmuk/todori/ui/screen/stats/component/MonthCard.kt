@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -21,31 +24,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.R
+import com.mukmuk.todori.data.remote.stat.WeekStat
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
+import com.mukmuk.todori.ui.theme.Red
+import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
+import com.mukmuk.todori.util.formatHoursOrDash
 
 @Composable
 fun MonthCard(
     completedTodos: Int,
     totalTodos: Int,
-    completedGoals: Int,
-    avgStudyTimeMillis : Long,
-    totalStudyTimeMillis : Long
+    avgStudyTimeMillis: Long,
+    totalStudyTimeMillis: Long,
+    bestWeek: WeekStat?,
+    worstWeek: WeekStat?
 ) {
-
     val todoTotalPer = if (totalTodos > 0) {
         (completedTodos.toFloat() / totalTodos * 100).toInt()
     } else 0
 
-    val avgStudyMinutes = (avgStudyTimeMillis / 1000 / 60)
-    val avgHours = avgStudyMinutes / 60
-    val avgMinutes = avgStudyMinutes % 60
-
     val totalStudyMinutes = (totalStudyTimeMillis / 1000 / 60).toInt()
     val totalHours = totalStudyMinutes / 60
     val totalMinutes = totalStudyMinutes % 60
+
+    val avgStudyMinutes = (avgStudyTimeMillis / 1000 / 60).toInt()
+    val avgHours = avgStudyMinutes / 60
+    val avgMinutes = avgStudyMinutes % 60
 
     Column {
         Row(
@@ -59,16 +66,13 @@ fun MonthCard(
                     .weight(1f)
                     .height(120.dp),
                 shape = RoundedCornerShape(DefaultCornerRadius),
-                colors = CardDefaults.cardColors(
-                    containerColor = White
-                ),
+                colors = CardDefaults.cardColors(containerColor = White),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.icon_alltime),
@@ -82,6 +86,11 @@ fun MonthCard(
                         "${totalHours}시간 ${totalMinutes}분",
                         style = AppTextStyle.TitleMedium
                     )
+                    Spacer(modifier = Modifier.height(Dimens.Nano))
+                    Text(
+                        "평균 ${avgHours}시간 ${avgMinutes}분",
+                        style = AppTextStyle.BodyTinyNormal
+                    )
                 }
             }
 
@@ -90,16 +99,13 @@ fun MonthCard(
                     .weight(1f)
                     .height(120.dp),
                 shape = RoundedCornerShape(DefaultCornerRadius),
-                colors = CardDefaults.cardColors(
-                    containerColor = White
-                ),
+                colors = CardDefaults.cardColors(containerColor = White),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.icon_check),
@@ -109,16 +115,14 @@ fun MonthCard(
                     )
                     Spacer(modifier = Modifier.height(Dimens.Small))
                     Text("TODO 달성률", style = AppTextStyle.MypageButtonText)
-                    Text(
-                        "${todoTotalPer}%",
-                        style = AppTextStyle.TitleMedium
-                    )
+                    Text("${todoTotalPer}%", style = AppTextStyle.TitleMedium)
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(Dimens.Medium))
 
+        // 하단: 베스트 주 / 워스트 주
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -130,28 +134,27 @@ fun MonthCard(
                     .weight(1f)
                     .height(120.dp),
                 shape = RoundedCornerShape(DefaultCornerRadius),
-                colors = CardDefaults.cardColors(
-                    containerColor = White
-                ),
+                colors = CardDefaults.cardColors(containerColor = White),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.icon_average),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Unspecified
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.Small))
-                    Text("평균 공부시간", style = AppTextStyle.MypageButtonText)
+                    Row {
+                        Icon(
+                            Icons.Default.ArrowUpward,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = UserPrimary
+                        )
+                        Text("베스트 주", style = AppTextStyle.MypageButtonText.copy(color = UserPrimary))
+                    }
+                    Text(bestWeek?.label ?: "-", style = AppTextStyle.BodySmallMedium)
                     Text(
-                        "${avgHours}시간 ${avgMinutes}분",
-                        style = AppTextStyle.TitleMedium
+                        bestWeek?.let { formatHoursOrDash(it.totalStudyTimeMillis) } ?: "-",
+                        style = AppTextStyle.TitleMedium.copy(color = UserPrimary)
                     )
                 }
             }
@@ -161,26 +164,28 @@ fun MonthCard(
                     .weight(1f)
                     .height(120.dp),
                 shape = RoundedCornerShape(DefaultCornerRadius),
-                colors = CardDefaults.cardColors(
-                    containerColor = White
-                ),
+                colors = CardDefaults.cardColors(containerColor = White),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.icon_completed_goal),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Unspecified
+                    Row {
+                        Icon(
+                            Icons.Default.ArrowDownward,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = Red
+                        )
+                        Text("워스트 주", style = AppTextStyle.MypageButtonText.copy(color = Red))
+                    }
+                    Text(worstWeek?.label ?: "-", style = AppTextStyle.BodySmallMedium)
+                    Text(
+                        worstWeek?.let { formatHoursOrDash(it.totalStudyTimeMillis) } ?: "-",
+                        style = AppTextStyle.TitleMedium.copy(color = Red)
                     )
-                    Spacer(modifier = Modifier.height(Dimens.Small))
-                    Text("완료 목표", style = AppTextStyle.MypageButtonText)
-                    Text("${completedGoals}개", style = AppTextStyle.TitleMedium)
                 }
             }
         }

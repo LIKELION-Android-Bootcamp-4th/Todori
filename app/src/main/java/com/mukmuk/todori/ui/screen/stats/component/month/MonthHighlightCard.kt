@@ -1,7 +1,6 @@
 package com.mukmuk.todori.ui.screen.stats.component.month
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,8 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EmojiEvents
@@ -33,13 +30,11 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.GoalPrimary
 import com.mukmuk.todori.ui.theme.GoldenHourAccent
 import com.mukmuk.todori.ui.theme.LearningAccent
-import com.mukmuk.todori.ui.theme.LightGray
 import com.mukmuk.todori.ui.theme.LightOrange
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun MonthHighlightCard(
-    bestKeywords: List<String>,
     bestDay: String,
     bestDayQuote: String,
     insights: List<String>
@@ -47,7 +42,6 @@ fun MonthHighlightCard(
     Column(
         modifier = Modifier.padding(horizontal = Dimens.Medium)
     ) {
-        // 하이라이트 키워드
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = Dimens.CardDefaultRadius,
@@ -75,37 +69,8 @@ fun MonthHighlightCard(
                     )
                 }
 
-                Text(
-                    text = "최고 키워드 TOP 5",
-                    style = AppTextStyle.BodySmallMedium,
-                    color = Black
-                )
-                Spacer(modifier = Modifier.height(Dimens.Tiny))
+                Spacer(modifier = Modifier.height(Dimens.Small))
 
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.Tiny)
-                ) {
-                    items(bestKeywords) { keyword ->
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    LightGray,
-                                    RoundedCornerShape(Dimens.Medium)
-                                )
-                                .padding(horizontal = Dimens.Small, vertical = Dimens.Nano)
-                        ) {
-                            Text(
-                                text = "#$keyword",
-                                style = AppTextStyle.BodyTinyMedium,
-                                color = DarkGray
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(Dimens.Medium))
-
-                // 가장 보람찬 날
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -144,21 +109,8 @@ fun MonthHighlightCard(
                         )
                     }
                 }
-            }
-        }
+                Spacer(modifier = Modifier.height(Dimens.Large))
 
-        Spacer(modifier = Modifier.height(Dimens.Medium))
-
-        // 이번 달 인사이트
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = Dimens.CardDefaultRadius,
-            colors = CardDefaults.cardColors(containerColor = White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(Dimens.Medium)
-            ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = Dimens.Medium)
@@ -195,5 +147,7 @@ fun MonthHighlightCard(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(Dimens.Medium))
     }
 }

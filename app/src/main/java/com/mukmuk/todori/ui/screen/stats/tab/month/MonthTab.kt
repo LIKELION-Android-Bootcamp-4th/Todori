@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.ui.screen.stats.component.MonthCard
-import com.mukmuk.todori.ui.screen.stats.component.MonthProgress
 import com.mukmuk.todori.ui.screen.stats.component.month.MonthHighlightCard
 import com.mukmuk.todori.ui.screen.stats.component.month.SubjectAnalysisCard
 import com.mukmuk.todori.ui.theme.AppTextStyle
@@ -134,9 +133,10 @@ fun MonthTab(
         MonthCard(
             completedTodos = state.completedTodos,
             totalTodos = state.totalTodos,
-            completedGoals = state.completedGoals,
             avgStudyTimeMillis = state.avgStudyTimeMillis,
-            totalStudyTimeMillis = state.totalStudyTimeMillis
+            totalStudyTimeMillis = state.totalStudyTimeMillis,
+            bestWeek = state.bestWeek,
+            worstWeek = state.worstWeek
         )
         Spacer(modifier = Modifier.height(Dimens.Large))
         SubjectAnalysisCard(
@@ -146,25 +146,11 @@ fun MonthTab(
         Spacer(modifier = Modifier.height(Dimens.Large))
 
         MonthHighlightCard(
-            bestKeywords = listOf("집중", "성취감", "도전", "성장", "만족"),
-            bestDay = "7월 15일",
-            bestDayQuote = "알고리즘 문제를 연속으로 해결해서 정말 뿌듯했다!",
-            insights = listOf(
-                "수학 과목의 집중시간이 감저한 원포들이 늘어요 (65%)",
-                "영어는 목표 집중직으로 처히 더 효과적이어요 (92% 완료율)",
-                "7월 3주차가 최고의 성과를 보였어요 (32.5시간)",
-                "'성취감'이 가장 자주 나타난 최고 키워드예요"
-            )
+            bestDay = state.bestDay.toString(),
+            bestDayQuote = state.bestDayQuote.toString(),
+            insights = state.insights
         )
 
         Spacer(modifier = Modifier.height(Dimens.Large))
-        MonthProgress(
-            completedTodos = state.completedTodos,
-            totalTodos = state.totalTodos,
-            completedGoals = state.completedGoals,
-            totalGoals = state.totalGoals,
-            completedStudyTodos = state.completedStudyTodos,
-            totalStudyTodos = state.totalStudyTodos
-        )
     }
 }

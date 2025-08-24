@@ -53,3 +53,8 @@ fun buildHeatmapData(
     }
 }
 
+fun formatHoursOrDash(millis: Long): String {
+    val hours = millis / 1000.0 / 60.0 / 60.0
+    return if (hours == 0.0) "-" else String.format("%.1fh", hours)
+}
+

@@ -1,6 +1,6 @@
 package com.mukmuk.todori.ui.screen.stats.tab.month
 
-import com.mukmuk.todori.data.remote.stat.BestDay
+import com.mukmuk.todori.data.remote.stat.WeekStat
 import com.mukmuk.todori.ui.screen.stats.component.month.SubjectProgress
 
 data class MonthState(
@@ -15,5 +15,9 @@ data class MonthState(
     val todoCompletionRate: Int = 0,
     val categoryStats: List<SubjectProgress> = emptyList(),
     val goalStats: List<SubjectProgress> = emptyList(),
-    val bestDay: BestDay? = null
-)
+    val bestDay: String? = null,
+    val bestDayQuote: String? = null,
+    val insights: List<String> = emptyList(),
+    val bestWeek: WeekStat? = null,
+    val worstWeek: WeekStat? = null
+    )
