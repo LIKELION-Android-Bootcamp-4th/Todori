@@ -54,7 +54,6 @@ fun MonthCard(
                 .padding(horizontal = Dimens.Medium),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            //총 공부시간
             Card(
                 modifier = Modifier
                     .weight(1f)
@@ -86,7 +85,6 @@ fun MonthCard(
                 }
             }
 
-            //투두 달성률
             Card(
                 modifier = Modifier
                     .weight(1f)
@@ -127,7 +125,6 @@ fun MonthCard(
                 .padding(horizontal = Dimens.Medium),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            //평균 공부시간
             Card(
                 modifier = Modifier
                     .weight(1f)
@@ -159,7 +156,6 @@ fun MonthCard(
                 }
             }
 
-            //완료 목표
             Card(
                 modifier = Modifier
                     .weight(1f)

@@ -6,8 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.repository.DailyRecordRepository
 import com.mukmuk.todori.data.repository.GoalStatsRepository
+import com.mukmuk.todori.data.repository.MonthStatRepository
 import com.mukmuk.todori.data.repository.StudyStatsRepository
 import com.mukmuk.todori.data.repository.TodoStatsRepository
+import com.mukmuk.todori.ui.screen.stats.component.month.SubjectProgress
+import com.mukmuk.todori.ui.theme.GoalPrimary
+import com.mukmuk.todori.ui.theme.UserPrimary
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,12 +20,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class MonthViewModel @Inject constructor(
     private val todoStatsRepository: TodoStatsRepository,
     private val goalStatsRepository: GoalStatsRepository,
     private val studyStatsRepository: StudyStatsRepository,
-    private val dailyRecordRepository: DailyRecordRepository
+    private val dailyRecordRepository: DailyRecordRepository,
+    private val monthStatRepository: MonthStatRepository
 ) : ViewModel() {
 
     private val _monthState = MutableStateFlow(MonthState())
@@ -40,7 +46,6 @@ class MonthViewModel @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun loadGoalStats(uid: String, year: Int, month: Int) {
         viewModelScope.launch {
             val completed = goalStatsRepository.getCompletedGoalCount(uid, year, month)
@@ -54,7 +59,6 @@ class MonthViewModel @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun loadStudyTodosStats(uid: String, year: Int, month: Int) {
         viewModelScope.launch {
             val completed = studyStatsRepository.getCompletedStudyTodosCount(uid, year, month)
@@ -68,7 +72,6 @@ class MonthViewModel @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun loadStudyTimeStats(uid: String, year: Int, month: Int) {
         viewModelScope.launch {
             val total = dailyRecordRepository.getTotalStudyTimeMillis(uid, year, month)
@@ -78,6 +81,32 @@ class MonthViewModel @Inject constructor(
                     totalStudyTimeMillis = total,
                     avgStudyTimeMillis = avg
                 )
+            }
+        }
+    }
+
+    fun loadMonthStats(uid: String, year: Int, month: Int) {
+        viewModelScope.launch {
+            val stat = monthStatRepository.getMonthStat(uid, year, month)
+            stat?.let {
+                _monthState.update {
+                    it.copy(
+                        categoryStats = stat.categoryStats.map { c ->
+                            SubjectProgress(
+                                name = c.name,
+                                completionRate = c.completionRate,
+                                color = UserPrimary
+                            )
+                        },
+                        goalStats = stat.goalStats.map { g ->
+                            SubjectProgress(
+                                name = g.title,
+                                completionRate = g.completionRate,
+                                color = GoalPrimary
+                            )
+                        }
+                    )
+                }
             }
         }
     }

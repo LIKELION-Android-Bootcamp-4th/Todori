@@ -1,5 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.tab.month
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,30 +22,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.ui.screen.stats.component.MonthCard
 import com.mukmuk.todori.ui.screen.stats.component.MonthProgress
+import com.mukmuk.todori.ui.screen.stats.component.month.MonthHighlightCard
+import com.mukmuk.todori.ui.screen.stats.component.month.SubjectAnalysisCard
 import com.mukmuk.todori.ui.theme.AppTextStyle
-import com.mukmuk.todori.ui.theme.Dimens
-import androidx.compose.runtime.mutableStateOf
 import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.Dimens
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.todayIn
-import kotlinx.datetime.plus
-import kotlinx.datetime.minus
-import kotlinx.datetime.todayIn
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MonthTab(
     uid: String,
@@ -76,6 +72,11 @@ fun MonthTab(
             year = selectedMonth.year,
             month = selectedMonth.monthNumber
         )
+        viewModel.loadMonthStats(
+            uid = uid,
+            year = selectedMonth.year,
+            month = selectedMonth.monthNumber
+        )
     }
 
     Column(
@@ -90,7 +91,6 @@ fun MonthTab(
                 .fillMaxWidth()
                 .padding(Dimens.Medium)
         ) {
-            //왼쪽 화살표
             Row(
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
@@ -106,7 +106,6 @@ fun MonthTab(
                 }
             }
 
-            //월 표시
             Row(
                 modifier = Modifier.align(Alignment.Center)
             ) {
@@ -116,7 +115,6 @@ fun MonthTab(
                 )
             }
 
-            //오른쪽 화살표
             Row(
                 modifier = Modifier.align(Alignment.CenterEnd)
             ) {
@@ -140,6 +138,25 @@ fun MonthTab(
             avgStudyTimeMillis = state.avgStudyTimeMillis,
             totalStudyTimeMillis = state.totalStudyTimeMillis
         )
+        Spacer(modifier = Modifier.height(Dimens.Large))
+        SubjectAnalysisCard(
+            subjects = state.categoryStats + state.goalStats
+        )
+
+        Spacer(modifier = Modifier.height(Dimens.Large))
+
+        MonthHighlightCard(
+            bestKeywords = listOf("집중", "성취감", "도전", "성장", "만족"),
+            bestDay = "7월 15일",
+            bestDayQuote = "알고리즘 문제를 연속으로 해결해서 정말 뿌듯했다!",
+            insights = listOf(
+                "수학 과목의 집중시간이 감저한 원포들이 늘어요 (65%)",
+                "영어는 목표 집중직으로 처히 더 효과적이어요 (92% 완료율)",
+                "7월 3주차가 최고의 성과를 보였어요 (32.5시간)",
+                "'성취감'이 가장 자주 나타난 최고 키워드예요"
+            )
+        )
+
         Spacer(modifier = Modifier.height(Dimens.Large))
         MonthProgress(
             completedTodos = state.completedTodos,
