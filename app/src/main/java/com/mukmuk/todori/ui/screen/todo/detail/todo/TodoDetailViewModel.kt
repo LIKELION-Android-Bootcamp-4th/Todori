@@ -131,12 +131,19 @@ class TodoDetailViewModel @Inject constructor(
     }
 
     //category 삭제 및 해당 관련 Todo 삭제
+    @RequiresApi(Build.VERSION_CODES.O)
     fun deleteCategoryWithTodos(uid: String, categoryId: String) {
         viewModelScope.launch {
             try {
                 val todos = todoRepository.getTodosByCategory(uid, categoryId)
                 todos.forEach { todo ->
                     todoRepository.deleteTodo(uid, todo.todoId)
+
+                    val todayTodos = todoRepository.getTodosByDate(uid, LocalDate.now())
+                    if (todayTodos.isNotEmpty()) {
+                        todayTodoRepository.saveTodayTodos(todayTodos)
+                        updateTodoWidget(todayTodos)
+                    }
                 }
                 categoryRepository.deleteCategory(uid, categoryId)
                 _state.value = _state.value.copy(categoryDeleted = true)
