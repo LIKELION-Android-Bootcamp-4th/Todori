@@ -172,7 +172,16 @@ fun CreateCommunityScreen(
                     Text("불러오기", style = AppTextStyle.Body)
                 }
             }
-
+            state.currentStudy?.let { study ->
+                CommunityListData(
+                    title = study.studyName,
+                    description = study.description,
+                    createdAt = study.createdAt,
+                    memberCount = null,
+                    activeDays = study.activeDays,
+                    onClick = {}
+                )
+            }
             Spacer(Modifier.height(Dimens.Large))
 
             Text("스터디 선택하기", style = AppTextStyle.Body)
