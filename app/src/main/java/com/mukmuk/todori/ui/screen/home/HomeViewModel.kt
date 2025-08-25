@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -88,12 +89,18 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             recordSettingRepository.totalRecordTimeFlow.collectLatest { savedTime ->
-                _state.update { it.copy(totalRecordTimeMills = savedTime) }
+                _state.update { current ->
+                    current.copy(
+                        totalStudyTimeMills = if (_state.value.status != TimerStatus.RUNNING) savedTime else current.totalStudyTimeMills
+                    )
+                }
             }
         }
 
         viewModelScope.launch {
-            recordSettingRepository.runningStateFlow.collectLatest { running ->
+            recordSettingRepository.runningStateFlow
+                .distinctUntilChanged()
+                .collectLatest { running ->
                 if (running) {
                     startTimer()
                 } else {
@@ -135,8 +142,10 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun startTimer() {
-        if (_state.value.status == TimerStatus.RUNNING) return
-
+        if (timerJob?.isActive == true || _state.value.status == TimerStatus.RUNNING) {
+            return
+        }
+        timerJob?.cancel()
         _state.update { it.copy(status = TimerStatus.RUNNING) }
 
         val intent = Intent(context, TimerService::class.java)
@@ -161,7 +170,6 @@ class HomeViewModel @Inject constructor(
                     updated
                 }
             }
-
             handleTimerCompletion()
         }
     }
@@ -172,6 +180,7 @@ class HomeViewModel @Inject constructor(
 
     private fun stopTimer() {
         timerJob?.cancel()
+        timerJob = null
         _state.update { it.copy(status = TimerStatus.IDLE) }
 
         val uid = _state.value.uid
@@ -199,7 +208,6 @@ class HomeViewModel @Inject constructor(
     private fun saveRecord(uid: String, recordTime: Long) {
         viewModelScope.launch {
             if (uid.isEmpty()) {
-                Log.e("todorilog", "기록 저장 실패: UID가 유효하지 않습니다.")
                 return@launch
             }
             try {
