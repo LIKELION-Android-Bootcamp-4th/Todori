@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.DeleteForever
@@ -61,7 +63,6 @@ fun TodoDetailScreen(
     onBack: () -> Unit
 ) {
     val viewModel: TodoDetailViewModel = hiltViewModel()
-//    val uid = "testuser"
     val uid = Firebase.auth.currentUser?.uid.toString()
 
     val state by viewModel.state.collectAsState()
@@ -101,17 +102,26 @@ fun TodoDetailScreen(
                     onClick = {
                         showDialog = false
                         viewModel.deleteCategoryWithTodos(uid, categoryId)
-                        Toast.makeText(context,"카테고리가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "카테고리가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                     }
                 ) { Text("삭제", style = AppTextStyle.Body.copy(color = Red)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text("취소",style = AppTextStyle.Body.copy(color = Black)) }
+                TextButton(onClick = { showDialog = false }) {
+                    Text(
+                        "취소",
+                        style = AppTextStyle.Body.copy(color = Black)
+                    )
+                }
             }
         )
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         CommonDetailAppBar(
             title = categoryTitle,
             onBack = onBack,
@@ -205,7 +215,7 @@ fun TodoDetailScreen(
                         modifier = Modifier
                             .size(20.dp)
                             .clickable {
-                                viewModel.deletedTodo(uid,todo.todoId,categoryId,date)
+                                viewModel.deletedTodo(uid, todo.todoId, categoryId, date)
                             }
                     )
                 }
