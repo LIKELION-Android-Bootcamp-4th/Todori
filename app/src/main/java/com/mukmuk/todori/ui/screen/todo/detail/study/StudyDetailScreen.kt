@@ -54,7 +54,6 @@ fun StudyDetailScreen(
     selectedDate: String,
     onBack: () -> Unit
 ) {
-//    val uid = "testuser"
     val uid = Firebase.auth.currentUser?.uid.toString()
     val viewModel: StudyDetailViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()

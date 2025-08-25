@@ -1,6 +1,5 @@
 package com.mukmuk.todori.ui.screen.todo.component
 
-import android.R.attr.level
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
