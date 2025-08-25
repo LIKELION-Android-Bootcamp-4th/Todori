@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -18,6 +19,7 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
+import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Row
@@ -65,7 +67,10 @@ class TotalTimeWidget : GlanceAppWidget() {
         val totalTime = String.format("%02d:%02d:%02d", h, m, s)
 
         Row (
-            modifier = GlanceModifier.fillMaxSize().clickable(actionStartActivity(
+            modifier = GlanceModifier
+                .background(Color(0x50FFFFFF))
+                .fillMaxSize()
+                .clickable(actionStartActivity(
                 Intent(
                     Intent.ACTION_VIEW,
                     Uri.parse("todori://app.todori.com/home")
