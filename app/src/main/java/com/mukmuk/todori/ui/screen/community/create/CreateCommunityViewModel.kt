@@ -1,0 +1,161 @@
+package com.mukmuk.todori.ui.screen.community.create
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
+import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.data.repository.CommunityRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class CreateCommunityViewModel @Inject constructor(
+    private val repository: CommunityRepository,
+    private val auth: FirebaseAuth
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(CreateCommunityState())
+    val state: StateFlow<CreateCommunityState> = _state
+
+    private var loadPostJob: Job? = null
+
+    init {
+        val uid = auth.currentUser?.uid ?: ""
+        if (uid.isNotBlank()) {
+            getUserById(uid)
+        }
+    }
+
+    fun onEvent(event: CreateCommunityEvent) {
+        when (event) {
+            is CreateCommunityEvent.OnTitleChange -> _state.update { it.copy(title = event.title, isTitleError = false) }
+            is CreateCommunityEvent.OnContentChange -> _state.update { it.copy(content = event.content) }
+            is CreateCommunityEvent.OnTagClick -> toggleTag(event.tag)
+            is CreateCommunityEvent.OnStudyPickerClick -> _state.update { it.copy(isStudyPickerVisible = true) }
+            is CreateCommunityEvent.OnStudySelected -> loadStudy(event.studyId)
+            is CreateCommunityEvent.OnStudyPickerDismiss -> _state.update { it.copy(isStudyPickerVisible = false) }
+            is CreateCommunityEvent.OnPostSubmit -> submitPost(event.postId)
+            is CreateCommunityEvent.LoadPostForEditing -> loadPostForEditing(event.postId)
+        }
+    }
+
+    private fun getUserById(uid: String) {
+        viewModelScope.launch {
+            try {
+                val user = repository.getUserById(uid)
+                _state.update { it.copy(user = user) }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
+
+    private fun toggleTag(tag: String) {
+        _state.update { currentState ->
+            val tags = currentState.selectedTags.toMutableList()
+            if (tags.contains(tag)) {
+                tags.remove(tag)
+            } else if (tags.size < 3) {
+                tags.add(tag)
+            }
+            currentState.copy(selectedTags = tags)
+        }
+    }
+
+    private fun loadStudy(studyId: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isStudyPickerVisible = false, isLoading = true, studyId = studyId) }
+            try {
+                repository.loadStudyById(studyId).collectLatest { study ->
+                    _state.update { it.copy(currentStudy = study, isLoading = false) }
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    private fun loadPostForEditing(postId: String) {
+        loadPostJob?.cancel()
+        loadPostJob = viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            try {
+                repository.getPostById(postId).collectLatest { post ->
+                    if (post != null) {
+                        _state.update {
+                            it.copy(
+                                title = post.title,
+                                content = post.content,
+                                selectedTags = post.tags,
+                                studyId = post.studyId,
+                                isLoading = false,
+                                post = post 
+                            )
+                        }
+                        if (post.studyId.isNotBlank()) {
+                            loadStudy(post.studyId)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    private fun submitPost(postId: String?) {
+        if (_state.value.title.isBlank()) {
+            _state.update { it.copy(isTitleError = true) }
+            return
+        }
+
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            try {
+                val post = _state.value
+                val uid = auth.currentUser?.uid ?: return@launch
+
+                val postToSubmit = if (postId != null) {
+                    val originalPost = post.post ?: return@launch
+                    originalPost.copy(
+                        title = post.title,
+                        content = post.content,
+                        tags = post.selectedTags,
+                        studyId = post.studyId,
+                        memberCount = post.memberList.size,
+                        commentsCount = originalPost.commentsCount
+                    )
+                } else {
+                    StudyPost(
+                        title = post.title,
+                        content = post.content,
+                        tags = post.selectedTags,
+                        studyId = post.studyId,
+                        memberCount = post.memberList.size,
+                        commentsCount = 0,
+                        createdAt = Timestamp.now(),
+                        createdBy = uid
+                    )
+                }
+
+                if (postId != null) {
+                    repository.updatePost(postId, postToSubmit)
+                } else {
+                    repository.createPost(postToSubmit)
+                }
+
+                _state.update { it.copy(isLoading = false, isPostSubmitted = true) }
+
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+}
