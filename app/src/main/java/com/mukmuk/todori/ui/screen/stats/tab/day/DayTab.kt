@@ -28,7 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.data.remote.dailyRecord.ReflectionV2
-import com.mukmuk.todori.ui.screen.stats.component.CalendarCard
+import com.mukmuk.todori.ui.screen.stats.component.day.CalendarCard
 import com.mukmuk.todori.ui.screen.stats.component.day.DayPaceCard
 import com.mukmuk.todori.ui.screen.stats.component.day.DayStatsCard
 import com.mukmuk.todori.ui.screen.stats.component.day.GoldenHourCard

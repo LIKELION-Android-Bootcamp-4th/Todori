@@ -170,4 +170,9 @@ object AppTextStyle {
         fontSize = 12.sp,
         lineHeight = 18.sp
     )
+    val heatmapText = TextStyle(
+        fontFamily = NotoSans,
+        fontWeight = FontWeight.Medium,
+        fontSize = 10.sp
+    )
 }

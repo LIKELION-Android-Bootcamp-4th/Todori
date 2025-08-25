@@ -41,3 +41,7 @@ val ButtonPrimary = Color(0xFF22B282)
 val ButtonGoogle = Color(0xFFF2F2F2)
 val ButtonNaver = Color(0xFF03C75A)
 val ButtonKakao = Color(0xFFFEE500)
+
+//그라데이션용
+val firstGradient = Color(0xFF4CAF50)
+val secondGradient = Color(0xFF81C784)
