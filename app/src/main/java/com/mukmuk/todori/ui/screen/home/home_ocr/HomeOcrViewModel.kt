@@ -60,12 +60,12 @@ class HomeOcrViewModel @Inject constructor(
             recordSettingRepository.saveTotalRecordTime(existingTotalTimeInMillis + newTotalTimeInMillis)
 
             if (newTotalTimeInMillis > 0) {
-                val newDailyRecord = DailyRecord(
-                    date = currentDate.toString(),
-                    studyTimeMillis = existingTotalTimeInMillis + newTotalTimeInMillis
+                val data = mutableMapOf<String, Any>(
+                    "date" to currentDate.toString(),
+                    "studyTimeMillis" to existingTotalTimeInMillis + newTotalTimeInMillis
                 )
                 try {
-                    homeRepository.updateDailyRecord(_state.value.uid, newDailyRecord)
+                    homeRepository.updateDailyRecord(_state.value.uid, data)
                 } catch (e: Exception) {
                     Log.e("todorilog", "Firebase 업데이트 실패: ${e.message}")
                 }

@@ -297,7 +297,6 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel) {
                                             uid = state.uid,
                                             todo = todo
                                         )
-                                        viewModel.onEvent(TimerEvent.Stop)
                                     }
                                 }
                             )
