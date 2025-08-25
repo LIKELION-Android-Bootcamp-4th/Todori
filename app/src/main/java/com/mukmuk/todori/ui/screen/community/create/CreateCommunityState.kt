@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.create
 
 import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.data.remote.study.MyStudy
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.user.User
@@ -12,6 +13,7 @@ data class CreateCommunityState(
     val selectedTags: List<String> = emptyList(),
     val isStudyPickerVisible: Boolean = false,
     val currentStudy: Study? = null,
+    val myStudyList: List<MyStudy> = emptyList(),
     val memberList: List<StudyMember> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,

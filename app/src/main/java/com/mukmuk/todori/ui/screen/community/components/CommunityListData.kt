@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.study.Study
+import com.mukmuk.todori.data.remote.study.MyStudy
 import com.mukmuk.todori.ui.screen.todo.component.StudyMetaInfoRow
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -28,42 +29,39 @@ import com.mukmuk.todori.ui.theme.White
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CommunityListData(
-    studyId: String,
-    study: Study,
-    memberCount: Int,
+    title: String,
+    description: String,
+    createdAt: Timestamp?,
+    memberCount: Int?,
     activeDays: List<String>,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isSelected: Boolean = false
 ) {
-    Card (
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = Dimens.Large)
             .border(1.dp, Gray, RoundedCornerShape(10.dp)),
-        onClick = {
-            onClick()
-        },
+        onClick = onClick,
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
-            containerColor =
-            if(study.studyId == studyId || studyId.isBlank()) {
-                White
-            }else{
-                Gray
-            })
+            containerColor = White
+        )
     ) {
         Column(
             modifier = Modifier.padding(Dimens.Medium)
         ) {
-            Text(study.title, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold))
+            Text(title, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold))
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            Text(study.description, style = AppTextStyle.Body.copy(color = DarkGray))
-
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
+            if (description.isNotBlank()) {
+                Text(description, style = AppTextStyle.Body.copy(color = DarkGray))
+                Spacer(modifier = Modifier.height(Dimens.Tiny))
+            }
 
             StudyMetaInfoRow(
-                createdAt = study.createdAt,
+                createdAt = createdAt,
                 memberCount = memberCount,
                 activeDays = activeDays
             )

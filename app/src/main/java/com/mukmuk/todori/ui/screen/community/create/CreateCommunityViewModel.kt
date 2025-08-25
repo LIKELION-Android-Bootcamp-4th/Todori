@@ -6,6 +6,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.repository.CommunityRepository
+import com.mukmuk.todori.data.repository.StudyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateCommunityViewModel @Inject constructor(
-    private val repository: CommunityRepository,
+    private val communityRepository: CommunityRepository,
+    private val studyRepository: StudyRepository,
     private val auth: FirebaseAuth
 ) : ViewModel() {
 
@@ -38,18 +40,31 @@ class CreateCommunityViewModel @Inject constructor(
             is CreateCommunityEvent.OnTitleChange -> _state.update { it.copy(title = event.title, isTitleError = false) }
             is CreateCommunityEvent.OnContentChange -> _state.update { it.copy(content = event.content) }
             is CreateCommunityEvent.OnTagClick -> toggleTag(event.tag)
-            is CreateCommunityEvent.OnStudyPickerClick -> _state.update { it.copy(isStudyPickerVisible = true) }
+            is CreateCommunityEvent.OnStudyPickerClick -> {
+                _state.update { it.copy(isStudyPickerVisible = true) }
+                loadMyStudies()
+            }
             is CreateCommunityEvent.OnStudySelected -> loadStudy(event.studyId)
             is CreateCommunityEvent.OnStudyPickerDismiss -> _state.update { it.copy(isStudyPickerVisible = false) }
             is CreateCommunityEvent.OnPostSubmit -> submitPost(event.postId)
             is CreateCommunityEvent.LoadPostForEditing -> loadPostForEditing(event.postId)
         }
     }
-
+    private fun loadMyStudies() {
+        viewModelScope.launch {
+            val uid = auth.currentUser?.uid ?: return@launch
+            try {
+                val myStudies = studyRepository.getMyStudies(uid)
+                _state.update { it.copy(myStudyList = myStudies) }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
     private fun getUserById(uid: String) {
         viewModelScope.launch {
             try {
-                val user = repository.getUserById(uid)
+                val user = communityRepository.getUserById(uid)
                 _state.update { it.copy(user = user) }
             } catch (e: Exception) {
                 _state.update { it.copy(error = e.message) }
@@ -73,7 +88,7 @@ class CreateCommunityViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isStudyPickerVisible = false, isLoading = true, studyId = studyId) }
             try {
-                repository.loadStudyById(studyId).collectLatest { study ->
+                communityRepository.loadStudyById(studyId).collectLatest { study ->
                     _state.update { it.copy(currentStudy = study, isLoading = false) }
                 }
             } catch (e: Exception) {
@@ -87,7 +102,7 @@ class CreateCommunityViewModel @Inject constructor(
         loadPostJob = viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                repository.getPostById(postId).collectLatest { post ->
+                communityRepository.getPostById(postId).collectLatest { post ->
                     if (post != null) {
                         _state.update {
                             it.copy(
@@ -96,7 +111,7 @@ class CreateCommunityViewModel @Inject constructor(
                                 selectedTags = post.tags,
                                 studyId = post.studyId,
                                 isLoading = false,
-                                post = post 
+                                post = post
                             )
                         }
                         if (post.studyId.isNotBlank()) {
@@ -146,9 +161,9 @@ class CreateCommunityViewModel @Inject constructor(
                 }
 
                 if (postId != null) {
-                    repository.updatePost(postId, postToSubmit)
+                    communityRepository.updatePost(postId, postToSubmit)
                 } else {
-                    repository.createPost(postToSubmit)
+                    communityRepository.createPost(postToSubmit)
                 }
 
                 _state.update { it.copy(isLoading = false, isPostSubmitted = true) }

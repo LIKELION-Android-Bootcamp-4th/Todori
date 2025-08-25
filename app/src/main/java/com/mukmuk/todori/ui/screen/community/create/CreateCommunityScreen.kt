@@ -173,16 +173,6 @@ fun CreateCommunityScreen(
                 }
             }
 
-            state.currentStudy?.let { study ->
-                CommunityListData(
-                    studyId = state.studyId,
-                    study = study,
-                    memberCount = state.memberList.size,
-                    activeDays = study.activeDays,
-                    onClick = {}
-                )
-            }
-
             Spacer(Modifier.height(Dimens.Large))
 
             Text("스터디 선택하기", style = AppTextStyle.Body)
@@ -214,7 +204,7 @@ fun CreateCommunityScreen(
 
         if (state.isStudyPickerVisible) {
             ListPickerBottomSheet(
-                studyId = state.studyId,
+                studies = state.myStudyList,
                 show = state.isStudyPickerVisible,
                 onDismissRequest = { viewModel.onEvent(CreateCommunityEvent.OnStudyPickerDismiss) },
                 onSelect = { studyId -> viewModel.onEvent(CreateCommunityEvent.OnStudySelected(studyId)) }
