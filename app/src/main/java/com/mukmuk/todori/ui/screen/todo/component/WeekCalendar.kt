@@ -104,11 +104,13 @@ fun WeekCalendar(
                     val isSelected = date == selectedDate
                     val isToday = date == today
 
-                    val studyMs = studyRecordsMillis[date] ?: 0L
+                    val studyMillis = studyRecordsMillis[date] ?: 0L
+                    val studySec = (studyMillis / 1000).toInt()
+
                     val backgroundColor = when {
-                        studyMs >= 14_400_000L -> UserPrimary      // 4h+
-                        studyMs >= 3_600_000L -> UserHalf        // 1~4h
-                        studyMs in 1 until 3_600_000L -> UserTenth // <1h
+                        studySec in 1..7200 -> UserTenth  //~2시간
+                        studySec in 7201..21600 -> UserHalf  //2~6시간
+                        studySec >= 21601 -> UserPrimary  //6시간~
                         else -> Color.Transparent
                     }
 
