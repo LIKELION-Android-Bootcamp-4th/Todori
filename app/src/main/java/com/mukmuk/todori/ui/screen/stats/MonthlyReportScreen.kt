@@ -80,7 +80,10 @@ fun MonthlyReportScreen(
             )
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
-            CompletionRateCard(previousRate = 32, currentRate = 45, improvement = 13)
+            CompletionRateCard(
+                previousRate = state.lastTodoCompletionRate,
+                currentRate = state.currentTodoCompletionRate,
+                improvement = state.improvement)
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
             WeeklyCompletionCard(

@@ -1,7 +1,6 @@
 package com.mukmuk.todori.ui.screen.stats.tab.report
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -38,7 +37,7 @@ class MonthlyReportViewModel @Inject constructor(
 
             try {
                 val monthStat = monthStatRepository.getMonthStat(uid, year, month)
-                Log.d("MonthlyReport", "monthStat: $monthStat")
+                val lastMonthStat = monthStatRepository.getMonthStat(uid, year, month - 1)
                 val records = dailyRecordRepository.getRecordsByMonth(uid, year, month)
                 val hourlySum = records.flatMap { it.hourlyMinutes.entries }
                     .groupBy({ it.key }, { it.value })
@@ -80,6 +79,8 @@ class MonthlyReportViewModel @Inject constructor(
                         goldenHourText = goldenHourText,
                         streakDays = currentStreak,
                         maxStreak = bestStreak,
+                        currentTodoCompletionRate = monthStat?.todoCompletionRate ?: 0,
+                        lastTodoCompletionRate = lastMonthStat?.todoCompletionRate ?: 0,
                         insights = buildInsights(monthStat)
                     )
                 }

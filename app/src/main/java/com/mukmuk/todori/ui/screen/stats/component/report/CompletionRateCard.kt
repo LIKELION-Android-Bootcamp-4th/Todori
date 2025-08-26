@@ -13,8 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -22,13 +23,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.CompletionGreen
+import com.mukmuk.todori.ui.theme.CompletionRed
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.LightGreen
+import com.mukmuk.todori.ui.theme.LightRed
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
@@ -37,13 +40,24 @@ fun CompletionRateCard(
     currentRate: Int,
     improvement: Int
 ) {
+    val isUp = improvement >= 0
+    val trendColor = if (isUp) CompletionGreen else CompletionRed
+    val trendText = if (isUp) "완료율 상승!" else "완료율 하락..."
+    val sign = if (isUp) "+" else ""
+    val icon = if (isUp) Icons.AutoMirrored.Filled.TrendingUp else
+        Icons.AutoMirrored.Filled.TrendingDown
+
+    val previousRateColor = if (isUp) DarkGray else CompletionRed
+    val currentRateColor = if (isUp) CompletionGreen else DarkGray
+
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Dimens.Medium),
         shape = Dimens.CardDefaultRadius,
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE8F5E8)
+            containerColor = if (isUp) LightGreen else LightRed
         )
     ) {
         Column(
@@ -53,24 +67,25 @@ fun CompletionRateCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    Icons.Default.TrendingUp,
+                    imageVector = icon,
                     contentDescription = null,
-                    tint = CompletionGreen,
+                    tint = trendColor,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(Dimens.Tiny))
-                Text(
-                    text = "완료율 대폭 상승!",
-                    style = AppTextStyle.TitleSmall,
-                    color = Black
-                )
+                Column {
+                    Text(
+                        text = trendText,
+                        style = AppTextStyle.TitleSmall,
+                        color = Black
+                    )
+                    Text(
+                        text = "$sign$improvement% ${if (isUp) "향상" else "감소"}",
+                        style = AppTextStyle.BodySmallNormal,
+                        color = trendColor
+                    )
+                }
             }
-
-            Text(
-                text = "+$improvement% 향상",
-                style = AppTextStyle.BodySmallNormal,
-                color = CompletionGreen
-            )
 
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
@@ -83,7 +98,7 @@ fun CompletionRateCard(
                     Text(
                         text = "$previousRate%",
                         style = AppTextStyle.TitleMedium,
-                        color = DarkGray
+                        color = previousRateColor
                     )
                     Text(
                         text = "지난달",
@@ -93,16 +108,16 @@ fun CompletionRateCard(
                 }
 
                 Icon(
-                    Icons.Default.ArrowForward,
+                    Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = null,
-                    tint = CompletionGreen
+                    tint = trendColor
                 )
 
                 Column {
                     Text(
                         text = "$currentRate%",
                         style = AppTextStyle.TitleMedium,
-                        color = CompletionGreen
+                        color = currentRateColor
                     )
                     Text(
                         text = "이번달",
@@ -117,13 +132,13 @@ fun CompletionRateCard(
             Box(
                 modifier = Modifier
                     .background(
-                        CompletionGreen,
+                        trendColor,
                         RoundedCornerShape(Dimens.Medium)
                     )
                     .padding(horizontal = Dimens.Medium, vertical = Dimens.Tiny)
             ) {
                 Text(
-                    text = "성장률 +$improvement%",
+                    text = if (isUp) "성장률 +$improvement%" else "감소율 $improvement%",
                     style = AppTextStyle.BodySmallMedium,
                     color = White
                 )

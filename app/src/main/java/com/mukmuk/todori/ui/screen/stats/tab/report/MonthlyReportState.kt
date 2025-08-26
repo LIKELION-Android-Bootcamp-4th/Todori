@@ -29,8 +29,14 @@ data class MonthlyReportState(
     val streakDays: Int = 0,
     val maxStreak: Int = 0,
 
+    val currentTodoCompletionRate: Int = 0,
+    val lastTodoCompletionRate: Int = 0,
+
     val categoryStats: List<CategoryProgress> = emptyList(),
 
     val insights: List<String> = emptyList(),
     val error: String? = null
-)
+) {
+    val improvement
+        get() = currentTodoCompletionRate - lastTodoCompletionRate
+}
