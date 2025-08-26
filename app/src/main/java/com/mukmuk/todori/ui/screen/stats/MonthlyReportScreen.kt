@@ -1,5 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,9 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.ui.screen.stats.component.report.CategoryProgress
 import com.mukmuk.todori.ui.screen.stats.component.report.CompletionRateCard
 import com.mukmuk.todori.ui.screen.stats.component.report.EncouragementCard
@@ -24,16 +30,26 @@ import com.mukmuk.todori.ui.screen.stats.component.report.StudyGoalCard
 import com.mukmuk.todori.ui.screen.stats.component.report.StudyStreakCard
 import com.mukmuk.todori.ui.screen.stats.component.report.WeeklyCompletionCard
 import com.mukmuk.todori.ui.screen.stats.component.report.WeeklyRate
+import com.mukmuk.todori.ui.screen.stats.tab.report.MonthlyReportViewModel
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
 import kotlinx.datetime.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MonthlyReportScreen(
     uid: String,
     date: LocalDate,
     onBackClick: () -> Unit
 ) {
+    val viewModel: MonthlyReportViewModel = hiltViewModel()
+    val state by viewModel.state.collectAsState()
+
+
+    LaunchedEffect(date) {
+        viewModel.loadMonthlyReport(uid, date.year, date.monthNumber)
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -42,7 +58,10 @@ fun MonthlyReportScreen(
         ) {
             Spacer(modifier = Modifier.height(150.dp))
 
-            StudyGoalCard(currentTime = "22~23", completionRate = 85)
+            StudyGoalCard(
+                startHour = state.goldenHourRange?.first ?: 0,
+                endHour = state.goldenHourRange?.second ?: 0
+            )
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
             StudyStreakCard(streakDays = 12, maxStreak = 28)
