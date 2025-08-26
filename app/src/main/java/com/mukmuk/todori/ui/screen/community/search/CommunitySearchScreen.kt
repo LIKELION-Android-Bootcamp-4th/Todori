@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -91,6 +94,7 @@ fun CommunitySearchScreen(
                     Box(
                         modifier = Modifier
                             .padding(horizontal = 8.dp)
+
                     ) {
                         OutlinedTextField(
                             value = query,
@@ -142,6 +146,9 @@ fun CommunitySearchScreen(
                         )
                     }
                 },
+
+                windowInsets = WindowInsets(0.dp),
+
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -150,6 +157,8 @@ fun CommunitySearchScreen(
                         )
                     }
                 },
+
+                modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
             )
 
 
