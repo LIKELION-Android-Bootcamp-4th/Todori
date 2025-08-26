@@ -10,21 +10,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.mukmuk.todori.ui.component.CustomLinearProgressBar
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.GoalPrimary
+import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.ProgressBackground
+import com.mukmuk.todori.ui.theme.StudyStreakOrange
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
@@ -40,10 +39,10 @@ fun CategoryProgressItem(
             modifier = Modifier
                 .size(24.dp)
                 .background(
-                    when(rank) {
+                    when (rank) {
                         1 -> GoalPrimary
-                        2 -> Color.Gray
-                        else -> Color.LightGray
+                        2 -> Gray.copy(alpha = 0.8f)
+                        else -> StudyStreakOrange
                     },
                     CircleShape
                 ),
@@ -66,23 +65,22 @@ fun CategoryProgressItem(
                 style = AppTextStyle.BodySmallMedium,
                 color = Black
             )
-            LinearProgressIndicator(
+            CustomLinearProgressBar(
                 progress = category.completionRate / 100f,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(6.dp)
-                    .clip(RoundedCornerShape(3.dp)),
-                color = when(rank) {
+                    .height(6.dp),
+                trackColor = ProgressBackground,
+                progressColor = when (rank) {
                     1 -> GoalPrimary
-                    2 -> Color.Gray
-                    else -> Color.LightGray
-                },
-                trackColor = ProgressBackground
+                    2 -> Gray.copy(alpha = 0.8f)
+                    else -> StudyStreakOrange
+                }
             )
         }
 
         Text(
-            text = category.timeText,
+            text = "${category.completionRate}%",
             style = AppTextStyle.BodyTinyMedium,
             color = DarkGray
         )

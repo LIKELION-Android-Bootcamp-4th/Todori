@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -29,12 +29,12 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.GoalPrimary
 import com.mukmuk.todori.ui.theme.StudyStreakOrange
 import com.mukmuk.todori.ui.theme.White
-import kotlin.collections.forEachIndexed
 
 @Composable
 fun MonthHeroCard(
     topCategories: List<CategoryProgress>
 ) {
+    val topCategory = topCategories.firstOrNull()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,7 +43,7 @@ fun MonthHeroCard(
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFFFF8E1)
         ),
-        border = BorderStroke(2.dp, GoalPrimary)
+        border = BorderStroke(1.dp, GoalPrimary)
     ) {
         Column(
             modifier = Modifier.padding(Dimens.Medium)
@@ -53,30 +53,36 @@ fun MonthHeroCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(40.dp)
                         .background(GoalPrimary, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        Icons.Default.EmojiEvents,
+                        Icons.Outlined.EmojiEvents,
                         contentDescription = null,
                         tint = White,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(25.dp)
                     )
                 }
                 Spacer(modifier = Modifier.width(Dimens.Tiny))
-                Text(
-                    text = "이번 달의 주인공",
-                    style = AppTextStyle.TitleSmall,
-                    color = Black
-                )
+                Column {
+                    Text(
+                        text = "이번 달의 주인공",
+                        style = AppTextStyle.TitleSmall,
+                        color = Black
+                    )
+                    Text(
+                        text = if (topCategory != null) {
+                            "'${topCategory.name}' - ${topCategory.completionRate}%"
+                        } else {
+                            ""
+                        },
+                        style = AppTextStyle.BodySmallNormal,
+                        color = StudyStreakOrange,
+                    )
+                }
             }
 
-            Text(
-                text = "'자료구조' - 11시간",
-                style = AppTextStyle.BodySmallNormal,
-                color = StudyStreakOrange
-            )
 
             Spacer(modifier = Modifier.height(Dimens.Medium))
 

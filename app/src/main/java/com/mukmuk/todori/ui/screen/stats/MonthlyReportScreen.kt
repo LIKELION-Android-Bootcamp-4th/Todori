@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mukmuk.todori.ui.screen.stats.component.report.CategoryProgress
 import com.mukmuk.todori.ui.screen.stats.component.report.CompletionRateCard
 import com.mukmuk.todori.ui.screen.stats.component.report.EncouragementCard
 import com.mukmuk.todori.ui.screen.stats.component.report.EnduranceCard
@@ -77,11 +76,7 @@ fun MonthlyReportScreen(
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
             MonthHeroCard(
-                topCategories = listOf(
-                    CategoryProgress("자료구조", 89, "11h"),
-                    CategoryProgress("알고리즘", 76, "8.5h"),
-                    CategoryProgress("리액트", 65, "7.2h")
-                )
+                topCategories = state.categoryStats
             )
             Spacer(modifier = Modifier.height(Dimens.Medium))
 

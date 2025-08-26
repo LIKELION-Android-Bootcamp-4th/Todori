@@ -2,6 +2,7 @@ package com.mukmuk.todori.ui.screen.stats.tab.report
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.mukmuk.todori.ui.screen.stats.component.report.CategoryProgress
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -27,6 +28,8 @@ data class MonthlyReportState(
 
     val streakDays: Int = 0,
     val maxStreak: Int = 0,
+
+    val categoryStats: List<CategoryProgress> = emptyList(),
 
     val insights: List<String> = emptyList(),
     val error: String? = null

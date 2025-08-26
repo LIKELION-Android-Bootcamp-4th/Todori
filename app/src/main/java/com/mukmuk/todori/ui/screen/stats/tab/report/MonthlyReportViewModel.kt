@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.stats.tab.report
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,7 @@ import com.mukmuk.todori.data.repository.DayStatsRepository
 import com.mukmuk.todori.data.repository.MonthStatRepository
 import com.mukmuk.todori.data.repository.StudyTargetsRepository
 import com.mukmuk.todori.data.repository.TodoStatsRepository
+import com.mukmuk.todori.ui.screen.stats.component.report.CategoryProgress
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +38,7 @@ class MonthlyReportViewModel @Inject constructor(
 
             try {
                 val monthStat = monthStatRepository.getMonthStat(uid, year, month)
-
+                Log.d("MonthlyReport", "monthStat: $monthStat")
                 val records = dailyRecordRepository.getRecordsByMonth(uid, year, month)
                 val hourlySum = records.flatMap { it.hourlyMinutes.entries }
                     .groupBy({ it.key }, { it.value })
@@ -52,6 +54,14 @@ class MonthlyReportViewModel @Inject constructor(
                 val currentStreak = stats?.currentStreak ?: 0
                 val bestStreak = stats?.bestStreak ?: 0
 
+                val categoryStat = monthStat?.categoryStats?.sortedByDescending { it.completionRate }
+                    ?.take(3)?.map { stat ->
+                        CategoryProgress(
+                            name = stat.name,
+                            completionRate = stat.completionRate
+                        )
+                    }
+
                 updateState {
                     copy(
                         year = year,
@@ -65,6 +75,7 @@ class MonthlyReportViewModel @Inject constructor(
                         bestDayStudyTime = monthStat?.bestDay?.studyTime,
                         bestWeekLabel = "TODO: 주차라벨",
                         bestWeekStudyTime = 0L,
+                        categoryStats = categoryStat ?: emptyList(),
                         goldenHourRange = goldenHourRange,
                         goldenHourText = goldenHourText,
                         streakDays = currentStreak,
