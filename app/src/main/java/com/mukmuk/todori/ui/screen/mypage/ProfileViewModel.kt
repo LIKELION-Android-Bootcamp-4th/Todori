@@ -27,6 +27,11 @@ class ProfileViewModel @Inject constructor(
     private val _effect = MutableSharedFlow<ProfileEffect>(extraBufferCapacity = 1)
     val effect: SharedFlow<ProfileEffect> = _effect
 
+    fun loadCurrentUserIfAvailable() {
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+        loadProfile(uid)
+    }
+
     //프로필 조회
     fun loadProfile(uid: String) {
         viewModelScope.launch {

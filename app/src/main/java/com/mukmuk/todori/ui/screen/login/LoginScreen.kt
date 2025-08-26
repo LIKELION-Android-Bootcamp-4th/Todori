@@ -42,6 +42,7 @@ fun LoginScreen(
     navController: NavController
 ) {
     val viewModel: LoginViewModel = hiltViewModel()
+    val profileVM: com.mukmuk.todori.ui.screen.mypage.ProfileViewModel = hiltViewModel()
     val state = viewModel.state
     val context = LocalContext.current
     val activity = LocalContext.current as Activity
@@ -58,6 +59,7 @@ fun LoginScreen(
     LaunchedEffect(state.status) {
         when (state.status) {
             LoginStatus.SUCCESS -> {
+                profileVM.loadCurrentUserIfAvailable()
                 navController.navigate(BottomNavItem.Todo.route) {
                     popUpTo("login") { inclusive = true }
                 }
@@ -98,6 +100,7 @@ fun LoginScreen(
                             viewModel.loginWithTestAccount(
                                 onSuccess = {
                                     Log.d("Login", "테스트 계정 로그인 성공")
+                                    profileVM.loadCurrentUserIfAvailable()
                                     navController.navigate("home") // 홈 화면 이동
                                 },
                                 onError = { Log.e("Login", it) }
