@@ -4,12 +4,10 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mukmuk.todori.data.remote.stat.MonthStat
 import com.mukmuk.todori.data.repository.DailyRecordRepository
 import com.mukmuk.todori.data.repository.DayStatsRepository
 import com.mukmuk.todori.data.repository.MonthStatRepository
 import com.mukmuk.todori.data.repository.StudyTargetsRepository
-import com.mukmuk.todori.data.repository.TodoStatsRepository
 import com.mukmuk.todori.ui.screen.stats.component.report.CategoryProgress
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +23,6 @@ class MonthlyReportViewModel @Inject constructor(
     private val dailyRecordRepository: DailyRecordRepository,
     private val monthStatRepository: MonthStatRepository,
     private val studyTargetsRepository: StudyTargetsRepository,
-    private val todoStatsRepository: TodoStatsRepository,
     private val dayStatsRepository: DayStatsRepository
 ) : ViewModel() {
 
@@ -38,7 +35,7 @@ class MonthlyReportViewModel @Inject constructor(
 
             try {
                 val monthStat = monthStatRepository.getMonthStat(uid, year, month)
-                val lastMonthStat = monthStatRepository.getMonthStat(uid, year, month - 1)
+                val lastMonthStat = monthStatRepository.getMonthStat(uid, year, month)
                 val records = dailyRecordRepository.getRecordsByMonth(uid, year, month)
                 val studyTargets = studyTargetsRepository.getStudyTargets(uid)
                 val hourlySum = records.flatMap { it.hourlyMinutes.entries }
@@ -75,19 +72,11 @@ class MonthlyReportViewModel @Inject constructor(
 
                 updateState {
                     copy(
-                        year = year,
-                        month = month,
                         isLoading = false,
-                        totalStudyTimeMillis = monthStat?.totalStudyTime ?: 0L,
-                        avgStudyTimeMillis = (monthStat?.totalStudyTime ?: 0L) / 30,
                         totalStudyTimeHour = ((monthStat?.totalStudyTime ?: 0L) / (1000 * 60 * 60)).toInt(),
                         targetMonthStudyHour = (studyTargets?.monthlyMinutes ?: 0) / 60,
-                        completedTodos = monthStat?.completedTodos ?: 0,
-                        totalTodos = monthStat?.totalTodos ?: 0,
                         bestDay = monthStat?.bestDay?.date,
                         bestDayStudyTime = monthStat?.bestDay?.studyTime,
-                        bestWeekLabel = "TODO: 주차라벨",
-                        bestWeekStudyTime = 0L,
                         categoryStats = categoryStat ?: emptyList(),
                         goldenHourRange = goldenHourRange,
                         goldenHourText = goldenHourText,
@@ -97,7 +86,6 @@ class MonthlyReportViewModel @Inject constructor(
                         lastTodoCompletionRate = lastMonthStat?.todoCompletionRate ?: 0,
                         previousAvgStudyMinutes = lastAvgMinutes,
                         currentAvgStudyMinutes = currentAvgMinutes,
-                        insights = buildInsights(monthStat)
                     )
                 }
 
@@ -109,7 +97,7 @@ class MonthlyReportViewModel @Inject constructor(
 
     private fun calculateGoldenHour(hourlyMinutes: Map<String, Long>): Pair<Int, Int>? {
         if (hourlyMinutes.isEmpty()) return null
-        val (bestHourStr, bestHourValue) = hourlyMinutes.maxByOrNull { it.value } ?: return null
+        val (bestHourStr, _) = hourlyMinutes.maxByOrNull { it.value } ?: return null
         val bestHour = bestHourStr.toInt()
         val ranges = listOf(
             (bestHour - 1)..(bestHour + 1),
@@ -125,16 +113,6 @@ class MonthlyReportViewModel @Inject constructor(
             }
         }
         return bestRange.first to bestRange.last
-    }
-
-    private fun buildInsights(monthStat: MonthStat?): List<String> {
-        if (monthStat == null) return emptyList()
-        val insights = mutableListOf<String>()
-        val best = monthStat.categoryStats.maxByOrNull { it.completionRate }
-        val worst = monthStat.categoryStats.minByOrNull { it.completionRate }
-        best?.let { insights.add("이번 달 최고 성과는 ${it.name} (${it.completionRate}%)") }
-        worst?.let { insights.add("${it.name} 주제는 성과가 낮았어요 (${it.completionRate}%)") }
-        return insights
     }
 
     private fun updateState(update: MonthlyReportState.() -> MonthlyReportState) {

@@ -46,11 +46,13 @@ fun EnduranceCard(
             "세션당 +${improvement}분",
             ProgressTeal
         )
+
         improvement < 0 -> Triple(
             "지구력이 줄었어요!",
             "세션당 ${improvement}분",
             Red
         )
+
         else -> Triple(
             "지구력은 유지됐어요!",
             "변화 없음",
@@ -58,7 +60,8 @@ fun EnduranceCard(
         )
     }
     val containerColor = if (improvement > 0) EnduranceBackground else LightRed
-    val icon = if (improvement > 0) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown
+    val icon =
+        if (improvement > 0) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown
 
     Card(
         modifier = Modifier
@@ -92,8 +95,6 @@ fun EnduranceCard(
                 }
 
             }
-
-
 
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
