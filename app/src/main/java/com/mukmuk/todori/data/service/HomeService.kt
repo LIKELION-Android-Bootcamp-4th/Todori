@@ -6,7 +6,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -35,10 +37,12 @@ class HomeService(private val firestore: FirebaseFirestore) {
         return snapshot.documents.mapNotNull { it.toObject(DailyRecord::class.java) }
     }
 
-    suspend fun updateDailyRecord(uid: String, dailyRecord: DailyRecord) {
-        dailyRecordRef(uid).document(dailyRecord.date)
-            .set(dailyRecord, SetOptions.merge())
-            .await()
+    suspend fun updateDailyRecord(uid: String, data: Map<String, Any>) {
+        withContext(Dispatchers.IO) {
+            dailyRecordRef(uid).document(data["date"] as String)
+                .set(data, SetOptions.merge()) // merge = 기존 필드 유지
+                .await()
+        }
     }
 
     fun getDailyRecordCollection(uid: String) =
