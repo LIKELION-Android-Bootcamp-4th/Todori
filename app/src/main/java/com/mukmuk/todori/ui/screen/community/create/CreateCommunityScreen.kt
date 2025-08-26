@@ -15,12 +15,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +58,7 @@ import com.mukmuk.todori.ui.screen.community.components.ListPickerBottomSheet
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
@@ -82,6 +87,8 @@ fun CreateCommunityScreen(
     var data = listOf("토익", "언어", "개발", "자기계발", "실습", "운동", "수학", "국어", "독서", "예체능")
 
     var asd = listOf("")
+
+    var showDialog by remember { mutableStateOf(false) }
 
     var showListSheet by remember { mutableStateOf(false) }
     var pickedItem by remember { mutableStateOf<String?>(null) }
@@ -136,7 +143,7 @@ fun CreateCommunityScreen(
                         )
                     }
                 },
-                modifier = Modifier.height(56.dp).fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
             )
         },
 
@@ -278,7 +285,7 @@ fun CreateCommunityScreen(
                     },
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = GroupPrimary,
+                        containerColor = White,
                         contentColor = Black
                     ),
 
@@ -286,6 +293,9 @@ fun CreateCommunityScreen(
                     Text("불러오기", style = AppTextStyle.Body)
                 }
             }
+
+
+            Spacer(Modifier.height(Dimens.Tiny))
 
             if (studyId.isNotBlank()) {
                 viewModel.loadStudyById(studyId)
@@ -330,6 +340,9 @@ fun CreateCommunityScreen(
 
                                 } else if (td.contains(tag)) {
                                     td.remove(tag)
+                                } else {
+                                    showDialog = true
+                                    td.remove(tag)
                                 }
                             }
                             .width(60.dp),
@@ -359,6 +372,21 @@ fun CreateCommunityScreen(
                     viewModel.loadStudyById(studyId = it)
                     pickedItem = it
                     showListSheet = false
+                }
+            )
+        }
+
+        if(showDialog){
+            AlertDialog(
+                text = { Text("태그는 최대 3개까지 선택해주세요", style = AppTextStyle.Body) },
+                onDismissRequest = { showDialog = false },
+                containerColor = White,
+                confirmButton = {
+                    TextButton(
+                        onClick = { showDialog = false }
+                    ) {
+                        Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                    }
                 }
             )
         }
