@@ -17,10 +17,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Brightness1
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.rounded.CheckCircleOutline
@@ -73,7 +74,6 @@ fun GoalDetailScreen(
     navController: NavHostController,
     onBack: () -> Unit
 ) {
-//    val uid = "testuser"
     val uid = Firebase.auth.currentUser?.uid.toString()
     val viewModel: GoalDetailViewModel = hiltViewModel()
 
@@ -107,7 +107,9 @@ fun GoalDetailScreen(
 
     if (goal != null) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
             CommonDetailAppBar(
                 title = goal.title,
