@@ -61,6 +61,9 @@ fun StudyDetailScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    val myMember = state.members.find { it.uid == uid }
+    val isLeader = myMember?.role == "LEADER"
+
     if (state.studyDeleted) {
         LaunchedEffect(Unit) {
             onBack()
@@ -234,7 +237,8 @@ fun StudyDetailScreen(
                         onDelete = { todoId ->
                             viewModel.deleteStudyTodo(todoId)
                         },
-                        progressMap = myProgressMap
+                        progressMap = myProgressMap,
+                        isLeader = isLeader
                     )
                 }
 
