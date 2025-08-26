@@ -181,7 +181,7 @@ fun CreateCommunityScreen(
                                         tags = td.toList(),
                                         postId = "",
                                         studyId = studyId,
-                                        memberCount = state.memberList.size,
+                                        memberCount = 0,
                                         commentsCount = 0,
                                         createdAt = Timestamp.now(),
                                         createdBy = uid

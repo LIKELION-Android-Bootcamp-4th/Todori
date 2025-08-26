@@ -94,8 +94,16 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
 
     Scaffold(
         topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                contentAlignment = Alignment.Center
+            ){
             CenterAlignedTopAppBar(
-                title = { Text("커뮤니티", style = AppTextStyle.AppBar) },
+                title = {
+                        Text("커뮤니티", style = AppTextStyle.AppBar, textAlign = TextAlign.Center)
+                },
                 actions = {
                     IconButton(
                         onClick = {
@@ -108,6 +116,8 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                 },
                 modifier = Modifier.height(56.dp).fillMaxWidth(),
             )
+
+                }
         },
 
         contentWindowInsets = WindowInsets(0.dp),
