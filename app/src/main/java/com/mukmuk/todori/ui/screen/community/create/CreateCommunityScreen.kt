@@ -2,11 +2,14 @@ package com.mukmuk.todori.ui.screen.community.create
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -15,19 +18,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,16 +49,16 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mukmuk.todori.ui.screen.community.components.CommunityListData
 import com.mukmuk.todori.ui.screen.community.components.ListPickerBottomSheet
+import com.mukmuk.todori.ui.screen.community.components.TagPickerBottomSheet
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.GroupSecondary
 import com.mukmuk.todori.ui.theme.White
-
-private val allTags = listOf("토익", "언어", "개발", "자기계발", "실습", "운동", "수학", "국어", "독서", "예체능")
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -133,7 +141,9 @@ fun CreateCommunityScreen(
                 placeholder = {
                     Text("스터디 명을 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray))
                 },
-                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 56.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 56.dp),
                 shape = RoundedCornerShape(10.dp),
                 singleLine = true,
                 isError = state.isTitleError,
@@ -148,28 +158,91 @@ fun CreateCommunityScreen(
                 placeholder = {
                     Text("스터디 설명을 작성 해주세요", style = AppTextStyle.Body.copy(color = DarkGray))
                 },
-                modifier = Modifier.fillMaxWidth().height(200.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
                 shape = RoundedCornerShape(10.dp),
                 minLines = 6
             )
 
             Spacer(Modifier.height(Dimens.Large))
 
-            Spacer(modifier = Modifier.height(1.dp).fillMaxWidth().background(Gray))
+            Spacer(modifier = Modifier
+                .height(1.dp)
+                .fillMaxWidth()
+                .background(Gray))
 
             Spacer(Modifier.height(Dimens.Large))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("내가 만든 스터디", style = AppTextStyle.Body)
+                Text("태그 (0/3)", style = AppTextStyle.Body)
+                Spacer(Modifier.weight(1f))
+                Button(
+                    onClick = { viewModel.onEvent(CreateCommunityEvent.OnTagPickerClick) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = White,
+                        contentColor = Black
+                    ),
+                    shape = RoundedCornerShape(DefaultCornerRadius),
+                    border = BorderStroke(1.dp, Gray),
+                    modifier = Modifier
+                        .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                        .padding(horizontal = Dimens.Nano)
+                ) {
+                    Text(
+                        "태그 선택",
+                        style = AppTextStyle.BodySmallMedium
+                    )
+                }
+            }
+            if (state.selectedTags.isNotEmpty()) {
+                Spacer(Modifier.height(Dimens.Small))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    state.selectedTags.forEach { tag ->
+                        InputChip(
+                            onClick = { viewModel.onEvent(CreateCommunityEvent.OnTagRemoved(tag)) },
+                            label = { Text(tag) },
+                            selected = true,
+                            trailingIcon = {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = "Remove tag",
+                                    Modifier.size(InputChipDefaults.AvatarSize)
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(Dimens.Large))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("스터디", style = AppTextStyle.Body)
                 Spacer(Modifier.weight(1f))
                 Button(
                     onClick = { viewModel.onEvent(CreateCommunityEvent.OnStudyPickerClick) },
-                    shape = RoundedCornerShape(20.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = GroupPrimary, contentColor = Black)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = White,
+                        contentColor = Black
+                    ),
+                    shape = RoundedCornerShape(DefaultCornerRadius),
+                    border = BorderStroke(1.dp, Gray),
+                    modifier = Modifier
+                        .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                        .padding(horizontal = Dimens.Nano)
                 ) {
-                    Text("불러오기", style = AppTextStyle.Body)
+                    Text(
+                        "스터디 선택",
+                        style = AppTextStyle.BodySmallMedium
+                    )
                 }
             }
             state.currentStudy?.let { study ->
@@ -182,33 +255,6 @@ fun CreateCommunityScreen(
                     onClick = {}
                 )
             }
-            Spacer(Modifier.height(Dimens.Large))
-
-            Text("스터디 선택하기", style = AppTextStyle.Body)
-
-            Spacer(Modifier.height(Dimens.Large))
-
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                allTags.forEach { tag ->
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                if (state.selectedTags.contains(tag)) GroupPrimary else GroupSecondary,
-                                RoundedCornerShape(32.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .clickable { viewModel.onEvent(CreateCommunityEvent.OnTagClick(tag)) }
-                            .width(60.dp),
-                    ) {
-                        Text(text = tag, color = Black, style = AppTextStyle.BodySmall)
-                    }
-                    Spacer(modifier = Modifier.padding(16.dp))
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
         }
 
         if (state.isStudyPickerVisible) {
@@ -216,7 +262,21 @@ fun CreateCommunityScreen(
                 studies = state.myStudyList,
                 show = state.isStudyPickerVisible,
                 onDismissRequest = { viewModel.onEvent(CreateCommunityEvent.OnStudyPickerDismiss) },
-                onSelect = { studyId -> viewModel.onEvent(CreateCommunityEvent.OnStudySelected(studyId)) }
+                onSelect = { studyId ->
+                    viewModel.onEvent(
+                        CreateCommunityEvent.OnStudySelected(
+                            studyId
+                        )
+                    )
+                }
+            )
+        }
+        if (state.isTagPickerVisible) {
+            TagPickerBottomSheet(
+                show = state.isTagPickerVisible,
+                onDismissRequest = { viewModel.onEvent(CreateCommunityEvent.OnTagPickerClick) },
+                selectedTags = state.selectedTags,
+                onTagClick = { tag -> viewModel.onEvent(CreateCommunityEvent.OnTagClicked(tag)) }
             )
         }
     }

@@ -39,10 +39,25 @@ class CreateCommunityViewModel @Inject constructor(
         when (event) {
             is CreateCommunityEvent.OnTitleChange -> _state.update { it.copy(title = event.title, isTitleError = false) }
             is CreateCommunityEvent.OnContentChange -> _state.update { it.copy(content = event.content) }
-            is CreateCommunityEvent.OnTagClick -> toggleTag(event.tag)
+            is CreateCommunityEvent.OnTagClicked -> {
+                val current = state.value.selectedTags.toMutableList()
+                if (current.contains(event.tag)) {
+                    current.remove(event.tag)
+                } else if (current.size < 3) {
+                    current.add(event.tag)
+                }
+                _state.value = state.value.copy(selectedTags = current)
+            }
             is CreateCommunityEvent.OnStudyPickerClick -> {
                 _state.update { it.copy(isStudyPickerVisible = true) }
                 loadMyStudies()
+            }
+            is CreateCommunityEvent.OnTagPickerClick -> {
+                _state.update { it.copy(isTagPickerVisible = true) }
+            }
+            is CreateCommunityEvent.OnTagRemoved -> {
+                val updatedTags = _state.value.selectedTags.filter { it != event.tag }
+                _state.update { it.copy(selectedTags = updatedTags) }
             }
             is CreateCommunityEvent.OnStudySelected -> loadStudy(event.studyId)
             is CreateCommunityEvent.OnStudyPickerDismiss -> _state.update { it.copy(isStudyPickerVisible = false) }
@@ -69,18 +84,6 @@ class CreateCommunityViewModel @Inject constructor(
             } catch (e: Exception) {
                 _state.update { it.copy(error = e.message) }
             }
-        }
-    }
-
-    private fun toggleTag(tag: String) {
-        _state.update { currentState ->
-            val tags = currentState.selectedTags.toMutableList()
-            if (tags.contains(tag)) {
-                tags.remove(tag)
-            } else if (tags.size < 3) {
-                tags.add(tag)
-            }
-            currentState.copy(selectedTags = tags)
         }
     }
 

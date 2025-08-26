@@ -12,6 +12,7 @@ data class CreateCommunityState(
     val isTitleError: Boolean = false,
     val selectedTags: List<String> = emptyList(),
     val isStudyPickerVisible: Boolean = false,
+    val isTagPickerVisible: Boolean = false,
     val currentStudy: Study? = null,
     val myStudyList: List<MyStudy> = emptyList(),
     val memberList: List<StudyMember> = emptyList(),
