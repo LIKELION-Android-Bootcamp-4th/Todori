@@ -35,8 +35,19 @@ import com.mukmuk.todori.ui.theme.White
 fun GoalProgressCard(
     currentTime: Int,
     goalTime: Int,
-    timeLeft: Int
+    leftTime: Int
 ) {
+    val safeGoalTime = if (goalTime > 0) goalTime else 1
+    val title = when {
+        currentTime >= goalTime -> "축하해요! 목표를 달성했어요 🎉"
+        leftTime <= 0 -> "축하해요! 목표를 초과 달성했어요 🔥"
+        leftTime in 1..5 -> "목표까지 정말 코앞이에요!"
+        leftTime in 6..10 -> "조금만 더 화이팅 💪"
+        leftTime in 11..20 -> "꾸준히 하면 이번 달도 성공!"
+        leftTime > 20 -> "목표까지 아직 ${leftTime}시간 남았어요!"
+        else -> "목표에 도전 중이에요 🚀"
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -61,14 +72,14 @@ fun GoalProgressCard(
                 )
                 Spacer(modifier = Modifier.width(Dimens.Tiny))
                 Text(
-                    text = "목표까지 거의 다 왔어요!",
+                    text = title,
                     style = AppTextStyle.TitleSmall,
                     color = Black
                 )
             }
 
             Text(
-                text = "${timeLeft}시간만 더!",
+                text = "${leftTime}시간만 더!",
                 style = AppTextStyle.BodySmallNormal,
                 color = GoalPurple
             )
@@ -80,10 +91,10 @@ fun GoalProgressCard(
                 modifier = Modifier.size(120.dp)
             ) {
                 CircularProgressIndicator(
-                    progress = currentTime.toFloat() / goalTime,
+                    progress = currentTime.toFloat() / safeGoalTime,
                     modifier = Modifier.fillMaxSize(),
                     color = GoalPurple,
-                    strokeWidth = 12.dp,
+                    strokeWidth = 10.dp,
                     trackColor = Color(0xFFF3E8FF)
                 )
                 Column(

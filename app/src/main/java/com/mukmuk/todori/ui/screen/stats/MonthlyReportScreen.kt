@@ -99,7 +99,11 @@ fun MonthlyReportScreen(
             )
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
-            GoalProgressCard(currentTime = 47, goalTime = 50, timeLeft = 3)
+            GoalProgressCard(
+                currentTime = state.totalStudyTimeHour,
+                goalTime = state.targetMonthStudyHour,
+                leftTime = state.leftTime
+            )
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
             EnduranceCard(

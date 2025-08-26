@@ -13,6 +13,8 @@ data class MonthlyReportState(
 
     val totalStudyTimeMillis: Long = 0L,
     val avgStudyTimeMillis: Long = 0L,
+    val totalStudyTimeHour: Int = 0,
+    val targetMonthStudyHour: Int = 0,
 
     val completedTodos: Int = 0,
     val totalTodos: Int = 0,
@@ -35,6 +37,7 @@ data class MonthlyReportState(
     val previousAvgStudyMinutes: Int = 0,
     val currentAvgStudyMinutes: Int = 0,
 
+
     val categoryStats: List<CategoryProgress> = emptyList(),
 
     val insights: List<String> = emptyList(),
@@ -44,4 +47,6 @@ data class MonthlyReportState(
         get() = currentTodoCompletionRate - lastTodoCompletionRate
     val enduranceImprovement: Int
         get() = currentAvgStudyMinutes - previousAvgStudyMinutes
+    val leftTime: Int
+        get() = targetMonthStudyHour - totalStudyTimeHour
 }

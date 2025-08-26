@@ -40,6 +40,7 @@ class MonthlyReportViewModel @Inject constructor(
                 val monthStat = monthStatRepository.getMonthStat(uid, year, month)
                 val lastMonthStat = monthStatRepository.getMonthStat(uid, year, month - 1)
                 val records = dailyRecordRepository.getRecordsByMonth(uid, year, month)
+                val studyTargets = studyTargetsRepository.getStudyTargets(uid)
                 val hourlySum = records.flatMap { it.hourlyMinutes.entries }
                     .groupBy({ it.key }, { it.value })
                     .mapValues { (_, list) -> list.sum() }
@@ -79,6 +80,8 @@ class MonthlyReportViewModel @Inject constructor(
                         isLoading = false,
                         totalStudyTimeMillis = monthStat?.totalStudyTime ?: 0L,
                         avgStudyTimeMillis = (monthStat?.totalStudyTime ?: 0L) / 30,
+                        totalStudyTimeHour = ((monthStat?.totalStudyTime ?: 0L) / (1000 * 60 * 60)).toInt(),
+                        targetMonthStudyHour = (studyTargets?.monthlyMinutes ?: 0) / 60,
                         completedTodos = monthStat?.completedTodos ?: 0,
                         totalTodos = monthStat?.totalTodos ?: 0,
                         bestDay = monthStat?.bestDay?.date,
