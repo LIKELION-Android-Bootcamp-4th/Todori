@@ -264,7 +264,7 @@ fun GoalDetailScreen(
 
             if (todos.isEmpty()) {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -289,7 +289,8 @@ fun GoalDetailScreen(
                     Spacer(modifier = Modifier.height(Dimens.Medium))
                 }
             } else {
-                todos.forEachIndexed { index, todo ->
+                val sortedTodos = todos.sortedBy { it.completed }
+                sortedTodos.forEachIndexed { index, todo ->
                     TodoItemEditableRow(
                         title = todo.title,
                         isDone = todo.completed,
