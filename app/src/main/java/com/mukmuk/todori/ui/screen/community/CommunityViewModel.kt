@@ -37,11 +37,26 @@ class CommunityViewModel @Inject constructor(
 
                 communityRepository.getPosts(filter = filter).collect { posts ->
 
+                    val updatedPosts = coroutineScope {
+                        posts.map { post ->
+                            async {
+                                val membersCount =
+                                    communityRepository.getStudyMembers(post.studyId).size
+                                if (post.memberCount != membersCount) {
+                                    val updatedPost = post.copy(memberCount = membersCount)
+                                    communityRepository.updatePost(post.postId, updatedPost)
+                                    updatedPost
+                                } else {
+                                    post
+                                }
+                            }
+                        }.awaitAll()
+                    }
 
                     _state.update {
                         it.copy(
-                            allPostList = posts,
-                            postList = posts,
+                            allPostList = updatedPosts,
+                            postList = updatedPosts,
                             isLoading = false,
                         )
                     }
