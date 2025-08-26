@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Refresh
@@ -227,7 +228,9 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel) {
                         Button(
                             onClick = {
                                 viewModel.onEvent(TimerEvent.Start)
-                                if (state.status == TimerStatus.RECORDING) viewModel.onEvent(TimerEvent.Stop)
+                                if (state.status == TimerStatus.RECORDING) viewModel.onEvent(
+                                    TimerEvent.Stop
+                                )
                             },
                             shape = CircleShape,
                             modifier = Modifier.size(76.dp),
@@ -276,31 +279,60 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                        items(todoList, key = { it.todoId }) { todo ->
-                            MainTodoItemEditableRow(
-                                title = todo.title,
-                                isDone = todo.completed,
-                                isRecordMode = state.status == TimerStatus.RECORDING,
-                                recordTime = if (todo.totalFocusTimeMillis > 0L) {
-                                    totalFormatTime(todo.totalFocusTimeMillis)
-                                } else {
-                                    null
-                                },
-                                onCheckedChange = { checked ->
-                                    viewModel.toggleTodoCompleted(uid = state.uid, todo = todo)
-                                },
-                                onItemClick = {
-                                    if (state.status == TimerStatus.RECORDING && !todo.completed) {
-                                        viewModel.setTodoRecordTimeMills(
-                                            recordTime,
-                                            uid = state.uid,
-                                            todo = todo
-                                        )
-                                    }
-                                }
+                    if (todoList.isEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.CheckCircleOutline,
+                                contentDescription = "Todo Empty",
+                                modifier = Modifier.size(38.dp),
+                                tint = Color.Gray
+                            )
+                            Spacer(modifier = Modifier.height(Dimens.Tiny))
+                            Text(
+                                "할 일이 없습니다",
+                                style = AppTextStyle.BodyLarge,
+                                color = Color.DarkGray
+                            )
+                            Spacer(modifier = Modifier.height(Dimens.Tiny))
+                            Text(
+                                "오늘의 할 일을 추가해 보세요!",
+                                style = AppTextStyle.BodySmall,
+                                color = Color.DarkGray
                             )
                             Spacer(modifier = Modifier.height(Dimens.Medium))
+                        }
+                    } else {
+                        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                            items(todoList, key = { it.todoId }) { todo ->
+                                MainTodoItemEditableRow(
+                                    title = todo.title,
+                                    isDone = todo.completed,
+                                    isRecordMode = state.status == TimerStatus.RECORDING,
+                                    recordTime = if (todo.totalFocusTimeMillis > 0L) {
+                                        totalFormatTime(todo.totalFocusTimeMillis)
+                                    } else {
+                                        null
+                                    },
+                                    onCheckedChange = { checked ->
+                                        viewModel.toggleTodoCompleted(uid = state.uid, todo = todo)
+                                    },
+                                    onItemClick = {
+                                        if (state.status == TimerStatus.RECORDING && !todo.completed) {
+                                            viewModel.setTodoRecordTimeMills(
+                                                recordTime,
+                                                uid = state.uid,
+                                                todo = todo
+                                            )
+                                            viewModel.onEvent(TimerEvent.Stop)
+                                        }
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(Dimens.Medium))
+                            }
                         }
                     }
                 }
