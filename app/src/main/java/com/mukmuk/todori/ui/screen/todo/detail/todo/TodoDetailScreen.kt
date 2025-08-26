@@ -229,7 +229,8 @@ fun TodoDetailScreen(
                 Spacer(modifier = Modifier.height(Dimens.Medium))
             }
         } else {
-            todos.forEachIndexed { i, todo ->
+            val sortedTodos = todos.sortedBy { it.completed }
+            sortedTodos.forEachIndexed { i, todo ->
                 TodoItemEditableRow(
                     title = todo.title,
                     isDone = todo.completed,
