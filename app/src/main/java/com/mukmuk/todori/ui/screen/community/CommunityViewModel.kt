@@ -38,6 +38,7 @@ class CommunityViewModel @Inject constructor(
                 communityRepository.getPosts(filter = filter).collect { posts ->
 
                     val updatedPosts = coroutineScope {
+                        _state.update { it.copy(isLoading = true) }
                         posts.map { post ->
                             async {
                                 val membersCount =
@@ -102,6 +103,12 @@ class CommunityViewModel @Inject constructor(
                     post.tags.contains(data)
                 })
             }
+        }
+    }
+
+    fun setSelectedData(data: String){
+        _state.update {
+            it.copy(selectedOption = data)
         }
     }
 
