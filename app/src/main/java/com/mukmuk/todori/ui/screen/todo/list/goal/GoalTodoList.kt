@@ -14,6 +14,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.mukmuk.todori.ui.screen.todo.component.GoalCard
 import kotlinx.datetime.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -21,6 +22,7 @@ import kotlinx.datetime.LocalDate
 fun GoalTodoList(selectedDate: LocalDate, navController: NavHostController) {
     val viewModel: GoalTodoListViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
+    val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 //    val uid = "testuser"
 
     val uid = Firebase.auth.currentUser?.uid.toString()
@@ -31,14 +33,18 @@ fun GoalTodoList(selectedDate: LocalDate, navController: NavHostController) {
     }
     LazyColumn {
         items(state.goals) { goal ->
+            val today = java.time.LocalDate.now()
+            val end = java.time.LocalDate.parse(goal.endDate, dateFormatter)
             val todos = state.goalTodosMap[goal.goalId]?.filter { it.dueDate == selectedDate.toString() }.orEmpty()
-            GoalCard(
-                goal = goal,
-                goalTodos = todos,
-                onClick = {
-                    navController.navigate("goal/detail/${goal.goalId}")
-                }
-            )
+            if (end.isAfter(today)) {
+                GoalCard(
+                    goal = goal,
+                    goalTodos = todos,
+                    onClick = {
+                        navController.navigate("goal/detail/${goal.goalId}")
+                    }
+                )
+            }
         }
     }
 }
