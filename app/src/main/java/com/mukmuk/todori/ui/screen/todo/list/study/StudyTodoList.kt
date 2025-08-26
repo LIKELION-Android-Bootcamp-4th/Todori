@@ -96,6 +96,7 @@ fun StudyTodoList(selectedDate: LocalDate,navController: NavHostController) {
                     myProgressMap = progresses,
                     memberCount = members.size,
                     joinedAt = members.firstOrNull { it.uid == uid }?.joinedAt ?: Timestamp.now(),
+                    selectedDate = selectedDate,
                     onClick = {
                         navController.navigate("study/detail/${study.studyId}?date=${selectedDate}")
                     }
