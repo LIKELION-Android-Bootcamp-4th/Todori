@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.YearMonth
 import javax.inject.Inject
 
 @HiltViewModel
@@ -61,6 +62,16 @@ class MonthlyReportViewModel @Inject constructor(
                         )
                     }
 
+                val daysInMonth = YearMonth.of(year, month).lengthOfMonth()
+                val daysInLastMonth = if (month == 1) {
+                    YearMonth.of(year - 1, 12).lengthOfMonth()
+                } else {
+                    YearMonth.of(year, month - 1).lengthOfMonth()
+                }
+                val currentAvgMinutes = ((monthStat?.totalStudyTime ?: 0L) / daysInMonth / (1000 * 60)).toInt()
+
+                val lastAvgMinutes = ((lastMonthStat?.totalStudyTime ?: 0L) / daysInLastMonth / (1000 * 60)).toInt()
+
                 updateState {
                     copy(
                         year = year,
@@ -81,6 +92,8 @@ class MonthlyReportViewModel @Inject constructor(
                         maxStreak = bestStreak,
                         currentTodoCompletionRate = monthStat?.todoCompletionRate ?: 0,
                         lastTodoCompletionRate = lastMonthStat?.todoCompletionRate ?: 0,
+                        previousAvgStudyMinutes = lastAvgMinutes,
+                        currentAvgStudyMinutes = currentAvgMinutes,
                         insights = buildInsights(monthStat)
                     )
                 }

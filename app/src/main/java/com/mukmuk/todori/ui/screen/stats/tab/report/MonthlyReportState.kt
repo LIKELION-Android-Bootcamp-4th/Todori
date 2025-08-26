@@ -32,6 +32,9 @@ data class MonthlyReportState(
     val currentTodoCompletionRate: Int = 0,
     val lastTodoCompletionRate: Int = 0,
 
+    val previousAvgStudyMinutes: Int = 0,
+    val currentAvgStudyMinutes: Int = 0,
+
     val categoryStats: List<CategoryProgress> = emptyList(),
 
     val insights: List<String> = emptyList(),
@@ -39,4 +42,6 @@ data class MonthlyReportState(
 ) {
     val improvement
         get() = currentTodoCompletionRate - lastTodoCompletionRate
+    val enduranceImprovement: Int
+        get() = currentAvgStudyMinutes - previousAvgStudyMinutes
 }

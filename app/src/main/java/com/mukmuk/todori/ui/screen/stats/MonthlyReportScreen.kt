@@ -102,10 +102,15 @@ fun MonthlyReportScreen(
             GoalProgressCard(currentTime = 47, goalTime = 50, timeLeft = 3)
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
-            EnduranceCard(previousAverage = 32, currentAverage = 41, improvement = 9)
+            EnduranceCard(
+                previousAverage = state.previousAvgStudyMinutes,
+                currentAverage = state.currentAvgStudyMinutes,
+                improvement = state.enduranceImprovement)
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
-            EncouragementCard()
+            EncouragementCard(
+                month = date.monthNumber
+            )
             Spacer(modifier = Modifier.height(Dimens.XXLarge))
         }
 

@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.outlined.MilitaryTech
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -28,7 +28,10 @@ import com.mukmuk.todori.ui.theme.ReportPrimary
 import com.mukmuk.todori.ui.theme.White
 
 @Composable
-fun EncouragementCard() {
+fun EncouragementCard(
+    month: Int
+) {
+    val nextMonth = if (month == 12) 1 else month + 1
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -39,11 +42,13 @@ fun EncouragementCard() {
         )
     ) {
         Column(
-            modifier = Modifier.padding(Dimens.Large),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimens.Large),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
-                Icons.Default.EmojiEvents,
+                Icons.Outlined.MilitaryTech,
                 contentDescription = null,
                 tint = GoalPrimary,
                 modifier = Modifier.size(32.dp)
@@ -52,14 +57,14 @@ fun EncouragementCard() {
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
             Text(
-                text = "8월도 수고하셨어요!",
+                text = "${month}월도 수고하셨어요!",
                 style = AppTextStyle.TitleMedium,
                 color = White,
                 textAlign = TextAlign.Center
             )
 
             Text(
-                text = "꾸준함이 만들어낸 멋진 성장이에요.\n9월엔 더 큰 도약을 기대할게요! ✨",
+                text = "꾸준함이 만들어낸 멋진 성장이에요.\n ${nextMonth}월엔 더 큰 도약을 기대할게요! ✨",
                 style = AppTextStyle.BodySmallNormal,
                 color = White.copy(alpha = 0.9f),
                 textAlign = TextAlign.Center
