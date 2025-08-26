@@ -280,7 +280,7 @@ fun GoalDetailScreen(
                     )
                     Spacer(modifier = Modifier.height(Dimens.Tiny))
                     Text(
-                        "목표 달성을 위해 할 일을 추가해 보세요!",
+                        "목표를 위한 세부 할 일들을 추가해 보세요!",
                         style = AppTextStyle.BodySmall,
                         color = Color.DarkGray
                     )
