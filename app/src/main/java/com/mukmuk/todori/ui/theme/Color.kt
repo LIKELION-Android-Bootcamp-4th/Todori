@@ -41,3 +41,16 @@ val ButtonPrimary = Color(0xFF22B282)
 val ButtonGoogle = Color(0xFFF2F2F2)
 val ButtonNaver = Color(0xFF03C75A)
 val ButtonKakao = Color(0xFFFEE500)
+
+//그라데이션용
+val firstGradient = Color(0xFF4CAF50)
+val secondGradient = Color(0xFF81C784)
+
+// 연한 배경 색상들
+val LightGreen = Color(0xFFE8F5E8)
+val LightBlue = Color(0xFFE3F2FD)
+val LightOrange = Color(0xFFFFF3E0)
+val LightPurple = Color(0xFFF3E5F5)
+
+// 진행률 바 배경
+val ProgressBackground = Color(0xFFF5F5F5)

@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -88,24 +89,30 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             recordSettingRepository.totalRecordTimeFlow.collectLatest { savedTime ->
-                _state.update { it.copy(totalRecordTimeMills = savedTime) }
+                _state.update { current ->
+                    current.copy(
+                        totalStudyTimeMills = if (_state.value.status != TimerStatus.RUNNING) savedTime else current.totalStudyTimeMills
+                    )
+                }
             }
         }
 
         viewModelScope.launch {
-            recordSettingRepository.runningStateFlow.collectLatest { running ->
-                if (running) {
-                    startTimer()
-                } else {
-                    stopTimer()
-                }
+            recordSettingRepository.runningStateFlow
+                .distinctUntilChanged()
+                .collectLatest { running ->
+                    if (running) {
+                        startTimer()
+                    } else {
+                        stopTimer(false)
+                    }
 
-                _state.update {
-                    it.copy(
-                        status = if (running) TimerStatus.RUNNING else TimerStatus.IDLE
-                    )
+                    _state.update {
+                        it.copy(
+                            status = if (running) TimerStatus.RUNNING else TimerStatus.IDLE
+                        )
+                    }
                 }
-            }
         }
     }
 
@@ -128,15 +135,17 @@ class HomeViewModel @Inject constructor(
         when (event) {
             is TimerEvent.Start -> startTimer()
             is TimerEvent.Resume -> resumeTimer()
-            is TimerEvent.Stop -> stopTimer()
+            is TimerEvent.Stop -> stopTimer(false)
             is TimerEvent.Reset -> resetTimer()
             is TimerEvent.Record -> enterRecordMode()
         }
     }
 
     private fun startTimer() {
-        if (_state.value.status == TimerStatus.RUNNING) return
-
+        if (timerJob?.isActive == true || _state.value.status == TimerStatus.RUNNING) {
+            return
+        }
+        timerJob?.cancel()
         _state.update { it.copy(status = TimerStatus.RUNNING) }
 
         val intent = Intent(context, TimerService::class.java)
@@ -161,7 +170,6 @@ class HomeViewModel @Inject constructor(
                     updated
                 }
             }
-
             handleTimerCompletion()
         }
     }
@@ -170,13 +178,14 @@ class HomeViewModel @Inject constructor(
         startTimer()
     }
 
-    private fun stopTimer() {
+    private fun stopTimer(isRecordMode: Boolean) {
         timerJob?.cancel()
+        timerJob = null
         _state.update { it.copy(status = TimerStatus.IDLE) }
 
         val uid = _state.value.uid
         val totalTime = _state.value.totalStudyTimeMills
-        saveRecord(uid, totalTime)
+        saveRecord(uid, totalTime, isRecordMode)
     }
 
     private fun resetTimer() {
@@ -196,28 +205,32 @@ class HomeViewModel @Inject constructor(
         _state.update { it.copy(status = TimerStatus.RECORDING) }
     }
 
-    private fun saveRecord(uid: String, recordTime: Long) {
+    private fun saveRecord(uid: String, recordTime: Long, isRecordMode: Boolean) {
         viewModelScope.launch {
             if (uid.isEmpty()) {
-                Log.e("todorilog", "기록 저장 실패: UID가 유효하지 않습니다.")
                 return@launch
             }
             try {
-                val dailyRecord = DailyRecord(
-                    date = currentDate.toString(),
-                    studyTimeMillis = recordTime
+                val data = mutableMapOf<String, Any>(
+                    "date" to currentDate.toString(),
+                    "studyTimeMillis" to recordTime
                 )
-                homeRepository.updateDailyRecord(uid, dailyRecord)
 
+                // 기록 모드일 때만 recordTimeMillis 추가
+                if (isRecordMode) {
+                    data["recordTimeMillis"] = recordTime
+                }
+                homeRepository.updateDailyRecord(uid, data)
                 recordSettingRepository.saveTotalRecordTime(recordTime)
                 recordSettingRepository.saveRunningState(false)
 
                 val intent = Intent(context, TimerService::class.java)
                 context.stopService(intent)
-                val broadcastIntent = Intent(context, TotalTimeWidgetBroadcastReceiver::class.java).apply {
-                    action = ACTION_UPDATE_TOTAL_TIME_WIDGET
-                    putExtra(EXTRA_TOTAL_TIME_MILLIS, recordTime)
-                }
+                val broadcastIntent =
+                    Intent(context, TotalTimeWidgetBroadcastReceiver::class.java).apply {
+                        action = ACTION_UPDATE_TOTAL_TIME_WIDGET
+                        putExtra(EXTRA_TOTAL_TIME_MILLIS, recordTime)
+                    }
                 context.sendBroadcast(broadcastIntent)
             } catch (e: Exception) {
                 Log.e("todorilog", "기록 저장 및 위젯 업데이트 중 오류 발생: ${e.message}", e)
@@ -300,7 +313,9 @@ class HomeViewModel @Inject constructor(
 
     fun setTodoRecordTimeMills(recordTime: Long, uid: String, todo: Todo) {
         viewModelScope.launch {
-            val updatedTodo = todo.copy(totalFocusTimeMillis = todo.totalFocusTimeMillis + recordTime)
+            stopTimer(true)
+            val updatedTodo =
+                todo.copy(totalFocusTimeMillis = todo.totalFocusTimeMillis + recordTime)
             try {
                 todoRepository.updateTodo(uid, updatedTodo)
             } catch (e: Exception) {
@@ -346,7 +361,14 @@ class HomeViewModel @Inject constructor(
         homeRepository.observeDailyRecord(uid) { updatedRecords ->
             val totalTime =
                 updatedRecords.firstOrNull { it.date == today }?.studyTimeMillis ?: 0L
-            _state.update { it.copy(totalStudyTimeMills = totalTime) }
+            val recordTime =
+                updatedRecords.firstOrNull { it.date == today }?.recordTimeMillis ?: 0L
+            _state.update {
+                it.copy(
+                    totalStudyTimeMills = totalTime,
+                    totalRecordTimeMills = recordTime
+                )
+            }
         }
     }
 }

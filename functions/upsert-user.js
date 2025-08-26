@@ -27,21 +27,47 @@ function baseDefaults() {
  * @param {string} [params.authProvider] - 인증 제공자
  * @return {Promise<void>}
  */
-async function upsertUserDoc({uid, nickname = "", authProvider = "unknown"}) {
-  const ref = admin.firestore().collection("users").doc(uid);
-  await admin.firestore().runTransaction(async (tx) => {
+async function upsertUserDoc({ uid, nickname = "", authProvider = "unknown" }) {
+  const db = admin.firestore();
+  const ref = db.collection("users").doc(uid);
+
+  await db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
-    const data = {
-      uid,
-      nickname,
-      authProvider,
-      ...baseDefaults(),
-    };
-    if (!snap.exists || !snap.data()?.createdAt) {
-      data.createdAt = admin.firestore.FieldValue.serverTimestamp();
+
+    if (!snap.exists) {
+      const trimmed = typeof nickname === "string" ? nickname.trim() : "";
+      const initialNickname = trimmed ? trimmed.slice(0, 8) : "";
+
+      tx.set(
+        ref,
+        {
+          uid,
+          authProvider,
+          nickname: initialNickname,
+          ...baseDefaults(),
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          lastLoginAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+      return;
     }
-    tx.set(ref, data, {merge: true});
+
+    const prev = snap.data() || {};
+    const update = {
+      authProvider,
+      lastLoginAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    const hasPrevNickname =
+      prev.nickname !== undefined && String(prev.nickname).trim() !== "";
+    const trimmed = typeof nickname === "string" ? nickname.trim() : "";
+    if (!hasPrevNickname && trimmed) {
+      update.nickname = trimmed.slice(0, 8);
+    }
+
+    tx.set(ref, update, { merge: true });
   });
 }
 
-module.exports = {upsertUserDoc};
+module.exports = { upsertUserDoc };

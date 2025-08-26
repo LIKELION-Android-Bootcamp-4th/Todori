@@ -20,6 +20,7 @@ import com.mukmuk.todori.ui.screen.stats.tab.StatsTab
 import com.mukmuk.todori.ui.screen.stats.tab.day.DayTab
 import com.mukmuk.todori.ui.screen.stats.tab.month.MonthTab
 import com.mukmuk.todori.ui.screen.stats.tab.week.WeekTab
+import com.mukmuk.todori.ui.theme.White
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -37,7 +38,8 @@ fun StatsScreen() {
     var anchorDate by remember { mutableStateOf<LocalDate>(today) }
 
     Scaffold(
-        topBar = { StatsTopBar(onMonthlyReportClick = { /* TODO */ }) }
+        topBar = { StatsTopBar(onMonthlyReportClick = { /* TODO */ }) },
+        containerColor = White
     ) { inner ->
         Column(modifier = Modifier.fillMaxSize().padding(inner)) {
             StatsSegmentedTabs(

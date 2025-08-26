@@ -25,9 +25,9 @@ import kotlin.time.Duration.Companion.seconds
 
 class TimerService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private var timerJob: Job? = null
     private lateinit var repository: RecordSettingRepository
     private lateinit var notificationManager: NotificationManager
+    private var timerJob: Job? = null
 
     companion object {
         const val CHANNEL_ID = "TimerServiceChannel"
@@ -50,42 +50,38 @@ class TimerService : Service() {
         startForeground(NOTIFICATION_ID, createNotification())
 
         serviceScope.launch {
-            repository.saveRunningState(true)
+            timerJob?.cancel()
+            timerJob = launch {
+                repository.saveRunningState(true)
 
-            val glanceIds = GlanceAppWidgetManager(applicationContext)
-                .getGlanceIds(TimerWidget::class.java)
+                val glanceIds = GlanceAppWidgetManager(applicationContext)
+                    .getGlanceIds(TimerWidget::class.java)
 
-            if (glanceIds.isEmpty()) {
-                stopSelf()
-                return@launch
-            }
-
-            val initialMillis = repository.totalRecordTimeFlow.first()
-            glanceIds.forEach { id ->
-                updateAppWidgetState(applicationContext, id) { prefs ->
-                    prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = initialMillis
-                    prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = true
+                if (glanceIds.isEmpty()) {
+                    stopSelf()
+                    return@launch
                 }
-                TimerWidget().update(applicationContext, id)
-            }
 
-            startTimer(glanceIds)
-        }
-
-        return START_STICKY
-    }
-
-    private fun startTimer(glanceIds: List<GlanceId>) {
-        serviceScope.launch {
-            repository.totalRecordTimeFlow.collectLatest { totalTime ->
+                val initialMillis = repository.totalRecordTimeFlow.first()
                 glanceIds.forEach { id ->
                     updateAppWidgetState(applicationContext, id) { prefs ->
-                        prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = totalTime
+                        prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = initialMillis
+                        prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = true
                     }
                     TimerWidget().update(applicationContext, id)
                 }
+
+                repository.totalRecordTimeFlow.collectLatest { totalTime ->
+                    glanceIds.forEach { id ->
+                        updateAppWidgetState(applicationContext, id) { prefs ->
+                            prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = totalTime
+                        }
+                        TimerWidget().update(applicationContext, id)
+                    }
+                }
             }
         }
+        return START_STICKY
     }
 
     override fun onDestroy() {

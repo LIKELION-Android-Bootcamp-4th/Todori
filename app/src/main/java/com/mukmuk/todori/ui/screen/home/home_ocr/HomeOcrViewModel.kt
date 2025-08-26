@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
 import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.repository.HomeRepository
 import com.mukmuk.todori.data.repository.UserRepository
@@ -23,7 +24,8 @@ import javax.inject.Inject
 class HomeOcrViewModel @Inject constructor(
     private val homeRepository: HomeRepository,
     private val repository: UserRepository,
-) : ViewModel() {
+    private val recordSettingRepository: RecordSettingRepository
+    ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeOcrState())
     val state: StateFlow<HomeOcrState> = _state.asStateFlow()
@@ -55,13 +57,15 @@ class HomeOcrViewModel @Inject constructor(
                     .firstOrNull()?.studyTimeMillis ?: 0L
             val newTotalTimeInMillis = (hours * 3600L + minutes * 60L + seconds) * 1000L
 
+            recordSettingRepository.saveTotalRecordTime(existingTotalTimeInMillis + newTotalTimeInMillis)
+
             if (newTotalTimeInMillis > 0) {
-                val newDailyRecord = DailyRecord(
-                    date = currentDate.toString(),
-                    studyTimeMillis = existingTotalTimeInMillis + newTotalTimeInMillis
+                val data = mutableMapOf<String, Any>(
+                    "date" to currentDate.toString(),
+                    "studyTimeMillis" to existingTotalTimeInMillis + newTotalTimeInMillis
                 )
                 try {
-                    homeRepository.updateDailyRecord(_state.value.uid, newDailyRecord)
+                    homeRepository.updateDailyRecord(_state.value.uid, data)
                 } catch (e: Exception) {
                     Log.e("todorilog", "Firebase 업데이트 실패: ${e.message}")
                 }
