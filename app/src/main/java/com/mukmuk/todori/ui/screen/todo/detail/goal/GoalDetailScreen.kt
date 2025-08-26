@@ -71,6 +71,7 @@ import kotlinx.datetime.toKotlinLocalDate
 @Composable
 fun GoalDetailScreen(
     goalId: String,
+    selectedDate: String,
     navController: NavHostController,
     onBack: () -> Unit
 ) {
@@ -84,7 +85,7 @@ fun GoalDetailScreen(
     var newTodoDueDate by remember { mutableStateOf<LocalDate?>(null) }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
-
+    val parsedDate = remember(selectedDate) { LocalDate.parse(selectedDate) }
 
     var context = LocalContext.current
     LaunchedEffect(goalId) {
@@ -164,7 +165,7 @@ fun GoalDetailScreen(
 
                 Spacer(modifier = Modifier.height(Dimens.Small))
 
-                GoalMetaInfoRow(goal)
+                GoalMetaInfoRow(goal, parsedDate)
 
                 Spacer(modifier = Modifier.height(Dimens.Small))
 
