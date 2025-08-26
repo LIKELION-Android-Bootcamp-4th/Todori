@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -21,13 +21,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.LightGray
+import com.mukmuk.todori.ui.theme.StudyStreakBackground
 import com.mukmuk.todori.ui.theme.StudyStreakOrange
 import com.mukmuk.todori.ui.theme.White
 
@@ -51,13 +51,13 @@ fun StudyStreakCard(
                 modifier = Modifier
                     .size(48.dp)
                     .background(
-                        Color(0xFFFFF3E0),
+                        StudyStreakBackground,
                         CircleShape
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Default.LocalFireDepartment,
+                    Icons.Outlined.LocalFireDepartment,
                     contentDescription = null,
                     tint = StudyStreakOrange,
                     modifier = Modifier.size(24.dp)
@@ -80,22 +80,43 @@ fun StudyStreakCard(
 
                 Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-                // 연속 공부 표시 (점들)
-                LazyRow {
-                    items(12) { index ->
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .background(
-                                    if (index < streakDays) StudyStreakOrange else LightGray,
-                                    CircleShape
-                                )
-                        )
-                        if (index < 11) {
-                            Spacer(modifier = Modifier.width(2.dp))
+                Column {
+                    LazyRow {
+                        items(15) { index ->
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(
+                                        if (index < streakDays.coerceAtMost(15)) StudyStreakOrange else LightGray,
+                                        CircleShape
+                                    )
+                            )
+                            if (index < 14) {
+                                Spacer(modifier = Modifier.width(Dimens.Nano))
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(Dimens.Nano))
+
+                    LazyRow {
+                        items(15) { index ->
+                            val dayIndex = index + 15
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(
+                                        if (dayIndex < streakDays) StudyStreakOrange else LightGray,
+                                        CircleShape
+                                    )
+                            )
+                            if (index < 14) {
+                                Spacer(modifier = Modifier.width(Dimens.Nano))
+                            }
                         }
                     }
                 }
+
             }
         }
     }

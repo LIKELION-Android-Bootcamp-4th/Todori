@@ -1,15 +1,15 @@
 package com.mukmuk.todori.ui.screen.stats.component.report
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -40,13 +40,16 @@ fun LegendaryDayCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(Dimens.Large)
+            modifier = Modifier.fillMaxWidth().padding(Dimens.Large),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    Icons.Default.Star,
+                    Icons.Outlined.StarOutline,
                     contentDescription = null,
                     tint = GoalPrimary,
                     modifier = Modifier.size(20.dp)
@@ -58,8 +61,6 @@ fun LegendaryDayCard(
                     color = White
                 )
             }
-
-            Spacer(modifier = Modifier.height(Dimens.Medium))
 
             Text(
                 text = date,

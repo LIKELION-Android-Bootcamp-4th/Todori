@@ -17,13 +17,16 @@ data class MonthlyReportState(
     val totalTodos: Int = 0,
 
     val bestDay: String? = null,
-    val bestDayStudyTime: Long = 0L,
+    val bestDayStudyTime: String? = null,
 
     val bestWeekLabel: String? = null,
     val bestWeekStudyTime: Long = 0L,
 
     val goldenHourRange: Pair<Int, Int>? = null,
     val goldenHourText: String? = null,
+
+    val streakDays: Int = 0,
+    val maxStreak: Int = 0,
 
     val insights: List<String> = emptyList(),
     val error: String? = null

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.remote.stat.MonthStat
 import com.mukmuk.todori.data.repository.DailyRecordRepository
+import com.mukmuk.todori.data.repository.DayStatsRepository
 import com.mukmuk.todori.data.repository.MonthStatRepository
 import com.mukmuk.todori.data.repository.StudyTargetsRepository
 import com.mukmuk.todori.data.repository.TodoStatsRepository
@@ -22,7 +23,8 @@ class MonthlyReportViewModel @Inject constructor(
     private val dailyRecordRepository: DailyRecordRepository,
     private val monthStatRepository: MonthStatRepository,
     private val studyTargetsRepository: StudyTargetsRepository,
-    private val todoStatsRepository: TodoStatsRepository
+    private val todoStatsRepository: TodoStatsRepository,
+    private val dayStatsRepository: DayStatsRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MonthlyReportState())
@@ -46,6 +48,10 @@ class MonthlyReportViewModel @Inject constructor(
                     else "${start}:00 ~${end}:00"
                 }
 
+                val stats = dayStatsRepository.getStats(uid)
+                val currentStreak = stats?.currentStreak ?: 0
+                val bestStreak = stats?.bestStreak ?: 0
+
                 updateState {
                     copy(
                         year = year,
@@ -56,11 +62,13 @@ class MonthlyReportViewModel @Inject constructor(
                         completedTodos = monthStat?.completedTodos ?: 0,
                         totalTodos = monthStat?.totalTodos ?: 0,
                         bestDay = monthStat?.bestDay?.date,
-                        bestDayStudyTime = monthStat?.bestDay?.studyTime?.toLongOrNull() ?: 0L,
+                        bestDayStudyTime = monthStat?.bestDay?.studyTime,
                         bestWeekLabel = "TODO: 주차라벨",
-                        bestWeekStudyTime = 0L, // 동일
+                        bestWeekStudyTime = 0L,
                         goldenHourRange = goldenHourRange,
                         goldenHourText = goldenHourText,
+                        streakDays = currentStreak,
+                        maxStreak = bestStreak,
                         insights = buildInsights(monthStat)
                     )
                 }

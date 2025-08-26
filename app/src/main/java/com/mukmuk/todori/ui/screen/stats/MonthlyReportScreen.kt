@@ -64,10 +64,16 @@ fun MonthlyReportScreen(
             )
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
-            StudyStreakCard(streakDays = 12, maxStreak = 28)
+            StudyStreakCard(
+                streakDays = state.streakDays,
+                maxStreak = state.maxStreak
+            )
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
-            LegendaryDayCard(date = "12", studyTime = "4시간 20분")
+            LegendaryDayCard(
+                date = state.bestDay.toString().takeLast(2),
+                studyTime = state.bestDayStudyTime.toString()
+            )
             Spacer(modifier = Modifier.height(Dimens.Medium))
 
             MonthHeroCard(
