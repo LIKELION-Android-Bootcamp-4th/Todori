@@ -2,6 +2,7 @@ package com.mukmuk.todori.util
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate as KxLocalDate
 import java.time.LocalDate as JtLocalDate
 
@@ -20,5 +21,18 @@ fun activeDaysText(days: List<String>): String {
         sortedDays == weekdays -> "평일"
         sortedDays == weekends -> "주말"
         else -> sortedDays.joinToString(" ")
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun DayOfWeek.toKoreanString(): String {
+    return when (this) {
+        DayOfWeek.MONDAY -> "월"
+        DayOfWeek.TUESDAY -> "화"
+        DayOfWeek.WEDNESDAY -> "수"
+        DayOfWeek.THURSDAY -> "목"
+        DayOfWeek.FRIDAY -> "금"
+        DayOfWeek.SATURDAY -> "토"
+        DayOfWeek.SUNDAY -> "일"
     }
 }
