@@ -120,6 +120,7 @@ fun MyPageScreen(
                     onClick = {
                         if (!state.isDeleting) {
                             viewModel.deleteAccount()
+                            Toast.makeText(context, "회원 탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) {
@@ -145,6 +146,7 @@ fun MyPageScreen(
                     onClick = {
                         viewModel.logout()
                         showLogoutDialog = false
+                        Toast.makeText(context, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
                     }
                 ) {
                     Text("로그아웃")
