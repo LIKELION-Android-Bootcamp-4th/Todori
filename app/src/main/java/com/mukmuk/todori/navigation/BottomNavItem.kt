@@ -9,7 +9,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class BottomNavItem(val route: String, val label: String, val icon: ImageVector) {
-    object Todo : BottomNavItem("todo", "할 일", Icons.Outlined.Description)
+    object Todo : BottomNavItem("todo", "TODO", Icons.Outlined.Description)
     object Stats : BottomNavItem("stats", "통계", Icons.Outlined.BarChart)
     object Home : BottomNavItem("home", "홈", Icons.Outlined.Alarm)
     object Study : BottomNavItem("study", "스터디", Icons.Outlined.PeopleOutline)
