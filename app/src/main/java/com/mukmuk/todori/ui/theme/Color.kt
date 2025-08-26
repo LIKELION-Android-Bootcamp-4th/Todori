@@ -61,6 +61,7 @@ val CompletionRed = Color(0xFFD32F2F)
 val GoalPurple = Color(0xFF8B5CF6)
 val ProgressTeal = Color(0xFF14B8A6)
 val WeeklyBlue = Color(0xFF3B82F6)
+val CircleTrackColor = Color(0xFFF3E8FF)
 
 // 진행률 바 배경
 val ProgressBackground = Color(0xFFF5F5F5)

@@ -22,10 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.CircleTrackColor
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.GoalPurple
@@ -58,7 +58,7 @@ fun GoalProgressCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(Dimens.Large),
+            modifier = Modifier.fillMaxWidth().padding(Dimens.Large),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -77,13 +77,13 @@ fun GoalProgressCard(
                     color = Black
                 )
             }
-
-            Text(
-                text = "${leftTime}시간만 더!",
-                style = AppTextStyle.BodySmallNormal,
-                color = GoalPurple
-            )
-
+            if (leftTime > 0) {
+                Text(
+                    text = "${leftTime}시간만 더!",
+                    style = AppTextStyle.BodySmallNormal,
+                    color = GoalPurple
+                )
+            }
             Spacer(modifier = Modifier.height(Dimens.Large))
 
             Box(
@@ -95,7 +95,7 @@ fun GoalProgressCard(
                     modifier = Modifier.fillMaxSize(),
                     color = GoalPurple,
                     strokeWidth = 10.dp,
-                    trackColor = Color(0xFFF3E8FF)
+                    trackColor = CircleTrackColor
                 )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
