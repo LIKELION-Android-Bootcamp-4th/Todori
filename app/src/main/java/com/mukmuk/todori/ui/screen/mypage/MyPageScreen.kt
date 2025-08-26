@@ -38,6 +38,7 @@ fun MyPageScreen(
     val context = LocalContext.current
 
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val uid = Firebase.auth.currentUser?.uid
@@ -92,7 +93,7 @@ fun MyPageScreen(
 
             MyPageAccountSection(
                 onLogoutClick = {
-                    viewModel.logout()
+                    showLogoutDialog = true
                 },
                 onDeleteAccountClick = {
                     showDeleteDialog = true
@@ -119,6 +120,7 @@ fun MyPageScreen(
                     onClick = {
                         if (!state.isDeleting) {
                             viewModel.deleteAccount()
+                            Toast.makeText(context, "회원 탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) {
@@ -130,6 +132,30 @@ fun MyPageScreen(
                     enabled = !state.isDeleting,
                     onClick = { showDeleteDialog = false }
                 ) { Text("취소", color = Red) }
+            }
+        )
+    }
+    if (showLogoutDialog) {
+        AlertDialog(
+            containerColor = White,
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("로그아웃") },
+            text = { Text("정말 로그아웃 하시겠어요?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.logout()
+                        showLogoutDialog = false
+                        Toast.makeText(context, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Text("로그아웃")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("취소", color = Red)
+                }
             }
         )
     }

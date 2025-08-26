@@ -17,7 +17,7 @@ class HomeRepository @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getDailyRecord(uid: String, date: LocalDate) = homeService.getDailyRecord(uid, date)
 
-    suspend fun updateDailyRecord(uid: String, dailyRecord: DailyRecord) = homeService.updateDailyRecord(uid, dailyRecord)
+    suspend fun updateDailyRecord(uid: String, data: Map<String, Any>) = homeService.updateDailyRecord(uid, data)
 
     fun observeDailyRecord(uid: String, onDailyRecordChanged: (List<DailyRecord>) -> Unit) {
         homeService.getDailyRecordCollection(uid)
