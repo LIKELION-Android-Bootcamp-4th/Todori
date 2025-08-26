@@ -117,9 +117,9 @@ fun CalendarCard(
                 val studySec = (studyMillis / 1000).toInt()
 
                 val backgroundColor = when {
-                    studySec in 1..7200 -> UserTenth  //~2시간
-                    studySec in 7201..21600 -> UserHalf  //2~6시간
-                    studySec >= 21601 -> UserPrimary  //6시간~
+                    studySec in 1..7200 -> UserTenth
+                    studySec in 7201..21600 -> UserHalf
+                    studySec >= 21601 -> UserPrimary
                     else -> Color.Transparent
                 }
 
