@@ -42,7 +42,6 @@ fun StudyGoalCard(
             modifier = Modifier
                 .padding(Dimens.Large)
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
@@ -68,7 +67,7 @@ fun StudyGoalCard(
 
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(140.dp)
+                modifier = Modifier.size(140.dp).align(Alignment.CenterHorizontally)
             ) {
                 HourlyHighlightCircle(
                     hourRange = startHour..endHour,
