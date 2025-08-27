@@ -113,7 +113,7 @@ class TodoViewModel @Inject constructor(
     fun sendTodoCategory(category: TodoCategory) {
         viewModelScope.launch {
             try {
-                val categoryId = categoryRepo.createSendTodoCategory(category = category)
+                val categoryId = categoryRepo.createSendTodoCategory(categoryId = category.categoryId)
 
                 val url = createUrl(categoryId)
                 _state.update {
