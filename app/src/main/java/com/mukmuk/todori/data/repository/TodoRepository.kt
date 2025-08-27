@@ -30,20 +30,23 @@ class TodoRepository @Inject constructor(
     suspend fun updateTodo(uid: String, todo: Todo) = todoService.updateTodo(uid, todo)
     suspend fun deleteTodo(uid: String, todoId: String) = todoService.deleteTodo(uid, todoId)
 
-    fun observeTodos(uid: String, onTodosChanged: (List<Todo>) -> Unit) {
-        todoService.getTodosCollection(uid)
+    fun observeTodos(uid: String): Flow<List<Todo>> = callbackFlow {
+        val listenerRegistration = todoService.getTodosCollection(uid)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w("TodoRepository", "Listen failed.", e)
+                    close(e) // 에러 발생 시 Flow를 종료합니다.
                     return@addSnapshotListener
                 }
 
                 if (snapshot != null && !snapshot.isEmpty) {
                     val todos = snapshot.documents.mapNotNull { it.toObject(Todo::class.java) }
-                    onTodosChanged(todos)
+                    trySend(todos)
                 } else {
-                    onTodosChanged(emptyList())
+                    trySend(emptyList())
                 }
             }
+
+        awaitClose { listenerRegistration.remove() }
     }
 }
