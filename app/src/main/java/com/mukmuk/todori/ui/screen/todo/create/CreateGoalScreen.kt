@@ -94,8 +94,8 @@ fun CreateGoalScreen(
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    val isTitleError = title.length !in 0..15       // 목표  1~15
-    val isDescError = description.length !in 0..60 // 설명  1~60
+    val isTitleError = title.length !in 1..15       // 목표  1~15
+    val isDescError = description.length !in 1..60 // 설명  1~60
     val isDateError = startDate == null || endDate == null
 
     val dateFormatter = DateTimeFormatter.ofPattern("yy.MM.dd")
@@ -209,23 +209,31 @@ fun CreateGoalScreen(
             Button(
                 onClick = {
                     if (isEditMode) {
-                        val updatedGoal = editGoal.copy(
-                            title = title,
-                            description = description,
-                            startDate = startDate!!.format(formatter),
-                            endDate = endDate!!.format(formatter)
-                        )
-                        viewModel.updateGoal(
-                            uid = uid,
-                            goal = updatedGoal,
-                            onSuccess = {
-                                Toast.makeText(context, "목표 수정 완료", Toast.LENGTH_SHORT).show()
-                                onDone()
-                            },
-                            onError = { e ->
-                                Toast.makeText(context, "수정 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                        if (!isTitleError && !isDescError && !isDateError && startDate != null && endDate != null) {
+                            val updatedGoal = editGoal.copy(
+                                title = title,
+                                description = description,
+                                startDate = startDate!!.format(formatter),
+                                endDate = endDate!!.format(formatter)
+                            )
+                            viewModel.updateGoal(
+                                uid = uid,
+                                goal = updatedGoal,
+                                onSuccess = {
+                                    Toast.makeText(context, "목표 수정 완료", Toast.LENGTH_SHORT).show()
+                                    onDone()
+                                },
+                                onError = { e ->
+                                    Toast.makeText(context, "수정 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        } else {
+                            when {
+                                isTitleError -> Toast.makeText(context, "목표 제목을 입력해주세요. (1~15자)", Toast.LENGTH_SHORT).show()
+                                isDescError -> Toast.makeText(context, "설명을 입력해주세요. (1~60자)", Toast.LENGTH_SHORT).show()
+                                isDateError -> Toast.makeText(context, "시작일과 종료일을 선택해주세요.", Toast.LENGTH_SHORT).show()
                             }
-                        )
+                        }
                     } else {
                         if (!isTitleError && !isDescError && !isDateError && startDate != null && endDate != null) {
                             viewModel.createGoal(
@@ -238,8 +246,15 @@ fun CreateGoalScreen(
                                     onDone()
                                 },
                                 onError = { e ->
+                                    Toast.makeText(context,"생성 실패: ${e.message}",Toast.LENGTH_SHORT).show()
                                 }
                             )
+                        } else {
+                            when {
+                                isTitleError -> Toast.makeText(context, "목표 제목을 입력해주세요. (1~15자)", Toast.LENGTH_SHORT).show()
+                                isDescError -> Toast.makeText(context, "설명을 입력해주세요. (1~60자)", Toast.LENGTH_SHORT).show()
+                                isDateError -> Toast.makeText(context, "시작일과 종료일을 선택해주세요.", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 },
@@ -247,6 +262,7 @@ fun CreateGoalScreen(
             ) {
                 Text("완료")
             }
+
         }
     }
 }
