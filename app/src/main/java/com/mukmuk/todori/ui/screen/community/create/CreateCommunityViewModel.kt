@@ -211,7 +211,7 @@ class CreateCommunityViewModel @Inject constructor(
 
                 val studyId = post.studyId
                 if (studyId.isNotBlank()) {
-                    studyRepository.markStudyAsPosted(uid, studyId)
+                    studyRepository.updateHasPosted(uid, studyId, true)
                 }
 
                 _state.update { it.copy(isLoading = false, isPostSubmitted = true) }
