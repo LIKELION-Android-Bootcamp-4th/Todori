@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.components
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.study.MyStudy
@@ -33,10 +35,11 @@ import com.mukmuk.todori.ui.theme.White
 fun TagPickerBottomSheet(
     show: Boolean,
     onDismissRequest: () -> Unit,
-    selectedTags: List<String>,        // 현재 선택된 태그
-    onTagClick: (String) -> Unit          // ✅ 해제 이벤트
+    selectedTags: List<String>,
+    onTagClick: (String) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val context = LocalContext.current
 
     if (show) {
         ModalBottomSheet(
@@ -75,7 +78,15 @@ fun TagPickerBottomSheet(
                                 val isSelected = tag in selectedTags
                                 FilterChip(
                                     selected = isSelected,
-                                    onClick = { onTagClick(tag) },
+                                    onClick = { if (!isSelected && selectedTags.size >= 3) {
+                                        Toast.makeText(
+                                            context,
+                                            "태그는 최대 3개까지 선택 가능합니다.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
+                                        onTagClick(tag)
+                                    }},
                                     label = { Text(tag) }
                                 )
                             }
