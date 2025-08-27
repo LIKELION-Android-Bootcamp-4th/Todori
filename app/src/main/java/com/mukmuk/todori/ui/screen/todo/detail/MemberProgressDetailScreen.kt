@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
@@ -84,7 +89,27 @@ fun MemberProgressDetailScreen(
             placeholder = { Text("멤버 이름 검색") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = Dimens.Tiny)
+                .padding(vertical = Dimens.Tiny),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.clearFocus()
+                }
+            ),
+            trailingIcon = {
+                if (query.isNotBlank()) {
+                    androidx.compose.material3.Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "검색 초기화",
+                        modifier = Modifier
+                            .clickable {
+                                query = ""
+                                focusManager.clearFocus()
+                            }
+                            .padding(Dimens.Tiny)
+                    )
+                }
+            }
         )
 
         LazyColumn(
