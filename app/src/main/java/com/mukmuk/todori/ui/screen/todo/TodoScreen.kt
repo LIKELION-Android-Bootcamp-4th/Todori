@@ -48,11 +48,14 @@ fun TodoScreen(navController: NavHostController) {
     val studyRecordsMillis by viewModel.studyRecordsMillis.collectAsState()
     var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
 
-    val tabs = listOf("개인", "목표", "스터디")
+    val tabs = listOf("TODO", "목표", "스터디")
 
     val uid = Firebase.auth.currentUser?.uid.toString()
     LaunchedEffect(Unit) {
-        val start = selectedDate.minus(selectedDate.dayOfWeek.isoDayNumber - 1, kotlinx.datetime.DateTimeUnit.DAY)
+        val start = selectedDate.minus(
+            selectedDate.dayOfWeek.isoDayNumber - 1,
+            kotlinx.datetime.DateTimeUnit.DAY
+        )
         val end = start.plus(6, kotlinx.datetime.DateTimeUnit.DAY)
         viewModel.onWeekVisible(uid, start, end)
     }
@@ -60,17 +63,25 @@ fun TodoScreen(navController: NavHostController) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TodoTopBar(selectedYearMonth = YearMonth.of(selectedDate.year, selectedDate.month)) { action ->
+        TodoTopBar(
+            selectedYearMonth = YearMonth.of(
+                selectedDate.year,
+                selectedDate.month
+            )
+        ) { action ->
             when (action) {
                 MenuAction.CreatePersonalCategory -> {
                     navController.navigate("category/create")
                 }
+
                 MenuAction.CreateGoalRoadmap -> {
                     navController.navigate("goal/create")
                 }
+
                 MenuAction.CreateStudy -> {
                     navController.navigate("study/create")
                 }
+
                 else -> {
                     // todo: DeepLink 처리
                 }
