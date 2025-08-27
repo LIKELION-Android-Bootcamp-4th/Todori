@@ -9,9 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.mukmuk.todori.R
@@ -21,9 +19,9 @@ import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlin.time.Duration.Companion.seconds
 
 class TimerService : Service() {
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private lateinit var repository: RecordSettingRepository
     private lateinit var notificationManager: NotificationManager
@@ -32,8 +30,8 @@ class TimerService : Service() {
     companion object {
         const val CHANNEL_ID = "TimerServiceChannel"
         const val NOTIFICATION_ID = 1
-        const val EXTRA_GLANCE_ID_STRING = "extra_glance_id_string"
         const val ACTION_RESET = "com.mukmuk.todori.widget.timer.RESET"
+        const val EXTRA_GLANCE_ID_STRING = "extra_glance_id_string"
     }
 
     override fun onCreate() {
@@ -48,6 +46,7 @@ class TimerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         when (intent?.action) {
             ACTION_RESET -> {
                 serviceScope.launch {
@@ -68,41 +67,40 @@ class TimerService : Service() {
                 return START_NOT_STICKY
             }
         }
+
         startForeground(NOTIFICATION_ID, createNotification())
 
-        serviceScope.launch {
-            timerJob?.cancel()
-            timerJob = launch {
-                repository.saveRunningState(true)
+        startTimerLoop()
 
+        return START_STICKY
+    }
+
+    private fun startTimerLoop() {
+        timerJob?.cancel()
+        timerJob = serviceScope.launch {
+            repository.saveRunningState(true)
+
+            // 초기값 설정
+            var totalTime = repository.totalRecordTimeFlow.first()
+
+            repository.totalRecordTimeFlow.collectLatest { latestTime ->
+                totalTime = latestTime
+
+                // 위젯이 있으면 업데이트
                 val glanceIds = GlanceAppWidgetManager(applicationContext)
                     .getGlanceIds(TimerWidget::class.java)
 
-                if (glanceIds.isEmpty()) {
-                    stopSelf()
-                    return@launch
-                }
-
-                val initialMillis = repository.totalRecordTimeFlow.first()
-                glanceIds.forEach { id ->
-                    updateAppWidgetState(applicationContext, id) { prefs ->
-                        prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = initialMillis
-                        prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = true
-                    }
-                    TimerWidget().update(applicationContext, id)
-                }
-
-                repository.totalRecordTimeFlow.collectLatest { totalTime ->
+                if (glanceIds.isNotEmpty()) {
                     glanceIds.forEach { id ->
                         updateAppWidgetState(applicationContext, id) { prefs ->
                             prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = totalTime
+                            prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = true
                         }
                         TimerWidget().update(applicationContext, id)
                     }
                 }
             }
         }
-        return START_STICKY
     }
 
     override fun onDestroy() {
@@ -110,17 +108,16 @@ class TimerService : Service() {
         timerJob?.cancel()
         serviceScope.cancel()
         notificationManager.cancel(NOTIFICATION_ID)
-        CoroutineScope(Dispatchers.IO).launch {
-            repository.saveRunningState(false)
 
+        serviceScope.launch {
+            repository.saveRunningState(false)
+            val finalTime = repository.totalRecordTimeFlow.first()
             val glanceIds = GlanceAppWidgetManager(applicationContext)
                 .getGlanceIds(TimerWidget::class.java)
 
-            val finalMillis = repository.totalRecordTimeFlow.first()
-
             glanceIds.forEach { id ->
                 updateAppWidgetState(applicationContext, id) { prefs ->
-                    prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = finalMillis
+                    prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = finalTime
                     prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = false
                 }
                 TimerWidget().update(applicationContext, id)
@@ -143,12 +140,17 @@ class TimerService : Service() {
 
     private fun createNotification(): Notification {
         val pendingIntent = packageManager.getLaunchIntentForPackage(packageName)?.let { launchIntent ->
-            PendingIntent.getActivity(this, 0, launchIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getActivity(
+                this,
+                0,
+                launchIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
         }
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Todori 타이머 실행 중")
-            .setContentText("타이머 위젯이 매 초 업데이트됩니다. \n배터리 사용량이 늘어날 수 있어요.")
+            .setContentText("타이머가 백그라운드에서 실행 중입니다.")
             .setSmallIcon(R.drawable.ic_fire1)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
