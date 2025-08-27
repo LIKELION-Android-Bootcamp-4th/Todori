@@ -208,6 +208,20 @@ fun CreateGoalScreen(
 
             Button(
                 onClick = {
+                    when {
+                        isTitleError -> {
+                            Toast.makeText(context, "목표 제목을 입력해주세요. (1~15자)", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        isDescError -> {
+                            Toast.makeText(context, "설명을 입력해주세요. (1~60자)", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        isDateError -> {
+                            Toast.makeText(context, "시작일과 종료일을 선택해주세요.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                    }
                     if (isEditMode) {
                         if (!isTitleError && !isDescError && !isDateError && startDate != null && endDate != null) {
                             val updatedGoal = editGoal.copy(
@@ -224,15 +238,9 @@ fun CreateGoalScreen(
                                     onDone()
                                 },
                                 onError = { e ->
-                                    Toast.makeText(context, "수정 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context,"목표 수정에 실패했습니다. 잠시 후 다시 시도해주세요.",Toast.LENGTH_SHORT).show()
                                 }
                             )
-                        } else {
-                            when {
-                                isTitleError -> Toast.makeText(context, "목표 제목을 입력해주세요. (1~15자)", Toast.LENGTH_SHORT).show()
-                                isDescError -> Toast.makeText(context, "설명을 입력해주세요. (1~60자)", Toast.LENGTH_SHORT).show()
-                                isDateError -> Toast.makeText(context, "시작일과 종료일을 선택해주세요.", Toast.LENGTH_SHORT).show()
-                            }
                         }
                     } else {
                         if (!isTitleError && !isDescError && !isDateError && startDate != null && endDate != null) {
@@ -246,15 +254,9 @@ fun CreateGoalScreen(
                                     onDone()
                                 },
                                 onError = { e ->
-                                    Toast.makeText(context,"생성 실패: ${e.message}",Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context,"목표 생성에 실패했습니다. 잠시 후 다시 시도해주세요.",Toast.LENGTH_SHORT).show()
                                 }
                             )
-                        } else {
-                            when {
-                                isTitleError -> Toast.makeText(context, "목표 제목을 입력해주세요. (1~15자)", Toast.LENGTH_SHORT).show()
-                                isDescError -> Toast.makeText(context, "설명을 입력해주세요. (1~60자)", Toast.LENGTH_SHORT).show()
-                                isDateError -> Toast.makeText(context, "시작일과 종료일을 선택해주세요.", Toast.LENGTH_SHORT).show()
-                            }
                         }
                     }
                 },

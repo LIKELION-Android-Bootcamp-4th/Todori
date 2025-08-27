@@ -1,6 +1,5 @@
 package com.mukmuk.todori.ui.screen.todo.create
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -49,7 +48,6 @@ fun CreateCategoryScreen(
     val isEditMode =
         editCategory !=null
 
-//    val uid = "testuser"
     val uid = Firebase.auth.currentUser?.uid.toString()
     var title by remember { mutableStateOf(editCategory?.name.orEmpty()) }
     var description by remember { mutableStateOf(editCategory?.description.orEmpty()) }
@@ -59,8 +57,8 @@ fun CreateCategoryScreen(
     val focusManager = LocalFocusManager.current
 
     val context = LocalContext.current
-    val isTitleError =  title.length !in 0..8       // 제목은 1~8
-    val isDescError = description.length !in 0..60 // 설명  1~60
+    val isTitleError =  title.length !in 1..8
+    val isDescError = description.length !in 1..60
 
     val viewModel: TodoCategoryViewModel = hiltViewModel()
     LaunchedEffect(Unit) {
@@ -132,8 +130,16 @@ fun CreateCategoryScreen(
 
             Button(
                 onClick = {
-                    Log.d("TodoCategoryService", "버튼 클릭됨")
-                    if (isTitleError || isDescError) return@Button
+                    when {
+                        isTitleError -> {
+                            Toast.makeText(context, "제목을 1~8자 사이로 입력해주세요.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        isDescError -> {
+                            Toast.makeText(context, "내용을 1~60자 사이로 입력해주세요.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                    }
 
                     if (isEditMode) {
                         val updatedCategory = editCategory.copy(
@@ -147,6 +153,9 @@ fun CreateCategoryScreen(
                             onSuccess = {
                                 Toast.makeText(context, "카테고리 수정 완료", Toast.LENGTH_SHORT).show()
                                 onDone()
+                            },
+                            onError = {
+                                Toast.makeText(context,"카테고리 수정에 실패했습니다. 잠시 후 다시 시도해주세요.",Toast.LENGTH_SHORT).show()
                             }
                         )
 
@@ -164,7 +173,7 @@ fun CreateCategoryScreen(
                                 onDone()
                             },
                             onError = { e ->
-                                Log.e("TodoCategoryService", "카테고리 생성 실패", e)
+                                Toast.makeText(context,"카테고리 생성에 실패했습니다. 잠시 후 다시 시도해주세요.",Toast.LENGTH_SHORT).show()
                             }
                         )
                     }
