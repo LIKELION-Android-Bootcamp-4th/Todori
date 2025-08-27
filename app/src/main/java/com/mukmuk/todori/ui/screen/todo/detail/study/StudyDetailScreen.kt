@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -64,6 +65,7 @@ fun StudyDetailScreen(
     val myMember = state.members.find { it.uid == uid }
     val isLeader = myMember?.role == "LEADER"
     val parsedDate = remember(selectedDate) { LocalDate.parse(selectedDate) }
+    val focusManager = LocalFocusManager.current
     if (state.studyDeleted) {
         LaunchedEffect(Unit) {
             onBack()
@@ -225,6 +227,7 @@ fun StudyDetailScreen(
                                     members = members
                                 )
                                 newTodoText = ""
+                                focusManager.clearFocus()
                             }
                         },
                         onToggleChecked = { todoId, checked ->
