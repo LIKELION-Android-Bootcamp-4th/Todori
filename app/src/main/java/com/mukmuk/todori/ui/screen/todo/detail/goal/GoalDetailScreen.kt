@@ -28,6 +28,7 @@ import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -106,7 +107,15 @@ fun GoalDetailScreen(
         }
     }
 
-    if (goal != null) {
+    if (state.isLoading) {
+        // 로딩 화면
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else if (goal != null) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -315,6 +324,13 @@ fun GoalDetailScreen(
                     )
                 }
             }
+        }
+    } else if (state.error != null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("오류가 발생했습니다. 다시 시도해주세요.")
         }
     }
 }
