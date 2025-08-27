@@ -50,7 +50,9 @@ fun DateRangePickerBottomSheet(
     show: Boolean,
     onDismissRequest: () -> Unit,
     onConfirm: (LocalDate, LocalDate) -> Unit,
-    isCreationScreen: Boolean = false
+    isCreationScreen: Boolean = false,
+    initialStartDate: String? = null,
+    initialEndDate: String? = null
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -68,9 +70,15 @@ fun DateRangePickerBottomSheet(
         firstDayOfWeek = DayOfWeek.MONDAY
     )
 
-    LaunchedEffect(show) {
-        if (show && isCreationScreen) {
-            startDate = LocalDate.now()
+    LaunchedEffect(show, initialStartDate, initialEndDate) {
+        if (show) {
+            if (isCreationScreen) {
+                startDate = LocalDate.now()
+                endDate = null
+            } else {
+                startDate = LocalDate.parse(initialStartDate)
+                endDate = LocalDate.parse(initialEndDate)
+            }
         }
     }
 

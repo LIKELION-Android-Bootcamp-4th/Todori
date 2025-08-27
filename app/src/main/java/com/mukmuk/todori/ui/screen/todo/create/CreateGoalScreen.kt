@@ -186,7 +186,9 @@ fun CreateGoalScreen(
                     startDate = start
                     endDate = end
                 },
-                isCreationScreen = editGoal == null
+                isCreationScreen = editGoal == null,
+                initialStartDate = editGoal?.startDate,
+                initialEndDate = editGoal?.endDate
             )
 
 
