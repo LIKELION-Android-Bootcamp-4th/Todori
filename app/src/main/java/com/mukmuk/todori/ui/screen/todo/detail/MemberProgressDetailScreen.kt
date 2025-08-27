@@ -1,6 +1,8 @@
 package com.mukmuk.todori.ui.screen.todo.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.screen.todo.component.MemberProgressRow
@@ -42,9 +45,20 @@ fun MemberProgressDetailScreen(
         if (query.isBlank()) members
         else members.filter { it.nickname.contains(query, ignoreCase = true) }
     }
+    val focusManager = LocalFocusManager.current
 
 
-    Column(Modifier.fillMaxSize().background(Color.White).padding(Dimens.Small)) {
+    Column(Modifier
+        .fillMaxSize()
+        .background(Color.White)
+        .padding(Dimens.Small)
+        .clickable(
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() }
+        ) {
+            focusManager.clearFocus(force = true)
+        }
+    ) {
         SimpleTopAppBar(
             title = "멤버 ${members.size}",
             onBackClick = {
