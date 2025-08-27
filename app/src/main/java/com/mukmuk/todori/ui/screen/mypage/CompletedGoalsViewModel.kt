@@ -21,21 +21,29 @@ class CompletedGoalsViewModel @Inject constructor(
     private val _completedGoals = MutableStateFlow<List<Goal?>>(emptyList())
     val goals: StateFlow<List<Goal?>> = _completedGoals
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     @RequiresApi(Build.VERSION_CODES.O)
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadCompletedGoals(uid: String) {
         viewModelScope.launch {
-            val allGoals = repository.getGoals(uid)
-            if (allGoals != null) {
-                val today = LocalDate.now()
-                _completedGoals.value = allGoals.filter { goal ->
-                    runCatching {
-                        val end = LocalDate.parse(goal.endDate, dateFormatter)
-                        !end.isAfter(today)
-                    }.getOrDefault(false)
+            _isLoading.value = true
+            try {
+                val allGoals = repository.getGoals(uid)
+                if (allGoals != null) {
+                    val today = LocalDate.now()
+                    _completedGoals.value = allGoals.filter { goal ->
+                        runCatching {
+                            val end = LocalDate.parse(goal.endDate, dateFormatter)
+                            !end.isAfter(today)
+                        }.getOrDefault(false)
+                    }
                 }
+            } finally {
+                _isLoading.value = false
             }
         }
     }

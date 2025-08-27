@@ -31,6 +31,7 @@ import com.mukmuk.todori.ui.theme.White
 fun CompletedGoalsScreen(onBack: () -> Unit) {
     val viewModel: CompletedGoalsViewModel = hiltViewModel()
     val completedGoals by viewModel.goals.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
     LaunchedEffect(Unit) {
@@ -39,40 +40,58 @@ fun CompletedGoalsScreen(onBack: () -> Unit) {
 
     Scaffold(
         topBar = {
-            SimpleTopAppBar(title = "완료한 목표 ${completedGoals.size}", onBackClick = onBack)
+            SimpleTopAppBar(
+                title = "완료한 목표",
+                onBackClick = onBack)
         },
         containerColor = White
     ) { innerPadding ->
-        if (completedGoals.isEmpty()) {
-            androidx.compose.foundation.layout.Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .background(White),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "완료한 목표가 없습니다.")
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = innerPadding.calculateTopPadding(),
-                        start = Dimens.Medium,
-                        end = Dimens.Medium,
-                        bottom = Dimens.Medium
-                    )
-                    .background(color = White),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(completedGoals) { goal ->
-                    goal?.let {
-                        CompletedGoalCard(goal = goal)
-                    }
+        when {
+            isLoading -> {
+                androidx.compose.foundation.layout.Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .background(White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    androidx.compose.material3.CircularProgressIndicator()
                 }
-                item { Spacer(modifier = Modifier.height(Dimens.Tiny)) }
+            }
+
+            completedGoals.isEmpty() -> {
+                androidx.compose.foundation.layout.Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .background(White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "완료한 목표가 없습니다.")
+                }
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
+                            top = innerPadding.calculateTopPadding(),
+                            start = Dimens.Medium,
+                            end = Dimens.Medium,
+                            bottom = Dimens.Medium
+                        )
+                        .background(color = White),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(completedGoals) { goal ->
+                        goal?.let {
+                            CompletedGoalCard(goal = goal)
+                        }
+                    }
+                    item { Spacer(modifier = Modifier.height(Dimens.Tiny)) }
+                }
             }
         }
     }
