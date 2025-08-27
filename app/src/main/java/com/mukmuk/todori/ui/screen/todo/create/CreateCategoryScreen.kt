@@ -3,6 +3,8 @@ package com.mukmuk.todori.ui.screen.todo.create
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -77,8 +79,14 @@ fun CreateCategoryScreen(
         Column(Modifier
             .fillMaxSize()
             .padding(top = innerPadding.calculateTopPadding())
-            .padding(Dimens.Medium).
-            background(color = White)
+            .padding(Dimens.Medium)
+            .background(color = White)
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                focusManager.clearFocus(force = true)
+            }
         ) {
             Spacer(modifier = Modifier.height(Dimens.Medium))
 

@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -42,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.Firebase
@@ -91,6 +93,8 @@ fun CreateCommunityScreen(
     val td = remember { mutableStateListOf<String>() }
 
     val uid = Firebase.auth.currentUser?.uid.toString()
+
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(postId) {
         viewModel.getUserById(uid)
@@ -209,6 +213,12 @@ fun CreateCommunityScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(top = 20.dp, start = 16.dp, end = 16.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    focusManager.clearFocus(force = true)
+                }
         ) {
             OutlinedTextField(
                 value = title,
