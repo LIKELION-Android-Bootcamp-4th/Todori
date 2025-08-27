@@ -14,6 +14,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
@@ -31,6 +32,7 @@ import com.mukmuk.todori.MainActivity
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.ui.theme.WidgetTextStyle
+import com.mukmuk.todori.widget.TodoLaunchActivityCallback
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
@@ -74,7 +76,7 @@ class DayCountWidget : GlanceAppWidget() {
                 .fillMaxSize()
                 .background(R.color.widgetBgColor)
                 .clickable(
-                    actionStartActivity<MainActivity>()
+                    actionRunCallback<TodoLaunchActivityCallback>()
                 ),
             contentAlignment = Alignment.Center
         ) {

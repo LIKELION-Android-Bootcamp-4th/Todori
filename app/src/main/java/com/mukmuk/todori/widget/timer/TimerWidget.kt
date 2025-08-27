@@ -32,6 +32,7 @@ import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import com.mukmuk.todori.ui.theme.WidgetTextStyle
+import com.mukmuk.todori.widget.LaunchActivityCallback
 
 class TimerWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
@@ -67,13 +68,8 @@ class TimerWidget : GlanceAppWidget() {
                 .background(Color(0x50FFFFFF))
                 .fillMaxSize()
                 .clickable(
-                actionStartActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("todori://app.todori.com/home")
-                    )
-                )
-            ),
+                    actionRunCallback<LaunchActivityCallback>()
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

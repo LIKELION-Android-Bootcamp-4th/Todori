@@ -12,6 +12,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
@@ -31,6 +32,7 @@ import com.mukmuk.todori.MainActivity
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.theme.WidgetTextStyle
+import com.mukmuk.todori.widget.TodoLaunchActivityCallback
 
 
 class TodoWidget : GlanceAppWidget() {
@@ -63,7 +65,7 @@ class TodoWidget : GlanceAppWidget() {
                 .fillMaxSize()
                 .background(R.color.widgetBgColor)
                 .clickable(
-                    actionStartActivity<MainActivity>()
+                    actionRunCallback<TodoLaunchActivityCallback>()
                 )
         ) {
             Column(modifier = GlanceModifier.padding(16.dp)) {
