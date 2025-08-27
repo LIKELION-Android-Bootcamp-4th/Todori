@@ -43,6 +43,7 @@ import com.mukmuk.todori.ui.screen.todo.detail.MemberProgressDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.goal.GoalDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
+import com.mukmuk.todori.ui.screen.todo.detail.todo.SendTodoDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 
 @SuppressLint("ComposableDestinationInComposeScope")
@@ -221,7 +222,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
             val date = backStackEntry.arguments?.getString("date") ?: ""
-            TodoDetailScreen(
+            SendTodoDetailScreen(
                 categoryId = categoryId,
                 date = date,
                 navController = navController,
