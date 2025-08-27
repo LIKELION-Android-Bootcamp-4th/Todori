@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -166,8 +167,8 @@ fun StudyDetailScreen(
                     }
                 )
             }
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                item {
+            Scaffold(
+                topBar = {
                     CommonDetailAppBar(
                         title = study.title,
                         onBack = onBack,
@@ -177,95 +178,100 @@ fun StudyDetailScreen(
                                 ?.set("editStudy", study)
                             navController.navigate("study/create")
                         },
-                        onDelete = {
-                            showDeleteDialog = true // 다이얼로그 열기
-                        }
+                        onDelete = { showDeleteDialog = true }
                     )
-                }
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(White)
-                            .padding(Dimens.Small)
-                    ) {
-                        CardHeaderSection(
-                            title = study.title,
-                            subtitle = study.description,
-                            showArrowIcon = false
-                        )
-                        Spacer(modifier = Modifier.height(Dimens.Small))
-                        StudyMetaInfoRow(
-                            createdAt = study.createdAt,
-                            joinedAt = members.find { it.uid == uid }?.joinedAt ?: study.createdAt,
-                            memberCount = members.size,
-                            activeDays = study.activeDays,
-                            selectedDate = parsedDate
-                        )
-                        Spacer(modifier = Modifier.height(Dimens.Small))
-                        ProgressWithText(
-                            progress = progress,
-                            completed = completedCount,
-                            progressColor = GroupPrimary,
-                            total = totalCount,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-                item {
-                    StudyTodoInputCard(
-                        taskList = todos,
-                        newTodoText = newTodoText,
-                        onTodoTextChange = { newTodoText = it },
-                        onAddClick = {
-                            if (newTodoText.isNotBlank()) {
-                                viewModel.addStudyTodo(
-                                    study = study,
-                                    title = newTodoText,
-                                    date = selectedDate,
-                                    createdBy = uid,
-                                    members = members
-                                )
-                                newTodoText = ""
-                                focusManager.clearFocus()
-                            }
-                        },
-                        onToggleChecked = { todoId, checked ->
-                            viewModel.toggleTodoProgress(
-                                studyId = study.studyId,
-                                studyTodoId = todoId,
-                                uid = uid,
-                                checked = checked
+                },
+                containerColor = White
+            ) { innerPadding ->
+                LazyColumn(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(White)
+                                .padding(Dimens.Small)
+                        ) {
+                            CardHeaderSection(
+                                title = study.title,
+                                subtitle = study.description,
+                                showArrowIcon = false
                             )
-                        },
-                        onDelete = { todoId ->
-                            viewModel.deleteStudyTodo(todoId)
-                        },
-                        progressMap = myProgressMap,
-                        isLeader = isLeader
-                    )
-                }
-
-                item {
-                    val updatedMembers = state.members.map { member ->
-                        if (member.uid == uid) {
-                            member.copy(nickname = state.usersById[uid]?.nickname ?: member.nickname)
-                        } else {
-                            member
+                            Spacer(modifier = Modifier.height(Dimens.Small))
+                            StudyMetaInfoRow(
+                                createdAt = study.createdAt,
+                                joinedAt = members.find { it.uid == uid }?.joinedAt
+                                    ?: study.createdAt,
+                                memberCount = members.size,
+                                activeDays = study.activeDays,
+                                selectedDate = parsedDate
+                            )
+                            Spacer(modifier = Modifier.height(Dimens.Small))
+                            ProgressWithText(
+                                progress = progress,
+                                completed = completedCount,
+                                progressColor = GroupPrimary,
+                                total = totalCount,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
-                    MemberProgressCard(
-                        members = updatedMembers,
-                        todos = todos,
-                        progresses = memberProgressMap,
-                        usersById = state.usersById,
-                    ) {
-                        navController.navigate("member_progress_detail/${study.studyId}?date=$selectedDate")
+                    item {
+                        StudyTodoInputCard(
+                            taskList = todos,
+                            newTodoText = newTodoText,
+                            onTodoTextChange = { newTodoText = it },
+                            onAddClick = {
+                                if (newTodoText.isNotBlank()) {
+                                    viewModel.addStudyTodo(
+                                        study = study,
+                                        title = newTodoText,
+                                        date = selectedDate,
+                                        createdBy = uid,
+                                        members = members
+                                    )
+                                    newTodoText = ""
+                                    focusManager.clearFocus()
+                                }
+                            },
+                            onToggleChecked = { todoId, checked ->
+                                viewModel.toggleTodoProgress(
+                                    studyId = study.studyId,
+                                    studyTodoId = todoId,
+                                    uid = uid,
+                                    checked = checked
+                                )
+                            },
+                            onDelete = { todoId ->
+                                viewModel.deleteStudyTodo(todoId)
+                            },
+                            progressMap = myProgressMap,
+                            isLeader = isLeader
+                        )
                     }
-                    Spacer(modifier = Modifier.height(Dimens.Small))
+
+                    item {
+                        val updatedMembers = state.members.map { member ->
+                            if (member.uid == uid) {
+                                member.copy(
+                                    nickname = state.usersById[uid]?.nickname ?: member.nickname
+                                )
+                            } else {
+                                member
+                            }
+                        }
+                        MemberProgressCard(
+                            members = updatedMembers,
+                            todos = todos,
+                            progresses = memberProgressMap,
+                            usersById = state.usersById,
+                        ) {
+                            navController.navigate("member_progress_detail/${study.studyId}?date=$selectedDate")
+                        }
+                        Spacer(modifier = Modifier.height(Dimens.Small))
+                    }
+
+
                 }
-
-
             }
         }
     }
