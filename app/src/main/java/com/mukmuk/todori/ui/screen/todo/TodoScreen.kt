@@ -87,6 +87,7 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
     }
 
     LaunchedEffect(categoryId) {
+        Log.d("TodoScreen", "state.sendUrl: ${state.sendUrl}")
         if (categoryId != null && !state.setCategoryState) {
             showDialog = true
         }
@@ -164,9 +165,9 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
                 },
                 text = {
                     if (categoryId != null && !state.setCategoryState) {
-                        Text("공유 받은 카테고리를 추가하시겠습니까?", style = AppTextStyle.Body)
+                        Text("해당 카테고리를 공유 카테고리에 추가하시겠습니까?", style = AppTextStyle.Body)
                     } else {
-                        Text("선택한 ${selectedCategory?.name} 카테고리를 공유하시겠습니까?", style = AppTextStyle.Body)
+                        Text("선택한 ${selectedCategory?.name} 카테고리를 공유하시겠습니까?\n카테고리를 공유하기 시작하면 다른 사람들이 해당 카테고리 내의 모든 활동들을 볼 수 있습니다.", style = AppTextStyle.Body)
                     }
 
                 },
@@ -176,6 +177,7 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
                         if (categoryId != null && !state.setCategoryState) {
                             viewModel.addTodoCategoryFromUrl(uid, categoryId)
                             viewModel.setCategoryState(true)
+                            navController.popBackStack()
                         } else {
                             selectedCategory?.let {
                                 viewModel.sendTodoCategory(it)
@@ -194,6 +196,7 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
                     TextButton(onClick = {
                         if (categoryId != null && !state.setCategoryState) {
                             viewModel.setCategoryState(true)
+                            navController.popBackStack()
                         }
                         showDialog = false
                     }) {
