@@ -44,7 +44,7 @@ fun ListPickerBottomSheet(
             LazyColumn(Modifier.padding(16.dp)) {
                 item {
                     Text(
-                        "항목 선택",
+                        "스터디 선택",
                         style = AppTextStyle.TitleMedium,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
