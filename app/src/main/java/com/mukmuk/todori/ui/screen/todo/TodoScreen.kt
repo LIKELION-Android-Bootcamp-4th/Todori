@@ -22,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -59,13 +60,12 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
     var showBottomSheet by remember { mutableStateOf(false) }
     val selectedDate by viewModel.selectedDate.collectAsState()
     val studyRecordsMillis by viewModel.studyRecordsMillis.collectAsState()
-    var selectedTabIndex by remember { mutableStateOf(0) }
     val context = LocalContext.current
     var selectedCategory by remember { mutableStateOf<TodoCategory?>(null) }
+    var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
 
     val tabs = listOf("개인", "목표", "스터디")
 
-//    val uid= "testuser"
     val uid = Firebase.auth.currentUser?.uid.toString()
     LaunchedEffect(Unit) {
         val start = selectedDate.minus(selectedDate.dayOfWeek.isoDayNumber - 1, kotlinx.datetime.DateTimeUnit.DAY)

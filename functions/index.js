@@ -9,6 +9,7 @@ const handleNaver = require("./n-auth");
 
 const {onDailyRecordUpdate} = require("./daily-record-update-trigger");
 const {dailyMidnightBatch} = require("./daily-midnight-batch");
+const {monthStatBatch} = require("./month-stat-batch");
 
 admin.initializeApp();
 
@@ -24,3 +25,5 @@ exports.nCustomAuth = onCall(handleNaver);
 exports.onDailyRecordUpdate = onDailyRecordUpdate;
 exports.dailyMidnightBatch = dailyMidnightBatch;
 
+// Month 통계 관련 functions
+exports.monthStatBatch = monthStatBatch;

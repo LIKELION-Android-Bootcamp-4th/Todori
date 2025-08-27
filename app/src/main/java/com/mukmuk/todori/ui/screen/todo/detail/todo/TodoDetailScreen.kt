@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,9 +16,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,7 +36,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
@@ -61,7 +67,6 @@ fun TodoDetailScreen(
     onBack: () -> Unit
 ) {
     val viewModel: TodoDetailViewModel = hiltViewModel()
-//    val uid = "testuser"
     val uid = Firebase.auth.currentUser?.uid.toString()
 
     val state by viewModel.state.collectAsState()
@@ -101,17 +106,26 @@ fun TodoDetailScreen(
                     onClick = {
                         showDialog = false
                         viewModel.deleteCategoryWithTodos(uid, categoryId)
-                        Toast.makeText(context,"카테고리가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "카테고리가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                     }
                 ) { Text("삭제", style = AppTextStyle.Body.copy(color = Red)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text("취소",style = AppTextStyle.Body.copy(color = Black)) }
+                TextButton(onClick = { showDialog = false }) {
+                    Text(
+                        "취소",
+                        style = AppTextStyle.Body.copy(color = Black)
+                    )
+                }
             }
         )
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         CommonDetailAppBar(
             title = categoryTitle,
             onBack = onBack,
@@ -188,28 +202,56 @@ fun TodoDetailScreen(
                 }
             }
         }
-
-        todos.forEachIndexed { i, todo ->
-            TodoItemEditableRow(
-                title = todo.title,
-                isDone = todo.completed,
-                modifier = Modifier.padding(Dimens.Small),
-                onCheckedChange = { checked ->
-                    viewModel.toggleTodoCompleted(uid, todo)
-                },
-                trailingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.DeleteForever,
-                        contentDescription = "삭제",
-                        tint = Red,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable {
-                                viewModel.deletedTodo(uid,todo.todoId,categoryId,date)
-                            }
-                    )
-                }
-            )
+        if (todos.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize().weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.CheckCircleOutline,
+                    contentDescription = "Todo Empty",
+                    modifier = Modifier.size(38.dp),
+                    tint = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(Dimens.Tiny))
+                Text(
+                    "할 일이 없습니다",
+                    style = AppTextStyle.BodyLarge,
+                    color = Color.DarkGray
+                )
+                Spacer(modifier = Modifier.height(Dimens.Tiny))
+                Text(
+                    "오늘의 할 일을 추가해 보세요!",
+                    style = AppTextStyle.BodySmall,
+                    color = Color.DarkGray
+                )
+                Spacer(modifier = Modifier.height(Dimens.Medium))
+            }
+        } else {
+            val sortedTodos = todos.sortedBy { it.completed }
+            sortedTodos.forEachIndexed { i, todo ->
+                TodoItemEditableRow(
+                    title = todo.title,
+                    isDone = todo.completed,
+                    modifier = Modifier.padding(Dimens.Small),
+                    onCheckedChange = { checked ->
+                        viewModel.toggleTodoCompleted(uid, todo)
+                    },
+                    trailingContent = {
+                        Icon(
+                            imageVector = Icons.Outlined.DeleteForever,
+                            contentDescription = "삭제",
+                            tint = Red,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable {
+                                    viewModel.deletedTodo(uid,todo.todoId,categoryId,date)
+                                }
+                        )
+                    }
+                )
+            }
         }
     }
 }

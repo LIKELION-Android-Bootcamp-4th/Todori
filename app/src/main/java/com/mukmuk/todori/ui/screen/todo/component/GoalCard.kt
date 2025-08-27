@@ -23,6 +23,7 @@ import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.GoalPrimary
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.White
+import kotlinx.datetime.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -30,6 +31,7 @@ fun GoalCard(
     goal: Goal,
     goalTodos: List<GoalTodo>,
     modifier: Modifier = Modifier,
+    selectedDate: LocalDate,
     onClick: () -> Unit
 ) {
     val total = goalTodos.size
@@ -48,7 +50,7 @@ fun GoalCard(
         Column(modifier = Modifier.padding(Dimens.Medium)) {
             CardHeaderSection(title = goal.title, subtitle = goal.description)
             Spacer(modifier = Modifier.height(Dimens.Tiny))
-            GoalMetaInfoRow(goal)
+            GoalMetaInfoRow(goal, selectedDate)
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
             ProgressWithText(

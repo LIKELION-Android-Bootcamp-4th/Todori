@@ -43,4 +43,16 @@ object DataStoreModule {
             produceFile = { context.preferencesDataStoreFile("record_settings") }
         )
     }
+
+    @Provides
+    @Singleton
+    @Named("todo_settings")
+    fun provideTodoDataStore(
+        @ApplicationContext context: Context
+    ): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = { context.preferencesDataStoreFile("todo_settings") }
+        )
+    }
 }

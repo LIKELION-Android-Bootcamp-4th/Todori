@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -29,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
@@ -100,27 +103,46 @@ fun StudyTodoInputCard(
 
             Spacer(modifier = Modifier.height(Dimens.Small))
 
-            taskList.forEachIndexed { i, todo ->
-                val isDone = progressMap[todo.studyTodoId]?.done == true
-                Log.d("TODORI", "progressMap: $progressMap")
-                TodoItemEditableRow(
-                    title = todo.title,
-                    isDone = isDone,
-                    modifier = Modifier.padding(Dimens.Nano),
-                    onCheckedChange = { checked ->
-                        onToggleChecked(todo.studyTodoId, checked)
-                    },
-                    trailingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.DeleteForever,
-                            contentDescription = "삭제",
-                            tint = Red,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clickable { onDelete(todo.studyTodoId) }
-                        )
-                    }
-                )
+            if (taskList.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Spacer(modifier = Modifier.height(Dimens.XXLarge))
+                    Text(
+                        "할 일이 없습니다",
+                        style = AppTextStyle.BodyLarge,
+                        color = Color.DarkGray
+                    )
+                    Spacer(modifier = Modifier.height(Dimens.XXLarge))
+                }
+            } else {
+                val sortedList = taskList.sortedBy { todo ->
+                    progressMap[todo.studyTodoId]?.done ?: false
+                }
+                sortedList.forEachIndexed { i, todo ->
+                    val isDone = progressMap[todo.studyTodoId]?.done == true
+                    Log.d("TODORI", "progressMap: $progressMap")
+                    TodoItemEditableRow(
+                        title = todo.title,
+                        isDone = isDone,
+                        modifier = Modifier.padding(Dimens.Nano),
+                        onCheckedChange = { checked ->
+                            onToggleChecked(todo.studyTodoId, checked)
+                        },
+                        trailingContent = {
+                            Icon(
+                                imageVector = Icons.Outlined.DeleteForever,
+                                contentDescription = "삭제",
+                                tint = Red,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable { onDelete(todo.studyTodoId) }
+                            )
+                        }
+                    )
+                }
             }
         }
     }

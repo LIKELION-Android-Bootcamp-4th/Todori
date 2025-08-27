@@ -99,6 +99,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.play.services.auth)
+    implementation("com.google.firebase:firebase-messaging")
 
     // 기타
     implementation(libs.kalendar)
@@ -125,5 +126,12 @@ dependencies {
 
     implementation("com.navercorp.nid:oauth:5.9.0")
 
+    //위젯
+    implementation("androidx.glance:glance:1.1.1")
+    implementation("androidx.glance:glance-appwidget:1.1.0")
+    implementation("androidx.glance:glance-material3:1.1.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    kapt("com.google.dagger:hilt-compiler:2.51")
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
     implementation(libs.androidx.work.runtime.ktx)
 }
