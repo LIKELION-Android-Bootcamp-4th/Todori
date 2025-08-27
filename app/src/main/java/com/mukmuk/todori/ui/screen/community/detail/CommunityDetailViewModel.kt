@@ -10,6 +10,8 @@ import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.CommunityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -156,19 +158,27 @@ class CommunityDetailViewModel@Inject constructor(
         commentJob = viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                val comments = repository.getPostComments(postId)
-                val updatedComments = comments.sortedBy {
-                    it.createdAt?.toDate()?.time
+                var comments = emptyList<StudyPostComment>()
+                var updatedComments = emptyList<StudyPostComment>()
+                val repliesMap = mutableMapOf<String, List<StudyPostComment>>()
+                coroutineScope {
+                    async {
+                        comments = repository.getPostComments(postId)
+                        updatedComments = comments.sortedBy {
+                            it.createdAt?.toDate()?.time
+                        }
+
+                        for (comment in comments) {
+                            val replies = repository.getPostCommentReplies(postId, comment.commentId)
+                            val updatedReplies = replies.sortedBy {
+                                it.createdAt?.toDate()?.time
+                            }
+                            repliesMap[comment.commentId] = updatedReplies
+                        }
+
+                    }.await()
                 }
 
-                val repliesMap = mutableMapOf<String, List<StudyPostComment>>()
-                for (comment in comments) {
-                    val replies = repository.getPostCommentReplies(postId, comment.commentId)
-                    val updatedReplies = replies.sortedBy {
-                        it.createdAt?.toDate()?.time
-                    }
-                    repliesMap[comment.commentId] = updatedReplies
-                }
                 _state.update {
                     it.copy(
                         commentList = updatedComments,

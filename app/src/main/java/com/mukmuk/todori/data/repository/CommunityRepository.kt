@@ -69,6 +69,10 @@ class CommunityRepository @Inject constructor(
         return communityService.getPostCommentReplies(postId, commentId)
     }
 
+    fun loadStudyByData(uid: String): Flow<List<Study>> {
+        return communityService.loadStudyByData(uid)
+    }
+
     fun loadStudyById(studyId: String): Flow<Study?> {
         return communityService.loadStudyById(studyId)
     }

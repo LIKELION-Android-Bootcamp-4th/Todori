@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -176,7 +178,7 @@ fun CommunityDetailScreen(
 
                     }
                 },
-                modifier = Modifier.height(56.dp).fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
             )
         },
 
@@ -375,7 +377,6 @@ fun CommunityDetailScreen(
 
                         StudyDetailCard(
                             uid = uid,
-                            studyId = state.post!!.studyId,
                             study = state.study!!,
                             memberList = state.memberList,
                             selectedDate = null,

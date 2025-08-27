@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -72,7 +74,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
 
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(state.selectedOption) {
         viewModel.loadPosts()
     }
 
@@ -94,6 +96,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
 
     Scaffold(
         topBar = {
+
             CenterAlignedTopAppBar(
                 title = { Text("커뮤니티", style = AppTextStyle.AppBar, textAlign = TextAlign.Center) },
                 actions = {
@@ -106,11 +109,15 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                         Icon(Icons.Default.Search, contentDescription = "검색")
                     }
                 },
-                modifier = Modifier.height(56.dp).fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
             )
+
+
         },
 
         contentWindowInsets = WindowInsets(0.dp),
+
+        containerColor = White,
 
                 floatingActionButton = {
             FloatingActionButton(
@@ -148,11 +155,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     setData = { option ->
                         selectedCategory = "전체"
                         viewModel.setData(selectedCategory)
-                        if (option == "참가자 수") {
-                            viewModel.loadPosts("참가자 수")
-                        } else if (option == "날짜순") {
-                            viewModel.loadPosts("날짜순")
-                        }
+                        viewModel.setSelectedData(option)
                     }
                 )
             }
