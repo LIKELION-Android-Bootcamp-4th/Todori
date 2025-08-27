@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.mukmuk.todori.data.remote.user.User
+import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.AuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: UserRepository,
+    private val studyRepository: StudyRepository,
     private val authService: AuthService
 ): ViewModel() {
 
@@ -48,6 +50,12 @@ class ProfileViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isUpdating = true, error = null)
             runCatching {
                 repository.updateUser(uid, nickname, intro)
+
+                val myStudies = studyRepository.getMyStudies(uid)
+                myStudies.forEach { myStudy ->
+                    studyRepository.updateMyStudyNickname(uid, myStudy.studyId, nickname)
+                }
+
                 repository.getProfile(uid)
             }.onSuccess { user ->
                 _uiState.value = _uiState.value.copy(isUpdating = false, user = user, error = null)

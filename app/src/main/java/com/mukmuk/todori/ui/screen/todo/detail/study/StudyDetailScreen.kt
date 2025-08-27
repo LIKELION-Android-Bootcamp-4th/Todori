@@ -243,8 +243,15 @@ fun StudyDetailScreen(
                 }
 
                 item {
+                    val updatedMembers = state.members.map { member ->
+                        if (member.uid == uid) {
+                            member.copy(nickname = state.usersById[uid]?.nickname ?: member.nickname)
+                        } else {
+                            member
+                        }
+                    }
                     MemberProgressCard(
-                        members = members,
+                        members = updatedMembers,
                         todos = todos,
                         progresses = memberProgressMap,
                         usersById = state.usersById,
