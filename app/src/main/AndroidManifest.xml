@@ -47,7 +47,7 @@
                 <data
                     android:scheme="https"
                     android:host="todori-7d791.web.app"
-                    android:pathPrefix="/category" />
+                    android:pathPattern="/category.*" />
                 <data android:scheme="https"
                     android:host="todori-7d791.firebaseapp.com"
                     android:pathPrefix="/category" />
