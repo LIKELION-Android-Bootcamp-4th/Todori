@@ -88,22 +88,22 @@ class CommunityViewModel @Inject constructor(
         }
     }
 
-    fun setData(data: String){
-        _state.update {
-            it.copy(postList = state.value.allPostList)
-        }
-        if(data == "전체") {
-            _state.update {
-                it.copy(postList = state.value.allPostList)
+    fun setData(category: String) {
+        val allPosts = state.value.allPostList
+
+        val filteredPosts = when(category) {
+            "전체" -> allPosts
+            else -> {
+                val matchingTags = StudyCategory.entries
+                    .find { it.displayName == category }?.tags ?: listOf(category)
+
+                allPosts.filter { post ->
+                    post.tags.any { it in matchingTags }
+                }
             }
         }
-        else {
-            _state.update {
-                it.copy(postList = state.value.allPostList.filter { post ->
-                    post.tags.contains(data)
-                })
-            }
-        }
+
+        _state.update { it.copy(postList = filteredPosts) }
     }
 
     fun setSelectedData(data: String){

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -26,10 +27,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -70,56 +75,39 @@ import com.mukmuk.todori.ui.theme.White
 fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewModel) {
 
     var selectedCategory by remember { mutableStateOf("전체") }
-
-
+    var selectedTag by remember { mutableStateOf<String?>(null) }
+    var expanded by remember { mutableStateOf(false) }
     val state by viewModel.state.collectAsState()
+    val categories = remember {
+        buildList {
+            add("전체")
+            addAll(StudyCategory.entries.map { it.displayName })
+        }
+    }
 
     LaunchedEffect(state.selectedOption) {
         viewModel.loadPosts()
     }
 
-    val categories = remember(state.allPostList){
-        buildList{
-            add("전체")
-            addAll(
-                state.allPostList
-                    .flatMap { it.tags }
-                    .filter { it.isNotBlank() }
-                    .groupingBy { it }
-                    .eachCount()
-                    .toList()
-                    .sortedByDescending { it.second }
-                    .map { it.first }
-            )
-        }
-    }
-
     Scaffold(
         topBar = {
-
             CenterAlignedTopAppBar(
                 title = { Text("커뮤니티", style = AppTextStyle.AppBar, textAlign = TextAlign.Center) },
                 actions = {
                     IconButton(
-                        onClick = {
-
-                            navController.navigate("community/search")
-                        }
+                        onClick = { navController.navigate("community/search") }
                     ) {
                         Icon(Icons.Default.Search, contentDescription = "검색")
                     }
                 },
-                modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.statusBars),
             )
-
-
         },
-
         contentWindowInsets = WindowInsets(0.dp),
-
         containerColor = White,
-
-                floatingActionButton = {
+        floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     navController.navigate("community/create")
@@ -129,7 +117,8 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                 modifier = Modifier.size(60.dp),
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp)
             ) {
-                Icon(Icons.Outlined.Edit,
+                Icon(
+                    Icons.Outlined.Edit,
                     contentDescription = "작성",
                     tint = White,
                     modifier = Modifier.size(32.dp)
@@ -160,36 +149,85 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                 )
             }
 
-            LazyRow(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                items(categories) { category ->
-                    Box(
-                        modifier = Modifier
-                            .border(
-                                width = 1.dp,
-                                color = Gray,
-                                shape = RoundedCornerShape(30)
-                            )
-                            .background(
-                                if (selectedCategory == category) Black else White,
-                                shape = RoundedCornerShape(30)
-                            )
-                            .clickable {
-                                selectedCategory = category
-                                viewModel.setData(selectedCategory)
-                            }
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
+                Box {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { expanded = true }) {
                         Text(
-                            text = category,
-                            fontSize = 14.sp,
-                            color = if (selectedCategory == category) White else Black
+                            text = selectedCategory,
+                            style = AppTextStyle.Body,
+                            color = Black
                         )
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "드롭다운",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        containerColor = White
+                    ) {
+                        listOf("전체") + StudyCategory.entries.map { it.displayName }
+                            .forEach { category ->
+                                DropdownMenuItem(
+                                    text = { Text(category, style = AppTextStyle.BodySmallNormal) },
+                                    onClick = {
+                                        selectedCategory = category
+                                        selectedTag = null
+                                        viewModel.setData(category)
+                                        expanded = false
+                                    }
+                                )
+                            }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                val tags = if (selectedCategory == "전체") {
+                    StudyCategory.entries.flatMap { it.tags }
+                } else {
+                    StudyCategory.entries
+                        .find { it.displayName == selectedCategory }?.tags ?: emptyList()
+                }
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(start = 0.dp)
+                ) {
+                    items(tags) { tag ->
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    if (selectedTag == tag) Black else White,
+                                    RoundedCornerShape(20.dp)
+                                )
+                                .border(1.dp, Gray, RoundedCornerShape(20.dp))
+                                .clickable {
+                                    if (selectedTag == tag) {
+                                        selectedTag = null
+                                        viewModel.setData(selectedCategory)
+                                    } else {
+                                        selectedTag = tag
+                                        viewModel.setData(tag)
+                                    }
+                                }
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = tag,
+                                color = if (selectedTag == tag) White else Black,
+                                style = AppTextStyle.BodySmallNormal
+                            )
+                        }
                     }
                 }
             }
