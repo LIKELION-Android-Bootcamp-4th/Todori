@@ -146,6 +146,19 @@ class HomeViewModel @Inject constructor(
                             totalRecordTimeMills = 0L
                         )
                     }
+                    val stopIntent = Intent(context, TimerService::class.java)
+                    context.stopService(stopIntent)
+
+                    val totalTimeIntent = Intent(context, TotalTimeWidgetBroadcastReceiver::class.java).apply {
+                        action = ACTION_UPDATE_TOTAL_TIME_WIDGET
+                        putExtra(EXTRA_TOTAL_TIME_MILLIS, 0L)
+                    }
+                    context.sendBroadcast(totalTimeIntent)
+
+                    val timerIntent = Intent(context, TimerService::class.java).apply {
+                        action = TimerService.ACTION_RESET
+                    }
+                    context.startService(timerIntent)
                 }
             }
         }

@@ -92,8 +92,10 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 navDeepLink { uriPattern = "todori://app.todori.com/stats" }
             )
         ) { StatsScreen(navController) }
-
-        composable(BottomNavItem.Home.route) {
+        composable(
+            route = BottomNavItem.Home.route,
+            deepLinks = listOf(navDeepLink { uriPattern = "todori://app.todori.com/home" })
+        ) {
             HomeScreen(navController = navController, viewModel = homeViewModel)
         }
         composable("home_setting") { HomeSettingScreen(navController = navController) }
@@ -176,10 +178,14 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 editCategory = category
             )
         }
-
-        composable("login") { LoginScreen(navController = navController) }
-
-        composable("goal/create") {
+        composable(
+            route = "login",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "todori://app.todori.com/login" }
+            )) {
+            LoginScreen(navController = navController)
+        }
+        composable("goal/create") { backStackEntry ->
             val navEntry = navController.previousBackStackEntry
             val editGoal = navEntry?.savedStateHandle?.get<Goal>("goal")
             CreateGoalScreen(

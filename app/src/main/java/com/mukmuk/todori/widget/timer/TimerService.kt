@@ -33,6 +33,7 @@ class TimerService : Service() {
         const val CHANNEL_ID = "TimerServiceChannel"
         const val NOTIFICATION_ID = 1
         const val EXTRA_GLANCE_ID_STRING = "extra_glance_id_string"
+        const val ACTION_RESET = "com.mukmuk.todori.widget.timer.RESET"
     }
 
     override fun onCreate() {
@@ -47,6 +48,26 @@ class TimerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_RESET -> {
+                serviceScope.launch {
+                    repository.saveRunningState(false)
+
+                    val glanceIds = GlanceAppWidgetManager(applicationContext)
+                        .getGlanceIds(TimerWidget::class.java)
+
+                    glanceIds.forEach { id ->
+                        updateAppWidgetState(applicationContext, id) { prefs ->
+                            prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = 0L
+                            prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = false
+                        }
+                        TimerWidget().update(applicationContext, id)
+                    }
+                }
+                stopSelf()
+                return START_NOT_STICKY
+            }
+        }
         startForeground(NOTIFICATION_ID, createNotification())
 
         serviceScope.launch {
