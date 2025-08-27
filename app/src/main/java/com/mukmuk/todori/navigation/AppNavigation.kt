@@ -2,6 +2,7 @@ package com.mukmuk.todori.navigation
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -64,7 +65,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
 
 
         composable(
-            BottomNavItem.Todo.route + "?categoryId={categoryId}",
+            BottomNavItem.Todo.route,
             arguments = listOf(
                 navArgument("categoryId") {
                     type = NavType.StringType
@@ -210,6 +211,24 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 onBack = { navController.popBackStack() }
             )
         }
+
+        composable(
+            "sendTodo/detail/{categoryId}?date={date}",
+            arguments = listOf(
+                navArgument("categoryId") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
+            val date = backStackEntry.arguments?.getString("date") ?: ""
+            TodoDetailScreen(
+                categoryId = categoryId,
+                date = date,
+                navController = navController,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable("goal/detail/{goalId}") { backStackEntry ->
             val goalId = backStackEntry.arguments?.getString("goalId") ?: ""
             GoalDetailScreen(
