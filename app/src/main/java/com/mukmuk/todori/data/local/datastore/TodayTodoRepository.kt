@@ -37,4 +37,7 @@ class TodayTodoRepository  @Inject constructor(
             prefs.remove(TODOS_KEY)
         }
     }
+    suspend fun clearTodoSetting() {
+        dataStore.edit { it.clear() }
+    }
 }

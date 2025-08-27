@@ -32,12 +32,14 @@ import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.White
+import kotlinx.datetime.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StudyDetailCard(
     uid: String,
     study: Study,
+    selectedDate: LocalDate?,
     memberList: List<StudyMember>,
     onClick: () -> Unit
 ) {
@@ -65,6 +67,7 @@ fun StudyDetailCard(
                 createdAt = study.createdAt,
                 memberCount = memberList.size,
                 activeDays = study.activeDays,
+                selectedDate = selectedDate
             )
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))

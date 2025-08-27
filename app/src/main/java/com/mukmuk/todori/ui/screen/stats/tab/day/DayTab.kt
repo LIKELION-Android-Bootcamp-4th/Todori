@@ -3,6 +3,8 @@ package com.mukmuk.todori.ui.screen.stats.tab.day
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -26,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mukmuk.todori.data.remote.dailyRecord.ReflectionV2
 import com.mukmuk.todori.ui.screen.stats.component.day.CalendarCard
@@ -50,6 +53,7 @@ fun DayTab(
     val viewModel: DayViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(date) {
         viewModel.onDateSelected(
@@ -70,6 +74,12 @@ fun DayTab(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                focusManager.clearFocus(force = true)
+            }
     ) {
         if (state.isLoading) {
             CircularProgressIndicator(

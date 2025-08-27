@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -125,6 +126,12 @@ fun TodoDetailScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                focusManager.clearFocus(force = true)
+            }
     ) {
         CommonDetailAppBar(
             title = categoryTitle,
@@ -204,7 +211,7 @@ fun TodoDetailScreen(
         }
         if (todos.isEmpty()) {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -229,7 +236,8 @@ fun TodoDetailScreen(
                 Spacer(modifier = Modifier.height(Dimens.Medium))
             }
         } else {
-            todos.forEachIndexed { i, todo ->
+            val sortedTodos = todos.sortedBy { it.completed }
+            sortedTodos.forEachIndexed { i, todo ->
                 TodoItemEditableRow(
                     title = todo.title,
                     isDone = todo.completed,

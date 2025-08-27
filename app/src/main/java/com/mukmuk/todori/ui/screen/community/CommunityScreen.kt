@@ -98,9 +98,7 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
         topBar = {
 
             CenterAlignedTopAppBar(
-                title = {
-                        Text("커뮤니티", style = AppTextStyle.AppBar, textAlign = TextAlign.Center)
-                },
+                title = { Text("커뮤니티", style = AppTextStyle.AppBar, textAlign = TextAlign.Center) },
                 actions = {
                     IconButton(
                         onClick = {
@@ -161,8 +159,6 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     }
                 )
             }
-
-
 
             LazyRow(
                 modifier = Modifier

@@ -17,6 +17,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,10 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.messaging.FirebaseMessaging
-import com.mukmuk.todori.data.service.MyFirebaseMessagingService
 import com.mukmuk.todori.navigation.AppNavigation
 import com.mukmuk.todori.navigation.BottomNavItem
+import com.mukmuk.todori.navigation.navigateKeepingHomeBase
+import com.mukmuk.todori.navigation.reselectTopLevel
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.TodoriTheme
 import com.mukmuk.todori.ui.theme.UserPrimary
@@ -60,7 +61,7 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = navBackStackEntry?.destination?.route
 
                 val bottomNavRoutes = BottomNavItem.items.map { it.route }
-                val showBottomBar = currentRoute in bottomNavRoutes
+                val showBottomBar = bottomNavRoutes.any { p -> currentRoute?.startsWith(p) == true }
 
                 Scaffold(
                     bottomBar = {
@@ -70,19 +71,17 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.height(102.dp)
                             ) {
                                 BottomNavItem.items.forEach { item ->
+                                    val selected = currentRoute?.startsWith(item.route) == true
                                     NavigationBarItem(
                                         icon = { Icon(item.icon, contentDescription = item.label) },
-//                                        label = { Text(item.label) },
-                                        selected = currentRoute == item.route,
+
+                                        label = { Text(item.label) },
+                                        selected = selected,
                                         onClick = {
-                                            if (currentRoute != item.route) {
-                                                navController.navigate(item.route) {
-                                                    popUpTo(navController.graph.startDestinationId) {
-                                                        saveState = true
-                                                    }
-                                                    launchSingleTop = true
-                                                    restoreState = true
-                                                }
+                                            if (!selected) {
+                                                navController.navigateKeepingHomeBase(item.route)
+                                            } else {
+                                                navController.reselectTopLevel(item.route)
                                             }
                                         },
                                         colors = NavigationBarItemDefaults.colors(

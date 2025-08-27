@@ -118,7 +118,10 @@ fun StudyTodoInputCard(
                     Spacer(modifier = Modifier.height(Dimens.XXLarge))
                 }
             } else {
-                taskList.forEachIndexed { i, todo ->
+                val sortedList = taskList.sortedBy { todo ->
+                    progressMap[todo.studyTodoId]?.done ?: false
+                }
+                sortedList.forEachIndexed { i, todo ->
                     val isDone = progressMap[todo.studyTodoId]?.done == true
                     Log.d("TODORI", "progressMap: $progressMap")
                     TodoItemEditableRow(

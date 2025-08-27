@@ -39,4 +39,8 @@ class HomeSettingRepository @Inject constructor(
             preferences[HomeSettingPreferencesKeys.LONG_REST_SECONDS] = homeSettingState.longRestSeconds
         }
     }
+
+    suspend fun clearHomeSetting() {
+        dataStore.edit { it.clear() }
+    }
 }

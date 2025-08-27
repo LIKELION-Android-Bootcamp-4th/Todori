@@ -11,14 +11,14 @@ object AppTextStyle {
 
     // 타이머
     val Timer = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Bold,
         fontSize = 56.sp
     )
 
     // 제목
     val TitleLarge = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Bold,
         fontSize = 32.sp
     )
@@ -26,51 +26,51 @@ object AppTextStyle {
 
     // 24sp
     val Title = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Medium,
         fontSize = 24.sp
     )
 
     val TitleMedium = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Bold,
         fontSize = 24.sp,
         lineHeight = 30.sp
     )
     val TitleMediumNormal = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Normal,
         fontSize = 24.sp
     )
 
     // 18sp
     val TitleSmall = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Medium,
         fontSize = 18.sp,
         lineHeight = 24.sp
     )
     val TitleSmallNormal = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Normal,
         fontSize = 18.sp,
         lineHeight = 24.sp
     )
     val TitleSmallLight = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Light,
         fontSize = 18.sp,
         lineHeight = 24.sp
     )
     // 앱바
     val AppBar = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Bold,
         fontSize = 18.sp
     )
     // 흰색 텍스트
     val BodyLargeWhite = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Medium,
         fontSize = 18.sp,
         lineHeight = 22.sp,
@@ -80,25 +80,25 @@ object AppTextStyle {
     // 16sp
     // 본문
     val Body = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 22.sp
     )
     val BodyLight = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Light,
         fontSize = 16.sp,
         lineHeight = 22.sp
     )
     val BodyLarge = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
         lineHeight = 22.sp
     )
     val BodyBold = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Bold,
         fontSize = 16.sp,
         lineHeight = 22.sp
@@ -106,7 +106,7 @@ object AppTextStyle {
 
     // 회색 텍스트
     val BodyLargeGray = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
         lineHeight = 22.sp,
@@ -115,25 +115,25 @@ object AppTextStyle {
 
     // 14sp
     val BodySmall = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Light,
         fontSize = 14.sp,
         lineHeight = 20.sp
     )
     val BodySmallNormal = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp
     )
     val BodySmallMedium = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 20.sp
     )
     val BodySmallBold = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         lineHeight = 20.sp
@@ -141,37 +141,37 @@ object AppTextStyle {
 
     // 12sp
     val MypageButtonText = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Thin,
         fontSize = 12.sp,
         lineHeight = 18.sp
     )
     val BodyTinyLight = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Light,
         fontSize = 12.sp,
         lineHeight = 18.sp
     )
     val BodyTinyNormal = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         lineHeight = 18.sp
     )
     val BodyTinyMedium = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Medium,
         fontSize = 12.sp,
         lineHeight = 18.sp
     )
     val BodyTinyBold = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Bold,
         fontSize = 12.sp,
         lineHeight = 18.sp
     )
     val heatmapText = TextStyle(
-        fontFamily = NotoSans,
+        fontFamily = Pretendard,
         fontWeight = FontWeight.Medium,
         fontSize = 10.sp
     )

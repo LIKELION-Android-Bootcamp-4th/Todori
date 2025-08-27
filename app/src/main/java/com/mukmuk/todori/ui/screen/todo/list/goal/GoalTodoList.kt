@@ -30,6 +30,7 @@ import com.mukmuk.todori.ui.screen.todo.component.GoalCard
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 
 
@@ -78,15 +79,15 @@ fun GoalTodoList(selectedDate: LocalDate, navController: NavHostController) {
 
     LazyColumn {
         items(state.goals) { goal ->
-            val today = java.time.LocalDate.now()
             val end = java.time.LocalDate.parse(goal.endDate, dateFormatter)
             val todos = state.goalTodosMap[goal.goalId]?.filter { it.dueDate == selectedDate.toString() }.orEmpty()
-            if (end.isAfter(today)) {
+            if (end.isAfter(selectedDate.toJavaLocalDate())) {
                 GoalCard(
                     goal = goal,
                     goalTodos = todos,
+                    selectedDate = selectedDate,
                     onClick = {
-                        navController.navigate("goal/detail/${goal.goalId}")
+                        navController.navigate("goal/detail/${goal.goalId}?date=${selectedDate}")
                     }
                 )
             }
