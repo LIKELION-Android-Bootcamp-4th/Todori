@@ -37,7 +37,13 @@ class CreateCommunityViewModel @Inject constructor(
 
     fun onEvent(event: CreateCommunityEvent) {
         when (event) {
-            is CreateCommunityEvent.OnTitleChange -> _state.update { it.copy(title = event.title, isTitleError = false) }
+            is CreateCommunityEvent.OnTitleChange -> _state.update {
+                it.copy(
+                    title = event.title,
+                    isTitleError = false
+                )
+            }
+
             is CreateCommunityEvent.OnContentChange -> _state.update { it.copy(content = event.content) }
             is CreateCommunityEvent.OnTagClicked -> {
                 val current = state.value.selectedTags.toMutableList()
@@ -48,24 +54,37 @@ class CreateCommunityViewModel @Inject constructor(
                 }
                 _state.value = state.value.copy(selectedTags = current)
             }
+
             is CreateCommunityEvent.OnStudyPickerClick -> {
                 _state.update { it.copy(isStudyPickerVisible = true) }
                 loadMyStudies()
             }
+
             is CreateCommunityEvent.OnTagPickerClick -> {
                 _state.update { it.copy(isTagPickerVisible = true) }
             }
+
             is CreateCommunityEvent.OnTagRemoved -> {
                 val updatedTags = _state.value.selectedTags.filter { it != event.tag }
                 _state.update { it.copy(selectedTags = updatedTags) }
             }
+
             is CreateCommunityEvent.OnTagPickerDismiss -> _state.update { it.copy(isTagPickerVisible = false) }
             is CreateCommunityEvent.OnStudySelected -> loadStudy(event.studyId)
-            is CreateCommunityEvent.OnStudyPickerDismiss -> _state.update { it.copy(isStudyPickerVisible = false) }
+            is CreateCommunityEvent.OnStudyPickerDismiss -> _state.update {
+                it.copy(
+                    isStudyPickerVisible = false
+                )
+            }
+
             is CreateCommunityEvent.OnPostSubmit -> submitPost(event.postId)
             is CreateCommunityEvent.LoadPostForEditing -> loadPostForEditing(event.postId)
+            is CreateCommunityEvent.OnToastShown -> {
+                _state.value = _state.value.copy(toastMessage = null)
+            }
         }
     }
+
     private fun loadMyStudies() {
         viewModelScope.launch {
             val uid = auth.currentUser?.uid ?: return@launch
@@ -77,6 +96,7 @@ class CreateCommunityViewModel @Inject constructor(
             }
         }
     }
+
     private fun getUserById(uid: String) {
         viewModelScope.launch {
             try {
@@ -90,7 +110,13 @@ class CreateCommunityViewModel @Inject constructor(
 
     private fun loadStudy(studyId: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isStudyPickerVisible = false, isLoading = true, studyId = studyId) }
+            _state.update {
+                it.copy(
+                    isStudyPickerVisible = false,
+                    isLoading = true,
+                    studyId = studyId
+                )
+            }
             try {
                 communityRepository.loadStudyById(studyId).collectLatest { study ->
                     _state.update { it.copy(currentStudy = study, isLoading = false) }
@@ -134,6 +160,16 @@ class CreateCommunityViewModel @Inject constructor(
             _state.update { it.copy(isTitleError = true) }
             return
         }
+        if (state.value.selectedTags.isEmpty()) {
+            _state.value = _state.value.copy(toastMessage = "태그를 최소 1개 선택해주세요.")
+            return
+        }
+
+        if (state.value.currentStudy == null) {
+            _state.value = _state.value.copy(toastMessage = "스터디를 선택해주세요.")
+            return
+        }
+
 
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }

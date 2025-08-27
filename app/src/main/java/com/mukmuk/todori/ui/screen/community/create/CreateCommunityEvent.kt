@@ -12,5 +12,5 @@ sealed interface CreateCommunityEvent {
     data class OnPostSubmit(val postId: String? = null) : CreateCommunityEvent
     data class LoadPostForEditing(val postId: String) : CreateCommunityEvent
     data object OnTagPickerDismiss : CreateCommunityEvent
-
+    data object OnToastShown : CreateCommunityEvent
 }

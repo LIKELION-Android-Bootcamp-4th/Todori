@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.create
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -45,6 +46,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mukmuk.todori.ui.screen.community.components.CommunityListData
@@ -69,6 +71,7 @@ fun CreateCommunityScreen(
     onBack: () -> Unit,
     viewModel: CreateCommunityViewModel
 ) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
 
@@ -83,6 +86,13 @@ fun CreateCommunityScreen(
             navController.popBackStack()
         }
     }
+    LaunchedEffect(state.toastMessage) {
+        state.toastMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            viewModel.onEvent(CreateCommunityEvent.OnToastShown)
+        }
+    }
+
 
     Scaffold(
         topBar = {

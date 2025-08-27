@@ -22,4 +22,5 @@ data class CreateCommunityState(
     val studyId: String = "",
     val user: User? = null,
     val post: StudyPost? = null,
+    val toastMessage: String? = null
 )
