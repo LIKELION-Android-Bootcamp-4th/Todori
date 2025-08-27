@@ -44,6 +44,43 @@ class TodoDetailViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun loadSendTodoDetail(uid: String, categoryId: String, date: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
+            try {
+                val category = categoryRepository.getCategoryByData(categoryId)
+
+                if(category != null) {
+                    val todos =
+                        todoRepository.getTodosByCategoryAndDate(category.uid, categoryId, date)
+                    getUserById(category.uid)
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        category = category,
+                        todos = todos,
+                        error = null
+                    )
+                }
+            }
+            catch (e: Exception) {
+                _state.value = _state.value.copy(isLoading = false, error = e.message)
+            }
+        }
+
+    }
+
+    fun getUserById(uid: String) {
+        viewModelScope.launch {
+            try {
+                val user = categoryRepository.getUserById(uid)
+                _state.value = _state.value.copy(userName = user?.nickname ?: "")
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(error = e.message)
+            }
+        }
+    }
+
     //todo 생성
     @RequiresApi(Build.VERSION_CODES.O)
     fun addTodo(uid: String, categoryId: String, date: String, title: String, onResult: (Boolean) -> Unit = {}) {
@@ -78,6 +115,16 @@ class TodoDetailViewModel @Inject constructor(
                 todoRepository.updateTodo(uid, updated)
                 // 성공 시 목록 다시 로딩 등 처리
                 loadDetail(uid, todo.categoryId, todo.date)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(error = e.message)
+            }
+        }
+    }
+
+    fun deleteSendCategory(uid: String, sendCategoryId: String) {
+        viewModelScope.launch {
+            try {
+                categoryRepository.deleteSendCategory(uid, sendCategoryId)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = e.message)
             }
