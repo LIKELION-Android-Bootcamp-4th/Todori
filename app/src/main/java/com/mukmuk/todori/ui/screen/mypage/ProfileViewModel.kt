@@ -3,6 +3,7 @@ package com.mukmuk.todori.ui.screen.mypage
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
+import com.mukmuk.todori.data.local.datastore.AuthLocalRepository
 import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.AuthService
@@ -17,6 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
+    private val authLocalRepository: AuthLocalRepository,
     private val repository: UserRepository,
     private val authService: AuthService
 ): ViewModel() {
@@ -63,6 +65,11 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             val provider = _uiState.value.user?.authProvider // "google.com" | "kakao" | "naver"
             _uiState.value = _uiState.value.copy(isLoggingOut = true, error = null)
+
+            if (provider != null) {
+                authLocalRepository.saveLastLoginProvider(provider)
+            }
+
             runCatching { authService.logout(provider) }
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(isLoggingOut = false)
