@@ -1,6 +1,7 @@
 package com.mukmuk.todori.data.repository
 import android.util.Log
 import com.mukmuk.todori.data.remote.todo.TodoCategory
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.service.TodoCategoryService
 import javax.inject.Inject
 
@@ -19,12 +20,20 @@ class TodoCategoryRepository @Inject constructor(
         return categoryId
     }
 
-    suspend fun createSendTodoCategory(uid: List<String> = emptyList(), category: TodoCategory): String {
-        return todoCategoryService.createSendTodoCategory(uid, category)
+    suspend fun getUserById(uid: String): User? {
+        return todoCategoryService.getUserById(uid)
+    }
+
+    suspend fun createSendTodoCategory(uid: List<String> = emptyList(), categoryId: String): String {
+        return todoCategoryService.createSendTodoCategory(uid, categoryId)
     }
 
     suspend fun getCategoryById(uid: String, categoryId: String): TodoCategory? {
         return todoCategoryService.getCategoryById(uid, categoryId)
+    }
+
+    suspend fun getCategoryByData(categoryId: String): TodoCategory? {
+        return todoCategoryService.getCategoryByData(categoryId)
     }
 
     // 카테고리 목록 조회
@@ -38,6 +47,10 @@ class TodoCategoryRepository @Inject constructor(
 
     suspend fun getSendCategories(uid: String): List<TodoCategory> {
         return todoCategoryService.getSendCategories(uid)
+    }
+
+    suspend fun deleteSendCategory(uid: String, sendCategoryId: String) {
+        todoCategoryService.deleteSendCategory(uid, sendCategoryId)
     }
 
     // 카테고리 수정
