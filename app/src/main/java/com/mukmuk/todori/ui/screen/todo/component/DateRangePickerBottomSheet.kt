@@ -105,11 +105,20 @@ fun DateRangePickerBottomSheet(
                                 .fillMaxWidth()
                                 .height(60.dp)
                                 .clickable {
-                                    if (startDate == null || (startDate != null && endDate != null)) {
+                                    if (startDate != null && endDate != null) {
                                         startDate = date
                                         endDate = null
-                                    } else if (date > startDate) {
+                                    }
+                                    else if (startDate == null) {
+                                        startDate = date
+                                        endDate = null
+                                    }
+                                    else if (date > startDate) {
                                         endDate = date
+                                    }
+                                    else if (date < startDate) {
+                                        startDate = date
+                                        endDate = null
                                     }
                                 },
                             contentAlignment = Alignment.Center
