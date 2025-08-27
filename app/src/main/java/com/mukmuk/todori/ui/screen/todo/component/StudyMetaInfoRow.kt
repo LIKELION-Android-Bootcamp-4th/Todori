@@ -33,7 +33,8 @@ import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.White
 import com.mukmuk.todori.util.activeDaysText
-import java.time.LocalDate
+import com.mukmuk.todori.util.toJavaLocalDate
+import kotlinx.datetime.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -45,6 +46,7 @@ fun StudyMetaInfoRow(
     joinedAt: Timestamp? = null,
     memberCount: Int,
     activeDays: List<String>,
+    selectedDate: LocalDate?,
     modifier: Modifier = Modifier
 ) {
     val formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd")
@@ -54,8 +56,7 @@ fun StudyMetaInfoRow(
     val joinedDate = remember(joinedAt) {
         joinedAt?.toDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate()
     }
-    val today = remember { LocalDate.now() }
-    val dDay = joinedDate?.let { ChronoUnit.DAYS.between(it, today).toInt() } ?: 0
+    val dDay = joinedDate?.let { ChronoUnit.DAYS.between(it, selectedDate?.toJavaLocalDate()).toInt() } ?: 0
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
         // 생성일

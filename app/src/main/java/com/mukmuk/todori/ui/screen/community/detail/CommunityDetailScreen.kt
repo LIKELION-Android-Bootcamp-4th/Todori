@@ -369,6 +369,7 @@ fun CommunityDetailScreen(
                             studyId = state.post!!.studyId,
                             study = state.study!!,
                             memberList = state.memberList,
+                            selectedDate = null,
                             onClick = {
                                 viewModel.updateStudyMember(
                                     postId,

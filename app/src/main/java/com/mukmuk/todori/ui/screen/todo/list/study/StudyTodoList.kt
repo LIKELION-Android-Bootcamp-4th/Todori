@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.todo.list.study
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import com.google.firebase.auth.auth
 import com.mukmuk.todori.ui.screen.todo.component.StudyCard
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.util.toKoreanString
 import kotlinx.datetime.LocalDate
 
 
@@ -49,8 +51,12 @@ fun StudyTodoList(selectedDate: LocalDate,navController: NavHostController) {
     val membersMap = state.membersMap
     val todosMap = state.todosMap
     val myProgressMap = state.progressMap
+    val selectedDayOfWeek = selectedDate.dayOfWeek.toKoreanString()
+    val filteredStudies = studies.filter { study ->
+        study.activeDays.contains(selectedDayOfWeek)
+    }
 
-    if (studies.isEmpty()) {
+    if (filteredStudies.isEmpty()) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,12 +89,14 @@ fun StudyTodoList(selectedDate: LocalDate,navController: NavHostController) {
                 val members = membersMap[study.studyId].orEmpty()
                 val todos = todosMap[study.studyId].orEmpty()
                 val progresses = myProgressMap[study.studyId].orEmpty()
+                study.activeDays
                 StudyCard(
                     study = study,
                     studyTodos =  todos,
                     myProgressMap = progresses,
                     memberCount = members.size,
                     joinedAt = members.firstOrNull { it.uid == uid }?.joinedAt ?: Timestamp.now(),
+                    selectedDate = selectedDate,
                     onClick = {
                         navController.navigate("study/detail/${study.studyId}?date=${selectedDate}")
                     }

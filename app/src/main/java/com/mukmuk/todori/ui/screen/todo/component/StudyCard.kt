@@ -25,6 +25,7 @@ import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.White
+import kotlinx.datetime.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -35,6 +36,7 @@ fun StudyCard(
     memberCount: Int,
     joinedAt: Timestamp,
     modifier: Modifier = Modifier,
+    selectedDate: LocalDate,
     onClick: () -> Unit
 ) {
     val completed = studyTodos.count { myProgressMap[it.studyTodoId]?.done == true }
@@ -58,7 +60,8 @@ fun StudyCard(
                 createdAt = study.createdAt,
                 joinedAt = joinedAt,
                 memberCount = memberCount,
-                activeDays = study.activeDays
+                activeDays = study.activeDays,
+                selectedDate = selectedDate
             )
 
 

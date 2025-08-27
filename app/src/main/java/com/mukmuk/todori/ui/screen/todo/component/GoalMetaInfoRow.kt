@@ -42,22 +42,21 @@ import java.time.temporal.ChronoUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun GoalMetaInfoRow(goal: Goal) {
-    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+fun GoalMetaInfoRow(goal: Goal, selectedDate: LocalDate) {
     val start = LocalDate.parse(goal.startDate)
     val end = LocalDate.parse(goal.endDate)
-    val dDay = remember(goal.endDate) {
-        ChronoUnit.DAYS.between(today.toJavaLocalDate(), end.toJavaLocalDate()).toInt()
+    val dDay = remember(goal.endDate, selectedDate) {
+        ChronoUnit.DAYS.between(selectedDate.toJavaLocalDate(), end.toJavaLocalDate()).toInt()
     }
 
     val statusColor = when {
-        today < start -> Gray
+        selectedDate < start -> Gray
         dDay < 0 -> UserPrimary
         else -> GoalPrimary
     }
 
     val statusText = when {
-        today < start -> "시작 전"
+        selectedDate < start -> "시작 전"
         dDay < 0 -> "완료"
         else -> "진행 중"
     }

@@ -16,14 +16,12 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.messaging.FirebaseMessaging
-import com.mukmuk.todori.data.service.MyFirebaseMessagingService
 import com.mukmuk.todori.navigation.AppNavigation
 import com.mukmuk.todori.navigation.BottomNavItem
 import com.mukmuk.todori.navigation.navigateKeepingHomeBase
@@ -72,7 +70,8 @@ class MainActivity : ComponentActivity() {
                                     val selected = currentRoute?.startsWith(item.route) == true
                                     NavigationBarItem(
                                         icon = { Icon(item.icon, contentDescription = item.label) },
-//                                        label = { Text(item.label) },
+
+                                        label = { Text(item.label) },
                                         selected = selected,
                                         onClick = {
                                             if (!selected) {
