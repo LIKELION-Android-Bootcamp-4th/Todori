@@ -166,7 +166,11 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 editCategory = category
             )
         }
-        composable("login") {
+        composable(
+            route = "login",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "todori://app.todori.com/login" }
+            )) {
             LoginScreen(navController = navController)
         }
         composable("goal/create") { backStackEntry ->

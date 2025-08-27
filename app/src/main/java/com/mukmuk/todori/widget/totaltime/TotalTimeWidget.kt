@@ -17,6 +17,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -30,6 +31,7 @@ import androidx.glance.text.Text
 import com.mukmuk.todori.MainActivity
 import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
 import com.mukmuk.todori.ui.theme.WidgetTextStyle
+import com.mukmuk.todori.widget.LaunchActivityCallback
 import com.mukmuk.todori.widget.WidgetEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import java.time.LocalDate
@@ -41,7 +43,8 @@ class TotalTimeWidget : GlanceAppWidget() {
 
     companion object {
         val TOTAL_TIME_PREF_KEY = longPreferencesKey("total_record_time_mills")
-        const val ACTION_UPDATE_TOTAL_TIME_WIDGET = "com.mukmuk.todori.ACTION_UPDATE_TOTAL_TIME_WIDGET"
+        const val ACTION_UPDATE_TOTAL_TIME_WIDGET =
+            "com.mukmuk.todori.ACTION_UPDATE_TOTAL_TIME_WIDGET"
         const val EXTRA_TOTAL_TIME_MILLIS = "extra_total_time_millis"
         val TODAY_DATE_PREF_KEY = stringPreferencesKey("today_date_string")
     }
@@ -66,21 +69,26 @@ class TotalTimeWidget : GlanceAppWidget() {
         val s = (millis / 1000) % 60
         val totalTime = String.format("%02d:%02d:%02d", h, m, s)
 
-        Row (
+        Row(
             modifier = GlanceModifier
                 .background(Color(0x50FFFFFF))
                 .fillMaxSize()
-                .clickable(actionStartActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("todori://app.todori.com/home")
-                )
-            )),
+                .clickable(
+                    actionRunCallback<LaunchActivityCallback>()
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = today, modifier = GlanceModifier.padding(12.dp), style = WidgetTextStyle.TitleSmallLight)
-            Text(text = totalTime, modifier = GlanceModifier.padding(12.dp), style = WidgetTextStyle.TitleLarge)
+            Text(
+                text = today,
+                modifier = GlanceModifier.padding(12.dp),
+                style = WidgetTextStyle.TitleSmallLight
+            )
+            Text(
+                text = totalTime,
+                modifier = GlanceModifier.padding(12.dp),
+                style = WidgetTextStyle.TitleLarge
+            )
         }
     }
 }
