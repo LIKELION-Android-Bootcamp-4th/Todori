@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -57,8 +58,7 @@ fun CreateStudyScreen(
 ) {
     val viewModel: StudyViewModel = hiltViewModel()
     val context = LocalContext.current
-    val isEditMode =
-        editStudy !=null
+    val isEditMode = editStudy !=null
 
     var title by remember { mutableStateOf(editStudy?.title.orEmpty()) }
     var description by remember { mutableStateOf(editStudy?.description.orEmpty()) }
@@ -74,6 +74,10 @@ fun CreateStudyScreen(
     val isDescError = description.length !in 0..60
 
     val dayLabels = listOf("월", "화", "수", "목", "금", "토", "일")
+
+    LaunchedEffect(Unit) {
+        titleFocusRequester.requestFocus()
+    }
 
     Scaffold(
         topBar = {
