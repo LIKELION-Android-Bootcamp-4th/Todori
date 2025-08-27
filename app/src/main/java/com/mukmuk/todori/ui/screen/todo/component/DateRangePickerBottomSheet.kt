@@ -1,6 +1,7 @@
 package com.mukmuk.todori.ui.screen.todo.component
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -46,11 +49,14 @@ import java.time.YearMonth
 fun DateRangePickerBottomSheet(
     show: Boolean,
     onDismissRequest: () -> Unit,
-    onConfirm: (LocalDate, LocalDate) -> Unit
+    onConfirm: (LocalDate, LocalDate) -> Unit,
+    isCreationScreen: Boolean = false
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
+    val context = LocalContext.current
+
 
     var startDate by remember { mutableStateOf<LocalDate?>(null) }
     var endDate by remember { mutableStateOf<LocalDate?>(null) }
@@ -61,6 +67,12 @@ fun DateRangePickerBottomSheet(
         firstVisibleMonth = YearMonth.now(),
         firstDayOfWeek = DayOfWeek.MONDAY
     )
+
+    LaunchedEffect(show) {
+        if (show && isCreationScreen) {
+            startDate = LocalDate.now()
+        }
+    }
 
     if (show) {
         ModalBottomSheet(
@@ -138,6 +150,8 @@ fun DateRangePickerBottomSheet(
                         if (startDate != null && endDate != null) {
                             onConfirm(startDate!!, endDate!!)
                             onDismissRequest()
+                        } else {
+                            Toast.makeText(context, "기간이 선택되지 않았습니다.", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.fillMaxWidth()

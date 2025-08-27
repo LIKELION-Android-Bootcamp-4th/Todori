@@ -185,7 +185,8 @@ fun CreateGoalScreen(
                 onConfirm = { start, end ->
                     startDate = start
                     endDate = end
-                }
+                },
+                isCreationScreen = editGoal == null
             )
 
 
