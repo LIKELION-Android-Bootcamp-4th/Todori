@@ -100,22 +100,20 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         composable("home_ocr") { HomeOcrScreen(navController) }
 
         composable(BottomNavItem.Study.route) { backStackEntry ->
+
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
             val viewModel: CommunityViewModel = hiltViewModel(parentEntry)
             CommunityScreen(navController, viewModel)
         }
-
         composable(
-            "community/create?postId={postId}",
-            arguments = listOf(
+            "community/create?postId={postId}", arguments = listOf(
                 navArgument("postId") {
                     type = NavType.StringType
                     defaultValue = null
                     nullable = true
-                }
-            )
+                })
         ) { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId")
             val parentEntry = remember(backStackEntry) {
@@ -129,7 +127,6 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 viewModel
             )
         }
-
         composable("community/search") { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(BottomNavItem.Study.route)
@@ -141,7 +138,6 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 viewModel
             )
         }
-
         composable(
             route = "community/detail/{postId}",
             arguments = listOf(
@@ -155,7 +151,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
             val postId = backStackEntry.arguments?.getString("postId") ?: ""
-            val viewModel: CommunityDetailViewModel = hiltViewModel(backStackEntry)
+            val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
             CommunityDetailScreen(
                 postId = postId,
                 onBack = { navController.popBackStack() },
