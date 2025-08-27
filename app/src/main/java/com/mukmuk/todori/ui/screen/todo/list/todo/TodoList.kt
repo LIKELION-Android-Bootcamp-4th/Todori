@@ -23,6 +23,8 @@ import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,13 +51,8 @@ import kotlinx.datetime.LocalDate
 @Composable
 fun TodoList(selectedDate: LocalDate, navController: NavHostController) {
     val viewModel: TodoListViewModel = hiltViewModel()
-
-
     val state by viewModel.state.collectAsState()
-//    val uid = "testuser"
-
     val uid = Firebase.auth.currentUser?.uid.toString()
-
     val option = listOf("나의 카테고리", "공유된 카테고리")
 
     LaunchedEffect(selectedDate, state.selectedOption) {
@@ -66,124 +63,120 @@ fun TodoList(selectedDate: LocalDate, navController: NavHostController) {
         }
     }
 
-    if (state.categories.isEmpty()) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+    Column(modifier = Modifier.fillMaxSize()) {
+
+        Spacer(modifier = Modifier.height(Dimens.Tiny))
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp)
         ) {
-            Icon(
-                imageVector = Icons.Rounded.CheckCircleOutline,
-                contentDescription = "Category Empty",
-                modifier = Modifier.size(38.dp),
-                tint = Color.Gray
-            )
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
-            Text(
-                "생성된 카테고리가 없습니다",
-                style = AppTextStyle.BodyLarge,
-                color = Color.DarkGray
-            )
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
-            Text(
-                "새로운 카테고리를 만들고 할 일을 추가해 보세요!",
-                style = AppTextStyle.BodySmall,
-                color = Color.DarkGray
-            )
-            Spacer(modifier = Modifier.height(Dimens.Medium))
-        }
-    } else {
-        LazyColumn {
-            items(state.categories) { category ->
-                val todos = state.todosByCategory[category.categoryId].orEmpty()
-                val total = todos.size
-                val progress = todos.count { it.completed }
-                TodoCard(
-                    categoryTitle = category.name,
-                    subtitle = category.description.orEmpty(),
-                    progress = progress,
-                    total = total,
-                    todos = todos.map { it.title to it.completed }
+            items(option) { item ->
+                Button(
+                    onClick = { viewModel.setSelectedOption(item) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (state.selectedOption == item) Black else White,
+                        contentColor = if (state.selectedOption == item) White else Black,
+                    ),
+                    shape = RoundedCornerShape(30),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                    border = ButtonDefaults.outlinedButtonBorder
                 ) {
-                    navController.navigate("todo/detail/${category.categoryId}?date=${selectedDate}")
-                }
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp)
-                    ) {
-                        items(option) { item ->
-                            Box(
-                                modifier = Modifier
-                                    .border(
-                                        width = 1.dp,
-                                        color = Gray,
-                                        shape = RoundedCornerShape(30)
-                                    )
-                                    .background(
-                                        if (state.selectedOption == item) Black else White,
-                                        shape = RoundedCornerShape(30)
-                                    )
-                                    .clickable {
-                                        viewModel.setSelectedOption(item)
-                                    }
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                            ) {
-                                Text(
-                                    text = item,
-                                    fontSize = 14.sp,
-                                    style = AppTextStyle.Body,
-                                    color = if (state.selectedOption == item) White else Black
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(Dimens.Tiny))
-
-                    LazyColumn {
-                        items(state.categories) { category ->
-                            val todos = state.todosByCategory[category.categoryId].orEmpty()
-                            val total = todos.size
-                            val progress = todos.count { it.completed }
-                            TodoCard(
-                                categoryTitle = category.name,
-                                subtitle = category.description.orEmpty(),
-                                progress = progress,
-                                total = total,
-                                todos = todos.map { it.title to it.completed }
-                            ) {
-                                navController.navigate("todo/detail/${category.categoryId}?date=${selectedDate}")
-                            }
-                        }
-                        if (state.sendCategories.isNotEmpty()) {
-                            items(state.sendCategories) { category ->
-                                val todos = state.sendTodosByCategory[category.categoryId].orEmpty()
-                                val total = todos.size
-                                val progress = todos.count { it.completed }
-                                TodoCard(
-                                    categoryTitle = category.name,
-                                    category = category,
-                                    userName = state.userMap[category.categoryId],
-                                    subtitle = category.description.orEmpty(),
-                                    progress = progress,
-                                    total = total,
-                                    todos = todos.map { it.title to it.completed }
-                                ) {
-                                    navController.navigate("sendTodo/detail/${category.categoryId}?date=${selectedDate}")
-                                }
-                            }
-                        }
-                    }
-
+                    Text(
+                        text = item,
+                        fontSize = 14.sp,
+                        style = AppTextStyle.Body,
+                        color = if (state.selectedOption == item) White else Black
+                    )
                 }
             }
         }
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        if (state.selectedOption == "나의 카테고리") {
+            if (state.categories.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.CheckCircleOutline,
+                        contentDescription = "Category Empty",
+                        modifier = Modifier.size(38.dp),
+                        tint = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(Dimens.Tiny))
+                    Text("생성된 카테고리가 없습니다", style = AppTextStyle.BodyLarge, color = Color.DarkGray)
+                    Spacer(modifier = Modifier.height(Dimens.Tiny))
+                    Text("새로운 카테고리를 만들고 할 일을 추가해 보세요!", style = AppTextStyle.BodySmall, color = Color.DarkGray)
+                    Spacer(modifier = Modifier.height(Dimens.Medium))
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(state.categories) { category ->
+                        val todos = state.todosByCategory[category.categoryId].orEmpty()
+                        val total = todos.size
+                        val progress = todos.count { it.completed }
+                        TodoCard(
+                            categoryTitle = category.name,
+                            subtitle = category.description.orEmpty(),
+                            progress = progress,
+                            total = total,
+                            todos = todos.map { it.title to it.completed }
+                        ) {
+                            navController.navigate("todo/detail/${category.categoryId}?date=$selectedDate")
+                        }
+                    }
+                }
+            }
+        } else {
+            if (state.sendCategories.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.CheckCircleOutline,
+                        contentDescription = "Category Empty",
+                        modifier = Modifier.size(38.dp),
+                        tint = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(Dimens.Tiny))
+                    Text("공유된 카테고리가 없습니다", style = AppTextStyle.BodyLarge, color = Color.DarkGray)
+                    Spacer(modifier = Modifier.height(Dimens.Tiny))
+                    Text("다른 사람의 카테고리 활동을 볼 수 있어요!", style = AppTextStyle.BodySmall, color = Color.DarkGray)
+                    Spacer(modifier = Modifier.height(Dimens.Medium))
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(state.sendCategories) { category ->
+                        val todos = state.sendTodosByCategory[category.categoryId].orEmpty()
+                        val total = todos.size
+                        val progress = todos.count { it.completed }
+                        TodoCard(
+                            categoryTitle = category.name,
+                            category = category,
+                            userName = state.userMap[category.categoryId],
+                            subtitle = category.description.orEmpty(),
+                            progress = progress,
+                            total = total,
+                            todos = todos.map { it.title to it.completed }
+                        ) {
+                            navController.navigate("sendTodo/detail/${category.categoryId}?date=$selectedDate")
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

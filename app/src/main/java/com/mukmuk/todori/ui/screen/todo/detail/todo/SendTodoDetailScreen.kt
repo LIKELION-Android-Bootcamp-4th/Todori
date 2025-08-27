@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,7 +36,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
@@ -116,13 +120,10 @@ fun SendTodoDetailScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-
         CommonDetailAppBar(
             title = categoryTitle,
             onBack = onBack,
-            onDelete = {
-                showDialog = true
-            }
+            onDelete = { showDialog = true }
         )
         Column(
             modifier = Modifier
@@ -130,7 +131,6 @@ fun SendTodoDetailScreen(
                 .background(White)
                 .padding(Dimens.Small)
         ) {
-
             Box(
                 modifier = Modifier
                     .background(
@@ -144,9 +144,7 @@ fun SendTodoDetailScreen(
                     style = AppTextStyle.Body.copy(color = White)
                 )
             }
-
             Spacer(modifier = Modifier.height(Dimens.Small))
-
             CardHeaderSection(
                 title = categoryTitle,
                 subtitle = categorySubTitle,
@@ -154,22 +152,40 @@ fun SendTodoDetailScreen(
             )
             Spacer(modifier = Modifier.height(Dimens.Small))
             ProgressWithText(
-                progress = progress / total.toFloat(),
+                progress = if (total == 0) 0f else progress / total.toFloat(),
                 completed = progress,
                 total = total,
             )
             Spacer(modifier = Modifier.height(Dimens.Small))
         }
 
-        todos.forEachIndexed { i, todo ->
-            TodoItemEditableRow(
-                title = todo.title,
-                isDone = todo.completed,
-                modifier = Modifier.padding(Dimens.Small),
-                onCheckedChange = {
-
-                },
-            )
+        if (todos.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.CheckCircleOutline,
+                    contentDescription = "Todo Empty",
+                    modifier = Modifier.size(38.dp),
+                    tint = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(Dimens.Tiny))
+                Text("상대는 아직 todo를 안 만들었네요", style = AppTextStyle.BodyLarge, color = Color.DarkGray)
+                Spacer(modifier = Modifier.height(Dimens.Medium))
+            }
+        } else {
+            todos.forEach { todo ->
+                TodoItemEditableRow(
+                    title = todo.title,
+                    isDone = todo.completed,
+                    modifier = Modifier.padding(Dimens.Small),
+                    onCheckedChange = { },
+                )
+            }
         }
     }
 }
