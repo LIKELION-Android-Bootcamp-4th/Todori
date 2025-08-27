@@ -7,6 +7,8 @@ data class TodoDetailState(
     val isLoading: Boolean = false,
     val category: TodoCategory? = null,
     val todos: List<Todo> = emptyList(),
+    val sendTodos: List<Todo> = emptyList(),
+    val userName: String = "",
     val error: String? = null,
     val categoryDeleted: Boolean = false
 )
