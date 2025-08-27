@@ -58,6 +58,7 @@ import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
 import com.mukmuk.todori.ui.screen.todo.component.GoalMetaInfoRow
 import com.mukmuk.todori.ui.screen.todo.component.SingleDatePickerBottomSheet
 import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
@@ -137,13 +138,14 @@ fun GoalDetailScreen(
 
             if (showDeleteDialog) {
                 AlertDialog(
+                    containerColor = White,
                     onDismissRequest = { showDeleteDialog = false },
                     title = { Text("목표 삭제") },
                     text = { Text("이 목표와 관련된 모든 세부 목표가 함께 삭제됩니다. 진행할까요?") },
                     confirmButton = {
                         Text(
                             "삭제",
-                            color = Red,
+                            style = AppTextStyle.Body.copy(color = Red),
                             modifier = Modifier.clickable {
                                 showDeleteDialog = false
                                 viewModel.deleteGoalWithTodos(uid, goal.goalId)
@@ -153,6 +155,7 @@ fun GoalDetailScreen(
                     dismissButton = {
                         Text(
                             "취소",
+                            style = AppTextStyle.Body.copy(color = Black),
                             modifier = Modifier.clickable {
                                 showDeleteDialog = false
                             }
