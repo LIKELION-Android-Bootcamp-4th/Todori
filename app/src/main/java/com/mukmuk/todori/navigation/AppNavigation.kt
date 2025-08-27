@@ -33,6 +33,7 @@ import com.mukmuk.todori.ui.screen.mypage.MyPageScreen
 import com.mukmuk.todori.ui.screen.mypage.ProfileManagementScreen
 import com.mukmuk.todori.ui.screen.mypage.studytargets.StudyTargetsScreen
 import com.mukmuk.todori.ui.screen.splash.SplashScreen
+import com.mukmuk.todori.ui.screen.stats.MonthlyReportScreen
 import com.mukmuk.todori.ui.screen.stats.StatsScreen
 import com.mukmuk.todori.ui.screen.todo.TodoScreen
 import com.mukmuk.todori.ui.screen.todo.create.CreateCategoryScreen
@@ -43,6 +44,7 @@ import com.mukmuk.todori.ui.screen.todo.detail.goal.GoalDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
 import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
+import kotlinx.datetime.LocalDate
 
 @SuppressLint("ComposableDestinationInComposeScope")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -69,7 +71,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             deepLinks = listOf(
                 navDeepLink { uriPattern = "todori://app.todori.com/stats" }
             )
-        ) { StatsScreen() }
+        ) { StatsScreen(navController) }
         composable(BottomNavItem.Home.route) {
             HomeScreen(navController = navController, viewModel = homeViewModel)
         }
@@ -259,6 +261,25 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
 
         composable("studyTargets") {
             StudyTargetsScreen(navController = navController)
+        }
+
+        // NavHost 등록
+        composable(
+            route = "monthly_report/{uid}/{date}",
+            arguments = listOf(
+                navArgument("uid") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            val dateStr = backStackEntry.arguments?.getString("date") ?: ""
+            val date = LocalDate.parse(dateStr)
+
+            MonthlyReportScreen(
+                uid = uid,
+                date = date,
+                onBackClick = { navController.popBackStack() }
+            )
         }
 
     }
