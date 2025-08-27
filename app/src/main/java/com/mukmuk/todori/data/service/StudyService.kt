@@ -212,4 +212,12 @@ class StudyService(
 
         myStudyRef.update("nickname", nickname).await()
     }
+
+    suspend fun markStudyAsPosted(uid: String, studyId: String) {
+        firestore.collection("users")
+            .document(uid)
+            .collection("myStudies")
+            .document(studyId)
+            .update("hasPosted", true)
+    }
 }

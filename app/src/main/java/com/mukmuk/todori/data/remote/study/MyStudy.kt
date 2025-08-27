@@ -14,5 +14,6 @@ data class MyStudy(
     val joinedAt: Timestamp? = null,            // 참여 시간
     val role: String = "MEMBER",                // "LEADER" or "MEMBER"
     val nickname: String = "",                  // 내 닉네임
-    val status: String = "ACTIVE"               // "ACTIVE", "LEFT", 등 상태
+    val status: String = "ACTIVE",              // "ACTIVE", "LEFT", 등 상태
+    val hasPosted: Boolean = false              // 게시글 작성 여부
 ): Parcelable

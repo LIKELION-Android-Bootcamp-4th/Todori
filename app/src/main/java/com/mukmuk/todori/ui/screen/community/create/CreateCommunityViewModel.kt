@@ -93,7 +93,7 @@ class CreateCommunityViewModel @Inject constructor(
             val uid = auth.currentUser?.uid ?: return@launch
             try {
                 val myStudies = studyRepository.getMyStudies(uid)
-                _state.update { it.copy(myStudyList = myStudies) }
+                _state.update { it.copy(myStudyList = myStudies.filter { !it.hasPosted }) }
             } catch (e: Exception) {
                 _state.update { it.copy(error = e.message) }
             }
@@ -207,6 +207,11 @@ class CreateCommunityViewModel @Inject constructor(
                     communityRepository.updatePost(postId, postToSubmit)
                 } else {
                     communityRepository.createPost(postToSubmit)
+                }
+
+                val studyId = post.studyId
+                if (studyId.isNotBlank()) {
+                    studyRepository.markStudyAsPosted(uid, studyId)
                 }
 
                 _state.update { it.copy(isLoading = false, isPostSubmitted = true) }
