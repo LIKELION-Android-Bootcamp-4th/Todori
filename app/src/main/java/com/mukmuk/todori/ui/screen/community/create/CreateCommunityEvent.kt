@@ -11,4 +11,6 @@ sealed interface CreateCommunityEvent {
     data object OnStudyPickerDismiss : CreateCommunityEvent
     data class OnPostSubmit(val postId: String? = null) : CreateCommunityEvent
     data class LoadPostForEditing(val postId: String) : CreateCommunityEvent
+    data object OnTagPickerDismiss : CreateCommunityEvent
+
 }

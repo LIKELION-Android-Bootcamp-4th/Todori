@@ -167,10 +167,12 @@ fun CreateCommunityScreen(
 
             Spacer(Modifier.height(Dimens.Large))
 
-            Spacer(modifier = Modifier
-                .height(1.dp)
-                .fillMaxWidth()
-                .background(Gray))
+            Spacer(
+                modifier = Modifier
+                    .height(1.dp)
+                    .fillMaxWidth()
+                    .background(Gray)
+            )
 
             Spacer(Modifier.height(Dimens.Large))
 
@@ -206,16 +208,32 @@ fun CreateCommunityScreen(
                 ) {
                     state.selectedTags.forEach { tag ->
                         InputChip(
-                            onClick = { viewModel.onEvent(CreateCommunityEvent.OnTagRemoved(tag)) },
-                            label = { Text(tag) },
-                            selected = true,
-                            trailingIcon = {
-                                Icon(
-                                    Icons.Default.Close,
-                                    contentDescription = "Remove tag",
-                                    Modifier.size(InputChipDefaults.AvatarSize)
-                                )
+                            onClick = {},
+                            label = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(tag, style = AppTextStyle.BodySmallMedium)
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.onEvent(CreateCommunityEvent.OnTagClicked(tag))
+                                        },
+                                        modifier = Modifier.size(24.dp) // 아이콘 크기 조정
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = "Remove tag",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
                             },
+                            selected = true,
+                            colors = InputChipDefaults.inputChipColors(
+                                selectedContainerColor = GroupPrimary.copy(alpha = 0.1f),
+                                selectedLabelColor = GroupPrimary
+                            )
                         )
                     }
                 }
@@ -274,7 +292,7 @@ fun CreateCommunityScreen(
         if (state.isTagPickerVisible) {
             TagPickerBottomSheet(
                 show = state.isTagPickerVisible,
-                onDismissRequest = { viewModel.onEvent(CreateCommunityEvent.OnTagPickerClick) },
+                onDismissRequest = { viewModel.onEvent(CreateCommunityEvent.OnTagPickerDismiss) },
                 selectedTags = state.selectedTags,
                 onTagClick = { tag -> viewModel.onEvent(CreateCommunityEvent.OnTagClicked(tag)) }
             )

@@ -59,6 +59,7 @@ class CreateCommunityViewModel @Inject constructor(
                 val updatedTags = _state.value.selectedTags.filter { it != event.tag }
                 _state.update { it.copy(selectedTags = updatedTags) }
             }
+            is CreateCommunityEvent.OnTagPickerDismiss -> _state.update { it.copy(isTagPickerVisible = false) }
             is CreateCommunityEvent.OnStudySelected -> loadStudy(event.studyId)
             is CreateCommunityEvent.OnStudyPickerDismiss -> _state.update { it.copy(isStudyPickerVisible = false) }
             is CreateCommunityEvent.OnPostSubmit -> submitPost(event.postId)
