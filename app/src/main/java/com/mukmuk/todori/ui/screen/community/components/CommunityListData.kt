@@ -63,7 +63,8 @@ fun CommunityListData(
             StudyMetaInfoRow(
                 createdAt = createdAt,
                 memberCount = memberCount,
-                activeDays = activeDays
+                activeDays = activeDays,
+                selectedDate = null
             )
         }
     }

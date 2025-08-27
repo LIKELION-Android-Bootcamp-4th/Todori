@@ -3,7 +3,12 @@ package com.mukmuk.todori.ui.screen.mypage
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
+import com.mukmuk.todori.data.local.datastore.AuthLocalRepository
+import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
+import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
+import com.mukmuk.todori.data.local.datastore.TodayTodoRepository
 import com.mukmuk.todori.data.remote.user.User
+import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.AuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +22,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
+    private val authLocalRepository: AuthLocalRepository,
     private val repository: UserRepository,
+    private val studyRepository: StudyRepository,
+    private val homeRepository: HomeSettingRepository,
+    private val recordRepository: RecordSettingRepository,
+    private val todayTodoRepository: TodayTodoRepository,
     private val authService: AuthService
 ): ViewModel() {
 
@@ -48,6 +58,12 @@ class ProfileViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isUpdating = true, error = null)
             runCatching {
                 repository.updateUser(uid, nickname, intro)
+
+                val myStudies = studyRepository.getMyStudies(uid)
+                myStudies.forEach { myStudy ->
+                    studyRepository.updateMyStudyNickname(uid, myStudy.studyId, nickname)
+                }
+
                 repository.getProfile(uid)
             }.onSuccess { user ->
                 _uiState.value = _uiState.value.copy(isUpdating = false, user = user, error = null)
@@ -63,8 +79,16 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             val provider = _uiState.value.user?.authProvider // "google.com" | "kakao" | "naver"
             _uiState.value = _uiState.value.copy(isLoggingOut = true, error = null)
+
+            if (provider != null) {
+                authLocalRepository.saveLastLoginProvider(provider)
+            }
+
             runCatching { authService.logout(provider) }
                 .onSuccess {
+                    homeRepository.clearHomeSetting()
+                    recordRepository.clearRecordSetting()
+                    todayTodoRepository.clearTodoSetting()
                     _uiState.value = _uiState.value.copy(isLoggingOut = false)
                     _effect.tryEmit(ProfileEffect.LoggedOut)
                 }
@@ -81,6 +105,9 @@ class ProfileViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isDeleting = true, error = null)
 
             try {
+                homeRepository.clearHomeSetting()
+                recordRepository.clearRecordSetting()
+                todayTodoRepository.clearTodoSetting()
                 authService.deleteAccount(user.uid, user.authProvider)
                 _uiState.value = _uiState.value.copy(isDeleting = false)
                 _effect.tryEmit(ProfileEffect.DeleteSuccess)

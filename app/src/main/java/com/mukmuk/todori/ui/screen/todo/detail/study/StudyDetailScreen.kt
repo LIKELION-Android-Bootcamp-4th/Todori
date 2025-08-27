@@ -44,6 +44,7 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.White
+import kotlinx.datetime.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,14 +55,15 @@ fun StudyDetailScreen(
     selectedDate: String,
     onBack: () -> Unit
 ) {
-//    val uid = "testuser"
     val uid = Firebase.auth.currentUser?.uid.toString()
     val viewModel: StudyDetailViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
     var newTodoText by remember { mutableStateOf("") }
     var showDeleteDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
-
+    val myMember = state.members.find { it.uid == uid }
+    val isLeader = myMember?.role == "LEADER"
+    val parsedDate = remember(selectedDate) { LocalDate.parse(selectedDate) }
     if (state.studyDeleted) {
         LaunchedEffect(Unit) {
             onBack()
@@ -195,7 +197,8 @@ fun StudyDetailScreen(
                             createdAt = study.createdAt,
                             joinedAt = members.find { it.uid == uid }?.joinedAt ?: study.createdAt,
                             memberCount = members.size,
-                            activeDays = study.activeDays
+                            activeDays = study.activeDays,
+                            selectedDate = parsedDate
                         )
                         Spacer(modifier = Modifier.height(Dimens.Small))
                         ProgressWithText(
@@ -235,13 +238,21 @@ fun StudyDetailScreen(
                         onDelete = { todoId ->
                             viewModel.deleteStudyTodo(todoId)
                         },
-                        progressMap = myProgressMap
+                        progressMap = myProgressMap,
+                        isLeader = isLeader
                     )
                 }
 
                 item {
+                    val updatedMembers = state.members.map { member ->
+                        if (member.uid == uid) {
+                            member.copy(nickname = state.usersById[uid]?.nickname ?: member.nickname)
+                        } else {
+                            member
+                        }
+                    }
                     MemberProgressCard(
-                        members = members,
+                        members = updatedMembers,
                         todos = todos,
                         progresses = memberProgressMap,
                         usersById = state.usersById,

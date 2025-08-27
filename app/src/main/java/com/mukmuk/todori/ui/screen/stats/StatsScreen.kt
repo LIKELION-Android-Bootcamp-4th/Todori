@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.ui.screen.stats.component.StatsSegmentedTabs
 import com.mukmuk.todori.ui.screen.stats.component.StatsTopBar
@@ -29,7 +30,7 @@ import kotlinx.datetime.todayIn
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun StatsScreen() {
+fun StatsScreen(navController: NavHostController) {
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
     var selectedTab by remember { mutableStateOf(StatsTab.DAY) }
@@ -38,7 +39,10 @@ fun StatsScreen() {
     var anchorDate by remember { mutableStateOf<LocalDate>(today) }
 
     Scaffold(
-        topBar = { StatsTopBar(onMonthlyReportClick = { /* TODO */ }) },
+        topBar = { StatsTopBar(onMonthlyReportClick = {
+            val dateStr = anchorDate.toString()
+            navController.navigate("monthly_report/$uid/$dateStr")
+        }) },
         containerColor = White
     ) { inner ->
         Column(modifier = Modifier.fillMaxSize().padding(inner)) {

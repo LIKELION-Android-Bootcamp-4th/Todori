@@ -56,7 +56,4 @@ class UserRepository @Inject constructor(
         userService.naverLogin(activity)
     }
 
-
-
-
 }

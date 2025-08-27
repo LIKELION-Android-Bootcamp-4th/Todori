@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -29,7 +31,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
@@ -50,7 +55,8 @@ fun StudyTodoInputCard(
     onAddClick: () -> Unit,
     onToggleChecked: (String, Boolean) -> Unit,
     onDelete: (String) -> Unit,
-    progressMap: Map<String, TodoProgress>
+    progressMap: Map<String, TodoProgress>,
+    isLeader: Boolean
 ) {
     Card(
         modifier = Modifier
@@ -71,56 +77,77 @@ fun StudyTodoInputCard(
             }
             Spacer(modifier = Modifier.height(Dimens.Small))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    value = newTodoText,
-                    onValueChange = onTodoTextChange,
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("할 일을 입력하세요") }
-                )
-                Spacer(modifier = Modifier.width(Dimens.Small))
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .background(color = GroupPrimary,shape = RoundedCornerShape(DefaultCornerRadius))
+            if(isLeader) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    IconButton(
-                        onClick = {
-                            onAddClick()
-                        },
-                        modifier = Modifier.fillMaxSize()
+                    OutlinedTextField(
+                        value = newTodoText,
+                        onValueChange = onTodoTextChange,
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("스터디 공통 Todo 입력") }
+                    )
+                    Spacer(modifier = Modifier.width(Dimens.Small))
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .background(
+                                color = GroupPrimary,
+                                shape = RoundedCornerShape(DefaultCornerRadius)
+                            )
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "추가")
+                        IconButton(
+                            onClick = {
+                                onAddClick()
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "추가")
+                        }
                     }
                 }
+                Spacer(modifier = Modifier.height(Dimens.Small))
             }
 
-            Spacer(modifier = Modifier.height(Dimens.Small))
-
-            taskList.forEachIndexed { i, todo ->
-                val isDone = progressMap[todo.studyTodoId]?.done == true
-                Log.d("TODORI", "progressMap: $progressMap")
-                TodoItemEditableRow(
-                    title = todo.title,
-                    isDone = isDone,
-                    modifier = Modifier.padding(Dimens.Nano),
-                    onCheckedChange = { checked ->
-                        onToggleChecked(todo.studyTodoId, checked)
-                    },
-                    trailingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.DeleteForever,
-                            contentDescription = "삭제",
-                            tint = Red,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clickable { onDelete(todo.studyTodoId) }
-                        )
-                    }
-                )
+            if (taskList.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Spacer(modifier = Modifier.height(Dimens.XXLarge))
+                    Text(
+                        "스터디 공통 Todo가 없습니다",
+                        style = AppTextStyle.BodyLarge,
+                        color = Color.DarkGray
+                    )
+                    Spacer(modifier = Modifier.height(Dimens.XXLarge))
+                }
+            } else {
+                val sortList = taskList.sortedBy { it.createdAt }
+                sortList.forEachIndexed { i, todo ->
+                    val isDone = progressMap[todo.studyTodoId]?.done == true
+                    Log.d("TODORI", "progressMap: $progressMap")
+                    TodoItemEditableRow(
+                        title = todo.title,
+                        isDone = isDone,
+                        modifier = Modifier.padding(Dimens.Nano),
+                        onCheckedChange = { checked ->
+                            onToggleChecked(todo.studyTodoId, checked)
+                        },
+                        trailingContent = {
+                            Icon(
+                                imageVector = Icons.Outlined.DeleteForever,
+                                contentDescription = "삭제",
+                                tint = Red,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable { onDelete(todo.studyTodoId) }
+                            )
+                        }
+                    )
+                }
             }
         }
     }

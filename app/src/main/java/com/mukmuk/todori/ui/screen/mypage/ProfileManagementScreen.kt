@@ -2,6 +2,8 @@ package com.mukmuk.todori.ui.screen.mypage
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -104,6 +106,12 @@ fun ProfileManagementScreen(
                 .padding(top = innerPadding.calculateTopPadding())
                 .padding(Dimens.Medium)
                 .background(color = White)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    focusManager.clearFocus(force = true)
+                }
         ) {
             Spacer(modifier = Modifier.height(Dimens.Medium))
 

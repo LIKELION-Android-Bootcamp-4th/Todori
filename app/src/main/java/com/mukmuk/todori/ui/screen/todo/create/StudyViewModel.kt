@@ -8,6 +8,7 @@ import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.StudyRepository
+import com.mukmuk.todori.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StudyViewModel @Inject constructor(
-    private val repository: StudyRepository
+    private val repository: StudyRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     fun createStudy(
@@ -31,10 +33,8 @@ class StudyViewModel @Inject constructor(
             // val user = FirebaseAuth.getInstance().currentUser
             // val leaderId = user?.uid ?: throw Exception("로그인 필요")
 
-//            val leaderId = "testuser"
             val leaderId = Firebase.auth.currentUser?.uid.toString()
-
-            val leaderNickname = "edittest"
+            val leaderNickname = userRepository.getProfile(leaderId)?.nickname ?: "LEADER"
             try {
                 val now = Timestamp.now()
                 val study = Study(

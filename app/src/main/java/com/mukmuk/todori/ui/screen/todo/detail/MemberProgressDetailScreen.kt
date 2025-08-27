@@ -1,6 +1,8 @@
 package com.mukmuk.todori.ui.screen.todo.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.navigation.NavHostController
+import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.ui.component.SimpleTopAppBar
 import com.mukmuk.todori.ui.screen.todo.component.MemberProgressRow
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
@@ -42,11 +46,33 @@ fun MemberProgressDetailScreen(
         if (query.isBlank()) members
         else members.filter { it.nickname.contains(query, ignoreCase = true) }
     }
+    val focusManager = LocalFocusManager.current
 
+    val sortMembers = filteredMembers.map { member ->
+        val todoProgresses = progressMap[member.uid] ?: emptyMap()
+        val completedCount = todoProgresses.values.count { it.done }
+        val totalCount = todos.size
+        val progress = if (totalCount > 0) completedCount / totalCount.toFloat() else 0f
 
-    Column(Modifier.fillMaxSize().background(Color.White).padding(Dimens.Small)) {
+        Pair(member, progress)
+    }.sortedWith(
+        compareByDescending<Pair<StudyMember, Float>> { it.first.role == "LEADER" }
+            .thenByDescending { it.second }
+    )
+
+    Column(Modifier
+        .fillMaxSize()
+        .background(Color.White)
+        .padding(Dimens.Small)
+        .clickable(
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() }
+        ) {
+            focusManager.clearFocus(force = true)
+        }
+    ) {
         SimpleTopAppBar(
-            title = "멤버 ${members.size}",
+            title = "전체 멤버 ${members.size}명",
             onBackClick = {
                 navController.popBackStack()
             }
@@ -64,11 +90,9 @@ fun MemberProgressDetailScreen(
         LazyColumn(
             Modifier.fillMaxSize().padding(Dimens.Tiny)
         ) {
-            items(filteredMembers, key = { it.uid }) { member ->
+            items(sortMembers, key = { it.first.uid }) { (member, progress)  ->
                 val todoProgresses = progressMap[member.uid] ?: emptyMap()
                 val completedCount = todoProgresses.values.count { it.done }
-                val totalCount = todos.size
-                val progress = if (totalCount > 0) completedCount / totalCount.toFloat() else 0f
                 val level = usersById[member.uid]?.level ?: 1
 
                 MemberProgressRow(
