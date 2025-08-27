@@ -179,7 +179,7 @@ fun CreateCommunityScreen(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("태그 (0/3)", style = AppTextStyle.Body)
+                Text("태그 (${state.selectedTags.size}/3)", style = AppTextStyle.Body)
                 Spacer(Modifier.weight(1f))
                 Button(
                     onClick = { viewModel.onEvent(CreateCommunityEvent.OnTagPickerClick) },
