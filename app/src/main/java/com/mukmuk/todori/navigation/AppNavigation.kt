@@ -155,7 +155,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 navController.getBackStackEntry(BottomNavItem.Study.route)
             }
             val postId = backStackEntry.arguments?.getString("postId") ?: ""
-            val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
+            val viewModel: CommunityDetailViewModel = hiltViewModel(backStackEntry)
             CommunityDetailScreen(
                 postId = postId,
                 onBack = { navController.popBackStack() },
