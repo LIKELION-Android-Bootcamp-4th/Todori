@@ -78,6 +78,10 @@ class HomeViewModel @Inject constructor(
     private var timerJob: Job? = null
     private var currentSettings: HomeSettingState = HomeSettingState()
 
+    private var todosJob: Job? = null
+    private var dailyRecordJob: Job? = null
+    private val authUserFlow = MutableStateFlow(Firebase.auth.currentUser?.uid)
+
     init {
         viewModelScope.launch {
             homeSettingRepository.homeSettingStateFlow.collectLatest { settings ->
@@ -114,19 +118,35 @@ class HomeViewModel @Inject constructor(
                     }
                 }
         }
-    }
+        viewModelScope.launch {
+            Firebase.auth.addAuthStateListener { firebaseAuth ->
+                authUserFlow.value = firebaseAuth.currentUser?.uid
+            }
+        }
 
-    private var hasLoaded = false
-
-    fun observeAuthAndLoadData() {
-        val auth = Firebase.auth
-        auth.addAuthStateListener { firebaseAuth ->
-            val user = firebaseAuth.currentUser
-            if (user != null && !hasLoaded) {
-                hasLoaded = true
-                loadProfile(user.uid)
-                startObservingTodos(user.uid)
-                startObservingDailyRecord(user.uid)
+        viewModelScope.launch {
+            authUserFlow.collectLatest { uid ->
+                if (uid != null) {
+                    loadProfile(uid)
+                    startObservingTodos(uid)
+                    startObservingDailyRecord(uid)
+                } else {
+                    todosJob?.cancel()
+                    dailyRecordJob?.cancel()
+                    _todoList.value = emptyList()
+                    _state.update { it.copy(uid = "") }
+                    _state.update {
+                        it.copy(
+                            uid = "",
+                            status = TimerStatus.IDLE,
+                            timeLeftInMillis = (currentSettings.focusMinutes * 60 + currentSettings.focusSeconds) * 1000L,
+                            pomodoroMode = PomodoroTimerMode.FOCUSED,
+                            completedFocusCycles = 0,
+                            totalStudyTimeMills = 0L,
+                            totalRecordTimeMills = 0L
+                        )
+                    }
+                }
             }
         }
     }
@@ -350,24 +370,29 @@ class HomeViewModel @Inject constructor(
 
     private fun startObservingTodos(uid: String) {
         val today = LocalDate.now()
-        todoRepository.observeTodos(uid) { updatedTodos ->
-            val filteredTodos = updatedTodos.filter { it.date == today.toString() }
-            _todoList.value = filteredTodos.sortedBy { it.completed }
+        todosJob?.cancel()
+        todosJob = viewModelScope.launch {
+            todoRepository.observeTodos(uid).collectLatest { updatedTodos ->
+                val filteredTodos = updatedTodos.filter { it.date == today.toString() }
+                _todoList.value = filteredTodos.sortedBy { it.completed }
+            }
         }
     }
 
     private fun startObservingDailyRecord(uid: String) {
         val today = LocalDate.now().toString()
-        homeRepository.observeDailyRecord(uid) { updatedRecords ->
-            val totalTime =
-                updatedRecords.firstOrNull { it.date == today }?.studyTimeMillis ?: 0L
-            val recordTime =
-                updatedRecords.firstOrNull { it.date == today }?.recordTimeMillis ?: 0L
-            _state.update {
-                it.copy(
-                    totalStudyTimeMills = totalTime,
-                    totalRecordTimeMills = recordTime
-                )
+        dailyRecordJob?.cancel()
+        dailyRecordJob = viewModelScope.launch {
+            homeRepository.observeDailyRecord(uid).collectLatest { updatedRecords ->
+                val totalTime = updatedRecords.firstOrNull { it.date == today }?.studyTimeMillis ?: 0L
+                val recordTime = updatedRecords.firstOrNull { it.date == today }?.recordTimeMillis ?: 0L
+                _state.update {
+                    it.copy(
+                        totalStudyTimeMills = totalTime,
+                        totalRecordTimeMills = recordTime,
+                        uid = uid // uid 업데이트
+                    )
+                }
             }
         }
     }
