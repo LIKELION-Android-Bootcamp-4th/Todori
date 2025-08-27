@@ -1,7 +1,10 @@
 package com.mukmuk.todori.ui.screen.todo.detail.study
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.study.StudyTodo
@@ -20,11 +23,12 @@ class StudyDetailViewModel @Inject constructor(
     private val studyRepository: StudyRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
+    val _uid = Firebase.auth.currentUser?.uid.toString()
 
     private val _state = MutableStateFlow(StudyDetailState())
     val state: StateFlow<StudyDetailState> = _state
 
-    fun loadStudyDetail(uid: String, studyId: String,date: String?) {
+    fun loadStudyDetail(uid: String, studyId: String, date: String?) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             try {
@@ -74,7 +78,8 @@ class StudyDetailViewModel @Inject constructor(
                     if (it.studyTodoId == studyTodoId && it.uid == uid) it.copy(done = !checked)
                     else it
                 }
-                _state.value = _state.value.copy(progresses = rolledBack, error = "저장 실패, 다시 시도해주세요.")
+                _state.value = _state.value.copy(progresses = rolledBack, error = "$e")
+                Log.d("aa", "오류 $e")
             }
         }
     }
@@ -113,25 +118,10 @@ class StudyDetailViewModel @Inject constructor(
                 createdBy = createdBy,
                 createdAt = com.google.firebase.Timestamp.now()
             )
-            val newTodos = _state.value.todos + todo
-            val newProgresses = _state.value.progresses +
-                    members.map {
-                        TodoProgress(
-                            studyTodoId = tempId,
-                            studyId = study.studyId,
-                            uid = it.uid,
-                            done = false,
-                            completedAt = null,
-                            date = date
-                        )
-                    }
-            _state.value = _state.value.copy(
-                todos = newTodos,
-                progresses = newProgresses
-            )
+
 
             try {
-                studyRepository.addStudyTodoWithProgress(todo.copy(studyTodoId = ""), members)
+                studyRepository.addStudyTodoWithProgress(todo.copy(), members)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     todos = _state.value.todos.filter { it.studyTodoId != tempId },
@@ -139,6 +129,18 @@ class StudyDetailViewModel @Inject constructor(
                     error = "추가에 실패했습니다. 다시 시도해주세요."
                 )
             }
+
+            val newTodos = studyRepository.getTodosForStudies(listOf(study.studyId), date)
+            val newProgresses = if (date != null) {
+                studyRepository.getProgressesByStudyAndDate(study.studyId, date)
+            } else {
+                studyRepository.getMyAllProgresses(_uid).filter { it.studyId == study.studyId }
+            }
+
+            _state.value = _state.value.copy(
+                todos = newTodos,
+                progresses = newProgresses
+            )
         }
     }
 

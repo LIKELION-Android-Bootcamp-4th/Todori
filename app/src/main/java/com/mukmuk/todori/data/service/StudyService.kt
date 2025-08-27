@@ -203,4 +203,13 @@ class StudyService(
             .set(study, SetOptions.merge())
             .await()
     }
+
+    suspend fun updateMyStudyNickname(uid: String, studyId: String, nickname: String) {
+        val myStudyRef = firestore.collection("users")
+            .document(uid)
+            .collection("myStudies")
+            .document(studyId)
+
+        myStudyRef.update("nickname", nickname).await()
+    }
 }

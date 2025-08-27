@@ -8,6 +8,7 @@ import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
 import com.mukmuk.todori.data.local.datastore.TodayTodoRepository
 import com.mukmuk.todori.data.remote.user.User
+import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.AuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val authLocalRepository: AuthLocalRepository,
     private val repository: UserRepository,
+    private val studyRepository: StudyRepository,
     private val homeRepository: HomeSettingRepository,
     private val recordRepository: RecordSettingRepository,
     private val todayTodoRepository: TodayTodoRepository,
@@ -56,6 +58,12 @@ class ProfileViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isUpdating = true, error = null)
             runCatching {
                 repository.updateUser(uid, nickname, intro)
+
+                val myStudies = studyRepository.getMyStudies(uid)
+                myStudies.forEach { myStudy ->
+                    studyRepository.updateMyStudyNickname(uid, myStudy.studyId, nickname)
+                }
+
                 repository.getProfile(uid)
             }.onSuccess { user ->
                 _uiState.value = _uiState.value.copy(isUpdating = false, user = user, error = null)
