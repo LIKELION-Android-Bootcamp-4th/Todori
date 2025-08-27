@@ -24,6 +24,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mukmuk.todori.navigation.AppNavigation
 import com.mukmuk.todori.navigation.BottomNavItem
+import com.mukmuk.todori.navigation.navigateKeepingHomeBase
+import com.mukmuk.todori.navigation.reselectTopLevel
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.TodoriTheme
 import com.mukmuk.todori.ui.theme.UserPrimary
@@ -56,7 +58,7 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = navBackStackEntry?.destination?.route
 
                 val bottomNavRoutes = BottomNavItem.items.map { it.route }
-                val showBottomBar = currentRoute in bottomNavRoutes
+                val showBottomBar = bottomNavRoutes.any { p -> currentRoute?.startsWith(p) == true }
 
                 Scaffold(
                     bottomBar = {
@@ -65,19 +67,17 @@ class MainActivity : ComponentActivity() {
                                 containerColor = White
                             ) {
                                 BottomNavItem.items.forEach { item ->
+                                    val selected = currentRoute?.startsWith(item.route) == true
                                     NavigationBarItem(
                                         icon = { Icon(item.icon, contentDescription = item.label) },
+
                                         label = { Text(item.label) },
-                                        selected = currentRoute == item.route,
+                                        selected = selected,
                                         onClick = {
-                                            if (currentRoute != item.route) {
-                                                navController.navigate(item.route) {
-                                                    popUpTo(navController.graph.startDestinationId) {
-                                                        saveState = true
-                                                    }
-                                                    launchSingleTop = true
-                                                    restoreState = true
-                                                }
+                                            if (!selected) {
+                                                navController.navigateKeepingHomeBase(item.route)
+                                            } else {
+                                                navController.reselectTopLevel(item.route)
                                             }
                                         },
                                         colors = NavigationBarItemDefaults.colors(
