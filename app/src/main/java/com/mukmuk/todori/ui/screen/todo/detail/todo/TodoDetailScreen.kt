@@ -204,7 +204,7 @@ fun TodoDetailScreen(
         }
         if (todos.isEmpty()) {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -229,7 +229,8 @@ fun TodoDetailScreen(
                 Spacer(modifier = Modifier.height(Dimens.Medium))
             }
         } else {
-            todos.forEachIndexed { i, todo ->
+            val sortedTodos = todos.sortedBy { it.completed }
+            sortedTodos.forEachIndexed { i, todo ->
                 TodoItemEditableRow(
                     title = todo.title,
                     isDone = todo.completed,
