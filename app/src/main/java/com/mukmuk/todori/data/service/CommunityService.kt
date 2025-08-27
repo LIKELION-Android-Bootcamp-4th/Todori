@@ -9,6 +9,7 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
+import com.mukmuk.todori.data.remote.study.MyStudy
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.user.User
@@ -168,6 +169,20 @@ class CommunityService(
         return snapshot.documents.mapNotNull {
             it.toObject(StudyPostComment::class.java)?.copy(commentId = it.id)
         }
+    }
+
+    fun loadStudyByData(uid: String): Flow<List<Study>> = callbackFlow{
+        val listener = firestore.collection("studies").whereEqualTo("leaderId", uid).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            if (snapshot != null) {
+                val studies = snapshot.documents.mapNotNull { it.toObject(Study::class.java) }
+                trySend(studies)
+            }
+        }
+        awaitClose { listener.remove() }
     }
 
     fun loadStudyById(studyId: String): Flow<Study?> = callbackFlow {

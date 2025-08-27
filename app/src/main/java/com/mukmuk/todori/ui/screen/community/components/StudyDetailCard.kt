@@ -38,20 +38,11 @@ import kotlinx.datetime.LocalDate
 @Composable
 fun StudyDetailCard(
     uid: String,
-    studyId: String,
     study: Study,
     selectedDate: LocalDate?,
     memberList: List<StudyMember>,
     onClick: () -> Unit
 ) {
-
-    val communityDetailViewModel: CommunityDetailViewModel = hiltViewModel()
-
-    val state by communityDetailViewModel.state.collectAsState()
-
-    LaunchedEffect(Unit) {
-        communityDetailViewModel.getUserById(uid)
-    }
 
     Card (
         modifier = Modifier

@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -15,12 +16,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,9 +32,11 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.Firebase
@@ -54,6 +61,7 @@ import com.mukmuk.todori.ui.screen.community.components.ListPickerBottomSheet
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
@@ -83,6 +91,8 @@ fun CreateCommunityScreen(
 
     var asd = listOf("")
 
+    var showDialog by remember { mutableStateOf(false) }
+
     var showListSheet by remember { mutableStateOf(false) }
     var pickedItem by remember { mutableStateOf<String?>(null) }
 
@@ -91,6 +101,8 @@ fun CreateCommunityScreen(
     val td = remember { mutableStateListOf<String>() }
 
     val uid = Firebase.auth.currentUser?.uid.toString()
+
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(postId) {
         viewModel.getUserById(uid)
@@ -136,7 +148,7 @@ fun CreateCommunityScreen(
                         )
                     }
                 },
-                modifier = Modifier.height(56.dp).fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
             )
         },
 
@@ -181,7 +193,7 @@ fun CreateCommunityScreen(
                                         tags = td.toList(),
                                         postId = "",
                                         studyId = studyId,
-                                        memberCount = state.memberList.size,
+                                        memberCount = 0,
                                         commentsCount = 0,
                                         createdAt = Timestamp.now(),
                                         createdBy = uid
@@ -209,6 +221,12 @@ fun CreateCommunityScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(top = 20.dp, start = 16.dp, end = 16.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    focusManager.clearFocus(force = true)
+                }
         ) {
             OutlinedTextField(
                 value = title,
@@ -272,13 +290,13 @@ fun CreateCommunityScreen(
             ) {
                 Text("내가 만든 스터디", style = AppTextStyle.Body)
                 Spacer(Modifier.weight(1f))
-                Button(
+                OutlinedButton(
                     onClick = {
                         showListSheet = true
                     },
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = GroupPrimary,
+                        containerColor = White,
                         contentColor = Black
                     ),
 
@@ -286,6 +304,9 @@ fun CreateCommunityScreen(
                     Text("불러오기", style = AppTextStyle.Body)
                 }
             }
+
+
+            Spacer(Modifier.height(Dimens.Tiny))
 
             if (studyId.isNotBlank()) {
                 viewModel.loadStudyById(studyId)
@@ -330,6 +351,9 @@ fun CreateCommunityScreen(
 
                                 } else if (td.contains(tag)) {
                                     td.remove(tag)
+                                } else {
+                                    showDialog = true
+                                    td.remove(tag)
                                 }
                             }
                             .width(60.dp),
@@ -359,6 +383,21 @@ fun CreateCommunityScreen(
                     viewModel.loadStudyById(studyId = it)
                     pickedItem = it
                     showListSheet = false
+                }
+            )
+        }
+
+        if(showDialog){
+            AlertDialog(
+                text = { Text("태그는 최대 3개까지 선택해주세요", style = AppTextStyle.Body) },
+                onDismissRequest = { showDialog = false },
+                containerColor = White,
+                confirmButton = {
+                    TextButton(
+                        onClick = { showDialog = false }
+                    ) {
+                        Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                    }
                 }
             )
         }

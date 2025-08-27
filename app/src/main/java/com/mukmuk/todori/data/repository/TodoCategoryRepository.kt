@@ -1,6 +1,7 @@
 package com.mukmuk.todori.data.repository
 import android.util.Log
 import com.mukmuk.todori.data.remote.todo.TodoCategory
+import com.mukmuk.todori.data.remote.user.User
 import com.mukmuk.todori.data.service.TodoCategoryService
 import javax.inject.Inject
 
@@ -8,21 +9,48 @@ class TodoCategoryRepository @Inject constructor(
     private val todoCategoryService: TodoCategoryService
 ) {
     // 카테고리 생성
-    suspend fun createCategory(uid: String, category: TodoCategory) {
+    suspend fun createCategory(uid: String, category: TodoCategory): String {
+        var categoryId = ""
         try {
-            todoCategoryService.createCategory(uid, category)
+            categoryId = todoCategoryService.createCategory(uid, category)
         } catch (e: Exception) {
             Log.d("CreateCategory", " Repository 에러 : ${e.message}")
         }
+
+        return categoryId
+    }
+
+    suspend fun getUserById(uid: String): User? {
+        return todoCategoryService.getUserById(uid)
+    }
+
+    suspend fun createSendTodoCategory(uid: List<String> = emptyList(), categoryId: String): String {
+        return todoCategoryService.createSendTodoCategory(uid, categoryId)
     }
 
     suspend fun getCategoryById(uid: String, categoryId: String): TodoCategory? {
         return todoCategoryService.getCategoryById(uid, categoryId)
     }
 
+    suspend fun getCategoryByData(categoryId: String): TodoCategory? {
+        return todoCategoryService.getCategoryByData(categoryId)
+    }
+
     // 카테고리 목록 조회
     suspend fun getCategories(uid: String): List<TodoCategory> {
         return todoCategoryService.getCategories(uid)
+    }
+
+    suspend fun getSendCategory(uid: String, sendCategoryId: String): TodoCategory? {
+        return todoCategoryService.getSendCategory(uid, sendCategoryId)
+    }
+
+    suspend fun getSendCategories(uid: String): List<TodoCategory> {
+        return todoCategoryService.getSendCategories(uid)
+    }
+
+    suspend fun deleteSendCategory(uid: String, sendCategoryId: String) {
+        todoCategoryService.deleteSendCategory(uid, sendCategoryId)
     }
 
     // 카테고리 수정

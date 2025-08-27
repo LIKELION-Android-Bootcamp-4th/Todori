@@ -1,17 +1,24 @@
 package com.mukmuk.todori.ui.screen.community.search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -39,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -88,6 +96,7 @@ fun CommunitySearchScreen(
                     Box(
                         modifier = Modifier
                             .padding(horizontal = 8.dp)
+
                     ) {
                         OutlinedTextField(
                             value = query,
@@ -116,6 +125,21 @@ fun CommunitySearchScreen(
                             placeholder = { Text("검색어를 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                             singleLine = true,
                             maxLines = 1,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(
+                                onSearch = {
+                                    if (query.isNotBlank() && query.length >= 2) {
+                                        viewModel.loadSearchPosts(data = query)
+                                        viewModel.createCommunitySearch(uid, query)
+                                        viewModel.getCommunitySearch(uid)
+                                        showCommunitySearchData = false
+                                        showCommunitySearch = true
+                                        focusManager.clearFocus()
+                                    } else {
+                                        showDialog = true
+                                    }
+                                }
+                            ),
                             trailingIcon = {
                                 IconButton(onClick = {
                                     if(query.isNotBlank() && query.length >= 2) {
@@ -139,6 +163,9 @@ fun CommunitySearchScreen(
                         )
                     }
                 },
+
+                windowInsets = WindowInsets(0.dp),
+
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -147,6 +174,8 @@ fun CommunitySearchScreen(
                         )
                     }
                 },
+
+                modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
             )
 
 
@@ -184,7 +213,13 @@ fun CommunitySearchScreen(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
-                    .padding(start = 16.dp, end = 16.dp),
+                    .padding(start = 16.dp, end = 16.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        focusManager.clearFocus(force = true)
+                    }
             ) {
 
                 if (showCommunitySearchData && !showCommunitySearch) {

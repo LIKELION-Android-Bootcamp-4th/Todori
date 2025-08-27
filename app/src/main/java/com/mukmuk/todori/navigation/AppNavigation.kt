@@ -2,6 +2,7 @@ package com.mukmuk.todori.navigation
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -43,6 +44,7 @@ import com.mukmuk.todori.ui.screen.todo.detail.MemberProgressDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.goal.GoalDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.study.StudyDetailViewModel
+import com.mukmuk.todori.ui.screen.todo.detail.todo.SendTodoDetailScreen
 import com.mukmuk.todori.ui.screen.todo.detail.todo.TodoDetailScreen
 import kotlinx.datetime.LocalDate
 
@@ -56,15 +58,33 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         startDestination = "splash",
         modifier = modifier
     ) {
-        composable("splash") {
-            SplashScreen(navController)
-        }
+        composable("splash") { SplashScreen(navController) }
+
         composable(
             route = BottomNavItem.Todo.route,
             deepLinks = listOf(
                 navDeepLink { uriPattern = "todori://app.todori.com/todo" }
             )
         ) { TodoScreen(navController) }
+
+        composable(
+            BottomNavItem.Todo.route,
+            arguments = listOf(
+                navArgument("categoryId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            ),
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "https://todori-7d791.web.app/category?categoryId={categoryId}"
+                }
+            )
+        ) { backStackEntry ->
+            val categoryId = backStackEntry.arguments?.getString("categoryId")
+            TodoScreen(navController, categoryId = categoryId)
+        }
 
         composable(
             route = BottomNavItem.Stats.route,
@@ -78,12 +98,8 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         ) {
             HomeScreen(navController = navController, viewModel = homeViewModel)
         }
-        composable("home_setting") {
-            HomeSettingScreen(navController = navController)
-        }
-        composable("home_ocr") {
-            HomeOcrScreen(navController)
-        }
+        composable("home_setting") { HomeSettingScreen(navController = navController) }
+        composable("home_ocr") { HomeOcrScreen(navController) }
 
         composable(BottomNavItem.Study.route) { backStackEntry ->
 
@@ -150,14 +166,10 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         composable("myLevel") { MyLevelScreen(onBack = { navController.popBackStack() }) }
         composable("completedGoals") { CompletedGoalsScreen(onBack = { navController.popBackStack() }) }
         composable("profileManage") {
-            ProfileManagementScreen(
-                onBack = { navController.popBackStack() }
-            )
+            ProfileManagementScreen(onBack = { navController.popBackStack() })
         }
 
-
-
-        composable("category/create") { backStackEntry ->
+        composable("category/create") {
             val navEntry = navController.previousBackStackEntry
             val category = navEntry?.savedStateHandle?.get<TodoCategory>("editCategory")
             CreateCategoryScreen(
@@ -182,6 +194,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 editGoal = editGoal
             )
         }
+
         composable("study/create") {
             val navEntry = navController.previousBackStackEntry
             val editStudy = navEntry?.savedStateHandle?.get<Study>("editStudy")
@@ -191,6 +204,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 editStudy = editStudy
             )
         }
+
         composable(
             "todo/detail/{categoryId}?date={date}",
             arguments = listOf(
@@ -207,6 +221,24 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 onBack = { navController.popBackStack() }
             )
         }
+
+        composable(
+            "sendTodo/detail/{categoryId}?date={date}",
+            arguments = listOf(
+                navArgument("categoryId") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
+            val date = backStackEntry.arguments?.getString("date") ?: ""
+            SendTodoDetailScreen(
+                categoryId = categoryId,
+                date = date,
+                navController = navController,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable(
             route = "goal/detail/{goalId}?date={date}",
             arguments = listOf(
@@ -214,7 +246,9 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 navArgument("date") { type = NavType.StringType }
             ),
             deepLinks = listOf(
-                navDeepLink { uriPattern = "todori://app.todori.com/goal/detail/{goalId}}?date={date}" }
+                navDeepLink {
+                    uriPattern = "todori://app.todori.com/goal/detail/{goalId}?date={date}"
+                }
             )
         ) { backStackEntry ->
             val goalId = backStackEntry.arguments?.getString("goalId") ?: ""
@@ -226,6 +260,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 onBack = { navController.popBackStack() }
             )
         }
+
         composable(
             route = "study/detail/{studyId}?date={date}",
             arguments = listOf(
@@ -235,7 +270,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             deepLinks = listOf(
                 navDeepLink {
                     uriPattern = "todori://app.todori.com/study/detail/{studyId}?date={date}"
-                },
+                }
             )
         ) { backStackEntry ->
             val studyId = backStackEntry.arguments?.getString("studyId") ?: ""
@@ -247,6 +282,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 onBack = { navController.popBackStack() }
             )
         }
+
         composable(
             "member_progress_detail/{studyId}?date={date}",
             arguments = listOf(
@@ -266,11 +302,8 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             )
         }
 
-        composable("studyTargets") {
-            StudyTargetsScreen(navController = navController)
-        }
+        composable("studyTargets") { StudyTargetsScreen(navController = navController) }
 
-        // NavHost 등록
         composable(
             route = "monthly_report/{uid}/{date}",
             arguments = listOf(
@@ -288,6 +321,5 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 onBackClick = { navController.popBackStack() }
             )
         }
-
     }
 }

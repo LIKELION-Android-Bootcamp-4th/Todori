@@ -1,11 +1,11 @@
 package com.mukmuk.todori.ui.screen.todo.detail.todo
 
+
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,8 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.DeleteForever
@@ -53,6 +52,7 @@ import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
 import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.UserPrimary
@@ -61,13 +61,14 @@ import com.mukmuk.todori.ui.theme.White
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoDetailScreen(
+fun SendTodoDetailScreen(
     categoryId: String,
     date: String,
     navController: NavHostController,
     onBack: () -> Unit
 ) {
     val viewModel: TodoDetailViewModel = hiltViewModel()
+//    val uid = "testuser"
     val uid = Firebase.auth.currentUser?.uid.toString()
 
     val state by viewModel.state.collectAsState()
@@ -93,58 +94,36 @@ fun TodoDetailScreen(
     }
 
     LaunchedEffect(categoryId, date) {
-        viewModel.loadDetail(uid, categoryId, date)
+        viewModel.loadSendTodoDetail(uid, categoryId, date)
     }
 
     if (showDialog) {
         AlertDialog(
             containerColor = White,
             onDismissRequest = { showDialog = false },
-            title = { Text("카테고리 삭제") },
-            text = { Text("이 카테고리와 연관된 모든 할 일이 함께 삭제됩니다. 진행할까요?") },
+            title = { Text("공유된 카테고리 삭제") },
+            text = { Text("이 카테고리를 공유된 카테고리 목록에서 삭제하시겠습니까?") },
             confirmButton = {
                 TextButton(
                     onClick = {
                         showDialog = false
-                        viewModel.deleteCategoryWithTodos(uid, categoryId)
-                        Toast.makeText(context, "카테고리가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                        viewModel.deleteSendCategory(uid, categoryId)
+                        Toast.makeText(context,"카테고리가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                        onBack()
                     }
                 ) { Text("삭제", style = AppTextStyle.Body.copy(color = Red)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text(
-                        "취소",
-                        style = AppTextStyle.Body.copy(color = Black)
-                    )
-                }
+                TextButton(onClick = { showDialog = false }) { Text("취소",style = AppTextStyle.Body.copy(color = Black)) }
             }
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) {
-                focusManager.clearFocus(force = true)
-            }
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         CommonDetailAppBar(
             title = categoryTitle,
             onBack = onBack,
-            onEdit = {
-                navController.currentBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("editCategory", category)
-                navController.navigate("category/create")
-            },
-            onDelete = {
-                showDialog = true
-            }
+            onDelete = { showDialog = true }
         )
         Column(
             modifier = Modifier
@@ -152,6 +131,20 @@ fun TodoDetailScreen(
                 .background(White)
                 .padding(Dimens.Small)
         ) {
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = ButtonPrimary,
+                        shape = RoundedCornerShape(30)
+                    )
+                    .padding(Dimens.Tiny)
+            ) {
+                Text(
+                    "${state.userName}의 카테고리",
+                    style = AppTextStyle.Body.copy(color = White)
+                )
+            }
+            Spacer(modifier = Modifier.height(Dimens.Small))
             CardHeaderSection(
                 title = categoryTitle,
                 subtitle = categorySubTitle,
@@ -159,59 +152,18 @@ fun TodoDetailScreen(
             )
             Spacer(modifier = Modifier.height(Dimens.Small))
             ProgressWithText(
-                progress = progress / total.toFloat(),
+                progress = if (total == 0) 0f else progress / total.toFloat(),
                 completed = progress,
                 total = total,
             )
             Spacer(modifier = Modifier.height(Dimens.Small))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = Dimens.Medium)
-            ) {
-                OutlinedTextField(
-                    value = newTodoText,
-                    onValueChange = { newTodoText = it },
-                    placeholder = { Text("Todo 입력") },
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(Dimens.Small))
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .background(color = UserPrimary)
-                ) {
-                    IconButton(
-                        onClick = {
-                            if (newTodoText.isNotBlank()) {
-                                viewModel.addTodo(
-                                    uid = uid,
-                                    categoryId = categoryId,
-                                    date = date,
-                                    title = newTodoText.trim(),
-                                    onResult = { success ->
-                                        if (success) {
-                                            newTodoText = ""
-                                            focusManager.clearFocus()
-                                        }
-                                    }
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "할 일 추가",
-                            tint = White
-                        )
-                    }
-                }
-            }
         }
+
         if (todos.isEmpty()) {
             Column(
-                modifier = Modifier.fillMaxSize().weight(1f),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -222,41 +174,16 @@ fun TodoDetailScreen(
                     tint = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(Dimens.Tiny))
-                Text(
-                    "할 일이 없습니다",
-                    style = AppTextStyle.BodyLarge,
-                    color = Color.DarkGray
-                )
-                Spacer(modifier = Modifier.height(Dimens.Tiny))
-                Text(
-                    "오늘의 할 일을 추가해 보세요!",
-                    style = AppTextStyle.BodySmall,
-                    color = Color.DarkGray
-                )
+                Text("상대는 아직 todo를 안 만들었네요", style = AppTextStyle.BodyLarge, color = Color.DarkGray)
                 Spacer(modifier = Modifier.height(Dimens.Medium))
             }
         } else {
-            val sortedTodos = todos.sortedBy { it.completed }
-            sortedTodos.forEachIndexed { i, todo ->
+            todos.forEach { todo ->
                 TodoItemEditableRow(
                     title = todo.title,
                     isDone = todo.completed,
                     modifier = Modifier.padding(Dimens.Small),
-                    onCheckedChange = { checked ->
-                        viewModel.toggleTodoCompleted(uid, todo)
-                    },
-                    trailingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.DeleteForever,
-                            contentDescription = "삭제",
-                            tint = Red,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clickable {
-                                    viewModel.deletedTodo(uid,todo.todoId,categoryId,date)
-                                }
-                        )
-                    }
+                    onCheckedChange = { },
                 )
             }
         }
