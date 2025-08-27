@@ -109,10 +109,6 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel) {
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.observeAuthAndLoadData()
-    }
-
     LaunchedEffect(savedStateHandle) {
         savedStateHandle?.getLiveData<HomeSettingState>("homeSetting")
             ?.observeForever {

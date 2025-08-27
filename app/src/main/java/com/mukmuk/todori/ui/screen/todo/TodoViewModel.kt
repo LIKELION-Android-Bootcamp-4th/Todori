@@ -1,14 +1,22 @@
 package com.mukmuk.todori.ui.screen.todo
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
+import com.mukmuk.todori.data.remote.todo.Todo
+import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.data.repository.DailyRecordRepository
+import com.mukmuk.todori.data.repository.TodoCategoryRepository
+import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.util.toJavaLocalDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -21,8 +29,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TodoViewModel @Inject constructor(
+    private val todoRepo: TodoRepository,
+    private val categoryRepo: TodoCategoryRepository,
     private val dailyRepo: DailyRecordRepository
 ) : ViewModel() {
+
+    private val _state = MutableStateFlow(TodoState())
+    val state: StateFlow<TodoState> = _state
 
     private val _selectedDate =
         MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
@@ -37,6 +50,8 @@ class TodoViewModel @Inject constructor(
     fun setSelectedDate(date: LocalDate) {
         _selectedDate.value = date
     }
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun onWeekVisible(
@@ -63,6 +78,85 @@ class TodoViewModel @Inject constructor(
             _studyRecordsMillis.value = map
 
             prefetchNeighbors(uid, start)
+        }
+    }
+
+    fun setCategoryState(state: Boolean) {
+        _state.update {
+            it.copy(
+                setCategoryState = state
+            )
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getTodoCategories(uid: String) {
+        viewModelScope.launch {
+            try {
+                val categories = categoryRepo.getCategories(uid)
+                val todos = todoRepo.getTodosByDate(uid, java.time.LocalDate.now())
+                val todoMap: Map<String, List<Todo>> = todos.groupBy { it.categoryId }
+                _state.update {
+                    it.copy(
+                        categories = categories,
+                        todosByCategory = todoMap,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun sendTodoCategory(category: TodoCategory) {
+        viewModelScope.launch {
+            try {
+                val categoryId = categoryRepo.createSendTodoCategory(categoryId = category.categoryId)
+
+                val url = createUrl(categoryId)
+                _state.update {
+                    it.copy(
+                        sendUrl = url
+                    )
+                }
+            }
+            catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
+
+    fun clearSendTodoCategory() {
+        _state.update {
+            it.copy(
+                sendUrl = null
+            )
+        }
+    }
+
+    private fun createUrl(categoryId: String): String {
+        return Uri.Builder()
+            .scheme("https")
+            .authority("todori-7d791.web.app")
+            .appendPath("category")
+            .appendQueryParameter("categoryId", categoryId)
+            .build()
+            .toString()
+    }
+
+    fun addTodoCategoryFromUrl(uid: String?, categoryId: String?) {
+        viewModelScope.launch {
+            try {
+                val uid = uid ?: return@launch
+                if (categoryId != null) {
+                    categoryRepo.getSendCategory(uid, categoryId)
+                }
+            }
+            catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            }
         }
     }
 

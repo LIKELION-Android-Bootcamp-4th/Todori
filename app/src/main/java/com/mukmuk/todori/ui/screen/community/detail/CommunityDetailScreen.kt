@@ -6,6 +6,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +19,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -107,6 +111,7 @@ fun CommunityDetailScreen(
 
     val uid = Firebase.auth.currentUser?.uid.toString()
 
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         viewModel.getUserById(uid)
@@ -173,7 +178,7 @@ fun CommunityDetailScreen(
 
                     }
                 },
-                modifier = Modifier.height(56.dp).fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
             )
         },
 
@@ -274,6 +279,12 @@ fun CommunityDetailScreen(
                     .verticalScroll(scrollState)
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        focusManager.clearFocus(force = true)
+                    }
             ) {
 
 
@@ -366,9 +377,9 @@ fun CommunityDetailScreen(
 
                         StudyDetailCard(
                             uid = uid,
-                            studyId = state.post!!.studyId,
                             study = state.study!!,
                             memberList = state.memberList,
+                            selectedDate = null,
                             onClick = {
                                 viewModel.updateStudyMember(
                                     postId,

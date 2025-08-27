@@ -26,7 +26,7 @@ import com.mukmuk.todori.ui.theme.White
 fun CommonDetailAppBar(
     title: String,
     onBack: () -> Unit,
-    onEdit: () -> Unit,
+    onEdit: (() -> Unit)? = null,
     onDelete: () -> Unit
 ) {
     var dropdownExpanded by remember { mutableStateOf(false) }
@@ -51,13 +51,22 @@ fun CommonDetailAppBar(
                 onDismissRequest = { dropdownExpanded = false },
                 modifier = Modifier.background(White)
             ) {
-                DropdownMenuItem(
-                    text = { Text("수정", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                    onClick = {
-                        dropdownExpanded = false
-                        onEdit()
-                    }
-                )
+                if (onEdit != null) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                "수정",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                        },
+                        onClick = {
+                            dropdownExpanded = false
+                            onEdit()
+                        }
+                    )
+                }
+
                 DropdownMenuItem(
                     text = { Text("삭제", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
                     onClick = {

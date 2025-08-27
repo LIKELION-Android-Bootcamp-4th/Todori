@@ -13,21 +13,36 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.R
+import com.mukmuk.todori.data.local.datastore.AuthLocalRepository
 import com.mukmuk.todori.data.repository.AuthRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
+    private val authLocalRepository: AuthLocalRepository,
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
     private val auth: FirebaseAuth
 ) : ViewModel() {
+    private val _lastLoginProvider = MutableStateFlow<String?>(null)
+    val lastLoginProvider: StateFlow<String?> = _lastLoginProvider.asStateFlow()
 
     var state by mutableStateOf(LoginState())
+
+    init {
+        viewModelScope.launch {
+            authLocalRepository.getLastLoginProvider().collect { provider ->
+                _lastLoginProvider.value = provider
+            }
+        }
+    }
 
     fun getGoogleSignInIntent(context: Context): Intent {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

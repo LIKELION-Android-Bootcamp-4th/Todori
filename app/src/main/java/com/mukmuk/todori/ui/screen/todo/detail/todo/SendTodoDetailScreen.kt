@@ -1,0 +1,191 @@
+package com.mukmuk.todori.ui.screen.todo.detail.todo
+
+
+import android.os.Build
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.rounded.CheckCircleOutline
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.mukmuk.todori.ui.component.ProgressWithText
+import com.mukmuk.todori.ui.component.TodoItemEditableRow
+import com.mukmuk.todori.ui.screen.todo.component.CardHeaderSection
+import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
+import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.ButtonPrimary
+import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Red
+import com.mukmuk.todori.ui.theme.UserPrimary
+import com.mukmuk.todori.ui.theme.White
+
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SendTodoDetailScreen(
+    categoryId: String,
+    date: String,
+    navController: NavHostController,
+    onBack: () -> Unit
+) {
+    val viewModel: TodoDetailViewModel = hiltViewModel()
+//    val uid = "testuser"
+    val uid = Firebase.auth.currentUser?.uid.toString()
+
+    val state by viewModel.state.collectAsState()
+
+
+    val focusManager = LocalFocusManager.current
+
+    var showDialog by remember { mutableStateOf(false) }
+    val category = state.category
+    val categoryTitle = state.category?.name.orEmpty()
+    val categorySubTitle = state.category?.description.orEmpty()
+    val todos = state.todos
+    val total = todos.size
+    val progress = todos.count { it.completed }
+
+    var newTodoText by remember { mutableStateOf("") }
+    var context = LocalContext.current
+    if (state.categoryDeleted) {
+        LaunchedEffect(Unit) {
+            onBack()
+            viewModel.resetCategoryDeleted()
+        }
+    }
+
+    LaunchedEffect(categoryId, date) {
+        viewModel.loadSendTodoDetail(uid, categoryId, date)
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            containerColor = White,
+            onDismissRequest = { showDialog = false },
+            title = { Text("공유된 카테고리 삭제") },
+            text = { Text("이 카테고리를 공유된 카테고리 목록에서 삭제하시겠습니까?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDialog = false
+                        viewModel.deleteSendCategory(uid, categoryId)
+                        Toast.makeText(context,"카테고리가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                        onBack()
+                    }
+                ) { Text("삭제", style = AppTextStyle.Body.copy(color = Red)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) { Text("취소",style = AppTextStyle.Body.copy(color = Black)) }
+            }
+        )
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        CommonDetailAppBar(
+            title = categoryTitle,
+            onBack = onBack,
+            onDelete = { showDialog = true }
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(White)
+                .padding(Dimens.Small)
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = ButtonPrimary,
+                        shape = RoundedCornerShape(30)
+                    )
+                    .padding(Dimens.Tiny)
+            ) {
+                Text(
+                    "${state.userName}의 카테고리",
+                    style = AppTextStyle.Body.copy(color = White)
+                )
+            }
+            Spacer(modifier = Modifier.height(Dimens.Small))
+            CardHeaderSection(
+                title = categoryTitle,
+                subtitle = categorySubTitle,
+                showArrowIcon = false
+            )
+            Spacer(modifier = Modifier.height(Dimens.Small))
+            ProgressWithText(
+                progress = if (total == 0) 0f else progress / total.toFloat(),
+                completed = progress,
+                total = total,
+            )
+            Spacer(modifier = Modifier.height(Dimens.Small))
+        }
+
+        if (todos.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.CheckCircleOutline,
+                    contentDescription = "Todo Empty",
+                    modifier = Modifier.size(38.dp),
+                    tint = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(Dimens.Tiny))
+                Text("상대는 아직 todo를 안 만들었네요", style = AppTextStyle.BodyLarge, color = Color.DarkGray)
+                Spacer(modifier = Modifier.height(Dimens.Medium))
+            }
+        } else {
+            todos.forEach { todo ->
+                TodoItemEditableRow(
+                    title = todo.title,
+                    isDone = todo.completed,
+                    modifier = Modifier.padding(Dimens.Small),
+                    onCheckedChange = { },
+                )
+            }
+        }
+    }
+}

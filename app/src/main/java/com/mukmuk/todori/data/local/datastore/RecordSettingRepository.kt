@@ -39,9 +39,7 @@ class RecordSettingRepository @Inject constructor(
         }
     }
 
-    suspend fun clearTotalRecordTime() {
-        dataStore.edit { prefs ->
-            prefs.remove(TOTAL_RECORD_MILLS_KEY)
-        }
+    suspend fun clearRecordSetting() {
+        dataStore.edit { it.clear() }
     }
 }
