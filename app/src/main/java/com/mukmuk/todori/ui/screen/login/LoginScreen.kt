@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,9 +30,11 @@ import androidx.navigation.NavController
 import com.mukmuk.todori.R
 import com.mukmuk.todori.navigation.BottomNavItem
 import com.mukmuk.todori.ui.screen.login.components.LoginButton
+import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.ButtonKakao
 import com.mukmuk.todori.ui.theme.ButtonNaver
+import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.White
 
 @SuppressLint("ContextCastToActivity")
@@ -47,14 +48,12 @@ fun LoginScreen(
     val activity = LocalContext.current as Activity
 
 
-    // 구글 로그인 런처
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         viewModel.handleGoogleSignInResult(result.data)
     }
 
-    // 상태 변화 시 네비게이션 / 에러 처리
     LaunchedEffect(state.status) {
         when (state.status) {
             LoginStatus.SUCCESS -> {
@@ -62,9 +61,11 @@ fun LoginScreen(
                     popUpTo("login") { inclusive = true }
                 }
             }
+
             LoginStatus.ERROR -> {
                 Toast.makeText(context, state.errorMessage ?: "로그인 실패", Toast.LENGTH_SHORT).show()
             }
+
             else -> Unit
         }
     }
@@ -76,6 +77,7 @@ fun LoginScreen(
                 contentAlignment = Alignment.Center
             ) { CircularProgressIndicator() }
         }
+
         else -> {
             Column(
                 modifier = Modifier
@@ -83,7 +85,25 @@ fun LoginScreen(
                     .padding(24.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Spacer(modifier = Modifier.weight(1f))
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_level3_removebg),
+                        contentDescription = "앱 로고",
+                        modifier = Modifier.size(160.dp)
+                    )
+                    Spacer(modifier = Modifier.height(Dimens.Small))
+                    Text(
+                        text = "Todori",
+                        style = AppTextStyle.Timer
+                    )
+                }
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -98,7 +118,7 @@ fun LoginScreen(
                             viewModel.loginWithTestAccount(
                                 onSuccess = {
                                     Log.d("Login", "테스트 계정 로그인 성공")
-                                    navController.navigate("home") // 홈 화면 이동
+                                    navController.navigate("home")
                                 },
                                 onError = { Log.e("Login", it) }
                             )
