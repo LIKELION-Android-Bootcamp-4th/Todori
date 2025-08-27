@@ -82,6 +82,9 @@ class CreateCommunityViewModel @Inject constructor(
             is CreateCommunityEvent.OnToastShown -> {
                 _state.value = _state.value.copy(toastMessage = null)
             }
+            is CreateCommunityEvent.OnStudyDeselected -> {
+                _state.value = _state.value.copy(currentStudy = null)
+            }
         }
     }
 

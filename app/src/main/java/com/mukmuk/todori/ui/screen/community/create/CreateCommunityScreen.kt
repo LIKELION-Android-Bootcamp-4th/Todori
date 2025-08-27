@@ -274,14 +274,37 @@ fun CreateCommunityScreen(
                 }
             }
             state.currentStudy?.let { study ->
-                CommunityListData(
-                    title = study.studyName,
-                    description = study.description,
-                    createdAt = study.createdAt,
-                    memberCount = null,
-                    activeDays = study.activeDays,
-                    onClick = {}
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = Dimens.Small) // 카드와 주변 요소 간 간격 조절
+                ) {
+                    // 1. 스터디 정보를 표시하는 CommunityListData (기본 레이어)
+                    CommunityListData(
+                        title = study.studyName,
+                        description = study.description,
+                        createdAt = study.createdAt,
+                        memberCount = null,
+                        activeDays = study.activeDays,
+                        onClick = {}, // 카드 클릭 시 동작이 필요 없으면 비워둡니다.
+                    )
+
+                    // 2. X 버튼 (오버레이 레이어)
+                    IconButton(
+                        onClick = { viewModel.onEvent(CreateCommunityEvent.OnStudyDeselected) },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd) // Box의 오른쪽 상단에 정렬
+                            .padding(top = 4.dp, end = 4.dp) // 카드 테두리로부터 약간 안쪽으로 패딩
+                            .size(36.dp) // 버튼 터치 영역 크기
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "스터디 선택 취소",
+                            tint = DarkGray,
+                            modifier = Modifier.size(24.dp) // 아이콘 자체의 크기
+                        )
+                    }
+                }
             }
         }
 
