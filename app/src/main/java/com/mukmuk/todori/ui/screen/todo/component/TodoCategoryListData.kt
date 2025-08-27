@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.White
@@ -50,11 +51,11 @@ fun TodoCategoryListData(
 
         ) {
 
-            Text(categoryTitle, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold, color = Gray))
+            Text(categoryTitle, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold))
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            Text(description, style = AppTextStyle.Body)
+            Text(description, style = AppTextStyle.Body.copy(color = DarkGray))
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
