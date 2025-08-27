@@ -58,8 +58,7 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = navBackStackEntry?.destination?.route
 
                 val bottomNavRoutes = BottomNavItem.items.map { it.route }
-                val showBottomBar = bottomNavRoutes.any { p -> currentRoute?.startsWith(p) == true }
-
+                val showBottomBar = bottomNavRoutes.contains(currentRoute)
                 Scaffold(
                     bottomBar = {
                         if (showBottomBar) {
