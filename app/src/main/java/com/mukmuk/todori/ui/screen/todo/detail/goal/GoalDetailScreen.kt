@@ -212,17 +212,31 @@ fun GoalDetailScreen(
                         modifier = Modifier
                             .size(56.dp)
                             .border(1.dp, DarkGray, RoundedCornerShape(DefaultCornerRadius))
+                            .background(
+                                if (newTodoDueDate != null) GoalPrimary.copy(alpha = 0.1f) else White,
+                                RoundedCornerShape(DefaultCornerRadius)
+                            )
                     ) {
                         BadgedBox(
                             badge = {
                                 if (newTodoDueDate != null) {
-                                    Badge()
+                                    Badge(
+                                        containerColor = GoalPrimary
+                                    ) {
+                                        Text("✓", color = White)
+//                                        Text("newTodoDueDate?.dayOfMonth.toString()", color = White)
+                                    }
                                 }
                             }
                         ) {
-                            Icon(Icons.Outlined.CalendarMonth, contentDescription = "마감일 선택")
+                            Icon(
+                                Icons.Outlined.CalendarMonth,
+                                contentDescription = "마감일 선택",
+                                tint = if (newTodoDueDate != null) GoalPrimary else DarkGray
+                            )
                         }
                     }
+
 
                     SingleDatePickerBottomSheet(
                         show = showDatePicker,
@@ -274,7 +288,9 @@ fun GoalDetailScreen(
 
             if (todos.isEmpty()) {
                 Column(
-                    modifier = Modifier.fillMaxSize().weight(1f),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
