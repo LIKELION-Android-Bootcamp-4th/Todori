@@ -134,28 +134,45 @@ fun StudyDetailScreen(
             val memberProgressMap = progresses.groupBy { it.uid }
                 .mapValues { it.value.associateBy { p -> p.studyTodoId } }
 
-            // 삭제 다이얼로그
             if (showDeleteDialog) {
                 AlertDialog(
                     containerColor = White,
                     onDismissRequest = { showDeleteDialog = false },
-                    title = { Text("스터디 삭제") },
-                    text = { Text("이 스터디와 관련된 모든 데이터가 함께 삭제됩니다. 정말 진행할까요?") },
+                    title = { Text(if (isLeader) "스터디 삭제" else "스터디 나가기") },
+                    text = {
+                        Text(
+                            if (isLeader)
+                                "이 스터디와 관련된 모든 데이터가 함께 삭제됩니다. 정말 진행할까요?"
+                            else
+                                "스터디에서 나가시겠습니까?"
+                        )
+                    },
                     confirmButton = {
                         TextButton(
                             onClick = {
                                 showDeleteDialog = false
-                                viewModel.deleteStudyWithAllData(
-                                    study.studyId,
-                                    onSuccess = {
-                                        navController.popBackStack()
-                                    },
-                                    onError = { msg ->
-                                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                                    }
-                                )
+                                if (isLeader) {
+                                    viewModel.deleteStudyWithAllData(
+                                        study.studyId,
+                                        onSuccess = { navController.popBackStack() },
+                                        onError = { msg ->
+                                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                } else {
+                                    viewModel.leaveStudy(
+                                        studyId = study.studyId,
+                                        uid = uid,
+                                        onSuccess = { navController.popBackStack() },
+                                        onError = { msg ->
+                                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                }
                             }
-                        ) { Text("삭제", style = AppTextStyle.Body.copy(color = Red)) }
+                        ) {
+                            Text(if (isLeader) "삭제" else "나가기", style = AppTextStyle.Body.copy(color = Red))
+                        }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDeleteDialog = false }) {
@@ -166,19 +183,30 @@ fun StudyDetailScreen(
             }
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 item {
-                    CommonDetailAppBar(
-                        title = study.title,
-                        onBack = onBack,
-                        onEdit = {
-                            navController.currentBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("editStudy", study)
-                            navController.navigate("study/create")
-                        },
-                        onDelete = {
-                            showDeleteDialog = true // 다이얼로그 열기
-                        }
-                    )
+                    if (isLeader) {
+                        CommonDetailAppBar(
+                            title = study.title,
+                            onBack = onBack,
+                            onEdit = {
+                                navController.currentBackStackEntry
+                                    ?.savedStateHandle
+                                    ?.set("editStudy", study)
+                                navController.navigate("study/create")
+                            },
+                            onDelete = {
+                                showDeleteDialog = true
+                            }
+                        )
+                    } else {
+                        CommonDetailAppBar(
+                            title = study.title,
+                            onBack = onBack,
+                            onEdit = null,
+                            onDelete = {
+                                showDeleteDialog = true
+                            }
+                        )
+                    }
                 }
                 item {
                     Column(

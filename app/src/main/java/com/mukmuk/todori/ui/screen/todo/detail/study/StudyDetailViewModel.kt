@@ -8,7 +8,6 @@ import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.study.StudyTodo
-import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -162,6 +161,17 @@ class StudyDetailViewModel @Inject constructor(
         _state.value = _state.value.copy(studyDeleted = false)
     }
 
+
+    fun leaveStudy(studyId: String, uid: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                studyRepository.leaveStudy(studyId, uid)
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e.message ?: "스터디 나가기에 실패했습니다.")
+            }
+        }
+    }
 
 
 
