@@ -243,10 +243,26 @@ function eligibleForAssign(q, ctx) {
     const six = last7.slice(1); return six.every(d => (todosByDate.get(d)?.totalMs || 0) >= THREE_HOURS);
   }
   if (q.streak?.type === "reflection" && q.streak.days === 3) {
-    const two = last3.slice(1); return two.every(d => !!(dailyMap.get(d)?.reflection));
-  }
+    const two = last3.slice(1);
+    return two.every(d => {
+    const r = dailyMap.get(d)?.reflectionV2;
+    return !!(r && (
+    (r.good?.trim?.().length ?? 0) > 0 ||
+    (r.improve?.trim?.().length ?? 0) > 0 ||
+    (r.blocker?.trim?.().length ?? 0) > 0
+    ));
+    });
+    }
   if (q.streak?.type === "reflection" && q.streak.days === 7) {
-    const six = last7.slice(1); return six.every(d => !!(dailyMap.get(d)?.reflection));
+  const six = last7.slice(1);
+  return six.every(d => {
+  const r = dailyMap.get(d)?.reflectionV2;
+  return !!(r && (
+  (r.good?.trim?.().length ?? 0) > 0 ||
+  (r.improve?.trim?.().length ?? 0) > 0 ||
+  (r.blocker?.trim?.().length ?? 0) > 0
+  ));
+  });
   }
   return true;
 }
@@ -287,9 +303,32 @@ function checkCompleted(qid, ctx) {
     case "Q_TIMER_RECORD":       return tTodo.withTimeCnt >= 1;
     case "Q_TIMER_RECORD_3":     return tTodo.withTimeCnt >= 3;
 
-    case "Q_REFLECTION_WRITE":   return !!(todayDaily && todayDaily.reflection);
-    case "Q_REFLECTION_WRITE_3": return last3.every(d => !!(dailyMap.get(d)?.reflection));
-    case "Q_REFLECTION_WRITE_7": return last7.every(d => !!(dailyMap.get(d)?.reflection));
+    case "Q_REFLECTION_WRITE": {
+    const r = todayDaily?.reflectionV2;
+    return !!(r && (
+    (r.good?.trim?.().length ?? 0) > 0 ||
+    (r.improve?.trim?.().length ?? 0) > 0 ||
+    (r.blocker?.trim?.().length ?? 0) > 0
+    ));
+    }
+    case "Q_REFLECTION_WRITE_3":
+    return last3.every(d => {
+    const r = dailyMap.get(d)?.reflectionV2;
+    return !!(r && (
+    (r.good?.trim?.().length ?? 0) > 0 ||
+    (r.improve?.trim?.().length ?? 0) > 0 ||
+    (r.blocker?.trim?.().length ?? 0) > 0
+    ));
+    });
+    case "Q_REFLECTION_WRITE_7":
+    return last7.every(d => {
+    const r = dailyMap.get(d)?.reflectionV2;
+    return !!(r && (
+    (r.good?.trim?.().length ?? 0) > 0 ||
+    (r.improve?.trim?.().length ?? 0) > 0 ||
+    (r.blocker?.trim?.().length ?? 0) > 0
+    ));
+    });
 
     case "Q_MORNING_START": {
       for (const s of sessions) {
