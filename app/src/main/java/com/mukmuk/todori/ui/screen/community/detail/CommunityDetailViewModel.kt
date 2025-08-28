@@ -2,6 +2,7 @@ package com.mukmuk.todori.ui.screen.community.detail
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -267,6 +268,9 @@ class CommunityDetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val members = repository.getStudyMembers(studyId)
+                members.forEach {
+                    Log.d("todorilog", it.nickname)
+                }
                 _state.update {
                     it.copy(
                         memberList = members,

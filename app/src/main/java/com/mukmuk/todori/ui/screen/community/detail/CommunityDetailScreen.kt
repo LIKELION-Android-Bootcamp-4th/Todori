@@ -347,7 +347,6 @@ fun CommunityDetailScreen(
                                 onClick = {
                                     viewModel.joinStudy(postId, study)
                                 },
-                                isLoading = state.isLoading
                             )
                         }
                     }

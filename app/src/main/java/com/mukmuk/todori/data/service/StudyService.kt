@@ -175,11 +175,14 @@ class StudyService(
             .delete()
             .await()
 
-        val memberDocId = "${studyId}_$uid"
-        firestore.collection("studyMembers")
-            .document(memberDocId)
-            .delete()
+        val querySnapshot = firestore.collection("studyMembers")
+            .whereEqualTo("uid", uid)
+            .get()
             .await()
+
+        for (document in querySnapshot.documents) {
+            document.reference.delete().await()
+        }
     }
     suspend fun deleteStudyWithAllData(studyId: String) {
         val batch = firestore.batch()
