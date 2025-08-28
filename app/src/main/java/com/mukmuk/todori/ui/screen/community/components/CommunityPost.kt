@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.ui.screen.community.StudyCategory
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -72,9 +73,7 @@ fun CommunityPost(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
-                if(post.studyId.isNotBlank()) {
-
+                if (post.studyId.isNotBlank()) {
                     Row(
                         modifier = Modifier
                             .border(1.dp, Gray, RoundedCornerShape(5.dp))
@@ -87,9 +86,7 @@ fun CommunityPost(
                             modifier = Modifier.size(16.dp),
                             tint = Black
                         )
-
                         Spacer(Modifier.width(Dimens.Tiny))
-
                         Text(
                             post.memberCount.toString(),
                             style = AppTextStyle.BodySmall
@@ -97,43 +94,37 @@ fun CommunityPost(
                     }
                 }
             }
-
             Spacer(modifier = Modifier.height(Dimens.Tiny))
-
             Text(
                 post.content,
                 style = AppTextStyle.Body.copy(color = DarkGray),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-
             Spacer(modifier = Modifier.height(Dimens.Tiny))
-
-            Row (
+            Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 post.tags.forEach { tag ->
+                    val categoryColor = StudyCategory.entries.find { category ->
+                        category.tags.contains(tag)
+                    }?.color ?: GroupSecondary
                     Box(
                         modifier = Modifier
-                            .background(GroupSecondary, RoundedCornerShape(32.dp))
+                            .background(color = categoryColor, RoundedCornerShape(32.dp))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                             .width(60.dp),
                         contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         Text(
                             tag,
-                            style = AppTextStyle.BodySmall
+                            style = AppTextStyle.BodySmallMedium.copy(color = White)
                         )
-
-
                     }
-
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
                 }
-
                 Spacer(modifier = Modifier.weight(1f))
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
@@ -143,12 +134,9 @@ fun CommunityPost(
                         painter = painterResource(id = R.drawable.ic_comment),
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-
                         tint = Black
                     )
-
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
-
                     Text(
                         text = post.commentsCount.toString(),
                         style = AppTextStyle.BodySmall

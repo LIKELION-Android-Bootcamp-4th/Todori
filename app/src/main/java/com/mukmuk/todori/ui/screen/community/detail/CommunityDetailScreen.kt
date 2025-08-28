@@ -68,6 +68,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.StudyMember
+import com.mukmuk.todori.ui.screen.community.StudyCategory
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailComment
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailCommentReply
 import com.mukmuk.todori.ui.screen.community.components.StudyDetailCard
@@ -90,35 +91,22 @@ fun CommunityDetailScreen(
     viewModel: CommunityDetailViewModel
 ) {
     val state by viewModel.state.collectAsState()
-
     val scrollState = rememberScrollState()
-
     var expanded by remember { mutableStateOf(false) }
-
     var commentContent by remember { mutableStateOf("") }
-
     var showDialog by remember { mutableStateOf(false) }
-
     var showCommentDialog by remember { mutableStateOf(false) }
-
     var deleteTargetCommentId by remember { mutableStateOf<String?>(null) }
-
     val textSet = LocalFocusManager.current
-
     val td by remember { mutableStateOf(textSet) }
-
     var dialogInfo by remember { mutableStateOf<String?>(null) }
-
     val uid = Firebase.auth.currentUser?.uid.toString()
-
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         viewModel.getUserById(uid)
         viewModel.loadPostById(postId)
         viewModel.setReplyToCommentId(null)
-
-
     }
 
     BackHandler(enabled = state.replyToCommentId != null) {
@@ -126,32 +114,26 @@ fun CommunityDetailScreen(
         commentContent = ""
     }
 
-
     Scaffold(
-
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(text = "게시글", style = AppTextStyle.AppBar)
                 },
-
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "이전"
                         )
-
                     }
                 },
-
                 actions = {
                     if (state.post?.createdBy == uid) {
                         Box {
                             IconButton(onClick = { expanded = true }) {
                                 Icon(Icons.Default.MoreVert, contentDescription = "더보기")
                             }
-
                             DropdownMenu(
                                 expanded = expanded,
                                 onDismissRequest = { expanded = false },
@@ -175,17 +157,13 @@ fun CommunityDetailScreen(
                                 }
                             }
                         }
-
                     }
                 },
                 modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
             )
         },
-
         contentWindowInsets = WindowInsets(0.dp),
-
         containerColor = White,
-
         bottomBar = {
             Row(
                 modifier = Modifier
@@ -206,11 +184,7 @@ fun CommunityDetailScreen(
                     placeholder = { Text(if(state.replyToCommentId != null) "답글을 작성해주세요" else "댓글을 작성해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
                     singleLine = true,
                     maxLines = 1,
-
                 )
-
-
-
                 Button(
                     onClick = {
                         if(commentContent.isNotBlank()) {
@@ -286,20 +260,15 @@ fun CommunityDetailScreen(
                         focusManager.clearFocus(force = true)
                     }
             ) {
-
-
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 20.dp, start = 16.dp, end = 16.dp)
                 ) {
-
                     Row(
                         verticalAlignment = Alignment.CenterVertically
-
                     ) {
                         val levelInfo = getLevelInfo(state.post?.level ?: 0)
-
                         Image(
                             painter = painterResource(id = levelInfo.imageRes),
                             contentDescription = "레벨 이미지",
@@ -313,9 +282,7 @@ fun CommunityDetailScreen(
                             state.post?.userName ?: "",
                             style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
                         )
-
                         Spacer(Modifier.weight(1f))
-
                         Text(
                             viewModel.formatDate(state.post?.createdAt),
                             style = AppTextStyle.BodySmall.copy(
@@ -324,57 +291,45 @@ fun CommunityDetailScreen(
                             )
                         )
                     }
-
                     Spacer(Modifier.height(8.dp))
-
                     state.post?.title?.let {
                         Text(
                             it,
                             style = AppTextStyle.Title.copy(fontWeight = FontWeight.Bold)
                         )
                     }
-
                     Spacer(Modifier.height(4.dp))
-
-
-
-
-
                     state.post?.let {
                         Text(
                             it.content,
                             style = AppTextStyle.Body
                         )
                     }
-
                     Spacer(Modifier.height(Dimens.Large))
-
                     Row(
-
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         state.post?.tags?.forEach { tag ->
+                            val categoryColor = StudyCategory.entries.find { category ->
+                                category.tags.contains(tag)
+                            }?.color ?: GroupSecondary
                             Box(
                                 modifier = Modifier
-                                    .background(GroupSecondary, RoundedCornerShape(32.dp))
+                                    .background(categoryColor, RoundedCornerShape(32.dp))
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                                     .width(60.dp),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = tag,
-                                    style = AppTextStyle.BodySmall
+                                    style = AppTextStyle.BodySmallMedium.copy(color = White)
                                 )
                             }
-
                             Spacer(modifier = Modifier.width(8.dp))
                         }
                     }
-
                     Spacer(Modifier.height(16.dp))
-
                     if (state.post?.studyId != null && state.study != null) {
-
                         StudyDetailCard(
                             uid = uid,
                             study = state.study!!,
@@ -395,24 +350,19 @@ fun CommunityDetailScreen(
                                 viewModel.loadPostById(postId)
                             }
                         )
-
                     }
                 }
-
                 Spacer(
                     modifier = Modifier
                         .height(1.dp)
                         .fillMaxWidth()
                         .background(Gray)
                 )
-
                 Column(
                     modifier = Modifier
                         .padding(start = 16.dp, end = 16.dp)
                 ) {
-
                     Spacer(Modifier.height(Dimens.Large))
-
                     Column(
                         modifier = Modifier.fillMaxHeight()
                     ) {
@@ -423,7 +373,6 @@ fun CommunityDetailScreen(
                                 onReplyClick = {
                                     viewModel.setReplyToCommentId(comment.commentId)
                                     commentContent = ""
-
                                 },
                                 onDeleteClick = {
                                     showCommentDialog = true
@@ -447,11 +396,8 @@ fun CommunityDetailScreen(
                                 }
                             }
                         }
-
                     }
-
                 }
-
                 if (showDialog) {
                     AlertDialog(
                         onDismissRequest = { showDialog = false },
@@ -480,9 +426,7 @@ fun CommunityDetailScreen(
                         }
                     )
                 }
-
                 if (showCommentDialog) {
-
                     AlertDialog(
                         onDismissRequest = { showCommentDialog = false },
                         title = { Text("삭제", style = AppTextStyle.Title) },
@@ -504,18 +448,14 @@ fun CommunityDetailScreen(
                             TextButton(
                                 onClick = {
                                     showCommentDialog = false
-
                                 },
                             ) {
                                 Text("취소", style = AppTextStyle.Body.copy(color = ButtonPrimary))
                             }
                         }
                     )
-
                 }
-
             }
         }
     }
-
 }
