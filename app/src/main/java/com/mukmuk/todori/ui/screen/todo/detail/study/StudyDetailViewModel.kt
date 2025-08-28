@@ -162,7 +162,19 @@ class StudyDetailViewModel @Inject constructor(
         _state.value = _state.value.copy(studyDeleted = false)
     }
 
-
+    fun leaveStudy(studyId: String, uid: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isDeleting = true) // 진행중 UI
+            try {
+                studyRepository.removeMemberFromStudy(studyId, uid)
+                _state.value = _state.value.copy(isDeleting = false)
+                onSuccess()
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(isDeleting = false)
+                onError(e.message ?: "스터디에서 나가는데 실패했습니다.")
+            }
+        }
+    }
 
 
 }

@@ -145,17 +145,22 @@ fun StudyDetailScreen(
                         TextButton(
                             onClick = {
                                 showDeleteDialog = false
-                                viewModel.deleteStudyWithAllData(
-                                    study.studyId,
-                                    onSuccess = {
-                                        navController.popBackStack()
-                                    },
-                                    onError = { msg ->
-                                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                                    }
-                                )
+                                if (isLeader) {
+                                    viewModel.deleteStudyWithAllData(
+                                        study.studyId,
+                                        onSuccess = { navController.popBackStack() },
+                                        onError = { msg -> Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }
+                                    )
+                                } else {
+                                    viewModel.leaveStudy(
+                                        study.studyId,
+                                        uid,
+                                        onSuccess = { navController.popBackStack() },
+                                        onError = { msg -> Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }
+                                    )
+                                }
                             }
-                        ) { Text("삭제", style = AppTextStyle.Body.copy(color = Red)) }
+                        ) { Text(if (isLeader) "삭제" else "나가기", style = AppTextStyle.Body.copy(color = Red)) }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDeleteDialog = false }) {
@@ -170,13 +175,15 @@ fun StudyDetailScreen(
                         title = study.title,
                         onBack = onBack,
                         onEdit = {
-                            navController.currentBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("editStudy", study)
-                            navController.navigate("study/create")
+                            if (isLeader) {
+                                navController.currentBackStackEntry
+                                    ?.savedStateHandle
+                                    ?.set("editStudy", study)
+                                navController.navigate("study/create")
+                            }
                         },
                         onDelete = {
-                            showDeleteDialog = true // 다이얼로그 열기
+                            showDeleteDialog = true
                         }
                     )
                 }

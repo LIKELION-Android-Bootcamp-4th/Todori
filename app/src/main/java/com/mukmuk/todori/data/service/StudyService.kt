@@ -167,7 +167,20 @@ class StudyService(
             firestore.collection("todoProgresses").document(progressId).set(progress).await()
         }
     }
+    suspend fun removeMemberFromStudy(studyId: String, uid: String) {
+        firestore.collection("users")
+            .document(uid)
+            .collection("myStudies")
+            .document(studyId)
+            .delete()
+            .await()
 
+        val memberDocId = "${studyId}_$uid"
+        firestore.collection("studyMembers")
+            .document(memberDocId)
+            .delete()
+            .await()
+    }
     suspend fun deleteStudyWithAllData(studyId: String) {
         val batch = firestore.batch()
         // studies/{studyId} 삭제
