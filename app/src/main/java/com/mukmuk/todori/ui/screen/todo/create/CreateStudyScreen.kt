@@ -70,8 +70,8 @@ fun CreateStudyScreen(
     val descFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    val isTitleError = title.length !in 0..20
-    val isDescError = description.length !in 0..60
+    val isTitleError = title.length !in 1..20
+    val isDescError = description.length !in 1..60
 
     val dayLabels = listOf("월", "화", "수", "목", "금", "토", "일")
 
