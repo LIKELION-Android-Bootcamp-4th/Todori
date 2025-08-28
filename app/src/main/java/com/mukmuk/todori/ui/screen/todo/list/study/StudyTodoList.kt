@@ -1,7 +1,6 @@
 package com.mukmuk.todori.ui.screen.todo.list.study
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,7 +37,6 @@ import kotlinx.datetime.LocalDate
 @Composable
 fun StudyTodoList(selectedDate: LocalDate,navController: NavHostController) {
     val viewModel: StudyListViewModel = hiltViewModel()
-//    val uid = "testuser"
 
     val uid = Firebase.auth.currentUser?.uid.toString()
 

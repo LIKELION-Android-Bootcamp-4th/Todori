@@ -1,6 +1,5 @@
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -21,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material.icons.outlined.DeleteForever
-import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -33,8 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.ui.component.TodoItemEditableRow
@@ -128,7 +124,6 @@ fun StudyTodoInputCard(
                 val sortList = taskList.sortedBy { it.createdAt }
                 sortList.forEachIndexed { i, todo ->
                     val isDone = progressMap[todo.studyTodoId]?.done == true
-                    Log.d("TODORI", "progressMap: $progressMap")
                     TodoItemEditableRow(
                         title = todo.title,
                         isDone = isDone,
@@ -137,14 +132,16 @@ fun StudyTodoInputCard(
                             onToggleChecked(todo.studyTodoId, checked)
                         },
                         trailingContent = {
-                            Icon(
-                                imageVector = Icons.Outlined.DeleteForever,
-                                contentDescription = "삭제",
-                                tint = Red,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .clickable { onDelete(todo.studyTodoId) }
-                            )
+                            if (isLeader) {
+                                Icon(
+                                    imageVector = Icons.Outlined.DeleteForever,
+                                    contentDescription = "삭제",
+                                    tint = Red,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clickable { onDelete(todo.studyTodoId) }
+                                )
+                            }
                         }
                     )
                 }

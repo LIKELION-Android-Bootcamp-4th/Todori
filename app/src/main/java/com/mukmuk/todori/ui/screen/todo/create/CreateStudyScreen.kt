@@ -70,8 +70,8 @@ fun CreateStudyScreen(
     val descFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    val isTitleError = title.length !in 0..20
-    val isDescError = description.length !in 0..60
+    val isTitleError = title.length !in 1..20
+    val isDescError = description.length !in 1..60
 
     val dayLabels = listOf("월", "화", "수", "목", "금", "토", "일")
 
@@ -180,6 +180,22 @@ fun CreateStudyScreen(
 
             Button(
                 onClick = {
+                    when {
+                        isTitleError -> {
+                            Toast.makeText(context, "스터디 제목을 1~20자 사이로 입력해주세요.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        isDescError -> {
+                            Toast.makeText(context, "스터디 설명을 1~60자 사이로 입력해주세요.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        selectedDays.isEmpty() -> {
+                            Toast.makeText(context, "반복 요일을 최소 1개 이상 선택해주세요.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                    }
+
+
                     if (isEditMode) {
                         if (editStudy != null) {
                             viewModel.updateStudy(
@@ -192,7 +208,7 @@ fun CreateStudyScreen(
                                     onDone()
                                 },
                                 onError = { e ->
-                                    Toast.makeText(context, "수정 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context,"스터디 수정에 실패했습니다. 잠시 후 다시 시도해주세요.",Toast.LENGTH_SHORT).show()
                                 }
                             )
                         }
@@ -206,7 +222,7 @@ fun CreateStudyScreen(
                                 onDone()
                             },
                             onError = { e ->
-                                // 에러 처리 (예: Toast 등)
+                                Toast.makeText(context,"스터디 생성에 실패했습니다. 잠시 후 다시 시도해주세요.",Toast.LENGTH_SHORT).show()
                             }
                         )
                     }

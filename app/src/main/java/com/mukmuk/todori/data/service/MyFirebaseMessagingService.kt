@@ -36,19 +36,37 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d("FCM", "onNewToken: $token")
-        ioScope.launch { runCatching { saveTokenToFirestore(token) } }
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        ioScope.launch { runCatching { saveTokenToFirestore(uid, token) } }
     }
 
     companion object {
         fun ensureTokenSync() {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
             FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    runCatching { saveTokenStatic(token) }
+                    runCatching { saveTokenStatic(uid, token) }
                 }
             }
         }
 
-        private suspend fun saveTokenStatic(token: String) {
+        suspend fun cleanupOnLogout() {
+            val auth = FirebaseAuth.getInstance()
+            val uid = auth.currentUser?.uid ?: return
+
+            val fm = FirebaseMessaging.getInstance()
+            val token = runCatching { fm.token.await() }.getOrNull()
+
+            if (!token.isNullOrBlank()) {
+                runCatching { deleteTokenFromFirestore(uid, token) }
+            }
+
+            // 기기 로컬 토큰 삭제 → 다음 실행 시 새 토큰 발급
+            runCatching { fm.deleteToken().await() }
+        }
+
+
+        private suspend fun saveTokenStatic(uid: String, token: String) {
             val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
             val db = FirebaseFirestore.getInstance()
             val doc = mapOf(
@@ -60,9 +78,17 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 .collection("fcmTokens").document(token)
                 .set(doc, SetOptions.merge()).await()
         }
+
+        private suspend fun deleteTokenFromFirestore(uid: String, token: String) {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users").document(uid)
+                .collection("fcmTokens").document(token)
+                .delete()
+                .await()
+        }
     }
 
-    private suspend fun saveTokenToFirestore(token: String) {
+    private suspend fun saveTokenToFirestore(uid: String, token: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
         val doc = mapOf(
