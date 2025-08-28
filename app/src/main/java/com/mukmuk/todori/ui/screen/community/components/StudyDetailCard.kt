@@ -71,7 +71,7 @@ fun StudyDetailCard(
                     .padding(top = Dimens.Tiny),
                 enabled = memberList.none { it.uid == uid },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (memberList.any { it.uid == uid }) UserPrimary else DarkGray,
+                    containerColor = if (memberList.any { it.uid == uid }) DarkGray else UserPrimary,
                     contentColor = White
                 )
             ) {
