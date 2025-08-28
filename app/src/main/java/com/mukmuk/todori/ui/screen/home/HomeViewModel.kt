@@ -1,37 +1,25 @@
 package com.mukmuk.todori.ui.screen.home
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
 import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
-import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.HomeRepository
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
-import com.mukmuk.todori.widget.UpdateWidgetWorker
-import com.mukmuk.todori.widget.timer.TimerAction
 import com.mukmuk.todori.widget.timer.TimerService
 import com.mukmuk.todori.widget.timer.TimerWidget
-import com.mukmuk.todori.widget.timer.TimerWidget.Companion.TOGGLE_KEY
-import com.mukmuk.todori.widget.totaltime.TotalTimeWidget
 import com.mukmuk.todori.widget.totaltime.TotalTimeWidget.Companion.ACTION_UPDATE_TOTAL_TIME_WIDGET
 import com.mukmuk.todori.widget.totaltime.TotalTimeWidget.Companion.EXTRA_TOTAL_TIME_MILLIS
 import com.mukmuk.todori.widget.totaltime.TotalTimeWidgetBroadcastReceiver
@@ -45,10 +33,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -255,9 +241,20 @@ class HomeViewModel @Inject constructor(
                 return@launch
             }
             try {
+
+                val today = currentDate.toString()
+                val currentHour = java.time.LocalTime.now().hour.toString().padStart(2, '0')
+
+                val existingRecords = homeRepository.getDailyRecord(uid, currentDate)
+                val existing = existingRecords.firstOrNull()
+
+                val updatedHourly = existing?.hourlyMinutes?.toMutableMap() ?: mutableMapOf()
+                updatedHourly[currentHour] = (updatedHourly[currentHour] ?: 0) + recordTime
+
                 val data = mutableMapOf<String, Any>(
                     "date" to currentDate.toString(),
-                    "studyTimeMillis" to recordTime
+                    "studyTimeMillis" to recordTime,
+                    "hourlyMinutes" to updatedHourly
                 )
 
                 // 기록 모드일 때만 recordTimeMillis 추가
