@@ -21,10 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mukmuk.todori.data.remote.community.StudyPostComment
+import com.mukmuk.todori.ui.screen.community.CommentUiModel
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
@@ -36,7 +35,7 @@ import com.mukmuk.todori.util.getLevelInfo
 @Composable
 fun CommunityDetailComment(
     uid: String,
-    comment: StudyPostComment,
+    comment: CommentUiModel,
     onDeleteClick: () -> Unit
 ) {
     val viewModel: CommunityDetailViewModel = hiltViewModel()
@@ -65,7 +64,7 @@ fun CommunityDetailComment(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        comment.username,
+                        comment.nickname,
                         style = AppTextStyle.BodyBold
                     )
                     Spacer(modifier = Modifier.width(6.dp))

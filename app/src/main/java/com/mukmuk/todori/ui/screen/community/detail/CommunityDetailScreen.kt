@@ -132,7 +132,7 @@ fun CommunityDetailScreen(
                     }
                 },
                 actions = {
-                    if (state.post?.createdBy == uid) {
+                    if (state.post?.userId == uid) {
                         Box {
                             IconButton(onClick = { expanded = true }) {
                                 Icon(Icons.Default.MoreVert, contentDescription = "더보기")
@@ -206,7 +206,6 @@ fun CommunityDetailScreen(
                                         postId = postId,
                                         uid = uid,
                                         level = state.user?.level ?: 0,
-                                        username = state.user?.nickname ?: "",
                                         content = commentContent,
                                         createdAt = Timestamp.now()
                                     )
@@ -218,7 +217,6 @@ fun CommunityDetailScreen(
                                         postId = postId,
                                         uid = uid,
                                         level = state.user?.level ?: 0,
-                                        username = state.user?.nickname ?: "",
                                         content = commentContent,
                                         createdAt = Timestamp.now()
                                     )
@@ -289,7 +287,7 @@ fun CommunityDetailScreen(
                         )
                         Spacer(Modifier.width(Dimens.Tiny))
                         Text(
-                            state.post?.userName ?: "",
+                            state.post?.nickname ?: "",
                             style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
                         )
                         Spacer(Modifier.weight(1f))
