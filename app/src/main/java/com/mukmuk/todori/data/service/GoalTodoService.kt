@@ -12,12 +12,12 @@ class GoalTodoService(
         firestore.collection("users").document(uid).collection("goalTodos")
 
     // 세부 할 일 생성
-    suspend fun createGoalTodo(uid: String, goalTodo: GoalTodo): String {
+    suspend fun createGoalTodo(uid: String, goalTodo: GoalTodo): GoalTodo {
         val ref = userGoalTodosRef(uid).document()
         val autoId = ref.id
         val todoWithId = goalTodo.copy(goalTodoId = autoId)
         ref.set(todoWithId, SetOptions.merge()).await()
-        return autoId
+        return todoWithId
     }
 
     suspend fun getGoalTodosByGoalId(uid: String, goalId: String): List<GoalTodo> {
