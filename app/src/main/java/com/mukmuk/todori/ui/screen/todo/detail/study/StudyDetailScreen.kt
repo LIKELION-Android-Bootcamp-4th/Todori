@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -64,6 +66,7 @@ fun StudyDetailScreen(
     val myMember = state.members.find { it.uid == uid }
     val isLeader = myMember?.role == "LEADER"
     val parsedDate = remember(selectedDate) { LocalDate.parse(selectedDate) }
+    val focusManager = LocalFocusManager.current
     if (state.studyDeleted) {
         LaunchedEffect(Unit) {
             onBack()
@@ -271,27 +274,29 @@ fun StudyDetailScreen(
                     )
                 }
 
-                item {
-                    val updatedMembers = state.members.map { member ->
-                        if (member.uid == uid) {
-                            member.copy(nickname = state.usersById[uid]?.nickname ?: member.nickname)
-                        } else {
-                            member
+                    item {
+                        val updatedMembers = state.members.map { member ->
+                            if (member.uid == uid) {
+                                member.copy(
+                                    nickname = state.usersById[uid]?.nickname ?: member.nickname
+                                )
+                            } else {
+                                member
+                            }
                         }
+                        MemberProgressCard(
+                            members = updatedMembers,
+                            todos = todos,
+                            progresses = memberProgressMap,
+                            usersById = state.usersById,
+                        ) {
+                            navController.navigate("member_progress_detail/${study.studyId}?date=$selectedDate")
+                        }
+                        Spacer(modifier = Modifier.height(Dimens.Small))
                     }
-                    MemberProgressCard(
-                        members = updatedMembers,
-                        todos = todos,
-                        progresses = memberProgressMap,
-                        usersById = state.usersById,
-                    ) {
-                        navController.navigate("member_progress_detail/${study.studyId}?date=$selectedDate")
-                    }
-                    Spacer(modifier = Modifier.height(Dimens.Small))
+
+
                 }
-
-
             }
         }
     }
-}

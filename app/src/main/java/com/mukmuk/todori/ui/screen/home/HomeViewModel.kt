@@ -219,6 +219,17 @@ class HomeViewModel @Inject constructor(
         val uid = _state.value.uid
         val totalTime = _state.value.totalStudyTimeMills
         saveRecord(uid, totalTime, isRecordMode)
+        viewModelScope.launch {
+            val glanceIds = GlanceAppWidgetManager(context)
+                .getGlanceIds(TimerWidget::class.java)
+
+            glanceIds.forEach { id ->
+                updateAppWidgetState(context, id) { prefs ->
+                    prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = false
+                }
+                TimerWidget().update(context, id)
+            }
+        }
     }
 
     private fun resetTimer() {

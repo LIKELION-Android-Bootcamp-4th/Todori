@@ -28,6 +28,7 @@ import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,6 +58,7 @@ import com.mukmuk.todori.ui.screen.todo.component.CommonDetailAppBar
 import com.mukmuk.todori.ui.screen.todo.component.GoalMetaInfoRow
 import com.mukmuk.todori.ui.screen.todo.component.SingleDatePickerBottomSheet
 import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
@@ -106,7 +108,15 @@ fun GoalDetailScreen(
         }
     }
 
-    if (goal != null) {
+    if (state.isLoading) {
+        // 로딩 화면
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else if (goal != null) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -128,13 +138,14 @@ fun GoalDetailScreen(
 
             if (showDeleteDialog) {
                 AlertDialog(
+                    containerColor = White,
                     onDismissRequest = { showDeleteDialog = false },
                     title = { Text("목표 삭제") },
                     text = { Text("이 목표와 관련된 모든 세부 목표가 함께 삭제됩니다. 진행할까요?") },
                     confirmButton = {
                         Text(
                             "삭제",
-                            color = Red,
+                            style = AppTextStyle.Body.copy(color = Red),
                             modifier = Modifier.clickable {
                                 showDeleteDialog = false
                                 viewModel.deleteGoalWithTodos(uid, goal.goalId)
@@ -144,6 +155,7 @@ fun GoalDetailScreen(
                     dismissButton = {
                         Text(
                             "취소",
+                            style = AppTextStyle.Body.copy(color = Black),
                             modifier = Modifier.clickable {
                                 showDeleteDialog = false
                             }
@@ -203,17 +215,31 @@ fun GoalDetailScreen(
                         modifier = Modifier
                             .size(56.dp)
                             .border(1.dp, DarkGray, RoundedCornerShape(DefaultCornerRadius))
+                            .background(
+                                if (newTodoDueDate != null) GoalPrimary.copy(alpha = 0.1f) else White,
+                                RoundedCornerShape(DefaultCornerRadius)
+                            )
                     ) {
                         BadgedBox(
                             badge = {
                                 if (newTodoDueDate != null) {
-                                    Badge()
+                                    Badge(
+                                        containerColor = GoalPrimary
+                                    ) {
+                                        Text("✓", color = White)
+//                                        Text("newTodoDueDate?.dayOfMonth.toString()", color = White)
+                                    }
                                 }
                             }
                         ) {
-                            Icon(Icons.Outlined.CalendarMonth, contentDescription = "마감일 선택")
+                            Icon(
+                                Icons.Outlined.CalendarMonth,
+                                contentDescription = "마감일 선택",
+                                tint = if (newTodoDueDate != null) GoalPrimary else DarkGray
+                            )
                         }
                     }
+
 
                     SingleDatePickerBottomSheet(
                         show = showDatePicker,
@@ -265,7 +291,9 @@ fun GoalDetailScreen(
 
             if (todos.isEmpty()) {
                 Column(
-                    modifier = Modifier.fillMaxSize().weight(1f),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -315,6 +343,13 @@ fun GoalDetailScreen(
                     )
                 }
             }
+        }
+    } else if (state.error != null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("오류가 발생했습니다. 다시 시도해주세요.")
         }
     }
 }

@@ -235,8 +235,15 @@ class StudyService(
             batch.delete(doc.reference)
         }
 
-        // 최종 commit
         batch.commit().await()
     }
 
+
+    suspend fun updateHasPosted(uid: String, studyId: String, hasPosted: Boolean) {
+        firestore.collection("users")
+            .document(uid)
+            .collection("myStudies")
+            .document(studyId)
+            .update("hasPosted", hasPosted)
+    }
 }

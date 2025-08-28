@@ -28,11 +28,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
+import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
+import kotlinx.datetime.DayOfWeek
 import java.time.LocalDate
+import java.time.YearMonth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -47,13 +51,18 @@ fun SingleDatePickerBottomSheet(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-
     val today = remember { LocalDate.now() }
     var selectedDate by remember { mutableStateOf(today) }
 
-    val currentMonth = remember(selectedDate) {
-        "${selectedDate.year}년 ${selectedDate.monthValue}월"
-    }
+    val currentYearMonth = YearMonth.of(today.year, today.month)
+    val calendarState = rememberCalendarState(
+        startMonth = currentYearMonth.minusMonths(12),
+        endMonth = currentYearMonth.plusMonths(12),
+        firstVisibleMonth = currentYearMonth,
+        firstDayOfWeek = DayOfWeek.MONDAY
+    )
+    val currentMonthText =
+        "${calendarState.firstVisibleMonth.yearMonth.year}년 ${calendarState.firstVisibleMonth.yearMonth.monthValue}월"
 
 
 
@@ -62,24 +71,24 @@ fun SingleDatePickerBottomSheet(
         sheetState = sheetState,
         containerColor = White
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(Dimens.Medium)) {
             Text("날짜 선택", style = AppTextStyle.Body)
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Dimens.Small))
 
             Text(
-                text = currentMonth,
+                text = currentMonthText,
                 style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            // 선택 달력
             HorizontalCalendar(
+                state = calendarState,
                 dayContent = { day ->
                     val isSelected = day.date == selectedDate
                     Box(
                         modifier = Modifier
-                            .padding(4.dp)
+                            .padding(Dimens.Nano)
                             .size(36.dp)
                             .clip(RoundedCornerShape(6.dp))
                             .background(if (isSelected) UserPrimary else White)
@@ -95,7 +104,7 @@ fun SingleDatePickerBottomSheet(
                 }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimens.Medium))
 
             Button(
                 onClick = {

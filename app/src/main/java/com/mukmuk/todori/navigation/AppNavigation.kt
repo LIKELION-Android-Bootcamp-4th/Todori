@@ -20,6 +20,7 @@ import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.ui.screen.community.CommunityScreen
 import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.create.CreateCommunityScreen
+import com.mukmuk.todori.ui.screen.community.create.CreateCommunityViewModel
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailScreen
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.screen.community.search.CommunitySearchScreen
@@ -110,18 +111,17 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             CommunityScreen(navController, viewModel)
         }
         composable(
-            "community/create?postId={postId}", arguments = listOf(
+            route = "community/create?postId={postId}",
+            arguments = listOf(
                 navArgument("postId") {
                     type = NavType.StringType
                     defaultValue = null
                     nullable = true
-                })
+                }
+            )
         ) { backStackEntry ->
+            val viewModel: CreateCommunityViewModel = hiltViewModel()
             val postId = backStackEntry.arguments?.getString("postId")
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(BottomNavItem.Study.route)
-            }
-            val viewModel: CommunityDetailViewModel = hiltViewModel(parentEntry)
             CreateCommunityScreen(
                 postId,
                 navController,

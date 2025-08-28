@@ -27,3 +27,15 @@ exports.dailyMidnightBatch = dailyMidnightBatch;
 
 // Month 통계 관련 functions
 exports.monthStatBatch = monthStatBatch;
+
+// 퀘스트
+exports.updateUserQuest = require("./quests").updateUserQuest;
+
+//알림 관련
+exports.onOutboxCreated        = require("./notify").onOutboxCreated;
+exports.remindReflection       = require("./notify").remindReflection;
+exports.sendUserNotification   = require("./notify").sendUserNotification;
+exports.onCommentCreated       = require("./notify").onCommentCreated;
+exports.onStudyTodoCreated     = require("./notify").onStudyTodoCreated;
+exports.dailyDdayReminder      = require("./notify").dailyDdayReminder;
+exports.todoIncompleteReminder = require("./notify").todoIncompleteReminder;

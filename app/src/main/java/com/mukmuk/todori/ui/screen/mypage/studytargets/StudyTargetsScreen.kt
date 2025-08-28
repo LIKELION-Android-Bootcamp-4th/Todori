@@ -51,7 +51,9 @@ import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Monthly
 import com.mukmuk.todori.ui.theme.Weekly
 import com.mukmuk.todori.ui.theme.White
-import com.mukmuk.todori.util.AchievementRateCalculator
+import com.mukmuk.todori.util.calculateDailyAchievementRate
+import com.mukmuk.todori.util.calculateMonthlyAchievementRate
+import com.mukmuk.todori.util.calculateWeeklyAchievementRate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -146,7 +148,7 @@ fun StudyTargetsScreen(
                 stepMinutes = StudyTargetsState.MONTHLY_STEP,
                 onValueChange = { tempMonthlyMinutes = it },
                 achievementRate = if (tempMonthlyMinutes > 0) {
-                    AchievementRateCalculator.calculateMonthlyAchievementRate(tempMonthlyMinutes)
+                    calculateMonthlyAchievementRate(tempMonthlyMinutes)
                 } else null
             )
 
@@ -160,7 +162,7 @@ fun StudyTargetsScreen(
                 stepMinutes = StudyTargetsState.WEEKLY_STEP,
                 onValueChange = { tempWeeklyMinutes = it },
                 achievementRate = if (tempWeeklyMinutes > 0) {
-                    AchievementRateCalculator.calculateWeeklyAchievementRate(tempWeeklyMinutes)
+                    calculateWeeklyAchievementRate(tempWeeklyMinutes)
                 } else null
             )
 
@@ -174,7 +176,7 @@ fun StudyTargetsScreen(
                 stepMinutes = StudyTargetsState.DAILY_STEP,
                 onValueChange = { tempDailyMinutes = it },
                 achievementRate = if (tempDailyMinutes > 0) {
-                    AchievementRateCalculator.calculateDailyAchievementRate(tempDailyMinutes)
+                    calculateDailyAchievementRate(tempDailyMinutes)
                 } else null
             )
 

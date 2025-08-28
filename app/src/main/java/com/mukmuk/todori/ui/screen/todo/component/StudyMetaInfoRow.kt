@@ -44,7 +44,7 @@ import java.time.temporal.ChronoUnit
 fun StudyMetaInfoRow(
     createdAt: Timestamp?,
     joinedAt: Timestamp? = null,
-    memberCount: Int,
+    memberCount: Int?,
     activeDays: List<String>,
     selectedDate: LocalDate?,
     modifier: Modifier = Modifier
@@ -91,18 +91,20 @@ fun StudyMetaInfoRow(
         }
 
         // 멤버 수
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .border(1.dp, Gray, RoundedCornerShape(DefaultCornerRadius))
-                .padding(vertical = Dimens.Nano, horizontal = Dimens.Tiny)
-        ) {
-            Icon(Icons.Outlined.PeopleAlt, contentDescription = null, modifier = Modifier.size(16.dp), tint = Black)
-            Spacer(modifier = Modifier.width(Dimens.Nano))
-            Text("$memberCount", style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold))
-        }
+        if (memberCount != null) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .border(1.dp, Gray, RoundedCornerShape(DefaultCornerRadius))
+                    .padding(vertical = Dimens.Nano, horizontal = Dimens.Tiny)
+            ) {
+                Icon(Icons.Outlined.PeopleAlt, contentDescription = null, modifier = Modifier.size(16.dp), tint = Black)
+                Spacer(modifier = Modifier.width(Dimens.Nano))
+                Text("$memberCount", style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold))
+            }
 
-        Spacer(modifier = Modifier.width(Dimens.Tiny))
+            Spacer(modifier = Modifier.width(Dimens.Tiny))
+        }
 
         // 반복 요일
         Row(

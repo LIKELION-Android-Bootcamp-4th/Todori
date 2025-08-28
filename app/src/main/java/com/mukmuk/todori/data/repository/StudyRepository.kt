@@ -14,6 +14,8 @@ class StudyRepository @Inject constructor(
     suspend fun createStudy(study: Study, leaderMember: StudyMember,uid: String) {
         val myStudy = MyStudy(
             studyId = study.studyId,
+            description = study.description,
+            activeDays = study.activeDays,
             studyName = study.studyName,
             joinedAt = study.createdAt,
             role = leaderMember.role,
@@ -65,5 +67,8 @@ class StudyRepository @Inject constructor(
         studyService.updateMyStudyNickname(uid, studyId, nickname)
 
     suspend fun leaveStudy(studyId: String, uid: String) = studyService.leaveStudy(studyId, uid)
+
+    suspend fun updateHasPosted(uid: String, studyId: String, hasPosted: Boolean) =
+        studyService.updateHasPosted(uid, studyId, hasPosted)
 
 }
