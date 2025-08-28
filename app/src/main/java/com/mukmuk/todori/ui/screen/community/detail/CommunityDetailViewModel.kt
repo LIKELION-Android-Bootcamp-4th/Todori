@@ -7,12 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.mukmuk.todori.data.remote.community.StudyPost
+import com.mukmuk.todori.ui.screen.community.CommentUiModel
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.CommunityRepository
 import com.mukmuk.todori.data.repository.StudyRepository
+import com.mukmuk.todori.ui.screen.community.PostUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -34,14 +35,8 @@ class CommunityDetailViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(CommunityDetailState())
     val state: StateFlow<CommunityDetailState> = _state
-
-
     val menu = listOf("수정", "삭제")
-
-    val td = listOf("답글 달기", "삭제")
-
     private var loadPostJob: Job? = null
-
     private var commentJob: Job? = null
 
     fun loadPostById(postId: String) {
@@ -66,20 +61,30 @@ class CommunityDetailViewModel @Inject constructor(
                         members = repository.getStudyMembers(post.studyId)
                     }
 
+                    val postUiModel = PostUiModel(
+                        postId = post.postId,
+                        studyId = post.studyId,
+                        title = post.title,
+                        content = post.content,
+                        userId = post.createdBy,
+                        nickname = user?.nickname ?: "알 수 없음",
+                        level = user?.level ?: 0,
+                        tags = post.tags,
+                        memberCount = members.size,
+                        commentsCount = post.commentsCount,
+                        createdAt = post.createdAt,
+                        updatedAt = post.updatedAt,
+                    )
+
                     _state.update {
                         it.copy(
-                            post = post.copy(
-                                userName = user?.nickname ?: "",
-                                level = user?.level ?: 0,
-                                memberCount = members.size
-                            ),
+                            post = postUiModel,
                             isLoading = false,
                             error = null
                         )
                     }
 
                     getComments(postId)
-
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
@@ -94,41 +99,6 @@ class CommunityDetailViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         user = user,
-                        error = null
-                    )
-                }
-            } catch (e: Exception) {
-                _state.update { it.copy(error = e.message) }
-            }
-        }
-    }
-
-
-    fun createPost(post: StudyPost) {
-        viewModelScope.launch {
-            try {
-                repository.createPost(post)
-                _state.update {
-                    it.copy(
-                        post = post,
-                        isLoading = false,
-                        error = null
-                    )
-                }
-            } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, error = e.message) }
-            }
-        }
-    }
-
-    fun updatePost(postId: String, updatedPost: StudyPost) {
-        viewModelScope.launch {
-            _state.update { it.copy(study = null) }
-            try {
-                repository.updatePost(postId, updatedPost)
-                _state.update {
-                    it.copy(
-                        post = updatedPost,
                         error = null
                     )
                 }
@@ -179,30 +149,31 @@ class CommunityDetailViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true) }
             try {
                 var comments = emptyList<StudyPostComment>()
-                var updatedComments = emptyList<StudyPostComment>()
-                val repliesMap = mutableMapOf<String, List<StudyPostComment>>()
+                var updatedComments = emptyList<CommentUiModel>()
+
                 coroutineScope {
                     async {
                         comments = repository.getPostComments(postId)
-                        updatedComments = comments.sortedBy {
-                            it.createdAt?.toDate()?.time
-                        }
-
-                        for (comment in comments) {
-                            val replies =
-                                repository.getPostCommentReplies(postId, comment.commentId)
-                            val updatedReplies = replies.sortedBy {
-                                it.createdAt?.toDate()?.time
+                        // uid → user 정보 조회 후 CommentUiModel 변환
+                        updatedComments = comments.sortedBy { it.createdAt?.toDate()?.time }
+                            .map { comment ->
+                                val user = repository.getUserById(comment.uid)
+                                CommentUiModel(
+                                    commentId = comment.commentId,
+                                    postId = comment.postId,
+                                    uid = comment.uid,
+                                    nickname = user?.nickname ?: "알 수 없음",
+                                    level = user?.level ?: 0,
+                                    content = comment.content,
+                                    createdAt = comment.createdAt
+                                )
                             }
-                            repliesMap[comment.commentId] = updatedReplies
-                        }
-
                     }.await()
                 }
 
                 _state.update {
                     it.copy(
-                        commentList = updatedComments,
+                        commentList = updatedComments, // ✅ 이제 CommentUiModel
                         isLoading = false,
                         error = null
                     )
