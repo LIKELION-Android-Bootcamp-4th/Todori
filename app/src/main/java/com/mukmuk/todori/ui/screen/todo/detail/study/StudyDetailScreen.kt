@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -60,6 +61,7 @@ fun StudyDetailScreen(
     val state by viewModel.state.collectAsState()
     var newTodoText by remember { mutableStateOf("") }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val myMember = state.members.find { it.uid == uid }
     val isLeader = myMember?.role == "LEADER"
@@ -232,6 +234,7 @@ fun StudyDetailScreen(
                                     members = members
                                 )
                                 newTodoText = ""
+                                focusManager.clearFocus()
                             }
                         },
                         onToggleChecked = { todoId, checked ->
