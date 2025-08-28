@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.mukmuk.todori.ui.screen.community.StudyCategory
 import com.mukmuk.todori.ui.screen.community.components.CommunityListData
 import com.mukmuk.todori.ui.screen.community.components.ListPickerBottomSheet
 import com.mukmuk.todori.ui.screen.community.components.TagPickerBottomSheet
@@ -217,6 +218,9 @@ fun CreateCommunityScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     state.selectedTags.forEach { tag ->
+                        val categoryColor = StudyCategory.entries.find { category ->
+                            category.tags.contains(tag)
+                        }?.color ?: GroupSecondary
                         InputChip(
                             onClick = {},
                             label = {
@@ -224,25 +228,26 @@ fun CreateCommunityScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    Text(tag, style = AppTextStyle.BodySmallMedium)
+                                    Text(tag, style = AppTextStyle.BodySmallMedium, color = White)
                                     IconButton(
                                         onClick = {
                                             viewModel.onEvent(CreateCommunityEvent.OnTagClicked(tag))
                                         },
-                                        modifier = Modifier.size(24.dp) // 아이콘 크기 조정
+                                        modifier = Modifier.size(24.dp)
                                     ) {
                                         Icon(
                                             Icons.Default.Close,
                                             contentDescription = "Remove tag",
-                                            modifier = Modifier.size(16.dp)
+                                            modifier = Modifier.size(16.dp),
+                                            tint = White
                                         )
                                     }
                                 }
                             },
                             selected = true,
                             colors = InputChipDefaults.inputChipColors(
-                                selectedContainerColor = GroupPrimary.copy(alpha = 0.1f),
-                                selectedLabelColor = GroupPrimary
+                                selectedContainerColor = categoryColor,
+                                selectedLabelColor = categoryColor
                             )
                         )
                     }
