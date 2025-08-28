@@ -23,6 +23,7 @@ class AuthService @Inject constructor(
     @ApplicationContext private val appContext: Context
 ) {
     suspend fun logout(provider: String?) {
+        runCatching { MyFirebaseMessagingService.cleanupOnLogout() }
         when (provider) {
             "google.com" -> googleSignOut()
             "kakao" -> kakaoLogout()
