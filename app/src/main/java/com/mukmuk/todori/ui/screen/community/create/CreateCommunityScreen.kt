@@ -1,13 +1,16 @@
 package com.mukmuk.todori.ui.screen.community.create
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -16,54 +19,44 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.firebase.Firebase
-import com.google.firebase.Timestamp
-import com.google.firebase.auth.auth
-import com.mukmuk.todori.data.remote.community.StudyPost
-import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.components.CommunityListData
 import com.mukmuk.todori.ui.screen.community.components.ListPickerBottomSheet
-import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
+import com.mukmuk.todori.ui.screen.community.components.TagPickerBottomSheet
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
-import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
+import com.mukmuk.todori.ui.theme.Dimens.DefaultCornerRadius
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupPrimary
 import com.mukmuk.todori.ui.theme.GroupSecondary
@@ -76,69 +69,39 @@ fun CreateCommunityScreen(
     postId: String? = null,
     navController: NavController,
     onBack: () -> Unit,
-    viewModel: CommunityDetailViewModel
+    viewModel: CreateCommunityViewModel
 ) {
+    val context = LocalContext.current
+    val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
 
-    val state by viewModel.state.collectAsState()
-
-    var title by remember { mutableStateOf("") }
-    var isTitleError by remember { mutableStateOf(false) }
-
-    var content by remember { mutableStateOf("") }
-
-    var data = listOf("토익", "언어", "개발", "자기계발", "실습", "운동", "수학", "국어", "독서", "예체능")
-
-    var asd = listOf("")
-
-    var showDialog by remember { mutableStateOf(false) }
-
-    var showListSheet by remember { mutableStateOf(false) }
-    var pickedItem by remember { mutableStateOf<String?>(null) }
-
-    var studyId by remember { mutableStateOf("") }
-
-    val td = remember { mutableStateListOf<String>() }
-
-    val uid = Firebase.auth.currentUser?.uid.toString()
-
-    val focusManager = LocalFocusManager.current
-
     LaunchedEffect(postId) {
-        viewModel.getUserById(uid)
-        if (postId == null) {
-            title = ""
-            content = ""
-            studyId = ""
-            td.clear()
-        } else {
-            viewModel.loadPostById(postId)
+        if (postId != null) {
+            viewModel.onEvent(CreateCommunityEvent.LoadPostForEditing(postId))
         }
     }
 
-    LaunchedEffect(postId, state.post) {
-        if (postId != null && state.post?.postId == postId) {
-            val post = state.post!!
-            title = post.title
-            content = post.content
-            studyId = post.studyId
-            td.clear()
-            td.addAll(post.tags.distinct())
+    LaunchedEffect(state.isPostSubmitted) {
+        if (state.isPostSubmitted) {
+            navController.popBackStack()
         }
     }
+    LaunchedEffect(state.toastMessage) {
+        state.toastMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            viewModel.onEvent(CreateCommunityEvent.OnToastShown)
+        }
+    }
+
 
     Scaffold(
-
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    if(postId != null)
-                    {
-                        Text("게시글 수정", style = AppTextStyle.AppBar)
-                    }
-                    else {
-                        Text("게시글 작성", style = AppTextStyle.AppBar)
-                    }
+                    Text(
+                        if (postId != null) "게시글 수정" else "게시글 작성",
+                        style = AppTextStyle.AppBar
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -148,123 +111,62 @@ fun CreateCommunityScreen(
                         )
                     }
                 },
-                modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
+                modifier = Modifier
+                    .height(56.dp)
+                    .fillMaxWidth(),
             )
         },
-
         containerColor = White,
-
         contentWindowInsets = WindowInsets(0.dp),
-
         bottomBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 16.dp)
-            ){
+            ) {
                 Button(
-                    onClick = {
-                        if (pickedItem != null) {
-                            studyId = pickedItem!!
-                            viewModel.loadStudyById(studyId)
-                        }
-                        if (title.isNotBlank()) {
-                            if (postId != null) {
-                                viewModel.updatePost(
-                                    postId,
-                                    StudyPost(
-                                        title = title,
-                                        content = content,
-                                        tags = td.toList(),
-                                        postId = postId,
-                                        studyId = studyId,
-                                        memberCount = state.post?.memberCount ?: 0,
-                                        commentsCount = state.post?.commentsCount ?: 0,
-                                        createdAt = state.post?.createdAt,
-                                        createdBy = uid
-                                    )
-                                )
-                            }
-                            else {
-                                viewModel.createPost(
-                                    StudyPost(
-                                        title = title,
-                                        content = content,
-                                        tags = td.toList(),
-                                        postId = "",
-                                        studyId = studyId,
-                                        memberCount = 0,
-                                        commentsCount = 0,
-                                        createdAt = Timestamp.now(),
-                                        createdBy = uid
-                                    )
-                                )
-                            }
-
-                            navController.popBackStack()
-                        } else {
-                            isTitleError = true
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
+                    onClick = { viewModel.onEvent(CreateCommunityEvent.OnPostSubmit(postId)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isLoading
                 ) {
-                    Text("작성", style = AppTextStyle.Body.copy(color = White))
+                    if (state.isLoading) {
+                        CircularProgressIndicator(color = White)
+                    } else {
+                        Text("작성", style = AppTextStyle.Body.copy(color = White))
+                    }
                 }
             }
         }
-
     ) { innerPadding ->
-
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(top = 20.dp, start = 16.dp, end = 16.dp)
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
-                ) {
-                    focusManager.clearFocus(force = true)
-                }
         ) {
             OutlinedTextField(
-                value = title,
-                onValueChange = {
-                    title = it
-                    isTitleError = it.isBlank()
-                },
+                value = state.title,
+                onValueChange = { viewModel.onEvent(CreateCommunityEvent.OnTitleChange(it)) },
                 placeholder = {
-                    Text(
-                        "스터디 명을 입력하세요",
-                        style = AppTextStyle.Body.copy(color = DarkGray)
-                    )
+                    Text("스터디 명을 입력하세요", style = AppTextStyle.Body.copy(color = DarkGray))
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 56.dp),
                 shape = RoundedCornerShape(10.dp),
                 singleLine = true,
-
-                isError = isTitleError,
+                isError = state.isTitleError,
                 supportingText = {
-                    if (isTitleError) Text("스터디 명을 입력해주세요", style = AppTextStyle.Body)
+                    if (state.isTitleError) Text("스터디 명을 입력해주세요", style = AppTextStyle.Body)
                 }
             )
 
-
-
             OutlinedTextField(
-                value = content,
-                onValueChange = {
-                    content = it
-
-                },
+                value = state.content,
+                onValueChange = { viewModel.onEvent(CreateCommunityEvent.OnContentChange(it)) },
                 placeholder = {
-                    Text(
-                        "스터디 설명을 작성 해주세요",
-                        style = AppTextStyle.Body.copy(color = DarkGray)
-                    )
+                    Text("스터디 설명을 작성 해주세요", style = AppTextStyle.Body.copy(color = DarkGray))
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -284,124 +186,147 @@ fun CreateCommunityScreen(
 
             Spacer(Modifier.height(Dimens.Large))
 
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("내가 만든 스터디", style = AppTextStyle.Body)
+                Text("태그 (${state.selectedTags.size}/3)", style = AppTextStyle.Body)
                 Spacer(Modifier.weight(1f))
-                OutlinedButton(
-                    onClick = {
-                        showListSheet = true
-                    },
-                    shape = RoundedCornerShape(20.dp),
+                Button(
+                    onClick = { viewModel.onEvent(CreateCommunityEvent.OnTagPickerClick) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = White,
                         contentColor = Black
                     ),
-
-                    ) {
-                    Text("불러오기", style = AppTextStyle.Body)
+                    shape = RoundedCornerShape(DefaultCornerRadius),
+                    border = BorderStroke(1.dp, Gray),
+                    modifier = Modifier
+                        .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                        .padding(horizontal = Dimens.Nano)
+                ) {
+                    Text(
+                        "태그 선택",
+                        style = AppTextStyle.BodySmallMedium
+                    )
                 }
             }
-
-
-            Spacer(Modifier.height(Dimens.Tiny))
-
-            if (studyId.isNotBlank()) {
-                viewModel.loadStudyById(studyId)
-
-                val memberCount = state.memberList.size
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
+            if (state.selectedTags.isNotEmpty()) {
+                Spacer(Modifier.height(Dimens.Small))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    state.study?.activeDays?.let {
-                        CommunityListData(
-                            studyId = studyId,
-                            study = state.study!!,
-                            memberCount = memberCount,
-                            activeDays = it,
-                            onClick = {}
+                    state.selectedTags.forEach { tag ->
+                        InputChip(
+                            onClick = {},
+                            label = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(tag, style = AppTextStyle.BodySmallMedium)
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.onEvent(CreateCommunityEvent.OnTagClicked(tag))
+                                        },
+                                        modifier = Modifier.size(24.dp) // 아이콘 크기 조정
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = "Remove tag",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+                            },
+                            selected = true,
+                            colors = InputChipDefaults.inputChipColors(
+                                selectedContainerColor = GroupPrimary.copy(alpha = 0.1f),
+                                selectedLabelColor = GroupPrimary
+                            )
                         )
                     }
                 }
             }
-
             Spacer(Modifier.height(Dimens.Large))
 
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth(),
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                data.forEach { tag ->
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                if (td.contains(tag)) GroupPrimary else GroupSecondary,
-                                RoundedCornerShape(32.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .clickable {
-                                if (!td.contains(tag) && td.size < 3 ) {
-
-                                    td.add(tag)
-
-                                } else if (td.contains(tag)) {
-                                    td.remove(tag)
-                                } else {
-                                    showDialog = true
-                                    td.remove(tag)
-                                }
-                            }
-                            .width(60.dp),
-                    ) {
-                        Text(
-                            text = tag,
-                            color = Black,
-                            style = AppTextStyle.BodySmall
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.padding(16.dp))
-
+                Text("스터디", style = AppTextStyle.Body)
+                Spacer(Modifier.weight(1f))
+                Button(
+                    onClick = { viewModel.onEvent(CreateCommunityEvent.OnStudyPickerClick) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = White,
+                        contentColor = Black
+                    ),
+                    shape = RoundedCornerShape(DefaultCornerRadius),
+                    border = BorderStroke(1.dp, Gray),
+                    modifier = Modifier
+                        .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                        .padding(horizontal = Dimens.Nano)
+                ) {
+                    Text(
+                        "스터디 선택",
+                        style = AppTextStyle.BodySmallMedium
+                    )
                 }
             }
+            state.currentStudy?.let { study ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = Dimens.Small)
+                ) {
+                    CommunityListData(
+                        title = study.studyName,
+                        description = study.description,
+                        createdAt = study.createdAt,
+                        memberCount = null,
+                        activeDays = study.activeDays,
+                        onClick = {},
+                    )
 
-            Spacer(modifier = Modifier.weight(1f))
-
-        }
-
-        if (showListSheet) {
-            ListPickerBottomSheet(
-                studyId = studyId,
-                show = showListSheet,
-                onDismissRequest = { showListSheet = false },
-                onSelect = {
-                    viewModel.loadStudyById(studyId = it)
-                    pickedItem = it
-                    showListSheet = false
-                }
-            )
-        }
-
-        if(showDialog){
-            AlertDialog(
-                text = { Text("태그는 최대 3개까지 선택해주세요", style = AppTextStyle.Body) },
-                onDismissRequest = { showDialog = false },
-                containerColor = White,
-                confirmButton = {
-                    TextButton(
-                        onClick = { showDialog = false }
+                    IconButton(
+                        onClick = { viewModel.onEvent(CreateCommunityEvent.OnStudyDeselected) },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 4.dp, end = 4.dp)
+                            .size(36.dp)
                     ) {
-                        Text("확인", style = AppTextStyle.Body.copy(color = ButtonPrimary))
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "스터디 선택 취소",
+                            tint = DarkGray,
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                 }
-            )
+            }
         }
 
+        if (state.isStudyPickerVisible) {
+            ListPickerBottomSheet(
+                studies = state.myStudyList.filter { !it.hasPosted },
+                show = state.isStudyPickerVisible,
+                onDismissRequest = { viewModel.onEvent(CreateCommunityEvent.OnStudyPickerDismiss) },
+                onSelect = { studyId ->
+                    viewModel.onEvent(
+                        CreateCommunityEvent.OnStudySelected(
+                            studyId
+                        )
+                    )
+                }
+            )
+        }
+        if (state.isTagPickerVisible) {
+            TagPickerBottomSheet(
+                show = state.isTagPickerVisible,
+                onDismissRequest = { viewModel.onEvent(CreateCommunityEvent.OnTagPickerDismiss) },
+                selectedTags = state.selectedTags,
+                onTagClick = { tag -> viewModel.onEvent(CreateCommunityEvent.OnTagClicked(tag)) }
+            )
+        }
     }
-
 }

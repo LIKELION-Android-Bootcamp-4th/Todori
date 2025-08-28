@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.CommunityRepository
+import com.mukmuk.todori.data.repository.StudyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -23,6 +25,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CommunityDetailViewModel@Inject constructor(
     private val repository: CommunityRepository,
+    private val studyRepository: StudyRepository,
+    private val auth: FirebaseAuth
 ): ViewModel() {
 
     private val _state = MutableStateFlow(CommunityDetailState())
@@ -124,17 +128,21 @@ class CommunityDetailViewModel@Inject constructor(
 
     fun deletePost(postId: String) {
         viewModelScope.launch {
-            try {
-                repository.deletePost(postId)
-                deleteAllComments(postId)
-                _state.update {
-                    it.copy(
-                        post = null,
-                        error = null
-                    )
-                }
-            } catch (e: Exception) {
-                _state.update { it.copy(error = e.message) }
+            val post = state.value.post ?: return@launch
+
+            repository.deletePost(postId)
+            deleteAllComments(postId)
+
+            post.studyId.takeIf { it.isNotBlank() }?.let { studyId ->
+                val uid = auth.currentUser?.uid ?: return@launch
+                studyRepository.updateHasPosted(uid, studyId, false)
+            }
+
+            _state.update {
+                it.copy(
+                    post = null,
+                    error = null
+                )
             }
         }
     }
