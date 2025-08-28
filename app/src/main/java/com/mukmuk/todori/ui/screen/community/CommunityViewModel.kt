@@ -21,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CommunityViewModel @Inject constructor(
     private val communityRepository: CommunityRepository,
+    private val studyRepository: StudyRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CommunityState())
@@ -30,9 +31,9 @@ class CommunityViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                if(filter == "참가자 수")
+                if (filter == "참가자 수")
                     _state.update { it.copy(selectedOption = "참가자 수") }
-                else if(filter == "날짜순")
+                else if (filter == "날짜순")
                     _state.update { it.copy(selectedOption = "날짜순") }
 
                 communityRepository.getPosts(filter = filter).collect { posts ->
@@ -43,13 +44,16 @@ class CommunityViewModel @Inject constructor(
                             async {
                                 val membersCount =
                                     communityRepository.getStudyMembers(post.studyId).size
-                                if (post.memberCount != membersCount) {
-                                    val updatedPost = post.copy(memberCount = membersCount)
+                                val commentsCount =
+                                    communityRepository.getPostComments(post.postId).size
+                                val updatedPost = post.copy(
+                                    memberCount = membersCount,
+                                    commentsCount = commentsCount
+                                )
+                                if (post.memberCount != membersCount || post.commentsCount != commentsCount) {
                                     communityRepository.updatePost(post.postId, updatedPost)
-                                    updatedPost
-                                } else {
-                                    post
                                 }
+                                updatedPost
                             }
                         }.awaitAll()
                     }
@@ -62,8 +66,7 @@ class CommunityViewModel @Inject constructor(
                         )
                     }
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
         }
@@ -81,8 +84,7 @@ class CommunityViewModel @Inject constructor(
                         )
                     }
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
         }
@@ -91,7 +93,7 @@ class CommunityViewModel @Inject constructor(
     fun setData(category: String) {
         val allPosts = state.value.allPostList
 
-        val filteredPosts = when(category) {
+        val filteredPosts = when (category) {
             "전체" -> allPosts
             else -> {
                 val matchingTags = StudyCategory.entries
@@ -106,7 +108,7 @@ class CommunityViewModel @Inject constructor(
         _state.update { it.copy(postList = filteredPosts) }
     }
 
-    fun setSelectedData(data: String){
+    fun setSelectedData(data: String) {
         _state.update {
             it.copy(selectedOption = data)
         }

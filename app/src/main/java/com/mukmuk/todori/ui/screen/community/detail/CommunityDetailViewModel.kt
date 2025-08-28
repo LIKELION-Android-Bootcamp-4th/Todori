@@ -26,11 +26,11 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class CommunityDetailViewModel@Inject constructor(
+class CommunityDetailViewModel @Inject constructor(
     private val repository: CommunityRepository,
     private val studyRepository: StudyRepository,
     private val auth: FirebaseAuth
-): ViewModel() {
+) : ViewModel() {
 
     private val _state = MutableStateFlow(CommunityDetailState())
     val state: StateFlow<CommunityDetailState> = _state
@@ -47,12 +47,21 @@ class CommunityDetailViewModel@Inject constructor(
     fun loadPostById(postId: String) {
         loadPostJob?.cancel()
         loadPostJob = viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, study = null, user = null, post = null, commentList = emptyList(), commentReplyList = emptyMap(), replyToCommentId = null) }
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    study = null,
+                    user = null,
+                    post = null,
+                    commentList = emptyList(),
+                    replyToCommentId = null
+                )
+            }
             try {
                 repository.getPostById(postId).collect { post ->
                     val user = repository.getUserById(post!!.createdBy)
                     var members = emptyList<StudyMember>()
-                    if(post.studyId.isNotBlank()) {
+                    if (post.studyId.isNotBlank()) {
                         loadStudyById(post.studyId)
                         members = repository.getStudyMembers(post.studyId)
                     }
@@ -180,7 +189,8 @@ class CommunityDetailViewModel@Inject constructor(
                         }
 
                         for (comment in comments) {
-                            val replies = repository.getPostCommentReplies(postId, comment.commentId)
+                            val replies =
+                                repository.getPostCommentReplies(postId, comment.commentId)
                             val updatedReplies = replies.sortedBy {
                                 it.createdAt?.toDate()?.time
                             }
@@ -193,7 +203,6 @@ class CommunityDetailViewModel@Inject constructor(
                 _state.update {
                     it.copy(
                         commentList = updatedComments,
-                        commentReplyList = repliesMap,
                         isLoading = false,
                         error = null
                     )
@@ -229,7 +238,7 @@ class CommunityDetailViewModel@Inject constructor(
                     val replies = repository.getPostCommentReplies(postId, comment.commentId)
                     for (reply in replies) {
                         repository.deletePostComment(postId, reply.commentId)
-                        }
+                    }
                     repository.deletePostComment(postId, comment.commentId)
                 }
                 getComments(postId)

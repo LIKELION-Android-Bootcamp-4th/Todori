@@ -16,7 +16,6 @@ data class CommunityDetailState(
     val memberList: List<StudyMember> = emptyList(),
     val error: String? = null,
     val commentList: List<StudyPostComment> = emptyList(),
-    val commentReplyList: Map<String, List<StudyPostComment>> = emptyMap(),
     val replyToCommentId: String? = null,
 
     )

@@ -30,6 +30,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.outlined.ModeComment
+import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -58,6 +60,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,9 +73,9 @@ import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.ui.screen.community.StudyCategory
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailComment
-import com.mukmuk.todori.ui.screen.community.components.CommunityDetailCommentReply
 import com.mukmuk.todori.ui.screen.community.components.StudyDetailCard
 import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
@@ -159,7 +162,9 @@ fun CommunityDetailScreen(
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.statusBars),
             )
         },
         contentWindowInsets = WindowInsets(0.dp),
@@ -181,13 +186,18 @@ fun CommunityDetailScreen(
                         .background(White, RoundedCornerShape(30.dp))
                         .border(1.dp, Gray, RoundedCornerShape(30.dp)),
                     shape = RoundedCornerShape(30.dp),
-                    placeholder = { Text(if(state.replyToCommentId != null) "답글을 작성해주세요" else "댓글을 작성해주세요", style = AppTextStyle.Body.copy(color = DarkGray)) },
+                    placeholder = {
+                        Text(
+                            if (state.replyToCommentId != null) "답글을 작성해주세요" else "댓글을 작성해주세요",
+                            style = AppTextStyle.Body.copy(color = DarkGray)
+                        )
+                    },
                     singleLine = true,
                     maxLines = 1,
                 )
                 Button(
                     onClick = {
-                        if(commentContent.isNotBlank()) {
+                        if (commentContent.isNotBlank()) {
                             if (state.replyToCommentId != null) {
                                 viewModel.createCommentReply(
                                     postId,
@@ -220,7 +230,7 @@ fun CommunityDetailScreen(
                     },
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if(commentContent.isNotBlank()) ButtonPrimary else Gray
+                        containerColor = if (commentContent.isNotBlank()) ButtonPrimary else Gray
                     ),
                     modifier = Modifier.padding(start = 8.dp)
                 ) {
@@ -355,17 +365,26 @@ fun CommunityDetailScreen(
                         .padding(start = 16.dp, end = 16.dp)
                 ) {
                     Spacer(Modifier.height(Dimens.Large))
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ModeComment,
+                            contentDescription = "comment count",
+                            modifier = Modifier.size(24.dp),
+                            tint = Black
+                        )
+                        Spacer(Modifier.width(Dimens.Large))
+                        Text("댓글 (${state.commentList.size})", style = AppTextStyle.BodyLarge)
+                    }
+                    Spacer(Modifier.height(Dimens.Large))
                     Column(
                         modifier = Modifier.fillMaxHeight()
                     ) {
                         state.commentList.forEach { comment ->
                             CommunityDetailComment(
                                 uid = uid,
-                                commentList = comment,
-                                onReplyClick = {
-                                    viewModel.setReplyToCommentId(comment.commentId)
-                                    commentContent = ""
-                                },
+                                comment = comment,
                                 onDeleteClick = {
                                     showCommentDialog = true
                                     deleteTargetCommentId = comment.commentId
@@ -373,20 +392,6 @@ fun CommunityDetailScreen(
                                     viewModel.setReplyToCommentId(null)
                                 }
                             )
-                            if (state.commentReplyList.containsKey(comment.commentId)) {
-                                state.commentReplyList[comment.commentId]?.forEach { reply ->
-                                    CommunityDetailCommentReply(
-                                        uid = uid,
-                                        commentList = reply,
-                                        onDeleteClick = {
-                                            showCommentDialog = true
-                                            deleteTargetCommentId = reply.commentId
-                                            dialogInfo = "답글"
-                                            viewModel.setReplyToCommentId(null)
-                                        }
-                                    )
-                                }
-                            }
                         }
                     }
                 }

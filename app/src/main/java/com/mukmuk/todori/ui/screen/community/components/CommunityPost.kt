@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.ModeComment
+import androidx.compose.material.icons.outlined.PeopleAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -73,27 +75,45 @@ fun CommunityPost(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (post.studyId.isNotBlank()) {
-                    Row(
-                        modifier = Modifier
-                            .border(1.dp, Gray, RoundedCornerShape(5.dp))
-                            .padding(horizontal = 6.dp, vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = Black
-                        )
-                        Spacer(Modifier.width(Dimens.Tiny))
-                        Text(
-                            post.memberCount.toString(),
-                            style = AppTextStyle.BodySmall
-                        )
-                    }
+                Row(
+                    modifier = Modifier
+                        .border(1.dp, Gray, RoundedCornerShape(5.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Outlined.PeopleAlt,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = Black
+                    )
+                    Spacer(Modifier.width(Dimens.Tiny))
+                    Text(
+                        post.memberCount.toString(),
+                        style = AppTextStyle.BodySmall
+                    )
+                }
+                Spacer(Modifier.width(Dimens.Tiny))
+                Row(
+                    modifier = Modifier
+                        .border(1.dp, Gray, RoundedCornerShape(5.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ModeComment,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = Black
+                    )
+                    Spacer(modifier = Modifier.width(Dimens.Tiny))
+                    Text(
+                        text = post.commentsCount.toString(),
+                        style = AppTextStyle.BodySmall
+                    )
                 }
             }
+
             Spacer(modifier = Modifier.height(Dimens.Tiny))
             Text(
                 post.content,
@@ -125,23 +145,6 @@ fun CommunityPost(
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_comment),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = Black
-                    )
-                    Spacer(modifier = Modifier.width(Dimens.Tiny))
-                    Text(
-                        text = post.commentsCount.toString(),
-                        style = AppTextStyle.BodySmall
-                    )
-                }
             }
         }
     }

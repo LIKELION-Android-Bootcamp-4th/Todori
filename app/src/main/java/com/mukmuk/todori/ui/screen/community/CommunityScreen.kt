@@ -276,7 +276,5 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                 }
             }
         }
-
-
     }
 }
