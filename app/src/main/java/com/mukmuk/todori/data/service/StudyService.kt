@@ -213,6 +213,32 @@ class StudyService(
         myStudyRef.update("nickname", nickname).await()
     }
 
+    suspend fun leaveStudy(studyId: String, uid: String) {
+        val batch = firestore.batch()
+
+        val myStudyRef = firestore.collection("users")
+            .document(uid)
+            .collection("myStudies")
+            .document(studyId)
+        batch.delete(myStudyRef)
+
+        val studyMemberRef = firestore.collection("studyMembers")
+            .document("${studyId}_${uid}")
+        batch.delete(studyMemberRef)
+
+        val progresses = firestore.collection("todoProgresses")
+            .whereEqualTo("studyId", studyId)
+            .whereEqualTo("uid", uid)
+            .get()
+            .await()
+        for (doc in progresses.documents) {
+            batch.delete(doc.reference)
+        }
+
+        batch.commit().await()
+    }
+
+
     suspend fun updateHasPosted(uid: String, studyId: String, hasPosted: Boolean) {
         firestore.collection("users")
             .document(uid)

@@ -66,6 +66,8 @@ class StudyRepository @Inject constructor(
     suspend fun updateMyStudyNickname(uid: String, studyId: String, nickname: String) =
         studyService.updateMyStudyNickname(uid, studyId, nickname)
 
+    suspend fun leaveStudy(studyId: String, uid: String) = studyService.leaveStudy(studyId, uid)
+
     suspend fun updateHasPosted(uid: String, studyId: String, hasPosted: Boolean) =
         studyService.updateHasPosted(uid, studyId, hasPosted)
 
