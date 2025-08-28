@@ -1,11 +1,17 @@
 package com.mukmuk.todori.data.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.study.MyStudy
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.data.service.StudyService
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
 import javax.inject.Inject
 
 class StudyRepository @Inject constructor(
@@ -22,6 +28,25 @@ class StudyRepository @Inject constructor(
             nickname = leaderMember.nickname,
         )
         studyService.createStudy(study, leaderMember, myStudy,uid)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun addMyStudyForMember(uid: String, study: Study, nickname: String) {
+        val localDate = LocalDate.now()
+        val date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+        val firebaseTimestamp = Timestamp(date)
+        val myStudy = MyStudy(
+            studyId = study.studyId,
+            studyName = study.title,
+            description = study.description,
+            activeDays = study.activeDays,
+            joinedAt = firebaseTimestamp,
+            role = "MEMBER",
+            nickname = nickname,
+            status = "ACTIVE",
+            hasPosted = false
+        )
+        studyService.addMyStudyForMember(uid, myStudy)
     }
 
     suspend fun getMyStudies(uid: String): List<MyStudy> =

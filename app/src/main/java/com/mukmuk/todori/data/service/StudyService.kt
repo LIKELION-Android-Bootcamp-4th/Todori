@@ -9,6 +9,7 @@ import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.study.StudyTodo
 import com.mukmuk.todori.data.remote.study.TodoProgress
 import kotlinx.coroutines.tasks.await
+import kotlinx.datetime.LocalTime
 
 class StudyService(
     private val firestore: FirebaseFirestore
@@ -28,6 +29,14 @@ class StudyService(
             .set(myStudyWithStudyId, SetOptions.merge()).await()
         return autoId
 
+    }
+    suspend fun addMyStudyForMember(uid: String, study: MyStudy) {
+        firestore.collection("users")
+            .document(uid)
+            .collection("myStudies")
+            .document(study.studyId)
+            .set(study, SetOptions.merge())
+            .await()
     }
 
     suspend fun getMyStudies(uid: String): List<MyStudy> {

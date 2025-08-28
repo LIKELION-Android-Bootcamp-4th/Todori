@@ -1,9 +1,7 @@
 package com.mukmuk.todori.ui.screen.community.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,120 +11,90 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.firebase.Timestamp
-import com.mukmuk.todori.R
-import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
-import com.mukmuk.todori.ui.screen.community.CommunityViewModel
 import com.mukmuk.todori.ui.screen.community.detail.CommunityDetailViewModel
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
-import com.mukmuk.todori.ui.theme.LightGray
-import com.mukmuk.todori.ui.theme.White
 import com.mukmuk.todori.util.getLevelInfo
 
 @Composable
 fun CommunityDetailComment(
     uid: String,
-    commentList: StudyPostComment,
-    onReplyClick: () -> Unit,
-    onDeleteClick: () -> Unit,
+    comment: StudyPostComment,
+    onDeleteClick: () -> Unit
 ) {
     val viewModel: CommunityDetailViewModel = hiltViewModel()
 
-
-    Box(
+    Row(
+        verticalAlignment = Alignment.Top,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp)
-            .background(White, RoundedCornerShape(10.dp))
-            .border(1.dp, Gray, RoundedCornerShape(10.dp)),
-    ){
+            .padding(vertical = Dimens.Tiny)
+    ) {
+        val levelInfo = getLevelInfo(comment.level)
+        Image(
+            painter = painterResource(id = levelInfo.imageRes),
+            contentDescription = "레벨 이미지",
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .border(1.dp, Gray, CircleShape)
+        )
 
-        Column(
-            modifier = Modifier.padding(Dimens.Tiny)
-        ) {
+        Spacer(modifier = Modifier.width(Dimens.Tiny))
+        Column(modifier = Modifier.weight(1f)) {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                val levelInfo = getLevelInfo(commentList.level)
-
-                Image(
-                    painter = painterResource(id = levelInfo.imageRes),
-                    contentDescription = "레벨 이미지",
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .border(width = 1.dp, shape = CircleShape,color = Gray)
-                )
-
-                Spacer(modifier = Modifier.width(Dimens.Tiny))
-
-                Text(
-                    commentList.username,
-                    style = AppTextStyle.Body.copy(fontWeight = FontWeight.Bold)
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                IconButton(onClick = { onReplyClick() }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_comment),
-                        modifier = Modifier.size(16.dp),
-                        contentDescription = null,
-                        tint = Black
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        comment.username,
+                        style = AppTextStyle.BodyBold
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        viewModel.formatDate(comment.createdAt),
+                        style = AppTextStyle.BodyTinyBold,
+                        color = DarkGray
                     )
                 }
-
-                if (uid == commentList.uid) {
-
-                    IconButton(onClick = { onDeleteClick() }) {
-                        Icon(Icons.Default.Delete, contentDescription = null)
+                Spacer(modifier = Modifier.weight(1f))
+                if (uid == comment.uid) {
+                    IconButton(
+                        onClick = onDeleteClick,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = "삭제",
+                            tint = Black,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
-
                 }
             }
-
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
-
-            Text(commentList.content, style = AppTextStyle.Body)
-
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
-
-            Text(viewModel.formatDate(commentList.createdAt), style = AppTextStyle.BodySmall, color = DarkGray, fontWeight = FontWeight.Bold)
-
-
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                comment.content,
+                style = AppTextStyle.Body
+            )
         }
-
-
-
     }
-
 }
-

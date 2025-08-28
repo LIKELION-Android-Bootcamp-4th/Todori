@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -27,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import com.mukmuk.todori.data.remote.study.MyStudy
 import com.mukmuk.todori.ui.screen.community.StudyCategory
 import com.mukmuk.todori.ui.theme.AppTextStyle
+import com.mukmuk.todori.ui.theme.Black
+import com.mukmuk.todori.ui.theme.GroupSecondary
 import com.mukmuk.todori.ui.theme.White
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -62,7 +65,9 @@ fun TagPickerBottomSheet(
                 }
 
                 items(StudyCategory.entries.toTypedArray()) { category ->
-                    Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                    Column(Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)) {
                         Text(
                             text = category.displayName,
                             style = AppTextStyle.BodyLarge,
@@ -75,19 +80,30 @@ fun TagPickerBottomSheet(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             category.tags.forEach { tag ->
+                                val categoryColor = StudyCategory.entries.find { category ->
+                                    category.tags.contains(tag)
+                                }?.color ?: GroupSecondary
                                 val isSelected = tag in selectedTags
                                 FilterChip(
                                     selected = isSelected,
-                                    onClick = { if (!isSelected && selectedTags.size >= 3) {
-                                        Toast.makeText(
-                                            context,
-                                            "태그는 최대 3개까지 선택 가능합니다.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    } else {
-                                        onTagClick(tag)
-                                    }},
-                                    label = { Text(tag) }
+                                    onClick = {
+                                        if (!isSelected && selectedTags.size >= 3) {
+                                            Toast.makeText(
+                                                context,
+                                                "태그는 최대 3개까지 선택 가능합니다.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else {
+                                            onTagClick(tag)
+                                        }
+                                    },
+                                    label = { Text(tag, color = if (isSelected) White else Black) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        containerColor = if (isSelected) categoryColor else White,
+                                        labelColor = if (isSelected) White else Black,
+                                        selectedContainerColor = categoryColor,
+                                        selectedLabelColor = White
+                                    )
                                 )
                             }
                         }

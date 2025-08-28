@@ -1,12 +1,15 @@
 package com.mukmuk.todori.ui.screen.community.detail
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
+import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.CommunityRepository
 import com.mukmuk.todori.data.repository.StudyRepository
@@ -23,11 +26,11 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class CommunityDetailViewModel@Inject constructor(
+class CommunityDetailViewModel @Inject constructor(
     private val repository: CommunityRepository,
     private val studyRepository: StudyRepository,
     private val auth: FirebaseAuth
-): ViewModel() {
+) : ViewModel() {
 
     private val _state = MutableStateFlow(CommunityDetailState())
     val state: StateFlow<CommunityDetailState> = _state
@@ -44,12 +47,21 @@ class CommunityDetailViewModel@Inject constructor(
     fun loadPostById(postId: String) {
         loadPostJob?.cancel()
         loadPostJob = viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, study = null, user = null, post = null, commentList = emptyList(), commentReplyList = emptyMap(), replyToCommentId = null) }
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    study = null,
+                    user = null,
+                    post = null,
+                    commentList = emptyList(),
+                    replyToCommentId = null
+                )
+            }
             try {
                 repository.getPostById(postId).collect { post ->
                     val user = repository.getUserById(post!!.createdBy)
                     var members = emptyList<StudyMember>()
-                    if(post.studyId.isNotBlank()) {
+                    if (post.studyId.isNotBlank()) {
                         loadStudyById(post.studyId)
                         members = repository.getStudyMembers(post.studyId)
                     }
@@ -177,7 +189,8 @@ class CommunityDetailViewModel@Inject constructor(
                         }
 
                         for (comment in comments) {
-                            val replies = repository.getPostCommentReplies(postId, comment.commentId)
+                            val replies =
+                                repository.getPostCommentReplies(postId, comment.commentId)
                             val updatedReplies = replies.sortedBy {
                                 it.createdAt?.toDate()?.time
                             }
@@ -190,7 +203,6 @@ class CommunityDetailViewModel@Inject constructor(
                 _state.update {
                     it.copy(
                         commentList = updatedComments,
-                        commentReplyList = repliesMap,
                         isLoading = false,
                         error = null
                     )
@@ -226,7 +238,7 @@ class CommunityDetailViewModel@Inject constructor(
                     val replies = repository.getPostCommentReplies(postId, comment.commentId)
                     for (reply in replies) {
                         repository.deletePostComment(postId, reply.commentId)
-                        }
+                    }
                     repository.deletePostComment(postId, comment.commentId)
                 }
                 getComments(postId)
@@ -296,14 +308,31 @@ class CommunityDetailViewModel@Inject constructor(
         }
     }
 
-    fun updateStudyMember(postId: String, studyId: String, member: StudyMember) {
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun joinStudy(postId: String, study: Study) {
+        val uid = auth.currentUser?.uid ?: return
+        val nickname = state.value.user?.nickname ?: ""
+        val member = StudyMember(
+            uid = uid,
+            nickname = nickname,
+            studyId = study.studyId,
+            role = "MEMBER",
+            joinedAt = Timestamp.now()
+        )
+
         viewModelScope.launch {
             try {
-                repository.updateStudyMember(postId, studyId, member)
+                val updatedMembers = _state.value.memberList.toMutableList()
+                updatedMembers.add(member)
+                _state.update { it.copy(memberList = updatedMembers) }
+
+                repository.updateStudyMember(postId, study.studyId, member)
+                studyRepository.addMyStudyForMember(uid, study, nickname)
+
+                loadPostById(postId)
             } catch (e: Exception) {
-                _state.value = _state.value.copy(error = "저장 실패, 다시 시도해주세요.")
+                _state.update { it.copy(error = "참여 실패: ${e.message}") }
             }
         }
     }
-
 }
