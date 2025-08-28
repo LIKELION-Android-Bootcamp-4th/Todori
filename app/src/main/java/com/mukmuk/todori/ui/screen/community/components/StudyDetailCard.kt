@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,9 +43,9 @@ fun StudyDetailCard(
     study: Study,
     selectedDate: LocalDate?,
     memberList: List<StudyMember>,
+    isLoading: Boolean = false,
     onClick: () -> Unit
 ) {
-
     Card (
         modifier = Modifier
             .fillMaxWidth()
@@ -56,22 +58,16 @@ fun StudyDetailCard(
             modifier = Modifier.padding(Dimens.Medium)
         ) {
             Text(study.title, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold))
-
             Spacer(modifier = Modifier.height(Dimens.Tiny))
-
             Text(study.description, style = AppTextStyle.Body.copy(color = DarkGray))
-
             Spacer(modifier = Modifier.height(Dimens.Tiny))
-
             StudyMetaInfoRow(
                 createdAt = study.createdAt,
                 memberCount = memberList.size,
                 activeDays = study.activeDays,
                 selectedDate = selectedDate
             )
-
             Spacer(modifier = Modifier.height(Dimens.Tiny))
-
             if(memberList.find { it.uid ==  uid} != null){
                 Button(
                     enabled = false,
@@ -84,20 +80,26 @@ fun StudyDetailCard(
 
                     },
                 ) {
-                    Text("참여중", style = AppTextStyle.MypageButtonText.copy(color = White))
+                    Text("참여중", style = AppTextStyle.BodySmallMedium.copy(color = White))
                 }
             }
             else {
                 Button(
-                    onClick = {
-                       onClick()
-                    },
-                    modifier = Modifier.fillMaxWidth()
+                    onClick = onClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoading
                 ) {
-                    Text("참여하기", style = AppTextStyle.MypageButtonText.copy(color = White))
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp,
+                            color = White
+                        )
+                    } else {
+                        Text("참여하기", style = AppTextStyle.BodySmallMedium.copy(color = White))
+                    }
                 }
             }
         }
     }
-
 }

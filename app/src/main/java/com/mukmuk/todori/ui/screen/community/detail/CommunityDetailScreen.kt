@@ -329,27 +329,19 @@ fun CommunityDetailScreen(
                         }
                     }
                     Spacer(Modifier.height(16.dp))
-                    if (state.post?.studyId != null && state.study != null) {
-                        StudyDetailCard(
-                            uid = uid,
-                            study = state.study!!,
-                            memberList = state.memberList,
-                            selectedDate = null,
-                            onClick = {
-                                viewModel.updateStudyMember(
-                                    postId,
-                                    state.post!!.studyId,
-                                    StudyMember(
-                                        uid = uid,
-                                        nickname = state.user?.nickname ?: "",
-                                        studyId = state.post!!.studyId,
-                                        role = "MEMBER",
-                                        joinedAt = Timestamp.now(),
-                                    )
-                                )
-                                viewModel.loadPostById(postId)
-                            }
-                        )
+                    state.post?.studyId?.let {
+                        state.study?.let { study ->
+                            StudyDetailCard(
+                                uid = uid,
+                                study = study,
+                                memberList = state.memberList,
+                                selectedDate = null,
+                                onClick = {
+                                    viewModel.joinStudy(postId, study)
+                                },
+                                isLoading = state.isLoading
+                            )
+                        }
                     }
                 }
                 Spacer(
