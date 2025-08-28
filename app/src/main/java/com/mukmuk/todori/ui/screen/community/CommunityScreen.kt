@@ -176,18 +176,27 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                         onDismissRequest = { expanded = false },
                         containerColor = White
                     ) {
-                        listOf("전체") + StudyCategory.entries.map { it.displayName }
-                            .forEach { category ->
-                                DropdownMenuItem(
-                                    text = { Text(category, style = AppTextStyle.BodySmallNormal) },
-                                    onClick = {
-                                        selectedCategory = category
-                                        selectedTag = null
-                                        viewModel.setData(category)
-                                        expanded = false
-                                    }
-                                )
+                        DropdownMenuItem(
+                            text = { Text("전체", style = AppTextStyle.BodySmallNormal) },
+                            onClick = {
+                                selectedCategory = "전체"
+                                selectedTag = null
+                                viewModel.setData("전체")
+                                expanded = false
                             }
+                        )
+
+                        StudyCategory.entries.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text(category.displayName, style = AppTextStyle.BodySmallNormal) },
+                                onClick = {
+                                    selectedCategory = category.displayName
+                                    selectedTag = null
+                                    viewModel.setData(category.displayName)
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
 
