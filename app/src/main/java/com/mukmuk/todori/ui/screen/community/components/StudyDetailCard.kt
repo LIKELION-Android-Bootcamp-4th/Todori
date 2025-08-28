@@ -33,6 +33,7 @@ import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
+import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 import kotlinx.datetime.LocalDate
 
@@ -43,62 +44,41 @@ fun StudyDetailCard(
     study: Study,
     selectedDate: LocalDate?,
     memberList: List<StudyMember>,
-    isLoading: Boolean = false,
     onClick: () -> Unit
 ) {
-    Card (
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = Dimens.Large)
             .border(1.dp, Gray, RoundedCornerShape(10.dp)),
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-    ){
-        Column(
-            modifier = Modifier.padding(Dimens.Medium)
-        ) {
+        colors = CardDefaults.cardColors(containerColor = White)
+    ) {
+        Column(modifier = Modifier.padding(Dimens.Medium)) {
             Text(study.title, style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold))
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
-            Text(study.description, style = AppTextStyle.Body.copy(color = DarkGray))
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
+            Text(study.description, style = AppTextStyle.Body.copy(color = DarkGray), modifier = Modifier.padding(top = Dimens.Tiny))
             StudyMetaInfoRow(
                 createdAt = study.createdAt,
                 memberCount = memberList.size,
                 activeDays = study.activeDays,
-                selectedDate = selectedDate
+                selectedDate = selectedDate,
+                modifier = Modifier.padding(top = Dimens.Tiny)
             )
-            Spacer(modifier = Modifier.height(Dimens.Tiny))
-            if(memberList.find { it.uid ==  uid} != null){
-                Button(
-                    enabled = false,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = DarkGray,
-                        contentColor = White
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-
-                    },
-                ) {
-                    Text("참여중", style = AppTextStyle.BodySmallMedium.copy(color = White))
-                }
-            }
-            else {
-                Button(
-                    onClick = onClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !isLoading
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp,
-                            color = White
-                        )
-                    } else {
-                        Text("참여하기", style = AppTextStyle.BodySmallMedium.copy(color = White))
-                    }
-                }
+            Button(
+                onClick = onClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Dimens.Tiny),
+                enabled = memberList.none { it.uid == uid },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (memberList.any { it.uid == uid }) DarkGray else UserPrimary,
+                    contentColor = White
+                )
+            ) {
+                Text(
+                    if (memberList.any { it.uid == uid }) "참여중" else "참여하기",
+                    style = AppTextStyle.BodySmallMedium.copy(color = White)
+                )
             }
         }
     }

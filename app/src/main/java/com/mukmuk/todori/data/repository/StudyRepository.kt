@@ -84,6 +84,8 @@ class StudyRepository @Inject constructor(
     suspend fun deleteStudyWithAllData(studyId: String) =
         studyService.deleteStudyWithAllData(studyId)
 
+    suspend fun removeMemberFromStudy(studyId: String, uid: String) =
+        studyService.removeMemberFromStudy(studyId, uid)
 
     suspend fun updateStudy(study: Study) =
         studyService.updateStudy(study)
