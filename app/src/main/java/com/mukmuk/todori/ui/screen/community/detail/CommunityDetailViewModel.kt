@@ -315,7 +315,7 @@ class CommunityDetailViewModel @Inject constructor(
                 updatedMembers.add(member)
                 _state.update { it.copy(memberList = updatedMembers) }
 
-                repository.updateStudyMember(postId, study.studyId, member)
+                repository.updateStudyMember(postId, member)
                 studyRepository.addMyStudyForMember(uid, study, nickname)
 
                 loadPostById(postId)
