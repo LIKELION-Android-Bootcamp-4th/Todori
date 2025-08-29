@@ -51,31 +51,32 @@ fun MonthTab(
     val state by viewModel.monthState.collectAsState()
 
     LaunchedEffect(selectedMonth) {
-        viewModel.loadTodoStats(
-            uid = uid,
-            year = selectedMonth.year,
-            month = selectedMonth.monthNumber
-        )
-        viewModel.loadGoalStats(
-            uid = uid,
-            year = selectedMonth.year,
-            month = selectedMonth.monthNumber
-        )
-        viewModel.loadStudyTodosStats(
-            uid = uid,
-            year = selectedMonth.year,
-            month = selectedMonth.monthNumber
-        )
-        viewModel.loadStudyTimeStats(
-            uid = uid,
-            year = selectedMonth.year,
-            month = selectedMonth.monthNumber
-        )
-        viewModel.loadMonthStats(
-            uid = uid,
-            year = selectedMonth.year,
-            month = selectedMonth.monthNumber
-        )
+//        viewModel.loadTodoStats(
+//            uid = uid,
+//            year = selectedMonth.year,
+//            month = selectedMonth.monthNumber
+//        )
+//        viewModel.loadGoalStats(
+//            uid = uid,
+//            year = selectedMonth.year,
+//            month = selectedMonth.monthNumber
+//        )
+//        viewModel.loadStudyTodosStats(
+//            uid = uid,
+//            year = selectedMonth.year,
+//            month = selectedMonth.monthNumber
+//        )
+//        viewModel.loadStudyTimeStats(
+//            uid = uid,
+//            year = selectedMonth.year,
+//            month = selectedMonth.monthNumber
+//        )
+//        viewModel.loadMonthStats(
+//            uid = uid,
+//            year = selectedMonth.year,
+//            month = selectedMonth.monthNumber
+//        )
+        viewModel.loadMonthData(uid, selectedMonth.year, selectedMonth.monthNumber)
     }
 
     Column(

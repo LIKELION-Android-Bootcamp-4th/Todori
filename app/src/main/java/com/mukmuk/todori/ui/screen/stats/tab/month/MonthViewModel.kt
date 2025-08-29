@@ -40,6 +40,18 @@ class MonthViewModel @Inject constructor(
     private val _monthState = MutableStateFlow(MonthState())
     val monthState: StateFlow<MonthState> = _monthState.asStateFlow()
 
+    fun loadMonthData(uid: String, year: Int, month: Int) {
+        viewModelScope.launch {
+            _monthState.value = MonthState()
+            loadTodoStats(uid, year, month)
+            loadGoalStats(uid, year, month)
+            loadStudyTodosStats(uid, year, month)
+            loadStudyTimeStats(uid, year, month)
+            loadMonthStats(uid, year, month)
+        }
+    }
+
+
     fun loadTodoStats(uid: String, year: Int, month: Int) {
         viewModelScope.launch {
             val completed = todoStatsRepository.getCompletedTodoCount(uid, year, month)
