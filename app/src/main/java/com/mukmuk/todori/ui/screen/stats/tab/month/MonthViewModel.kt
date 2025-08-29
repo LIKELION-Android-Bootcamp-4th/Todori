@@ -98,17 +98,12 @@ class MonthViewModel @Inject constructor(
 
         val weekFields = WeekFields.of(Locale.KOREAN)
 
-        val start = LocalDate.of(year, month, 1)
-        val end = start.plusMonths(1).minusDays(1)
-        val totalWeeks = end.get(weekFields.weekOfMonth())
-
         val grouped = records.groupBy { record ->
             val localDate = LocalDate.parse(record.date)
             localDate.get(weekFields.weekOfMonth())
         }
 
-        val weekStats = (1..totalWeeks).map { week ->
-            val recs = grouped[week].orEmpty()
+        val weekStats = grouped.map { (week, recs) ->
             WeekStat(
                 label = "${month}월 ${week}주차",
                 totalStudyTimeMillis = recs.sumOf { it.studyTimeMillis }
