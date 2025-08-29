@@ -40,6 +40,18 @@ class MonthViewModel @Inject constructor(
     private val _monthState = MutableStateFlow(MonthState())
     val monthState: StateFlow<MonthState> = _monthState.asStateFlow()
 
+    fun loadMonthData(uid: String, year: Int, month: Int) {
+        viewModelScope.launch {
+            _monthState.value = MonthState()
+            loadTodoStats(uid, year, month)
+            loadGoalStats(uid, year, month)
+            loadStudyTodosStats(uid, year, month)
+            loadStudyTimeStats(uid, year, month)
+            loadMonthStats(uid, year, month)
+        }
+    }
+
+
     fun loadTodoStats(uid: String, year: Int, month: Int) {
         viewModelScope.launch {
             val completed = todoStatsRepository.getCompletedTodoCount(uid, year, month)
@@ -98,17 +110,12 @@ class MonthViewModel @Inject constructor(
 
         val weekFields = WeekFields.of(Locale.KOREAN)
 
-        val start = LocalDate.of(year, month, 1)
-        val end = start.plusMonths(1).minusDays(1)
-        val totalWeeks = end.get(weekFields.weekOfMonth())
-
         val grouped = records.groupBy { record ->
             val localDate = LocalDate.parse(record.date)
             localDate.get(weekFields.weekOfMonth())
         }
 
-        val weekStats = (1..totalWeeks).map { week ->
-            val recs = grouped[week].orEmpty()
+        val weekStats = grouped.map { (week, recs) ->
             WeekStat(
                 label = "${month}월 ${week}주차",
                 totalStudyTimeMillis = recs.sumOf { it.studyTimeMillis }

@@ -54,7 +54,6 @@ fun StatsScreen(navController: NavHostController) {
 
             when (selectedTab) {
                 StatsTab.DAY -> DayTab(
-                    uid = uid,
                     date = anchorDate,
                     onDateChange = { anchorDate = it }
                 )

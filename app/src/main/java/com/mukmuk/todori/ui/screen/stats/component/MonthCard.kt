@@ -122,7 +122,6 @@ fun MonthCard(
 
         Spacer(modifier = Modifier.height(Dimens.Medium))
 
-        // 하단: 베스트 주 / 워스트 주
         Row(
             modifier = Modifier
                 .fillMaxWidth()

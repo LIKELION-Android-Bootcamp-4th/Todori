@@ -57,24 +57,35 @@ fun StudyGoalCard(
                     color = Black
                 )
             }
-            Text(
-                text = "'${startHour}시 집중러' 였어요",
-                style = AppTextStyle.BodySmallNormal,
-                color = ReportPrimary
-            )
-
             Spacer(modifier = Modifier.height(Dimens.Large))
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(140.dp).align(Alignment.CenterHorizontally)
-            ) {
-                HourlyHighlightCircle(
-                    hourRange = startHour..endHour,
-                    centerText = if (startHour == endHour) "${startHour}시" else "${startHour}~${endHour}시",
-                    modifier = Modifier.fillMaxSize(),
-                    highlightColor = ReportPrimary
+            if (startHour == 0 && endHour == 0) {
+                Text(
+                    text = "아직 충분한 학습 데이터가 없어요.\n조금 더 기록해보세요!",
+                    style = AppTextStyle.BodySmallBold,
+                    color = ReportPrimary
                 )
+            } else {
+                Text(
+                    text = "'${if (startHour == endHour) "${startHour}시" else "${startHour}~${endHour}시"} 집중러' 였어요",
+                    style = AppTextStyle.BodySmallNormal,
+                    color = ReportPrimary
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.Large))
+
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(140.dp)
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    HourlyHighlightCircle(
+                        hourRange = startHour..endHour,
+                        centerText = if (startHour == endHour) "${startHour}시" else "${startHour}~${endHour}시",
+                        modifier = Modifier.fillMaxSize(),
+                        highlightColor = ReportPrimary
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(Dimens.Medium))

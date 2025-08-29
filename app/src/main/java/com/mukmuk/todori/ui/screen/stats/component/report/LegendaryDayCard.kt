@@ -27,8 +27,8 @@ import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun LegendaryDayCard(
-    date: String,
-    studyTime: String
+    date: String?,
+    studyTime: String?
 ) {
     Card(
         modifier = Modifier
@@ -39,6 +39,7 @@ fun LegendaryDayCard(
             containerColor = ReportPrimary
         )
     ) {
+        val hasData = !date.isNullOrBlank() && !studyTime.isNullOrBlank()
         Column(
             modifier = Modifier.fillMaxWidth().padding(Dimens.Large),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -62,21 +63,30 @@ fun LegendaryDayCard(
                 )
             }
 
-            Text(
-                text = date,
-                style = AppTextStyle.Timer.copy(fontSize = 48.sp),
-                color = White
-            )
-            Text(
-                text = studyTime,
-                style = AppTextStyle.TitleSmall,
-                color = White
-            )
-            Text(
-                text = "이 날은 정말 전설이었어요",
-                style = AppTextStyle.BodySmallNormal,
-                color = White.copy(alpha = 0.8f)
-            )
+            if (hasData) {
+                Text(
+                    text = date,
+                    style = AppTextStyle.Timer.copy(fontSize = 48.sp),
+                    color = White
+                )
+                Text(
+                    text = studyTime,
+                    style = AppTextStyle.TitleSmall,
+                    color = White
+                )
+                Text(
+                    text = "이 날은 정말 전설이었어요",
+                    style = AppTextStyle.BodySmallNormal,
+                    color = White.copy(alpha = 0.8f)
+                )
+            } else {
+                Spacer(modifier = Modifier.size(Dimens.Medium))
+                Text(
+                    text = "아직 전설의 하루가 없어요.\n꾸준히 학습 기록을 쌓아보세요!",
+                    style = AppTextStyle.BodySmallBold,
+                    color = White.copy(alpha = 0.9f)
+                )
+            }
         }
     }
 }

@@ -55,11 +55,18 @@ fun SubjectAnalysisCard(
                     color = Black
                 )
             }
-
-            subjects.forEach { subject ->
-                SubjectProgressItem(subject = subject)
-                if (subject != subjects.last()) {
-                    Spacer(modifier = Modifier.height(Dimens.Medium))
+            if (subjects.isEmpty()) {
+                Text(
+                    text = "아직 분석할 데이터가 부족해요.\n더 많은 학습 기록을 추가해보세요!",
+                    style = AppTextStyle.BodySmallBold,
+                    color = Black
+                )
+            } else {
+                subjects.forEach { subject ->
+                    SubjectProgressItem(subject = subject)
+                    if (subject != subjects.last()) {
+                        Spacer(modifier = Modifier.height(Dimens.Medium))
+                    }
                 }
             }
         }
