@@ -113,7 +113,6 @@ fun CreateCommunityScreen(
                     }
                 },
                 modifier = Modifier
-                    .height(56.dp)
                     .fillMaxWidth(),
             )
         },
