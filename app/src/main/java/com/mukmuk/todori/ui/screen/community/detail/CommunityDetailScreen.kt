@@ -44,6 +44,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -370,7 +371,8 @@ fun CommunityDetailScreen(
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
                                             message = "스터디에 참여했어요 🎉",
-                                            actionLabel = "바로가기"
+                                            actionLabel = "바로가기",
+                                            duration = SnackbarDuration.Short
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
                                             val today = LocalDate.now().toString()
