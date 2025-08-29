@@ -133,6 +133,8 @@ class CommunityViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 communityRepository.createCommunitySearch(uid, query)
+                val searches = communityRepository.getCommunitySearch(uid)
+                _state.update { it.copy(communitySearchList = searches) }
             } catch (e: Exception) {
                 _state.update { it.copy(error = e.message) }
             }
