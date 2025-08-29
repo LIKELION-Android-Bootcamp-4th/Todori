@@ -44,25 +44,31 @@ class GoalDetailViewModel @Inject constructor(
         }
     }
 
-    //세부목표 completed 처리
     fun toggleGoalTodoCompleted(uid: String, goalTodo: GoalTodo) {
         viewModelScope.launch {
             val updated = goalTodo.copy(completed = !goalTodo.completed)
             try {
                 goalTodoRepository.updateGoalTodo(uid, updated)
-                // 성공 시 목록 다시 로딩 등 처리
-                loadGoalDetail(uid, updated.goalId)
+
+                _state.value = _state.value.copy(
+                    todos = _state.value.todos.map {
+                        if (it.goalTodoId == updated.goalTodoId) updated else it
+                    }
+                )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = e.message)
             }
         }
     }
 
-    fun deleteGoalTodo(uid: String, goalTodoId: String, goalId: String) {
+    fun deleteGoalTodo(uid: String, goalTodoId: String) {
         viewModelScope.launch {
             try {
                 goalTodoRepository.deleteGoalTodo(uid, goalTodoId)
-                loadGoalDetail(uid, goalId)
+
+                _state.value = _state.value.copy(
+                    todos = _state.value.todos.filterNot { it.goalTodoId == goalTodoId }
+                )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = e.message)
             }
@@ -87,8 +93,11 @@ class GoalDetailViewModel @Inject constructor(
                     completed = false,
                     createdAt = Timestamp.now(),
                 )
-                goalTodoRepository.createGoalTodo(uid, newGoalTodo)
-                loadGoalDetail(uid, goalId)
+                val savedTodo = goalTodoRepository.createGoalTodo(uid, newGoalTodo)
+
+                _state.value = _state.value.copy(
+                    todos = _state.value.todos + savedTodo
+                )
                 onResult(true)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = e.message)

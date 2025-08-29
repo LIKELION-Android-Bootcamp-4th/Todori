@@ -31,7 +31,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.ModeComment
-import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -46,7 +45,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -57,10 +55,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.focus.onFocusEvent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,7 +64,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.community.StudyPostComment
-import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.ui.screen.community.StudyCategory
 import com.mukmuk.todori.ui.screen.community.components.CommunityDetailComment
 import com.mukmuk.todori.ui.screen.community.components.StudyDetailCard
@@ -100,8 +93,6 @@ fun CommunityDetailScreen(
     var showDialog by remember { mutableStateOf(false) }
     var showCommentDialog by remember { mutableStateOf(false) }
     var deleteTargetCommentId by remember { mutableStateOf<String?>(null) }
-    val textSet = LocalFocusManager.current
-    val td by remember { mutableStateOf(textSet) }
     var dialogInfo by remember { mutableStateOf<String?>(null) }
     val uid = Firebase.auth.currentUser?.uid.toString()
     val focusManager = LocalFocusManager.current

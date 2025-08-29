@@ -109,7 +109,6 @@ fun GoalDetailScreen(
     }
 
     if (state.isLoading) {
-        // 로딩 화면
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -227,7 +226,6 @@ fun GoalDetailScreen(
                                         containerColor = GoalPrimary
                                     ) {
                                         Text("✓", color = White)
-//                                        Text("newTodoDueDate?.dayOfMonth.toString()", color = White)
                                     }
                                 }
                             }
@@ -336,7 +334,7 @@ fun GoalDetailScreen(
                                 modifier = Modifier
                                     .size(20.dp)
                                     .clickable {
-                                        viewModel.deleteGoalTodo(uid, todo.goalTodoId, todo.goalId)
+                                        viewModel.deleteGoalTodo(uid, todo.goalTodoId)
                                     }
                             )
                         }
