@@ -53,7 +53,9 @@ fun WeekInsights(insights: WeekInsightsData) {
                     style = AppTextStyle.Body
                 )
             }
+            var hasInsight = false
             if (insights.productiveDay.isNotBlank() && insights.completionRate > 0) {
+                hasInsight = true
                 Text(
                     "${insights.productiveDay}이 가장 생산적이었어요 (${insights.productiveDuration}, ${insights.completionRate}% 완료율)",
                     style = AppTextStyle.BodySmall
@@ -61,6 +63,7 @@ fun WeekInsights(insights: WeekInsightsData) {
             }
 
             if (insights.bestTimeSlot.isNotBlank() && insights.bestTimeSlotRate > 0) {
+                hasInsight = true
                 Text(
                     "${insights.bestTimeSlot} 시간대에 평균 ${insights.bestTimeSlotRate}% 집중도를 보였어요",
                     style = AppTextStyle.BodySmall
@@ -68,9 +71,16 @@ fun WeekInsights(insights: WeekInsightsData) {
             }
 
             if (insights.planAchievement > 0) {
+                hasInsight = true
                 Text(
                     "계획 대비 실제 학습시간이 ${insights.planAchievement}% 달성되었어요",
                     style = AppTextStyle.BodySmall
+                )
+            }
+            if (!hasInsight) {
+                Text(
+                    "아직 인사이트를 도출할 데이터가 부족해요.\n더 많은 학습 기록을 남겨보세요!",
+                    style = AppTextStyle.BodySmallBold
                 )
             }
         }
