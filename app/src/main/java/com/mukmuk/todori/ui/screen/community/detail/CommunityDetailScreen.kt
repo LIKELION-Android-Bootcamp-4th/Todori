@@ -44,6 +44,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -54,6 +57,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,8 +86,12 @@ import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupSecondary
+import com.mukmuk.todori.ui.theme.UserHalf
+import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 import com.mukmuk.todori.util.getLevelInfo
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,6 +114,8 @@ fun CommunityDetailScreen(
     var dialogInfo by remember { mutableStateOf<String?>(null) }
     val uid = Firebase.auth.currentUser?.uid.toString()
     val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.getUserById(uid)
@@ -119,6 +129,18 @@ fun CommunityDetailScreen(
     }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState
+            ) { data ->
+                androidx.compose.material3.Snackbar(
+                    snackbarData = data,
+                    containerColor = UserPrimary,
+                    contentColor = White,
+                    actionColor = White
+                )
+            }
+        },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -345,7 +367,17 @@ fun CommunityDetailScreen(
                                 selectedDate = null,
                                 onClick = {
                                     viewModel.joinStudy(postId, study)
-                                },
+                                    scope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = "스터디에 참여했어요 🎉",
+                                            actionLabel = "바로가기"
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            val today = LocalDate.now().toString()
+                                            navController.navigate("study/detail/${study.studyId}?date=$today")
+                                        }
+                                    }
+                                }
                             )
                         }
                     }
