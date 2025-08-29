@@ -35,8 +35,8 @@ import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun MonthHighlightCard(
-    bestDay: String,
-    bestDayQuote: String,
+    bestDay: String?,
+    bestDayQuote: String?,
     insights: List<String>
 ) {
     Column(
@@ -71,44 +71,56 @@ fun MonthHighlightCard(
 
                 Spacer(modifier = Modifier.height(Dimens.Small))
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            LightOrange,
-                            RoundedCornerShape(Dimens.Small)
-                        )
-                        .padding(Dimens.Small)
-                ) {
-                    Column {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.EmojiEvents,
-                                contentDescription = null,
-                                tint = LearningAccent,
-                                modifier = Modifier.size(16.dp)
+
+                if ( bestDayQuote.isNullOrBlank() || bestDay.isNullOrBlank()) {
+                    Text(
+                        text = "아직 회고 데이터가 없어요.\n회고 기록을 더 쌓아보세요!",
+                        style = AppTextStyle.BodySmallBold,
+                        color = DarkGray
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                LightOrange,
+                                RoundedCornerShape(Dimens.Small)
                             )
-                            Spacer(modifier = Modifier.width(Dimens.Nano))
+                            .padding(Dimens.Small)
+                    ) {
+                        Column {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.EmojiEvents,
+                                    contentDescription = null,
+                                    tint = LearningAccent,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(Dimens.Nano))
+                                Text(
+                                    text = "가장 보람찬 날",
+                                    style = AppTextStyle.BodyTinyMedium,
+                                    color = LearningAccent
+                                )
+                            }
                             Text(
-                                text = "가장 보람찬 날",
-                                style = AppTextStyle.BodyTinyMedium,
-                                color = LearningAccent
+                                text = bestDay,
+                                style = AppTextStyle.BodySmallMedium,
+                                color = Black
                             )
+                            if (bestDayQuote.isNotBlank()) {
+                                Text(
+                                    text = "\"$bestDayQuote\"",
+                                    style = AppTextStyle.BodyTinyNormal,
+                                    color = DarkGray
+                                )
+                            }
                         }
-                        Text(
-                            text = bestDay,
-                            style = AppTextStyle.BodySmallMedium,
-                            color = Black
-                        )
-                        Text(
-                            text = "\"$bestDayQuote\"",
-                            style = AppTextStyle.BodyTinyNormal,
-                            color = DarkGray
-                        )
                     }
                 }
+
                 Spacer(modifier = Modifier.height(Dimens.Large))
 
                 Row(
@@ -129,20 +141,28 @@ fun MonthHighlightCard(
                     )
                 }
 
-                insights.forEach { insight ->
-                    Row(
-                        modifier = Modifier.padding(bottom = Dimens.Tiny)
-                    ) {
-                        Text(
-                            text = "• ",
-                            style = AppTextStyle.BodySmallNormal,
-                            color = DarkGray
-                        )
-                        Text(
-                            text = insight,
-                            style = AppTextStyle.BodySmallNormal,
-                            color = DarkGray
-                        )
+                if (insights.isEmpty()) {
+                    Text(
+                        text = "아직 도출된 인사이트가 없어요.\n공부 데이터를 더 기록해보세요!",
+                        style = AppTextStyle.BodySmallBold,
+                        color = DarkGray
+                    )
+                } else {
+                    insights.forEach { insight ->
+                        Row(
+                            modifier = Modifier.padding(bottom = Dimens.Tiny)
+                        ) {
+                            Text(
+                                text = "• ",
+                                style = AppTextStyle.BodySmallNormal,
+                                color = DarkGray
+                            )
+                            Text(
+                                text = insight,
+                                style = AppTextStyle.BodySmallNormal,
+                                color = DarkGray
+                            )
+                        }
                     }
                 }
             }

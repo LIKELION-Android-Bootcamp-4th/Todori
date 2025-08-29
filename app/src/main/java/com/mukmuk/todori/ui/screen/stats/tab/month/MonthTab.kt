@@ -122,8 +122,8 @@ fun MonthTab(
         Spacer(modifier = Modifier.height(Dimens.Large))
 
         MonthHighlightCard(
-            bestDay = state.bestDay.toString(),
-            bestDayQuote = state.bestDayQuote.toString(),
+            bestDay = state.bestDay,
+            bestDayQuote = state.bestDayQuote,
             insights = state.insights
         )
 
