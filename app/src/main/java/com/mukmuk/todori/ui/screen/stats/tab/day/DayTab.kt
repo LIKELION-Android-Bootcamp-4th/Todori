@@ -46,7 +46,6 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayTab(
-    uid: String,
     date: kotlinx.datetime.LocalDate,
     onDateChange: (kotlinx.datetime.LocalDate) -> Unit
 ) {
