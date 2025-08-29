@@ -36,112 +36,131 @@ import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun CompletionRateCard(
-    previousRate: Int,
-    currentRate: Int,
-    improvement: Int
+    previousRate: Int?,
+    currentRate: Int?,
+    improvement: Int?
 ) {
-    val isUp = improvement >= 0
-    val trendColor = if (isUp) CompletionGreen else CompletionRed
-    val trendText = if (isUp) "완료율 상승!" else "완료율 하락..."
-    val sign = if (isUp) "+" else ""
-    val icon = if (isUp) Icons.AutoMirrored.Filled.TrendingUp else
-        Icons.AutoMirrored.Filled.TrendingDown
+    val hasData = previousRate != null && currentRate != null && improvement != null
 
-    val previousRateColor = if (isUp) DarkGray else CompletionRed
-    val currentRateColor = if (isUp) CompletionGreen else DarkGray
-
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Dimens.Medium),
-        shape = Dimens.CardDefaultRadius,
-        colors = CardDefaults.cardColors(
-            containerColor = if (isUp) LightGreen else LightRed
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(Dimens.Medium)
+    if (!hasData) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.Medium),
+            shape = Dimens.CardDefaultRadius,
+            colors = CardDefaults.cardColors(containerColor = White)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = trendColor,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(Dimens.Tiny))
-                Column {
-                    Text(
-                        text = trendText,
-                        style = AppTextStyle.TitleSmall,
-                        color = Black
-                    )
-                    Text(
-                        text = "$sign$improvement% ${if (isUp) "향상" else "감소"}",
-                        style = AppTextStyle.BodySmallNormal,
-                        color = trendColor
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(Dimens.Medium))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "$previousRate%",
-                        style = AppTextStyle.TitleMedium,
-                        color = previousRateColor
-                    )
-                    Text(
-                        text = "지난달",
-                        style = AppTextStyle.BodyTinyNormal,
-                        color = DarkGray
-                    )
-                }
-
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    tint = trendColor
-                )
-
-                Column {
-                    Text(
-                        text = "$currentRate%",
-                        style = AppTextStyle.TitleMedium,
-                        color = currentRateColor
-                    )
-                    Text(
-                        text = "이번달",
-                        style = AppTextStyle.BodyTinyNormal,
-                        color = DarkGray
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(Dimens.Medium))
-
             Box(
                 modifier = Modifier
-                    .background(
-                        trendColor,
-                        RoundedCornerShape(Dimens.Medium)
-                    )
-                    .padding(horizontal = Dimens.Medium, vertical = Dimens.Tiny)
+                    .padding(Dimens.Large)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = if (isUp) "성장률 +$improvement%" else "감소율 $improvement%",
-                    style = AppTextStyle.BodySmallMedium,
-                    color = White
+                    text = "지난 달 또는 이번 달 데이터가 부족해요.\n조금 더 기록해 주세요!",
+                    style = AppTextStyle.BodySmallBold,
+                    color = DarkGray
                 )
+            }
+        }
+    } else {
+        val isUp = improvement >= 0
+        val trendColor = if (isUp) CompletionGreen else CompletionRed
+        val trendText = if (isUp) "완료율 상승!" else "완료율 하락..."
+        val sign = if (isUp) "+" else ""
+        val icon = if (isUp) Icons.AutoMirrored.Filled.TrendingUp else
+            Icons.AutoMirrored.Filled.TrendingDown
+
+        val previousRateColor = if (isUp) DarkGray else CompletionRed
+        val currentRateColor = if (isUp) CompletionGreen else DarkGray
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.Medium),
+            shape = Dimens.CardDefaultRadius,
+            colors = CardDefaults.cardColors(
+                containerColor = if (isUp) LightGreen else LightRed
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(Dimens.Medium)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = trendColor,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(Dimens.Tiny))
+                    Column {
+                        Text(
+                            text = trendText,
+                            style = AppTextStyle.TitleSmall,
+                            color = Black
+                        )
+                        Text(
+                            text = "$sign$improvement% ${if (isUp) "향상" else "감소"}",
+                            style = AppTextStyle.BodySmallNormal,
+                            color = trendColor
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(Dimens.Medium))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "${previousRate}%",
+                            style = AppTextStyle.TitleMedium,
+                            color = previousRateColor
+                        )
+                        Text(
+                            text = "지난달",
+                            style = AppTextStyle.BodyTinyNormal,
+                            color = DarkGray
+                        )
+                    }
+
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = trendColor
+                    )
+
+                    Column {
+                        Text(
+                            text = "${currentRate}%",
+                            style = AppTextStyle.TitleMedium,
+                            color = currentRateColor
+                        )
+                        Text(
+                            text = "이번달",
+                            style = AppTextStyle.BodyTinyNormal,
+                            color = DarkGray
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(Dimens.Medium))
+
+                Box(
+                    modifier = Modifier
+                        .background(trendColor, RoundedCornerShape(Dimens.Medium))
+                        .padding(horizontal = Dimens.Medium, vertical = Dimens.Tiny)
+                ) {
+                    Text(
+                        text = if (isUp) "성장률 +$improvement%" else "감소율 $improvement%",
+                        style = AppTextStyle.BodySmallMedium,
+                        color = White
+                    )
+                }
             }
         }
     }

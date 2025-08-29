@@ -36,7 +36,7 @@ class MonthlyReportViewModel @Inject constructor(
 
             try {
                 val monthStat = monthStatRepository.getMonthStat(uid, year, month)
-                val lastMonthStat = monthStatRepository.getMonthStat(uid, year, month)
+                val lastMonthStat = monthStatRepository.getMonthStat(uid, year, month-1)
                 val records = dailyRecordRepository.getRecordsByMonth(uid, year, month)
                 val studyTargets = studyTargetsRepository.getStudyTargets(uid)
                 val hourlySum = records.flatMap { it.hourlyMinutes.entries }
