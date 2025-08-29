@@ -2,9 +2,11 @@ package com.mukmuk.todori.ui.screen.community
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.StudyMember
+import com.mukmuk.todori.data.repository.AuthRepository
 import com.mukmuk.todori.data.repository.CommunityRepository
 import com.mukmuk.todori.data.repository.StudyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,10 +24,12 @@ import javax.inject.Inject
 class CommunityViewModel @Inject constructor(
     private val communityRepository: CommunityRepository,
     private val studyRepository: StudyRepository,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CommunityState())
     val state: StateFlow<CommunityState> = _state.asStateFlow()
+    val uid = auth.currentUser?.uid ?: ""
 
     fun loadPosts(filter: String? = _state.value.selectedOption) {
         viewModelScope.launch {
@@ -91,21 +95,32 @@ class CommunityViewModel @Inject constructor(
     }
 
     fun setData(category: String) {
-        val allPosts = state.value.allPostList
+        viewModelScope.launch {
+            val allPosts = state.value.allPostList
+            val filteredPosts = when (category) {
+                "전체" -> allPosts
+                "내 스터디" -> {
+                    if (uid.isNotBlank()) {
+                        val myStudies = studyRepository.getMyStudies(uid)
+                        val myStudyIds = myStudies.map { it.studyId }
+                        allPosts.filter { post ->
+                            myStudyIds.contains(post.studyId)
+                        }
+                    } else {
+                        emptyList()
+                    }
+                }
+                else -> {
+                    val matchingTags = StudyCategory.entries
+                        .find { it.displayName == category }?.tags ?: listOf(category)
 
-        val filteredPosts = when (category) {
-            "전체" -> allPosts
-            else -> {
-                val matchingTags = StudyCategory.entries
-                    .find { it.displayName == category }?.tags ?: listOf(category)
-
-                allPosts.filter { post ->
-                    post.tags.any { it in matchingTags }
+                    allPosts.filter { post ->
+                        post.tags.any { it in matchingTags }
+                    }
                 }
             }
+            _state.update { it.copy(postList = filteredPosts) }
         }
-
-        _state.update { it.copy(postList = filteredPosts) }
     }
 
     fun setSelectedData(data: String) {
