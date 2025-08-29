@@ -14,9 +14,13 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
+import com.mukmuk.todori.ui.screen.home.TimerStatus
 import com.mukmuk.todori.widget.WidgetEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 
@@ -26,6 +30,10 @@ class TimerService : Service() {
     private lateinit var repository: RecordSettingRepository
     private lateinit var notificationManager: NotificationManager
     private var timerJob: Job? = null
+    private val _timeLeftFlow = MutableStateFlow<Long>(0L)
+    val timeLeftFlow: StateFlow<Long> = _timeLeftFlow.asStateFlow()
+    var status: TimerStatus = TimerStatus.IDLE
+        private set
 
     companion object {
         const val CHANNEL_ID = "TimerServiceChannel"
@@ -43,62 +51,60 @@ class TimerService : Service() {
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel()
+
+        serviceScope.launch {
+            _timeLeftFlow.value = repository.totalRecordTimeFlow.first()
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         when (intent?.action) {
             ACTION_RESET -> {
-                serviceScope.launch {
-                    repository.saveRunningState(false)
-
-                    val glanceIds = GlanceAppWidgetManager(applicationContext)
-                        .getGlanceIds(TimerWidget::class.java)
-
-                    glanceIds.forEach { id ->
-                        updateAppWidgetState(applicationContext, id) { prefs ->
-                            prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = 0L
-                            prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = false
-                        }
-                        TimerWidget().update(applicationContext, id)
-                    }
-                }
-                stopSelf()
+                resetTimer()
                 return START_NOT_STICKY
             }
         }
 
         startForeground(NOTIFICATION_ID, createNotification())
-
         startTimerLoop()
-
         return START_STICKY
     }
 
     private fun startTimerLoop() {
+        if (status == TimerStatus.RUNNING) return
+
+        status = TimerStatus.RUNNING
         timerJob?.cancel()
         timerJob = serviceScope.launch {
-            repository.saveRunningState(true)
+            while (status == TimerStatus.RUNNING) {
+                delay(1000)
+                _timeLeftFlow.value += 1000
+                repository.saveTotalRecordTime(_timeLeftFlow.value)
+                updateWidgets()
+            }
+        }
+    }
+    private fun resetTimer() {
+        timerJob?.cancel()
+        status = TimerStatus.IDLE
+        serviceScope.launch {
+            repository.saveTotalRecordTime(0L)
+            _timeLeftFlow.value = 0L
+            updateWidgets()
+        }
+    }
 
-            // 초기값 설정
-            var totalTime = repository.totalRecordTimeFlow.first()
+    private fun updateWidgets() {
+        serviceScope.launch {
+            val glanceIds = GlanceAppWidgetManager(applicationContext)
+                .getGlanceIds(TimerWidget::class.java)
 
-            repository.totalRecordTimeFlow.collectLatest { latestTime ->
-                totalTime = latestTime
-
-                // 위젯이 있으면 업데이트
-                val glanceIds = GlanceAppWidgetManager(applicationContext)
-                    .getGlanceIds(TimerWidget::class.java)
-
-                if (glanceIds.isNotEmpty()) {
-                    glanceIds.forEach { id ->
-                        updateAppWidgetState(applicationContext, id) { prefs ->
-                            prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = totalTime
-                            prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = true
-                        }
-                        TimerWidget().update(applicationContext, id)
-                    }
+            glanceIds.forEach { id ->
+                updateAppWidgetState(applicationContext, id) { prefs ->
+                    prefs[TimerWidget.TOTAL_RECORD_MILLS_KEY] = _timeLeftFlow.value
+                    prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = status == TimerStatus.RUNNING
                 }
+                TimerWidget().update(applicationContext, id)
             }
         }
     }
