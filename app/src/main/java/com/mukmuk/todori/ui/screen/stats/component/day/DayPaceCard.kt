@@ -52,7 +52,6 @@ fun DayPaceCard(
                 .fillMaxWidth()
                 .padding(Dimens.Medium)
         ) {
-            // 1. 상단 상태 헤더
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -88,26 +87,24 @@ fun DayPaceCard(
 
             Spacer(modifier = Modifier.height(Dimens.Small))
 
-            // 2. 목표 / 기대치 텍스트
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "이번 주 ${String.format("%.1f", paceData.weeklyTargetHours)}h 중 " +
-                            "${String.format("%.1f", paceData.actualCumulativeHours)}h",
+                    text = "목표 ${String.format("%.1f", paceData.weeklyTargetHours)}h 중 " +
+                            "${String.format("%.1f", paceData.actualCumulativeHours)}h 달성",
                     style = AppTextStyle.BodySmall
                 )
                 Text(
-                    text = "기대치: ${String.format("%.1f", paceData.requiredDailyHours)}h",
+                    text = "오늘 공부 기대치: ${String.format("%.1f", paceData.requiredDailyHours)}h",
                     style = AppTextStyle.BodySmall
                 )
             }
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            // 3. 진행도 프로그레스바
             CustomLinearProgressBar(
                 progress = paceData.progress,
                 modifier = Modifier
@@ -118,7 +115,6 @@ fun DayPaceCard(
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            // 4. 오늘 공부 시간 & 잔여 시간
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -144,7 +140,6 @@ fun DayPaceCard(
 
             Spacer(modifier = Modifier.height(Dimens.Tiny))
 
-            // 5. 콜아웃 메시지
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
