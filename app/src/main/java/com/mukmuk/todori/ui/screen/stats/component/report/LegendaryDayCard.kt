@@ -65,12 +65,12 @@ fun LegendaryDayCard(
 
             if (hasData) {
                 Text(
-                    text = date ?: "",
+                    text = date,
                     style = AppTextStyle.Timer.copy(fontSize = 48.sp),
                     color = White
                 )
                 Text(
-                    text = studyTime ?: "",
+                    text = studyTime,
                     style = AppTextStyle.TitleSmall,
                     color = White
                 )
