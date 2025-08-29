@@ -6,8 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -73,9 +77,13 @@ fun CalendarCard(
             firstDayOfWeek = firstDay
         )
 
+        val currentMonth = remember { mutableStateOf(YearMonth.now()) }
         LaunchedEffect(calendarState) {
             snapshotFlow { calendarState.firstVisibleMonth.yearMonth }
-                .collect { onMonthChanged(it) }
+                .collect { ym ->
+                    currentMonth.value = ym
+                    onMonthChanged(ym)
+                }
         }
 
         val currentYm by remember(calendarState) {
@@ -91,69 +99,83 @@ fun CalendarCard(
             }
         }
 
-        HorizontalCalendar(
-            modifier = Modifier.padding(Dimens.Medium),
-            state = calendarState,
-            monthHeader = {
-                Row(Modifier.fillMaxWidth().padding(bottom = Dimens.Small)) {
-                    daysOfWeek.forEach { dow ->
-                        val label = dow.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
-                            .uppercase(Locale.US)
-                        Text(
-                            text = label,
-                            style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold),
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.Center
-                        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment
+            = Alignment.CenterHorizontally
+        ) {
+            Spacer(Modifier.height(Dimens.Medium))
+            Text(
+                text = "${currentMonth.value.monthValue}월",
+                style = AppTextStyle.BodyLarge.copy(fontWeight = FontWeight.Bold)
+            )
+            HorizontalCalendar(
+                modifier = Modifier.padding(Dimens.Medium),
+                state = calendarState,
+                monthHeader = {
+                    Row(Modifier.fillMaxWidth().padding(bottom = Dimens.Small)) {
+                        daysOfWeek.forEach { dow ->
+                            val label = dow.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
+                                .uppercase(Locale.US)
+                            Text(
+                                text = label,
+                                style = AppTextStyle.BodySmall.copy(fontWeight = FontWeight.Bold),
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
-                }
-            },
-            dayContent = { day ->
-                val date = day.date
-                val isSelected = date == selectedDate
+                },
+                dayContent = { day ->
+                    val date = day.date
+                    val isSelected = date == selectedDate
 
-                val matchedRecord = record.find { it.date == date.toString() }
-                val studyMillis = matchedRecord?.studyTimeMillis ?: 0L
-                val studySec = (studyMillis / 1000).toInt()
+                    val matchedRecord = record.find { it.date == date.toString() }
+                    val studyMillis = matchedRecord?.studyTimeMillis ?: 0L
+                    val studySec = (studyMillis / 1000).toInt()
 
-                val backgroundColor = when {
-                    studySec in 1..7200 -> UserTenth
-                    studySec in 7201..21600 -> UserHalf
-                    studySec >= 21601 -> UserPrimary
-                    else -> Color.Transparent
-                }
+                    val backgroundColor = when {
+                        studySec in 1..7200 -> UserTenth
+                        studySec in 7201..21600 -> UserHalf
+                        studySec >= 21601 -> UserPrimary
+                        else -> Color.Transparent
+                    }
 
-                if (day.position == DayPosition.MonthDate) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = Dimens.Small, horizontal = Dimens.Nano)
-                            .clip(CircleShape)
-                            .size(40.dp)
-                            .clickable { onDateSelected(date) }
-                            .clip(CircleShape)
-                            .background(backgroundColor),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isSelected) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .border(2.dp, CalendarSelectDay, CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
+                    if (day.position == DayPosition.MonthDate) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = Dimens.Small, horizontal = Dimens.Nano)
+                                .clip(CircleShape)
+                                .size(40.dp)
+                                .clickable { onDateSelected(date) }
+                                .clip(CircleShape)
+                                .background(backgroundColor),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isSelected) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .border(2.dp, CalendarSelectDay, CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = date.dayOfMonth.toString(),
+                                        style = AppTextStyle.BodySmall
+                                    )
+                                }
+                            } else {
                                 Text(
                                     text = date.dayOfMonth.toString(),
                                     style = AppTextStyle.BodySmall
                                 )
                             }
-                        } else {
-                            Text(text = date.dayOfMonth.toString(), style = AppTextStyle.BodySmall)
                         }
                     }
-                }
-            },
-        )
+                },
+            )
+        }
     }
 }
