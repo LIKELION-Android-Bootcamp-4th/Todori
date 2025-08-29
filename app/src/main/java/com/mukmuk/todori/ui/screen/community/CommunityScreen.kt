@@ -187,7 +187,15 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                                 expanded = false
                             }
                         )
-
+                        DropdownMenuItem(
+                            text = { Text("내 스터디", style = AppTextStyle.BodySmallNormal) },
+                            onClick = {
+                                selectedCategory = "내 스터디"
+                                selectedTag = null
+                                viewModel.setData("내 스터디")
+                                expanded = false
+                            }
+                        )
                         StudyCategory.entries.forEach { category ->
                             DropdownMenuItem(
                                 text = { Text(category.displayName, style = AppTextStyle.BodySmallNormal) },
