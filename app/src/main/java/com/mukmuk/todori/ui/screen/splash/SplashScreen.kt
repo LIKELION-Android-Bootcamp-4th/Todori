@@ -22,6 +22,7 @@ import com.mukmuk.todori.navigation.BottomNavItem
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.White
+import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(navController: NavController) {
@@ -29,6 +30,8 @@ fun SplashScreen(navController: NavController) {
     val currentUser = Firebase.auth.currentUser
 
     LaunchedEffect(Unit) {
+
+        delay(2000)
         if (currentUser != null) {
             viewModel.updateLastLogin(currentUser.uid)
             navController.navigate(BottomNavItem.Todo.route) {
