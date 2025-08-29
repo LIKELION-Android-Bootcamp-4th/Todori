@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.YearMonth
 import javax.inject.Inject
 
@@ -48,9 +49,11 @@ class MonthlyReportViewModel @Inject constructor(
                     else "${start}:00 ~${end}:00"
                 }
 
+
+                val streakDays = getMonthlyStreakDays(uid, year, month)
                 val stats = dayStatsRepository.getStats(uid)
-                val currentStreak = stats?.currentStreak ?: 0
                 val bestStreak = stats?.bestStreak ?: 0
+
 
                 val categoryStat = monthStat?.categoryStats?.sortedByDescending { it.completionRate }
                     ?.take(3)?.map { stat ->
@@ -80,7 +83,7 @@ class MonthlyReportViewModel @Inject constructor(
                         categoryStats = categoryStat ?: emptyList(),
                         goldenHourRange = goldenHourRange,
                         goldenHourText = goldenHourText,
-                        streakDays = currentStreak,
+                        streakDays = streakDays,
                         maxStreak = bestStreak,
                         currentTodoCompletionRate = monthStat?.todoCompletionRate ?: 0,
                         lastTodoCompletionRate = lastMonthStat?.todoCompletionRate ?: 0,
@@ -118,4 +121,20 @@ class MonthlyReportViewModel @Inject constructor(
     private fun updateState(update: MonthlyReportState.() -> MonthlyReportState) {
         _state.value = _state.value.update()
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private suspend fun getMonthlyStreakDays(uid: String, year: Int, month: Int): Int {
+        val today = LocalDate.now()
+        val targetYm = YearMonth.of(year, month)
+
+        return if (today.year == year && today.monthValue == month) {
+            val lastAvailableDate = today.minusDays(1)
+            dayStatsRepository.getDayStat(uid, lastAvailableDate)?.streakCount ?: 0
+        } else {
+            val lastDayOfMonth = targetYm.atEndOfMonth()
+            dayStatsRepository.getDayStat(uid, lastDayOfMonth)?.streakCount ?: 0
+        }
+    }
+
+
 }
