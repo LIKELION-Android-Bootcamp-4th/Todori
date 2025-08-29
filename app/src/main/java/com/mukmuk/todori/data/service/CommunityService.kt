@@ -9,7 +9,6 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.community.StudyPostComment
-import com.mukmuk.todori.data.remote.study.MyStudy
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.user.User
@@ -128,7 +127,7 @@ class CommunityService(
         }
     }
 
-    suspend fun createPostComment(postId: String, reply: StudyPostComment) {
+    suspend fun createPostComment(postId: String, reply: StudyPostComment): StudyPostComment{
         val ref = communityRef().document(postId).collection("studyPostReply").document()
         val autoId = ref.id
         val replyWithId =
@@ -138,6 +137,7 @@ class CommunityService(
         communityRef().document(postId)
             .update("commentsCount", FieldValue.increment(1))
             .await()
+        return replyWithId
     }
 
     suspend fun getPostComments(postId: String): List<StudyPostComment> {

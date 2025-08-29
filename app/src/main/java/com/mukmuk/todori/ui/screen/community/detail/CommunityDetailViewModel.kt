@@ -8,12 +8,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.mukmuk.todori.ui.screen.community.CommentUiModel
 import com.mukmuk.todori.data.remote.community.StudyPostComment
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.repository.CommunityRepository
 import com.mukmuk.todori.data.repository.StudyRepository
+import com.mukmuk.todori.ui.screen.community.CommentUiModel
 import com.mukmuk.todori.ui.screen.community.PostUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -36,6 +36,8 @@ class CommunityDetailViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(CommunityDetailState())
     val state: StateFlow<CommunityDetailState> = _state
+
+
     val menu = listOf("수정", "삭제")
     private var loadPostJob: Job? = null
     private var commentJob: Job? = null
@@ -133,12 +135,21 @@ class CommunityDetailViewModel @Inject constructor(
 
     fun createComment(postId: String, reply: StudyPostComment) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
             try {
-                repository.createPostComment(postId, reply)
-                getComments(postId)
+                val created = repository.createPostComment(postId, reply)
+                val user = repository.getUserById(reply.uid)
+                val uiModel = CommentUiModel(
+                    commentId = created.commentId,
+                    postId = created.postId,
+                    uid = created.uid,
+                    nickname = user?.nickname ?: "알 수 없음",
+                    level = user?.level ?: 0,
+                    content = created.content,
+                    createdAt = created.createdAt
+                )
+                addCommentToState(uiModel)
             } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, error = e.message) }
+                _state.update { it.copy(error = e.message) }
             }
         }
 
@@ -147,7 +158,6 @@ class CommunityDetailViewModel @Inject constructor(
     fun getComments(postId: String) {
         commentJob?.cancel()
         commentJob = viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
             try {
                 var comments = emptyList<StudyPostComment>()
                 var updatedComments = emptyList<CommentUiModel>()
@@ -174,7 +184,7 @@ class CommunityDetailViewModel @Inject constructor(
 
                 _state.update {
                     it.copy(
-                        commentList = updatedComments, // ✅ 이제 CommentUiModel
+                        commentList = updatedComments,
                         isLoading = false,
                         error = null
                     )
@@ -185,16 +195,20 @@ class CommunityDetailViewModel @Inject constructor(
         }
     }
 
+    fun addCommentToState(comment: CommentUiModel) {
+        _state.update { it.copy(commentList = it.commentList + comment) }
+    }
+
+    fun removeCommentFromState(commentId: String) {
+        _state.update { it.copy(commentList = it.commentList.filterNot { it.commentId == commentId }) }
+    }
+
+
     fun deleteComment(postId: String, replyId: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
             try {
-                val replies = repository.getPostCommentReplies(postId, replyId)
-                for (reply in replies) {
-                    repository.deletePostComment(postId, reply.commentId)
-                }
                 repository.deletePostComment(postId, replyId)
-                getComments(postId)
+                removeCommentFromState(replyId)
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }

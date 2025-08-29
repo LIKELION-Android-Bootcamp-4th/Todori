@@ -49,8 +49,8 @@ class CommunityRepository @Inject constructor(
         communityService.deleteCommunitySearch(uid, query)
     }
 
-    suspend fun createPostComment(postId: String, reply: StudyPostComment){
-        communityService.createPostComment(postId, reply)
+    suspend fun createPostComment(postId: String, reply: StudyPostComment): StudyPostComment{
+        return communityService.createPostComment(postId, reply)
     }
 
     suspend fun getPostComments(postId: String): List<StudyPostComment> {
