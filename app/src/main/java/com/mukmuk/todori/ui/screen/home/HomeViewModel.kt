@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -78,30 +79,36 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            recordSettingRepository.totalRecordTimeFlow.collectLatest { savedTime ->
-                _state.update { current ->
-                    current.copy(
-                        totalStudyTimeMills = if (_state.value.status != TimerStatus.RUNNING) savedTime else current.totalStudyTimeMills
-                    )
+            val running = recordSettingRepository.runningStateFlow.first()
+            val totalTime = recordSettingRepository.totalRecordTimeFlow.first()
+
+            _state.update {
+                it.copy(
+                    status = if (running) TimerStatus.RUNNING else TimerStatus.IDLE,
+                    totalStudyTimeMills = totalTime
+                )
+            }
+            val glanceIds = GlanceAppWidgetManager(context).getGlanceIds(TimerWidget::class.java)
+            glanceIds.forEach { id ->
+                updateAppWidgetState(context, id) { prefs ->
+                    prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = running
                 }
+                TimerWidget().update(context, id)
+            }
+
+            if (running && timerJob?.isActive != true) {
+                startTimer()
+            } else if (!running) {
+                val intent = Intent(context, TimerService::class.java)
+                context.stopService(intent)
             }
         }
-
         viewModelScope.launch {
             recordSettingRepository.runningStateFlow
                 .distinctUntilChanged()
                 .collectLatest { running ->
-                    if (running) {
-                        startTimer()
-                    } else {
-                        stopTimer(false)
-                    }
-
-                    _state.update {
-                        it.copy(
-                            status = if (running) TimerStatus.RUNNING else TimerStatus.IDLE
-                        )
-                    }
+                    if (running) startTimer() else stopTimer(false)
+                    _state.update { it.copy(status = if (running) TimerStatus.RUNNING else TimerStatus.IDLE) }
                 }
         }
         viewModelScope.launch {
@@ -109,7 +116,6 @@ class HomeViewModel @Inject constructor(
                 authUserFlow.value = firebaseAuth.currentUser?.uid
             }
         }
-
         viewModelScope.launch {
             authUserFlow.collectLatest { uid ->
                 if (uid != null) {
@@ -118,9 +124,7 @@ class HomeViewModel @Inject constructor(
                     startObservingDailyRecord(uid)
                 } else {
                     todosJob?.cancel()
-                    dailyRecordJob?.cancel()
                     _todoList.value = emptyList()
-                    _state.update { it.copy(uid = "") }
                     _state.update {
                         it.copy(
                             uid = "",
@@ -149,6 +153,8 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+
 
     fun onEvent(event: TimerEvent) {
         when (event) {
@@ -206,9 +212,7 @@ class HomeViewModel @Inject constructor(
         val totalTime = _state.value.totalStudyTimeMills
         saveRecord(uid, totalTime, isRecordMode)
         viewModelScope.launch {
-            val glanceIds = GlanceAppWidgetManager(context)
-                .getGlanceIds(TimerWidget::class.java)
-
+            val glanceIds = GlanceAppWidgetManager(context).getGlanceIds(TimerWidget::class.java)
             glanceIds.forEach { id ->
                 updateAppWidgetState(context, id) { prefs ->
                     prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = false
@@ -399,7 +403,23 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
+    private fun loadDailyRecord(uid: String) {
+        val today = LocalDate.now()
+        viewModelScope.launch {
+            try {
+                val records = homeRepository.getDailyRecord(uid, today)
+                val totalTime = records.firstOrNull()?.studyTimeMillis ?: 0L
+                _state.update {
+                    it.copy(
+                        totalStudyTimeMills = totalTime,
+                        uid = uid
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("todorilog", "Failed to load daily record: ${e.message}", e)
+            }
+        }
+    }
     private fun startObservingDailyRecord(uid: String) {
         val today = LocalDate.now().toString()
         dailyRecordJob?.cancel()
