@@ -44,6 +44,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -321,16 +322,14 @@ fun CommunityDetailScreen(
                             val categoryColor = StudyCategory.entries.find { category ->
                                 category.tags.contains(tag)
                             }?.color ?: GroupSecondary
-                            Box(
-                                modifier = Modifier
-                                    .background(categoryColor, RoundedCornerShape(32.dp))
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                                    .width(60.dp),
-                                contentAlignment = Alignment.Center
+                            Surface(
+                                shape = RoundedCornerShape(20.dp),
+                                color = categoryColor,
                             ) {
                                 Text(
                                     text = tag,
-                                    style = AppTextStyle.BodySmallMedium.copy(color = White)
+                                    style = AppTextStyle.BodySmallMedium.copy(color = White),
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))

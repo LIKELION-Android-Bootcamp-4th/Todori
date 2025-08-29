@@ -2,6 +2,7 @@ package com.mukmuk.todori.ui.screen.community
 
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,6 +42,7 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -213,13 +215,11 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                     contentPadding = PaddingValues(start = 0.dp)
                 ) {
                     items(tags) { tag ->
-                        Box(
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
+                            border = BorderStroke(1.dp, Gray),
+                            color = if (selectedTag == tag) Black else White,
                             modifier = Modifier
-                                .background(
-                                    if (selectedTag == tag) Black else White,
-                                    RoundedCornerShape(20.dp)
-                                )
-                                .border(1.dp, Gray, RoundedCornerShape(20.dp))
                                 .clickable {
                                     if (selectedTag == tag) {
                                         selectedTag = null
@@ -229,12 +229,12 @@ fun CommunityScreen(navController: NavHostController, viewModel: CommunityViewMo
                                         viewModel.setData(tag)
                                     }
                                 }
-                                .padding(horizontal = 12.dp, vertical = 8.dp)
                         ) {
                             Text(
                                 text = tag,
                                 color = if (selectedTag == tag) White else Black,
-                                style = AppTextStyle.BodySmallNormal
+                                style = AppTextStyle.BodySmallNormal,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                             )
                         }
                     }
