@@ -36,122 +36,146 @@ import com.mukmuk.todori.ui.theme.White
 
 @Composable
 fun EnduranceCard(
-    previousAverage: Int,
-    currentAverage: Int,
-    improvement: Int
+    previousAverage: Int?,
+    currentAverage: Int?,
+    improvement: Int?
 ) {
-    val (title, subText, color) = when {
-        improvement > 0 -> Triple(
-            "지구력이 늘었어요!",
-            "세션당 +${improvement}분",
-            ProgressTeal
-        )
+    val hasData = previousAverage != null && currentAverage != null && improvement != null
 
-        improvement < 0 -> Triple(
-            "지구력이 줄었어요!",
-            "세션당 ${improvement}분",
-            Red
-        )
-
-        else -> Triple(
-            "지구력은 유지됐어요!",
-            "변화 없음",
-            DarkGray
-        )
-    }
-    val containerColor = if (improvement > 0) EnduranceBackground else LightRed
-    val icon =
-        if (improvement > 0) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Dimens.Medium),
-        shape = Dimens.CardDefaultRadius,
-        colors = CardDefaults.cardColors(containerColor = containerColor)
-    ) {
-        Column(
-            modifier = Modifier.padding(Dimens.Medium)
+    if (!hasData) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.Medium),
+            shape = Dimens.CardDefaultRadius,
+            colors = CardDefaults.cardColors(containerColor = White)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    icon,
-                    contentDescription = null,
-                    tint = color,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(Dimens.Tiny))
-                Column {
-                    Text(
-                        text = title,
-                        style = AppTextStyle.TitleSmall,
-                        color = Black
-                    )
-                    Text(
-                        text = subText,
-                        style = AppTextStyle.BodySmallNormal,
-                        color = color
-                    )
-                }
-
-            }
-
-            Spacer(modifier = Modifier.height(Dimens.Medium))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "${previousAverage}분",
-                        style = AppTextStyle.TitleMedium,
-                        color = DarkGray
-                    )
-                    Text(
-                        text = "지난달 평균",
-                        style = AppTextStyle.BodyTinyNormal,
-                        color = DarkGray
-                    )
-                }
-
-                Icon(
-                    Icons.Default.ArrowForward,
-                    contentDescription = null,
-                    tint = color
-                )
-
-                Column {
-                    Text(
-                        text = "${currentAverage}분",
-                        style = AppTextStyle.TitleMedium,
-                        color = color
-                    )
-                    Text(
-                        text = "이번달 평균",
-                        style = AppTextStyle.BodyTinyNormal,
-                        color = DarkGray
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(Dimens.Medium))
-
             Box(
                 modifier = Modifier
-                    .background(color, RoundedCornerShape(Dimens.Medium))
-                    .padding(horizontal = Dimens.Medium, vertical = Dimens.Tiny)
+                    .fillMaxWidth()
+                    .padding(Dimens.Large),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = when {
-                        improvement > 0 -> "집중력 +${improvement}분"
-                        improvement < 0 -> "집중력 ${improvement}분"
-                        else -> "집중력 유지"
-                    },
-                    style = AppTextStyle.BodySmallMedium,
-                    color = White
+                    text = "이번 달 집중 시간 데이터가 부족해요.\n조금 더 기록해 주세요!",
+                    style = AppTextStyle.BodySmallBold,
+                    color = DarkGray
                 )
+            }
+        }
+    } else {
+        val (title, subText, color) = when {
+            improvement!! > 0 -> Triple(
+                "지구력이 늘었어요!",
+                "세션당 +${improvement}분",
+                ProgressTeal
+            )
+
+            improvement < 0 -> Triple(
+                "지구력이 줄었어요!",
+                "세션당 ${improvement}분",
+                Red
+            )
+
+            else -> Triple(
+                "지구력은 유지됐어요!",
+                "변화 없음",
+                DarkGray
+            )
+        }
+        val containerColor = if (improvement > 0) EnduranceBackground else LightRed
+        val icon =
+            if (improvement > 0) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.Medium),
+            shape = Dimens.CardDefaultRadius,
+            colors = CardDefaults.cardColors(containerColor = containerColor)
+        ) {
+            Column(
+                modifier = Modifier.padding(Dimens.Medium)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                        tint = color,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(Dimens.Tiny))
+                    Column {
+                        Text(
+                            text = title,
+                            style = AppTextStyle.TitleSmall,
+                            color = Black
+                        )
+                        Text(
+                            text = subText,
+                            style = AppTextStyle.BodySmallNormal,
+                            color = color
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(Dimens.Medium))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "${previousAverage}분",
+                            style = AppTextStyle.TitleMedium,
+                            color = DarkGray
+                        )
+                        Text(
+                            text = "지난달 평균",
+                            style = AppTextStyle.BodyTinyNormal,
+                            color = DarkGray
+                        )
+                    }
+
+                    Icon(
+                        Icons.Default.ArrowForward,
+                        contentDescription = null,
+                        tint = color
+                    )
+
+                    Column {
+                        Text(
+                            text = "${currentAverage}분",
+                            style = AppTextStyle.TitleMedium,
+                            color = color
+                        )
+                        Text(
+                            text = "이번달 평균",
+                            style = AppTextStyle.BodyTinyNormal,
+                            color = DarkGray
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(Dimens.Medium))
+
+                Box(
+                    modifier = Modifier
+                        .background(color, RoundedCornerShape(Dimens.Medium))
+                        .padding(horizontal = Dimens.Medium, vertical = Dimens.Tiny)
+                ) {
+                    Text(
+                        text = when {
+                            improvement > 0 -> "집중력 +${improvement}분"
+                            improvement < 0 -> "집중력 ${improvement}분"
+                            else -> "집중력 유지"
+                        },
+                        style = AppTextStyle.BodySmallMedium,
+                        color = White
+                    )
+                }
             }
         }
     }
