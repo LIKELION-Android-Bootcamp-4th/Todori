@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.PeopleAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -130,18 +131,18 @@ fun CommunityPost(
                     val categoryColor = StudyCategory.entries.find { category ->
                         category.tags.contains(tag)
                     }?.color ?: GroupSecondary
-                    Box(
-                        modifier = Modifier
-                            .background(color = categoryColor, RoundedCornerShape(32.dp))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .width(60.dp),
-                        contentAlignment = Alignment.Center
+
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = categoryColor,
                     ) {
                         Text(
-                            tag,
-                            style = AppTextStyle.BodySmallMedium.copy(color = White)
+                            text = tag,
+                            style = AppTextStyle.BodySmallMedium.copy(color = White),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                     }
+
                     Spacer(modifier = Modifier.width(Dimens.Tiny))
                 }
                 Spacer(modifier = Modifier.weight(1f))
