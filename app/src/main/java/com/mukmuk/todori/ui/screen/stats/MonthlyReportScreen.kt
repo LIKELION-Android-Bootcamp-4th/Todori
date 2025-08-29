@@ -109,8 +109,10 @@ fun MonthlyReportScreen(
                     Spacer(modifier = Modifier.height(Dimens.Medium))
 
                     LegendaryDayCard(
-                        date = state.bestDay.toString().takeLast(2),
-                        studyTime = state.bestDayStudyTime.toString()
+                        date = if (state.bestDay !=null) {
+                            state.bestDay.toString().takeLast(2)
+                        } else null,
+                        studyTime = state.bestDayStudyTime
                     )
                     Spacer(modifier = Modifier.height(Dimens.Medium))
 
