@@ -214,12 +214,14 @@ class CommunityService(
         return snapshot.documents.mapNotNull { it.toObject(StudyMember::class.java) }
     }
 
-    suspend fun updateStudyMember(postId: String, studyId: String, member: StudyMember) {
-        firestore.collection("studyMembers").document(studyId)
-            .set(member, SetOptions.merge())
+    suspend fun updateStudyMember(postId: String, member: StudyMember) {
+        firestore.collection("studyMembers")
+            .add(member)
             .await()
 
-        communityRef().document(postId).update("memberCount", FieldValue.increment(1)).await()
+        communityRef().document(postId)
+            .update("memberCount", FieldValue.increment(1))
+            .await()
     }
 
 

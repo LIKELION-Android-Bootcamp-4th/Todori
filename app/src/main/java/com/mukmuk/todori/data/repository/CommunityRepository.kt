@@ -81,8 +81,8 @@ class CommunityRepository @Inject constructor(
         return communityService.getStudyMembers(studyId)
     }
 
-    suspend fun updateStudyMember(postId: String, studyId: String, member: StudyMember) {
-        communityService.updateStudyMember(postId, studyId, member)
+    suspend fun updateStudyMember(postId: String, member: StudyMember) {
+        communityService.updateStudyMember(postId, member)
     }
 
 }
