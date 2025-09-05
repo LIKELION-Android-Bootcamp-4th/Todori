@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
@@ -17,12 +16,15 @@ import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
 import com.mukmuk.todori.ui.screen.home.TimerStatus
 import com.mukmuk.todori.widget.WidgetEntryPoint
 import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class TimerService : Service() {
 
@@ -31,7 +33,6 @@ class TimerService : Service() {
     private lateinit var notificationManager: NotificationManager
     private var timerJob: Job? = null
     private val _timeLeftFlow = MutableStateFlow<Long>(0L)
-    val timeLeftFlow: StateFlow<Long> = _timeLeftFlow.asStateFlow()
     var status: TimerStatus = TimerStatus.IDLE
         private set
 
@@ -49,7 +50,7 @@ class TimerService : Service() {
             WidgetEntryPoint::class.java
         ).recordSettingRepository()
 
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel()
 
         serviceScope.launch {

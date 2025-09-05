@@ -18,7 +18,7 @@ class DayCountWidgetReceiver : GlanceAppWidgetReceiver() {
         context?.let {
             val dispatcher = WidgetUpdateDispatcher.getDispatcher(it)
             dispatcher.updateDayCountWidget()
-            dispatcher.scheduleDailyUpdate()   // 위젯 설치 → 디데이 계산 시작
+            dispatcher.scheduleDailyUpdate()
         }
     }
 
@@ -26,11 +26,10 @@ class DayCountWidgetReceiver : GlanceAppWidgetReceiver() {
         super.onDisabled(context)
         context?.let {
             val dispatcher = WidgetUpdateDispatcher.getDispatcher(it)
-            dispatcher.cancelDailyUpdate()     // 위젯 모두 제거 → 디데이 계산 취소
+            dispatcher.cancelDailyUpdate()
         }
     }
 
-    // 이벤트 발생 시 갱신
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         when(intent.action) {

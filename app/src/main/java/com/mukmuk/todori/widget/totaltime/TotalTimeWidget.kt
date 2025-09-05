@@ -1,10 +1,7 @@
 package com.mukmuk.todori.widget.totaltime
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -14,11 +11,9 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionRunCallback
-import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
@@ -28,14 +23,9 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
-import com.mukmuk.todori.MainActivity
-import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
 import com.mukmuk.todori.ui.theme.WidgetTextStyle
 import com.mukmuk.todori.widget.LaunchActivityCallback
-import com.mukmuk.todori.widget.WidgetEntryPoint
-import dagger.hilt.android.EntryPointAccessors
 import java.time.LocalDate
-import javax.inject.Inject
 
 
 class TotalTimeWidget : GlanceAppWidget() {

@@ -8,8 +8,8 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.mukmuk.todori.widget.todos.TodoWorker
 import com.mukmuk.todori.widget.goaldaycount.DayCountWorker
+import com.mukmuk.todori.widget.todos.TodoWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.Duration
 import java.time.LocalDateTime
@@ -51,14 +51,12 @@ class WidgetUpdateDispatcher @Inject constructor(
         }
     }
 
-    // 자정에 업데이트
     @RequiresApi(Build.VERSION_CODES.O)
     fun scheduleDailyUpdate() {
         val now = LocalDateTime.now()
         val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
         val initialDelay = Duration.between(now, nextMidnight)
 
-        // 투두 위젯
         val request = PeriodicWorkRequestBuilder<TodoWorker>(24, TimeUnit.HOURS)
             .setInitialDelay(initialDelay.toMillis(), TimeUnit.MILLISECONDS)
             .build()
@@ -69,7 +67,6 @@ class WidgetUpdateDispatcher @Inject constructor(
             request
         )
 
-        // 디데이 위젯
         val dayCountRequest = PeriodicWorkRequestBuilder<DayCountWorker>(24, TimeUnit.HOURS)
             .setInitialDelay(initialDelay.toMillis(), TimeUnit.MILLISECONDS)
             .build()

@@ -2,7 +2,6 @@ package com.mukmuk.todori.widget
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -25,7 +24,6 @@ class UpdateWidgetWorker (
 ) : CoroutineWorker(appContext, workerParams) {
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result {
-        Log.d("worker", "doWork 실행!")
         return try {
             val recordSettingRepository = EntryPointAccessors.fromApplication(
                 applicationContext,
@@ -34,9 +32,7 @@ class UpdateWidgetWorker (
 
             recordSettingRepository.saveTotalRecordTime(0L)
             recordSettingRepository.saveRunningState(false)
-            Log.d("UpdateWidgetWorker", "DataStore total record time reset to 0.")
 
-            val totalTimeWidget = TotalTimeWidget()
             val manager = GlanceAppWidgetManager(applicationContext)
             val totalTimeWidgetGlanceIds = manager.getGlanceIds(TotalTimeWidget::class.java)
             val timerWidgetGlanceIds = manager.getGlanceIds(TimerWidget::class.java)
@@ -58,7 +54,6 @@ class UpdateWidgetWorker (
                 withContext(Dispatchers.Main) {
                     TotalTimeWidget().update(applicationContext, glanceId)
                 }
-                Log.d("UpdateWidgetWorker", "TotalTimeWidget ${glanceId.toString()} UI updated to 0 and date: $nextDayDateString.")
             }
 
             timerWidgetGlanceIds.forEach { glanceId ->
@@ -72,12 +67,10 @@ class UpdateWidgetWorker (
                 withContext(Dispatchers.Main) {
                     TimerWidget().update(applicationContext, glanceId)
                 }
-                Log.d("UpdateWidgetWorker", "TimerWidget ${glanceId.toString()} UI updated to 0 and running state false.")
             }
 
             Result.success()
         } catch (e: Exception) {
-            Log.e("UpdateWidgetWorker", "Error resetting widgets: ${e.message}", e)
 
             Result.failure()
         }

@@ -3,12 +3,10 @@ package com.mukmuk.todori.widget.totaltime
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.mukmuk.todori.widget.totaltime.TotalTimeWidget.Companion.ACTION_UPDATE_TOTAL_TIME_WIDGET
 import com.mukmuk.todori.widget.totaltime.TotalTimeWidget.Companion.EXTRA_TOTAL_TIME_MILLIS
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -37,7 +35,6 @@ class TotalTimeWidgetBroadcastReceiver : BroadcastReceiver() {
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e("TotalTimeWidgetReceiver", "Error during widget update: ${e.message}", e)
                 } finally {
                     pendingResult.finish()
                 }

@@ -18,7 +18,7 @@ class TodoWidgetReceiver : GlanceAppWidgetReceiver() {
         context?.let {
             val dispatcher = WidgetUpdateDispatcher.getDispatcher(it)
             dispatcher.updateTodos()
-            dispatcher.scheduleDailyUpdate()   // 위젯 설치 → 자정 투두 시작
+            dispatcher.scheduleDailyUpdate()
         }
     }
 
@@ -26,11 +26,10 @@ class TodoWidgetReceiver : GlanceAppWidgetReceiver() {
         super.onDisabled(context)
         context?.let {
             val dispatcher = WidgetUpdateDispatcher.getDispatcher(it)
-            dispatcher.cancelDailyUpdate()     // 위젯 모두 제거 → 자정 투두 취소
+            dispatcher.cancelDailyUpdate()
         }
     }
 
-    // 이벤트 발생 시 갱신
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         when(intent.action) {
