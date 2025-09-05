@@ -3,7 +3,7 @@ package com.mukmuk.todori.data.remote.community
 import com.google.firebase.Timestamp
 
 
-data class StudyPost (
+data class StudyPost(
     val postId: String = "",
     val studyId: String = "",
     val title: String = "",
