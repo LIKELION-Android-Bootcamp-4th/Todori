@@ -23,7 +23,6 @@ fun CustomSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
-    steps: Int,
     activeColor: Color,
     inactiveColor: Color,
     modifier: Modifier = Modifier

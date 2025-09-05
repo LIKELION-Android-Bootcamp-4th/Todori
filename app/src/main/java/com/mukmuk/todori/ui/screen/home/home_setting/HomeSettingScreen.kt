@@ -188,7 +188,6 @@ private fun SettingSliderRow(
             value = value.toFloat(),
             onValueChange = { minutes -> onValueChange(minutes.toInt()) },
             valueRange = 0f..maxValue.toFloat(),
-            steps = maxValue - 1,
             activeColor = UserPrimary,
             inactiveColor = Gray,
             modifier = Modifier.fillMaxWidth()

@@ -34,13 +34,12 @@ fun PointProgressBar(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Lv.$level", style = AppTextStyle.Body) // 레벨
-            Text(text = "$currentPoint / $maxPoint", style = AppTextStyle.Body) // 포인트
+            Text(text = "Lv.$level", style = AppTextStyle.Body)
+            Text(text = "$currentPoint / $maxPoint", style = AppTextStyle.Body)
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // ProgressBar
         CustomLinearProgressBar(
             progress = progress,
             modifier = Modifier

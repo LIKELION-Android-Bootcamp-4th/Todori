@@ -1,6 +1,5 @@
 package com.mukmuk.todori.ui.screen.mypage.studytargets
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -48,7 +47,6 @@ class StudyTargetsViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                Log.e("StudyTargetsViewModel", "목표 로딩 실패", e)
                 updateState {
                     copy(
                         isLoading = false,
@@ -101,7 +99,6 @@ class StudyTargetsViewModel @Inject constructor(
 
                 updateState { copy(successMessage = null) }
             } catch (e: Exception) {
-                Log.e("StudyTargetsViewModel", "목표 저장 실패", e)
                 updateState {
                     copy(
                         isSaving = false,
