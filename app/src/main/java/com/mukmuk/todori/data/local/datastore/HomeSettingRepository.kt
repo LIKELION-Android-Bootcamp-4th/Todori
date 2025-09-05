@@ -7,8 +7,8 @@ import com.mukmuk.todori.ui.screen.home.home_setting.HomeSettingState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import javax.inject.Singleton
 import javax.inject.Named
+import javax.inject.Singleton
 
 @Singleton
 class HomeSettingRepository @Inject constructor(
@@ -18,7 +18,8 @@ class HomeSettingRepository @Inject constructor(
     val homeSettingStateFlow: Flow<HomeSettingState> = dataStore.data
         .map { preferences ->
             HomeSettingState(
-                isPomodoroEnabled = preferences[HomeSettingPreferencesKeys.IS_POMODORO_ENABLED] ?: true,
+                isPomodoroEnabled = preferences[HomeSettingPreferencesKeys.IS_POMODORO_ENABLED]
+                    ?: true,
                 focusMinutes = preferences[HomeSettingPreferencesKeys.FOCUS_MINUTES] ?: 25,
                 focusSeconds = preferences[HomeSettingPreferencesKeys.FOCUS_SECONDS] ?: 0,
                 shortRestMinutes = preferences[HomeSettingPreferencesKeys.SHORT_REST_MINUTES] ?: 5,
@@ -30,13 +31,18 @@ class HomeSettingRepository @Inject constructor(
 
     suspend fun saveHomeSettingState(homeSettingState: HomeSettingState) {
         dataStore.edit { preferences ->
-            preferences[HomeSettingPreferencesKeys.IS_POMODORO_ENABLED] = homeSettingState.isPomodoroEnabled
+            preferences[HomeSettingPreferencesKeys.IS_POMODORO_ENABLED] =
+                homeSettingState.isPomodoroEnabled
             preferences[HomeSettingPreferencesKeys.FOCUS_MINUTES] = homeSettingState.focusMinutes
             preferences[HomeSettingPreferencesKeys.FOCUS_SECONDS] = homeSettingState.focusSeconds
-            preferences[HomeSettingPreferencesKeys.SHORT_REST_MINUTES] = homeSettingState.shortRestMinutes
-            preferences[HomeSettingPreferencesKeys.SHORT_REST_SECONDS] = homeSettingState.shortRestSeconds
-            preferences[HomeSettingPreferencesKeys.LONG_REST_MINUTES] = homeSettingState.longRestMinutes
-            preferences[HomeSettingPreferencesKeys.LONG_REST_SECONDS] = homeSettingState.longRestSeconds
+            preferences[HomeSettingPreferencesKeys.SHORT_REST_MINUTES] =
+                homeSettingState.shortRestMinutes
+            preferences[HomeSettingPreferencesKeys.SHORT_REST_SECONDS] =
+                homeSettingState.shortRestSeconds
+            preferences[HomeSettingPreferencesKeys.LONG_REST_MINUTES] =
+                homeSettingState.longRestMinutes
+            preferences[HomeSettingPreferencesKeys.LONG_REST_SECONDS] =
+                homeSettingState.longRestSeconds
         }
     }
 

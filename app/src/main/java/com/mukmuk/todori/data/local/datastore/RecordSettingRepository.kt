@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -33,6 +32,7 @@ class RecordSettingRepository @Inject constructor(
             prefs[TOTAL_RECORD_MILLS_KEY] = time
         }
     }
+
     suspend fun saveRunningState(isRunning: Boolean) {
         dataStore.edit { prefs ->
             prefs[IS_RUNNING] = isRunning

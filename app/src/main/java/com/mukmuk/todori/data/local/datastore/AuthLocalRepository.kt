@@ -11,7 +11,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
-class AuthLocalRepository@Inject constructor(
+class AuthLocalRepository @Inject constructor(
     @Named("user_pref") private val dataStore: DataStore<Preferences>
 ) {
     private val LAST_LOGIN_PROVIDER_KEY = stringPreferencesKey("last_login_provider")
