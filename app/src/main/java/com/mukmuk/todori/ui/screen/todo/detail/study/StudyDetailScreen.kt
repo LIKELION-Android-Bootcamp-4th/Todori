@@ -239,7 +239,6 @@ fun StudyDetailScreen(
                         },
                         onToggleChecked = { todoId, checked ->
                             viewModel.toggleTodoProgress(
-                                studyId = study.studyId,
                                 studyTodoId = todoId,
                                 uid = uid,
                                 checked = checked

@@ -25,14 +25,12 @@ class UserService @Inject constructor(
     private fun userDoc(uid: String) =
         firestore.collection("users").document(uid)
 
-    //프로필 조회
     suspend fun getProfile(uid: String): User? {
         val snapshot = userDoc(uid).get().await()
         return snapshot.toObject(User::class.java)
     }
 
 
-    //프로필 수정
     suspend fun updateUser(uid: String, nickname: String, intro: String) {
         userDoc(uid).set(
             mapOf("nickname" to nickname, "intro" to intro),
@@ -58,7 +56,6 @@ class UserService @Inject constructor(
     }
 
 
-    //마지막 로그인 시간 업데이트
     suspend fun updateLastLogin(uid: String) {
         userDoc(uid).set(
             mapOf("lastLoginAt" to Timestamp.now()),
@@ -66,9 +63,6 @@ class UserService @Inject constructor(
         ).await()
     }
 
-    /**
-     * 카카오 로그인 → Cloud Functions(kakaoCustomAuth) → Firebase 로그인
-     */
     suspend fun kakaoLogin(context: Context) {
         try {
             val accessToken = getKakaoAccessToken(context)
@@ -76,7 +70,6 @@ class UserService @Inject constructor(
             val functions = FirebaseFunctions.getInstance("us-central1")
             val auth = FirebaseAuth.getInstance()
 
-            // 1) 함수 호출 결과를 await()로 받아서
             val result = functions
                 .getHttpsCallable("kakaoCustomAuth")
                 .call(mapOf("accessToken" to accessToken))
@@ -89,17 +82,12 @@ class UserService @Inject constructor(
 
             auth.signInWithCustomToken(customToken).await()
 
-            Log.d("KAKAO", "Firebase 로그인 성공: ${auth.currentUser?.uid}")
         } catch (e: Exception) {
-            Log.e("KAKAO", "카카오 로그인 실패", e)
             throw e
         }
     }
 
 
-    /**
-     * 카카오 SDK를 통해 accessToken 가져오기
-     */
     private suspend fun getKakaoAccessToken(context: Context): String {
         return suspendCoroutine { cont ->
             if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
@@ -127,7 +115,7 @@ class UserService @Inject constructor(
                     .call(mapOf("accessToken" to accessToken))
                     .await()
             } catch (e: Exception) {
-                throw e // or return
+                throw e
             }
             val data = result.data as? Map<*, *>
                 ?: error("Invalid response from naverCustomAuth")
@@ -137,13 +125,11 @@ class UserService @Inject constructor(
 
             auth.signInWithCustomToken(customToken).await()
         } catch (e: Exception) {
-            Log.e("NAVER", "네이버 로그인 실패", e)
             throw e
         }
     }
 
 
-    /** 네이버 SDK로 AccessToken 받기 (suspend) */
     private suspend fun getNaverAccessToken(activity: Activity): String {
         return suspendCoroutine { cont ->
             NaverIdLoginSDK.authenticate(activity, object : OAuthLoginCallback {

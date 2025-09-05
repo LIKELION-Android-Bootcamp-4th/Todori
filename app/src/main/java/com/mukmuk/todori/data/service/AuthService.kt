@@ -28,10 +28,9 @@ class AuthService @Inject constructor(
             "google.com" -> googleSignOut()
             "kakao" -> kakaoLogout()
             "naver" -> naverLogout()
-            else -> { /* 추후 추가되면? */ }
+            else -> {}
         }
         firebaseAuth.signOut()
-        // TODO: Datastore/ROOM 데이터 추후 clear
     }
 
     private suspend fun kakaoLogout() = suspendCancellableCoroutine<Unit> { cont ->
@@ -50,23 +49,14 @@ class AuthService @Inject constructor(
         client.signOut().await()
     }
 
-
-    /**
-     * 회원 탈퇴:
-     * 1) provider 서비스 연동 해제(동의 철회)
-     * 2) Firestore soft delete (deleted = true)
-     * 3) Firebase Auth 계정 삭제
-     * 4) 로컬 세션/캐시 정리
-     */
     suspend fun deleteAccount(uid: String, authProvider: String?) {
         when (authProvider) {
             "google.com" -> googleRevokeAccess()
-            "kakao"      -> kakaoUnlink()
-            "naver"      -> naverRevokeToken()
-            else         -> { /* 그 외.. 추가되면 */ }
+            "kakao" -> kakaoUnlink()
+            "naver" -> naverRevokeToken()
+            else -> {}
         }
 
-        // 2 Firestore delete
         runCatching {
             db.collection("users").document(uid).update(
                 mapOf(
@@ -76,20 +66,17 @@ class AuthService @Inject constructor(
             )
         }
 
-        // 3 Firebase Auth 계정 삭제
         try {
             firebaseAuth.currentUser?.delete()?.await()
         } catch (e: FirebaseAuthRecentLoginRequiredException) {
             throw e
         }
 
-        // 4 세션 정리
         runCatching { firebaseAuth.signOut() }
     }
 
 
     private suspend fun kakaoUnlink() = suspendCancellableCoroutine<Unit> { cont ->
-        // 카카오 계정 연결 해제(동의 철회)
         UserApiClient.instance.unlink { error ->
             if (error != null) cont.resumeWithException(error) else cont.resume(Unit)
         }
@@ -97,9 +84,13 @@ class AuthService @Inject constructor(
 
     private fun naverRevokeToken() {
         NidOAuthLogin().callDeleteTokenApi(object : OAuthLoginCallback {
-            override fun onSuccess() { /* no-op */ }
-            override fun onFailure(httpStatus: Int, message: String) { /* log~~ */ }
-            override fun onError(errorCode: Int, message: String) { onFailure(errorCode, message) }
+            override fun onSuccess() {}
+
+            override fun onFailure(httpStatus: Int, message: String) {}
+
+            override fun onError(errorCode: Int, message: String) {
+                onFailure(errorCode, message)
+            }
         })
         NaverIdLoginSDK.logout()
     }

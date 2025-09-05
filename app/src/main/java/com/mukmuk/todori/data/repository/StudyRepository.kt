@@ -67,8 +67,8 @@ class StudyRepository @Inject constructor(
     suspend fun getProgressesByStudyAndDate(studyId: String, date: String): List<TodoProgress> =
         studyService.getProgressesByStudyAndDate(studyId, date)
 
-    suspend fun toggleTodoProgressDone(studyId: String, studyTodoId: String, uid: String, checked: Boolean) =
-        studyService.toggleTodoProgressDone(studyId, studyTodoId, uid, checked)
+    suspend fun toggleTodoProgressDone(studyTodoId: String, uid: String, checked: Boolean) =
+        studyService.toggleTodoProgressDone(studyTodoId, uid, checked)
 
     suspend fun deleteStudyTodo(studyTodoId: String) =
         studyService.deleteStudyTodo(studyTodoId)

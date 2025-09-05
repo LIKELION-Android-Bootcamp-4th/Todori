@@ -11,6 +11,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import javax.inject.Inject
 
+@RequiresApi(Build.VERSION_CODES.O)
 class DailyRecordService @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
@@ -18,7 +19,6 @@ class DailyRecordService @Inject constructor(
     private fun userDailyRecordRef(uid: String) =
         firestore.collection("users").document(uid).collection("dailyRecord")
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getRecordsByMonth(uid: String, year: Int, month: Int): List<DailyRecord> {
         val ym = YearMonth.of(year, month)
         val startDay = ym.atDay(1).toString()
@@ -33,7 +33,6 @@ class DailyRecordService @Inject constructor(
         return snapshot.toObjects(DailyRecord::class.java)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getRecordsByWeek(uid: String, start: LocalDate, end: LocalDate): List<DailyRecord> {
         val startDay = start.toString()
         val endDay = end.toString()
@@ -47,7 +46,6 @@ class DailyRecordService @Inject constructor(
         return snapshot.toObjects(DailyRecord::class.java)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getRecordByDate(uid: String, date: LocalDate): DailyRecord? {
         val snapshot = userDailyRecordRef(uid)
             .document(date.toString())
@@ -55,13 +53,6 @@ class DailyRecordService @Inject constructor(
             .await()
 
         return snapshot.toObject(DailyRecord::class.java)
-    }
-
-    suspend fun updateDailyRecord(uid: String, record: DailyRecord) {
-        userDailyRecordRef(uid)
-            .document(record.date)
-            .set(record, SetOptions.merge())
-            .await()
     }
 
     suspend fun updateReflectionV2(

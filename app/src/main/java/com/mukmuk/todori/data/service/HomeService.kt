@@ -40,7 +40,7 @@ class HomeService(private val firestore: FirebaseFirestore) {
     suspend fun updateDailyRecord(uid: String, data: Map<String, Any>) {
         withContext(Dispatchers.IO) {
             dailyRecordRef(uid).document(data["date"] as String)
-                .set(data, SetOptions.merge()) // merge = 기존 필드 유지
+                .set(data, SetOptions.merge())
                 .await()
         }
     }

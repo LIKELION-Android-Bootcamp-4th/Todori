@@ -63,7 +63,7 @@ class StudyDetailViewModel @Inject constructor(
         }
     }
 
-    fun toggleTodoProgress(studyId: String, studyTodoId: String, uid: String, checked: Boolean) {
+    fun toggleTodoProgress(studyTodoId: String, uid: String, checked: Boolean) {
         val updatedProgresses = _state.value.progresses.map {
             if (it.studyTodoId == studyTodoId && it.uid == uid) it.copy(done = checked)
             else it
@@ -72,7 +72,7 @@ class StudyDetailViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                studyRepository.toggleTodoProgressDone(studyId, studyTodoId, uid, checked)
+                studyRepository.toggleTodoProgressDone(studyTodoId, uid, checked)
             } catch (e: Exception) {
                 val rolledBack = _state.value.progresses.map {
                     if (it.studyTodoId == studyTodoId && it.uid == uid) it.copy(done = !checked)

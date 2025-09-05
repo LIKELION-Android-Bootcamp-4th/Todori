@@ -127,7 +127,7 @@ class CommunityService(
         }
     }
 
-    suspend fun createPostComment(postId: String, reply: StudyPostComment): StudyPostComment{
+    suspend fun createPostComment(postId: String, reply: StudyPostComment): StudyPostComment {
         val ref = communityRef().document(postId).collection("studyPostReply").document()
         val autoId = ref.id
         val replyWithId =
