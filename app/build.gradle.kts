@@ -78,20 +78,11 @@ dependencies {
     implementation(libs.androidx.glance.material3)
     implementation(libs.androidx.glance.material)
 
-    // Hilt
     implementation(libs.hilt.android)
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     kapt(libs.hilt.compiler)
 
-    // Room
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    kapt(libs.room.compiler)
 
-    // Coil
-//    implementation(libs.coil)
-
-    // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
@@ -101,14 +92,12 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation("com.google.firebase:firebase-messaging")
 
-    // 기타
     implementation(libs.kalendar)
     implementation(libs.kalendar.foundation)
     implementation("com.kizitonwose.calendar:compose:2.8.0")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
 
-    // icons (filled, outlined, rounded 등)
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
 
@@ -121,12 +110,10 @@ dependencies {
     implementation(libs.lottie)
     implementation(libs.kotlinx.datetime)
 
-//    implementation(libs.kakao.user)
     implementation("com.kakao.sdk:v2-user:2.20.3")
 
     implementation("com.navercorp.nid:oauth:5.9.0")
 
-    //위젯
     implementation("androidx.glance:glance:1.1.1")
     implementation("androidx.glance:glance-appwidget:1.1.0")
     implementation("androidx.glance:glance-material3:1.1.0")
