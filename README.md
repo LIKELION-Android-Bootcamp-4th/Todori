@@ -40,7 +40,7 @@ TODORI는 단순한 Todo 관리 앱을 넘어,
 **Feature-based (MVVM + Clean Architecture 기반)**
 
 ```bash
-📦 com.mukmuk.todori
+com.mukmuk.todori
 ├── 📁 data/                   # 데이터 계층
 │   ├── 📁 local.datastore/    # DataStore (로컬 저장소)
 │   ├── 📁 remote/             # 원격 데이터 (Firestore 등)
@@ -67,22 +67,22 @@ TODORI는 단순한 Todo 관리 앱을 넘어,
 
 ## 주요 기능
 
-* ✅ 개인/목표/스터디 기반 TODO 관리
-* ⏱ 뽀모도로 & 스톱워치 타이머
-* 📊 공부 시간 및 집중 패턴 통계
-* 👥 스터디 모집 및 공유 기능
-* 🔔 알림 기능 (D-Day, 회고 작성, 미완료 TODO 등)
+* 개인/목표/스터디 기반 TODO 관리
+* 뽀모도로 & 스톱워치 타이머
+* 공부 시간 및 집중 패턴 통계
+* 스터디 모집 및 공유 기능
+* 알림 기능 (D-Day, 회고 작성, 미완료 TODO 등)
 
 ---
 
-## 🏗 아키텍처
+## 아키텍처
 
 > 본 프로젝트는 **MVVM 패턴 기반의 클라이언트 구조**와
 > Firebase 및 Firebase Cloud Functions를 활용한 **서버리스 구조**로 설계되었습니다.
 <img width="1133" height="494" alt="image" src="https://github.com/user-attachments/assets/209efe52-cf01-4056-aa12-1cff3ee16f09" />
 
 
-### 🔹 구조 설명
+### 구조 설명
 
 * **UI Layer (Screen, ViewModel)**: 화면 로직과 상태 분리
 * **Data Layer (Repository, Service)**: 데이터 흐름 계층화, API 호출 관리
@@ -94,7 +94,7 @@ TODORI는 단순한 Todo 관리 앱을 넘어,
 
 ---
 
-## 🛠 기술 스택
+## 기술 스택
 
 | 분류        | 사용 기술 / 도구                                   |
 | --------- | -------------------------------------------- |
@@ -110,7 +110,7 @@ TODORI는 단순한 Todo 관리 앱을 넘어,
 
 ---
 
-## 📸 TODORI 화면
+## TODORI 화면
 
 | 타이머 | TODO 관리 |
 | ------ | ---------- |
@@ -120,6 +120,8 @@ TODORI는 단순한 Todo 관리 앱을 넘어,
 | ---------- | ------ |
 | <img width="200" alt="1 (3)" src="https://github.com/user-attachments/assets/5b02d08c-97dd-47b9-937e-cd4e0da29d13" /> <img width="200" alt="1 (4)" src="https://github.com/user-attachments/assets/15cea113-df7c-4af1-8ae0-b4b44b5f9c61" /> | <img width="200" alt="1 (7)" src="https://github.com/user-attachments/assets/3ac8a71f-5edc-4034-9bce-dbd51fecec97" /> <img width="200" alt="1 (8)" src="https://github.com/user-attachments/assets/3bc175b7-f6cb-4571-a692-08018c4e47e7" /> |
 
-| 추가 화면 |  
-| --- |
-| <img width="200" alt="1 (9)" src="https://github.com/user-attachments/assets/33ac2aae-931b-4d16-9d35-4b9f7a7632fa" /> <img width="200" alt="1 (11)" src="https://github.com/user-attachments/assets/64c69c1e-7670-4cd2-9fd4-2656c53bd302" /> |  
+
+| 추가 화면 | 위젯 화면 |
+| ---------- | ------ |
+| <img width="200" alt="1 (9)" src="https://github.com/user-attachments/assets/33ac2aae-931b-4d16-9d35-4b9f7a7632fa" /> <img width="200" alt="1 (11)" src="https://github.com/user-attachments/assets/64c69c1e-7670-4cd2-9fd4-2656c53bd302" /> | <img width="200" alt="1 (10)" src="https://github.com/user-attachments/assets/cf504996-90c6-42e2-a58f-c04f21099688"/> <img width="200" alt="1 (11)" src="https://github.com/user-attachments/assets/5b72333a-f235-487c-a1e1-223ba5e0310a" /> |  
+
