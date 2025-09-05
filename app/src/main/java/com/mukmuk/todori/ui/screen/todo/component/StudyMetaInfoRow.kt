@@ -59,7 +59,6 @@ fun StudyMetaInfoRow(
     val dDay = joinedDate?.let { ChronoUnit.DAYS.between(it, selectedDate?.toJavaLocalDate()).toInt() } ?: 0
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-        // 생성일
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -73,7 +72,6 @@ fun StudyMetaInfoRow(
 
         Spacer(modifier = Modifier.width(Dimens.Tiny))
 
-        // D-day
         if(joinedAt != null) {
             Box(
                 modifier = Modifier
@@ -90,7 +88,6 @@ fun StudyMetaInfoRow(
             Spacer(modifier = Modifier.width(Dimens.Tiny))
         }
 
-        // 멤버 수
         if (memberCount != null) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -106,7 +103,6 @@ fun StudyMetaInfoRow(
             Spacer(modifier = Modifier.width(Dimens.Tiny))
         }
 
-        // 반복 요일
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier

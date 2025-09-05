@@ -83,7 +83,6 @@ class GoalViewModel @Inject constructor(
         }
     }
 
-    // 위젯 업데이트
     fun updateDayCountWidget(){
         val intent = Intent(context, DayCountWidgetReceiver::class.java).apply {
             action = AppWidgetManager.ACTION_APPWIDGET_UPDATE

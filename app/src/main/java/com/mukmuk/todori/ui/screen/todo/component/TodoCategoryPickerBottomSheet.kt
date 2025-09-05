@@ -21,7 +21,7 @@ import com.mukmuk.todori.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoCategoryPickerBottomSheet (
+fun TodoCategoryPickerBottomSheet(
 
     todoCategoryList: List<TodoCategory>,
     todosMap: Map<String, List<Todo>>,
@@ -35,46 +35,47 @@ fun TodoCategoryPickerBottomSheet (
         skipPartiallyExpanded = true
     )
 
-    if(show){
-    ModalBottomSheet(
-        modifier = Modifier.fillMaxHeight()
-            .padding(top = 120.dp),
-        onDismissRequest = onDismissRequest,
-        sheetState = sheetState,
-        containerColor = White
-    ) {
-
-        Column(
-            modifier = Modifier.padding(16.dp)
+    if (show) {
+        ModalBottomSheet(
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(top = 120.dp),
+            onDismissRequest = onDismissRequest,
+            sheetState = sheetState,
+            containerColor = White
         ) {
-            Text(
-                text = "카테고리 선택",
-                style = AppTextStyle.TitleMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.fillMaxWidth(),
 
-            )
-
-            LazyColumn(
-                modifier = Modifier.padding(top = 16.dp)
+            Column(
+                modifier = Modifier.padding(16.dp)
             ) {
-                items(todoCategoryList) { category ->
-                    TodoCategoryListData(
-
-                        categoryTitle = category.name,
-                        description = category.description ?: "",
-                        todos = todosMap[category.categoryId] ?: emptyList(),
-                        onSelected = {
-                            onSelected(category)
-                        }
-
+                Text(
+                    text = "카테고리 선택",
+                    style = AppTextStyle.TitleMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.fillMaxWidth(),
 
                     )
+
+                LazyColumn(
+                    modifier = Modifier.padding(top = 16.dp)
+                ) {
+                    items(todoCategoryList) { category ->
+                        TodoCategoryListData(
+
+                            categoryTitle = category.name,
+                            description = category.description ?: "",
+                            todos = todosMap[category.categoryId] ?: emptyList(),
+                            onSelected = {
+                                onSelected(category)
+                            }
+
+
+                        )
+                    }
+
                 }
 
             }
-
         }
-    }
 
     }
 

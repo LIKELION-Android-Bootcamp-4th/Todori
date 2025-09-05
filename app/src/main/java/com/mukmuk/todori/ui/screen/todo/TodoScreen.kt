@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.firebase.Firebase
@@ -125,8 +124,6 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
             }
         }
 
-
-        //주 캘린더
         WeekCalendar(
             selectedDate = selectedDate,
             onDateSelected = { viewModel.setSelectedDate(it) },
@@ -135,7 +132,6 @@ fun TodoScreen(navController: NavHostController, categoryId: String? = null) {
             anchorDate = selectedDate
         )
 
-        //탭 생성
         TabRow(
             selectedTabIndex = selectedTabIndex,
             indicator = { tabPositions ->

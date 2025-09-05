@@ -94,8 +94,8 @@ fun CreateGoalScreen(
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    val isTitleError = title.length !in 1..15       // 목표  1~15
-    val isDescError = description.length !in 1..60 // 설명  1~60
+    val isTitleError = title.length !in 1..15
+    val isDescError = description.length !in 1..60
     val isDateError = startDate == null || endDate == null
 
     val dateFormatter = DateTimeFormatter.ofPattern("yy.MM.dd")

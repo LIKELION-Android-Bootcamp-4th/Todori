@@ -6,7 +6,6 @@ import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,7 +15,6 @@ class TodoCategoryViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TodoCategoryUiState())
-    val uiState: StateFlow<TodoCategoryUiState> = _uiState
 
     fun loadCategories(uid: String) {
         viewModelScope.launch {

@@ -2,7 +2,6 @@ package com.mukmuk.todori.ui.screen.todo
 
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.remote.todo.TodoCategory
-import java.time.LocalDate
 
 data class TodoState (
     val isLoading: Boolean = false,

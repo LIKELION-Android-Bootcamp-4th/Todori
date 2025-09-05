@@ -29,10 +29,6 @@ class StudyViewModel @Inject constructor(
         onError: (Throwable) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            // leaderId -> 내 UID (로그인 처리 후 변경), leaderNickname -> 내 닉네임 (로그인 처리 후 변경) -> viewModel에서 처리
-            // val user = FirebaseAuth.getInstance().currentUser
-            // val leaderId = user?.uid ?: throw Exception("로그인 필요")
-
             val leaderId = Firebase.auth.currentUser?.uid.toString()
             val leaderNickname = userRepository.getProfile(leaderId)?.nickname ?: "LEADER"
             try {

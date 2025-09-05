@@ -8,7 +8,6 @@ import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.study.StudyTodo
-import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -164,7 +163,7 @@ class StudyDetailViewModel @Inject constructor(
 
     fun leaveStudy(studyId: String, uid: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isDeleting = true) // 진행중 UI
+            _state.value = _state.value.copy(isDeleting = true)
             try {
                 studyRepository.removeMemberFromStudy(studyId, uid)
                 _state.value = _state.value.copy(isDeleting = false)

@@ -233,7 +233,6 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             SendTodoDetailScreen(
                 categoryId = categoryId,
                 date = date,
-                navController = navController,
                 onBack = { navController.popBackStack() }
             )
         }
