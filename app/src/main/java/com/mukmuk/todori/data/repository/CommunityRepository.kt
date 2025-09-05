@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class CommunityRepository @Inject constructor(
     private val communityService: CommunityService
-){
+) {
 
     suspend fun createPost(post: StudyPost) {
         communityService.createPost(post)
@@ -49,7 +49,7 @@ class CommunityRepository @Inject constructor(
         communityService.deleteCommunitySearch(uid, query)
     }
 
-    suspend fun createPostComment(postId: String, reply: StudyPostComment): StudyPostComment{
+    suspend fun createPostComment(postId: String, reply: StudyPostComment): StudyPostComment {
         return communityService.createPostComment(postId, reply)
     }
 
@@ -61,16 +61,12 @@ class CommunityRepository @Inject constructor(
         communityService.deletePostComment(postId, replyId)
     }
 
-    suspend fun createPostCommentReply(postId: String, commentId: String, reply: StudyPostComment){
+    suspend fun createPostCommentReply(postId: String, commentId: String, reply: StudyPostComment) {
         communityService.createPostCommentReply(postId, commentId, reply)
     }
 
     suspend fun getPostCommentReplies(postId: String, commentId: String): List<StudyPostComment> {
         return communityService.getPostCommentReplies(postId, commentId)
-    }
-
-    fun loadStudyByData(uid: String): Flow<List<Study>> {
-        return communityService.loadStudyByData(uid)
     }
 
     fun loadStudyById(studyId: String): Flow<Study?> {

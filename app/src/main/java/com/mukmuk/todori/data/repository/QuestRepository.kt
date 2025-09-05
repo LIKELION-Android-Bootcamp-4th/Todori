@@ -1,5 +1,7 @@
 package com.mukmuk.todori.data.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mukmuk.todori.data.remote.quest.DailyUserQuest
 import com.mukmuk.todori.data.service.QuestService
@@ -9,6 +11,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+@RequiresApi(Build.VERSION_CODES.O)
 class QuestRepository @Inject constructor(
     private val questService: QuestService,
     private val firestore: FirebaseFirestore
