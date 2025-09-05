@@ -1,34 +1,30 @@
 package com.mukmuk.todori.di
 
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.mukmuk.todori.data.repository.CommunityRepository
 import com.google.firebase.functions.FirebaseFunctions
-import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
-import com.mukmuk.todori.data.local.datastore.TodayTodoRepository
 import com.mukmuk.todori.data.repository.AuthRepository
+import com.mukmuk.todori.data.repository.CommunityRepository
 import com.mukmuk.todori.data.repository.DailyRecordRepository
 import com.mukmuk.todori.data.repository.GoalRepository
 import com.mukmuk.todori.data.repository.GoalStatsRepository
 import com.mukmuk.todori.data.repository.GoalTodoRepository
 import com.mukmuk.todori.data.repository.HomeRepository
 import com.mukmuk.todori.data.repository.QuestRepository
-import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.StudyStatsRepository
-import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
-import com.mukmuk.todori.data.service.QuestService
 import com.mukmuk.todori.data.repository.TodoRepository
 import com.mukmuk.todori.data.repository.TodoStatsRepository
+import com.mukmuk.todori.data.repository.UserRepository
 import com.mukmuk.todori.data.service.CommunityService
 import com.mukmuk.todori.data.service.DailyRecordService
+import com.mukmuk.todori.data.service.GoalService
 import com.mukmuk.todori.data.service.GoalTodoService
 import com.mukmuk.todori.data.service.HomeService
+import com.mukmuk.todori.data.service.QuestService
 import com.mukmuk.todori.data.service.StudyService
 import com.mukmuk.todori.data.service.TodoCategoryService
 import com.mukmuk.todori.data.service.TodoService
@@ -37,20 +33,19 @@ import com.mukmuk.todori.data.service.UserService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
+@RequiresApi(Build.VERSION_CODES.O)
 object AppModule {
 
-    // Firestore 인스턴스
+
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    // TodoCategoryService
     @Provides
     @Singleton
     fun provideTodoCategoryService(
@@ -121,7 +116,6 @@ object AppModule {
     fun provideTodoRepository(todoService: TodoService): TodoRepository =
         TodoRepository(todoService)
 
-    // CommunityService
     @Provides
     @Singleton
     fun provideCommunityService(
@@ -144,17 +138,14 @@ object AppModule {
     fun provideGoalTodoRepository(goalTodoService: GoalTodoService): GoalTodoRepository =
         GoalTodoRepository(goalTodoService)
 
-    // Firebase Auth
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
-    // Firebase Functions
     @Provides
     @Singleton
     fun provideFirebaseFunctions(): FirebaseFunctions = FirebaseFunctions.getInstance()
 
-    // AuthRepository
     @Provides
     @Singleton
     fun provideAuthRepository(
