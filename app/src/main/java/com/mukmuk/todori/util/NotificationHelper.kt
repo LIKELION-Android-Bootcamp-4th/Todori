@@ -1,16 +1,18 @@
 package com.mukmuk.todori.util
 
+import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.mukmuk.todori.MainActivity
 import com.mukmuk.todori.PushChannels
 import com.mukmuk.todori.R
 
 object NotificationHelper {
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     fun show(context: Context, title: String, body: String, deeplink: String?) {
         val link = deeplink?.takeIf { it.isNotBlank() } ?: "todori://todo"
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link)).apply {
