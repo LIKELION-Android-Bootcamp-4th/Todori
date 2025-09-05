@@ -6,7 +6,6 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.local.datastore.RecordSettingRepository
-import com.mukmuk.todori.data.remote.dailyRecord.DailyRecord
 import com.mukmuk.todori.data.repository.HomeRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.util.regex.Pattern
 import javax.inject.Inject
 
 
@@ -67,10 +65,8 @@ class HomeOcrViewModel @Inject constructor(
                 try {
                     homeRepository.updateDailyRecord(_state.value.uid, data)
                 } catch (e: Exception) {
-                    Log.e("todorilog", "Firebase 업데이트 실패: ${e.message}")
                 }
             } else {
-                Log.e("todorilog", "추가할 시간이 0보다 작거나 같습니다.")
             }
         }
     }

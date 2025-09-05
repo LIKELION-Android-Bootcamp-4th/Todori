@@ -1,24 +1,20 @@
 package com.mukmuk.todori.ui.screen.home.home_setting
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.local.datastore.HomeSettingRepository
-import com.mukmuk.todori.ui.screen.home.PomodoroTimerMode
-import com.mukmuk.todori.ui.screen.home.TimerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeSettingViewModel @Inject constructor(
     private val repository: HomeSettingRepository
-)  : ViewModel() {
+) : ViewModel() {
     private val _state = MutableStateFlow(HomeSettingState())
     val state: StateFlow<HomeSettingState> = _state.asStateFlow()
 

@@ -5,9 +5,9 @@ enum class PomodoroTimerMode {
 }
 
 enum class TimerStatus {
-    IDLE,      // 초기 상태, 정지 상태
-    RUNNING,   // 타이머 동작 중
-    RECORDING  // 기록 버튼 눌러 멈춘 상태
+    IDLE,
+    RUNNING,
+    RECORDING
 }
 
 data class TimerState(

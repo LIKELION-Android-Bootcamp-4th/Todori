@@ -71,7 +71,6 @@ fun HomeSettingScreen(navController: NavHostController) {
                 .padding(innerPadding)
                 .padding(horizontal = Dimens.Medium)
         ) {
-            // 🔹 Pomodoro On/Off Switch
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

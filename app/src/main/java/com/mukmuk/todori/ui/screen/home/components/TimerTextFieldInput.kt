@@ -3,13 +3,11 @@ package com.mukmuk.todori.ui.screen.home.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -22,38 +20,54 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mukmuk.todori.ui.theme.AppTextStyle
-import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.LightGray
 
 @Composable
 fun TimerTextFieldInput(
+    initialHours: Int = 0,
     initialMinutes: Int = 0,
     initialSeconds: Int = 0,
-    onTimeChanged: (Int, Int) -> Unit
+    onTimeChanged: (Int, Int, Int) -> Unit
 ) {
+    var hoursText by remember(initialHours) { mutableStateOf(initialHours.toString().padStart(2, '0')) }
     var minutesText by remember(initialMinutes) { mutableStateOf(initialMinutes.toString().padStart(2, '0')) }
     var secondsText by remember(initialSeconds) { mutableStateOf(initialSeconds.toString().padStart(2, '0')) }
 
     Row(
         modifier = Modifier
-            .background(color = LightGray, shape = RoundedCornerShape(10.dp)),
+            .background(color = LightGray, shape = RoundedCornerShape(10.dp))
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
         TimerUnitTextField(
+            value = hoursText,
+            onValueChange = { newHoursString ->
+                hoursText = newHoursString
+                onTimeChanged(newHoursString.toInt(), minutesText.toInt(), secondsText.toInt())
+            },
+            modifier = Modifier.weight(1f),
+            maxValue = 23
+        )
+        Text(
+            text = ":",
+            style = AppTextStyle.TitleMedium.copy(
+                textAlign = TextAlign.Center
+            ),
+        )
+        TimerUnitTextField(
             value = minutesText,
             onValueChange = { newMinutesString ->
                 minutesText = newMinutesString
-                onTimeChanged(newMinutesString.toInt(), secondsText.toInt())
-            }
+                onTimeChanged(hoursText.toInt(), newMinutesString.toInt(), secondsText.toInt())
+            },
+            modifier = Modifier.weight(1f),
+            maxValue = 59
         )
         Text(
             text = ":",
@@ -65,8 +79,10 @@ fun TimerTextFieldInput(
             value = secondsText,
             onValueChange = { newSecondsString ->
                 secondsText = newSecondsString
-                onTimeChanged(minutesText.toInt(), newSecondsString.toInt())
-            }
+                onTimeChanged(hoursText.toInt(), minutesText.toInt(), newSecondsString.toInt())
+            },
+            modifier = Modifier.weight(1f),
+            maxValue = 59
         )
     }
 }
@@ -75,9 +91,9 @@ fun TimerTextFieldInput(
 fun TimerUnitTextField(
     value: String,
     onValueChange: (String) -> Unit,
+    maxValue: Int,
     modifier: Modifier = Modifier
 ) {
-    // TextFieldValue를 사용해 커서 위치 제어
     var textFieldValue by remember {
         mutableStateOf(
             TextFieldValue(
@@ -87,7 +103,6 @@ fun TimerUnitTextField(
         )
     }
 
-    // 외부에서 value가 업데이트되면 내부 상태도 갱신
     if (textFieldValue.text != value) {
         textFieldValue = TextFieldValue(
             text = value,
@@ -101,11 +116,10 @@ fun TimerUnitTextField(
             val rawInput = input.text
             val sanitized = rawInput.filter { it.isDigit() }
                 .toIntOrNull()
-                ?.coerceIn(0, 59)
+                ?.coerceIn(0, maxValue)
                 ?.toString()
                 ?.padStart(2, '0') ?: "00"
 
-            // 상태 업데이트: 커서는 항상 맨 뒤로
             textFieldValue = TextFieldValue(
                 text = sanitized,
                 selection = TextRange(sanitized.length)
