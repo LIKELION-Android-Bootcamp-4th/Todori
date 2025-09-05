@@ -53,3 +53,9 @@ val ProgressTeal = Color(0xFF14B8A6)
 val CircleTrackColor = Color(0xFFF3E8FF)
 
 val ProgressBackground = Color(0xFFF5F5F5)
+
+val ItDevColor = Color(0xFFF29985)
+val CertificationColor = Color(0xFFD97904)
+val AcademicsColor = Color(0xFFe9a72c)
+val LanguageColor = Color(0xFFF4A261)
+val SelfGrowthColor = Color(0xFFE76F51)

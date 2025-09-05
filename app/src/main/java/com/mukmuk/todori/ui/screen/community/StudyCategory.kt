@@ -1,6 +1,11 @@
 package com.mukmuk.todori.ui.screen.community
 
 import androidx.compose.ui.graphics.Color
+import com.mukmuk.todori.ui.theme.AcademicsColor
+import com.mukmuk.todori.ui.theme.CertificationColor
+import com.mukmuk.todori.ui.theme.ItDevColor
+import com.mukmuk.todori.ui.theme.LanguageColor
+import com.mukmuk.todori.ui.theme.SelfGrowthColor
 
 enum class StudyCategory(
     val displayName: String,
@@ -10,26 +15,26 @@ enum class StudyCategory(
     IT_DEV(
         "IT·개발",
         listOf("프로그래밍", "데이터", "AI", "웹/앱", "소프트웨어", "클라우드"),
-        Color(0xFFF29985)
+        ItDevColor
     ),
     CERTIFICATION(
         "자격증·시험",
         listOf("국가자격증", "어학시험", "IT자격증", "전문직", "코딩테스트"),
-        Color(0xFFD97904)
+        CertificationColor
     ),
     ACADEMICS(
         "학문·교양",
         listOf("수학/통계", "경제/경영", "자연과학", "인문/사회", "논술"),
-        Color(0xFFe9a72c)
+        AcademicsColor
     ),
     LANGUAGE(
         "언어·소통",
         listOf("외국어", "회화", "작문", "발표/토론", "글쓰기"),
-        Color(0xFFF4A261)
+        LanguageColor
     ),
     SELF_GROWTH(
         "자기계발·취미",
         listOf("취업/이직", "재테크/투자", "운동/건강", "예술/디자인", "독서"),
-        Color(0xFFE76F51)
+        SelfGrowthColor
     )
 }
