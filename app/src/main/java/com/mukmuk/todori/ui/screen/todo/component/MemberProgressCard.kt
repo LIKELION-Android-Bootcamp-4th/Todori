@@ -45,8 +45,8 @@ fun MemberProgressCard(
         val totalCount = todos.size
         val progress = if (totalCount > 0) completedCount / totalCount.toFloat() else 0f
         Triple(member, completedCount, progress)
-    }.sortedWith(compareByDescending<Triple<StudyMember, Int, Float>> // 리더 최상단
-    {it.first.role == "LEADER"} .thenByDescending { it.third }).take(4) // 진행률 기준 정렬
+    }.sortedWith(compareByDescending<Triple<StudyMember, Int, Float>>
+    {it.first.role == "LEADER"} .thenByDescending { it.third }).take(4)
 
 
     Card(

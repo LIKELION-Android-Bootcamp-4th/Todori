@@ -2,7 +2,6 @@ package com.mukmuk.todori.widget.goaldaycount
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
@@ -13,7 +12,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.gson.Gson
 import com.mukmuk.todori.data.repository.GoalRepository
-import com.mukmuk.todori.widget.todos.TodoWorkerEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -40,13 +38,11 @@ class DayCountWorker(
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result {
         return try {
-            Log.d("DayCountWorker", "=== doWork() started ===")
             val dayCountWidget = DayCountWidget()
             val manager = GlanceAppWidgetManager(applicationContext)
             val glanceIds = manager.getGlanceIds(dayCountWidget.javaClass)
 
             val uid = Firebase.auth.currentUser?.uid.toString()
-            Log.d("DayCountWorker", "uid : $uid")
 
             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
             val selectedGoal = dayCountRepository.getGoals(uid)
@@ -54,7 +50,6 @@ class DayCountWorker(
                     val end = kotlinx.datetime.LocalDate.parse(goal.endDate)
                     ChronoUnit.DAYS.between(today.toJavaLocalDate(), end.toJavaLocalDate())
                 }
-            Log.d("DayCountWorker", "selectedGoal : ${selectedGoal?.title}")
 
             val json = Gson().toJson(selectedGoal)
             val PREF_KEY = stringPreferencesKey("day_count_widget")

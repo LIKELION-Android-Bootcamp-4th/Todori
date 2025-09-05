@@ -4,20 +4,14 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
-import com.google.gson.Gson
 import com.mukmuk.todori.data.local.datastore.TodayTodoRepository
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.repository.TodoCategoryRepository
 import com.mukmuk.todori.data.repository.TodoRepository
-import com.mukmuk.todori.widget.todos.TodoWidget
 import com.mukmuk.todori.widget.todos.TodoWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -40,7 +34,6 @@ class TodoDetailViewModel @Inject constructor(
     private val _state = MutableStateFlow(TodoDetailState())
     val state: StateFlow<TodoDetailState> = _state
 
-    // todo detail 로드 (category + todos)
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadDetail(uid: String, categoryId: String, date: String) {
         viewModelScope.launch {
@@ -61,7 +54,7 @@ class TodoDetailViewModel @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun loadSendTodoDetail(uid: String, categoryId: String, date: String) {
+    fun loadSendTodoDetail(categoryId: String, date: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             try {
@@ -97,7 +90,6 @@ class TodoDetailViewModel @Inject constructor(
         }
     }
 
-    //todo 생성
     @RequiresApi(Build.VERSION_CODES.O)
     fun addTodo(uid: String, categoryId: String, date: String, title: String, onResult: (Boolean) -> Unit = {}) {
         viewModelScope.launch {
@@ -118,7 +110,7 @@ class TodoDetailViewModel @Inject constructor(
                 val todayTodos = todoRepository.getTodosByDate(uid, LocalDate.now())
                 if (todayTodos.isNotEmpty()) {
                     todayTodoRepository.saveTodayTodos(todayTodos)
-                    updateTodoWidget(todayTodos)
+                    updateTodoWidget()
                 }
             } catch (e: Exception) {
                 onResult(false)
@@ -128,20 +120,18 @@ class TodoDetailViewModel @Inject constructor(
     }
 
 
-    //확인 update
     @RequiresApi(Build.VERSION_CODES.O)
     fun toggleTodoCompleted(uid: String, todo: Todo) {
         viewModelScope.launch {
             val updated = todo.copy(completed = !todo.completed)
             try {
                 todoRepository.updateTodo(uid, updated)
-                // 성공 시 목록 다시 로딩 등 처리
                 loadDetail(uid, todo.categoryId, todo.date)
 
                 val todayTodos = todoRepository.getTodosByDate(uid, LocalDate.now())
                 if (todayTodos.isNotEmpty()) {
                     todayTodoRepository.saveTodayTodos(todayTodos)
-                    updateTodoWidget(todayTodos)
+                    updateTodoWidget()
                 }
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = e.message)
@@ -169,7 +159,7 @@ class TodoDetailViewModel @Inject constructor(
                 val todayTodos = todoRepository.getTodosByDate(uid, LocalDate.now())
                 if (todayTodos.isNotEmpty()) {
                     todayTodoRepository.saveTodayTodos(todayTodos)
-                    updateTodoWidget(todayTodos)
+                    updateTodoWidget()
                 }
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = e.message)
@@ -177,7 +167,6 @@ class TodoDetailViewModel @Inject constructor(
         }
     }
 
-    //category 삭제 및 해당 관련 Todo 삭제
     @RequiresApi(Build.VERSION_CODES.O)
     fun deleteCategoryWithTodos(uid: String, categoryId: String) {
         viewModelScope.launch {
@@ -189,7 +178,7 @@ class TodoDetailViewModel @Inject constructor(
                     val todayTodos = todoRepository.getTodosByDate(uid, LocalDate.now())
                     if (todayTodos.isNotEmpty()) {
                         todayTodoRepository.saveTodayTodos(todayTodos)
-                        updateTodoWidget(todayTodos)
+                        updateTodoWidget()
                     }
                 }
                 categoryRepository.deleteCategory(uid, categoryId)
@@ -201,13 +190,11 @@ class TodoDetailViewModel @Inject constructor(
         }
     }
 
-    //뒤로 가기 후 categoryDeleted 상태 초기화
     fun resetCategoryDeleted() {
         _state.value = _state.value.copy(categoryDeleted = false)
     }
 
-    // 위젯 업데이트
-    fun updateTodoWidget(todos: List<Todo>){
+    fun updateTodoWidget(){
         val intent = Intent(context, TodoWidgetReceiver::class.java).apply {
             action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
         }

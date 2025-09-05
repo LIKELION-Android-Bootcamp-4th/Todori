@@ -142,7 +142,6 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Google 로그인 버튼
                     Box(
                         modifier = Modifier.wrapContentSize(),
                         contentAlignment = Alignment.TopEnd
@@ -163,7 +162,6 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Naver 로그인 버튼
                     Box(
                         modifier = Modifier.wrapContentSize(),
                         contentAlignment = Alignment.TopEnd
@@ -184,7 +182,6 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Kakao 로그인 버튼
                     Box(
                         modifier = Modifier.wrapContentSize(),
                         contentAlignment = Alignment.TopEnd

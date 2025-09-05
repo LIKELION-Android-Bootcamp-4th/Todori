@@ -11,6 +11,7 @@ object WidgetTextStyle {
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp
     )
+
     val TitleSmallLight = TextStyle(
         fontWeight = FontWeight.Medium,
         fontSize = 18.sp

@@ -16,7 +16,4 @@ class MonthStatRepository @Inject constructor(
         return service.getMonthStat(uid, year, month)
     }
 
-    suspend fun getCurrentMonthStat(uid: String): MonthStat? {
-        return service.getCurrentMonthStat(uid)
-    }
 }

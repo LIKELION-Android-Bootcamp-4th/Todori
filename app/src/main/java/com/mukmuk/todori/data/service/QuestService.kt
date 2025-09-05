@@ -1,6 +1,5 @@
 package com.mukmuk.todori.data.service
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mukmuk.todori.data.remote.quest.AssignedQuestDTO
@@ -35,7 +34,6 @@ class QuestService @Inject constructor(
         return try {
             user.getIdToken(false).await().token
         } catch (e: Exception) {
-            Log.e("QuestService", "getIdToken failed", e)
             null
         }
 
@@ -47,7 +45,6 @@ class QuestService @Inject constructor(
                 val idToken = getIdToken()
                 if (idToken.isNullOrBlank()) {
                     val msg = "Missing Firebase ID token"
-                    Log.e("QuestService", msg)
                     return@withContext Result.failure(IllegalStateException(msg))
                 }
 
@@ -93,13 +90,12 @@ class QuestService @Inject constructor(
                         reward = RewardDTO(
                             gainedPoint = rewardObj?.optInt("gainedPoint") ?: 0,
                             levelUp = rewardObj?.optBoolean("levelUp") ?: false,
-                            newLevel = rewardObj?.optInt("newLevel") ?: (profileObj?.optInt("level") ?: 1)
+                            newLevel = rewardObj?.optInt("newLevel") ?: (profileObj?.optInt("level")
+                                ?: 1)
                         ),
                         profile = ProfileDTO(
                             level = profileObj?.optInt("level") ?: 1,
-                            // rewardPoint = 현 레벨  진행도
                             rewardPoint = profileObj?.optInt("rewardPoint") ?: 0,
-                            // nextLevelPoint = 다음 레벨까지 남은 포인트
                             nextLevelPoint = profileObj?.optInt("nextLevelPoint") ?: 0
                         ),
                         meta = MetaDTO(
@@ -110,7 +106,6 @@ class QuestService @Inject constructor(
                     Result.success(result)
                 }
             } catch (e: Exception) {
-                Log.e("QuestService", "❌ HTTP/파싱 실패", e)
                 Result.failure(e)
             }
         }

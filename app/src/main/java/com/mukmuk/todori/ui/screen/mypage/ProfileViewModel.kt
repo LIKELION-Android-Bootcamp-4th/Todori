@@ -37,7 +37,6 @@ class ProfileViewModel @Inject constructor(
     private val _effect = MutableSharedFlow<ProfileEffect>(extraBufferCapacity = 1)
     val effect: SharedFlow<ProfileEffect> = _effect
 
-    //프로필 조회
     fun loadProfile(uid: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
@@ -77,7 +76,7 @@ class ProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            val provider = _uiState.value.user?.authProvider // "google.com" | "kakao" | "naver"
+            val provider = _uiState.value.user?.authProvider
             _uiState.value = _uiState.value.copy(isLoggingOut = true, error = null)
 
             if (provider != null) {

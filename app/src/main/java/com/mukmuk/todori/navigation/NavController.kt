@@ -1,7 +1,6 @@
 package com.mukmuk.todori.navigation
 
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 
 fun NavController.navigateKeepingHomeBase(
     targetRoute: String,

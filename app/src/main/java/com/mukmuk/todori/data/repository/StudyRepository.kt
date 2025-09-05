@@ -64,14 +64,11 @@ class StudyRepository @Inject constructor(
     suspend fun getMembersForStudies(studyIds: List<String>): List<StudyMember> =
         studyService.getMembersForStudies(studyIds)
 
-    suspend fun getProgressByUidStudyDate(uid: String, studyId: String, date: String): List<TodoProgress> =
-        studyService.getProgressByUidStudyDate(uid, studyId, date)
-
     suspend fun getProgressesByStudyAndDate(studyId: String, date: String): List<TodoProgress> =
         studyService.getProgressesByStudyAndDate(studyId, date)
 
-    suspend fun toggleTodoProgressDone(studyId: String, studyTodoId: String, uid: String, checked: Boolean) =
-        studyService.toggleTodoProgressDone(studyId, studyTodoId, uid, checked)
+    suspend fun toggleTodoProgressDone(studyTodoId: String, uid: String, checked: Boolean) =
+        studyService.toggleTodoProgressDone(studyTodoId, uid, checked)
 
     suspend fun deleteStudyTodo(studyTodoId: String) =
         studyService.deleteStudyTodo(studyTodoId)
@@ -92,8 +89,6 @@ class StudyRepository @Inject constructor(
 
     suspend fun updateMyStudyNickname(uid: String, studyId: String, nickname: String) =
         studyService.updateMyStudyNickname(uid, studyId, nickname)
-
-    suspend fun leaveStudy(studyId: String, uid: String) = studyService.leaveStudy(studyId, uid)
 
     suspend fun updateHasPosted(uid: String, studyId: String, hasPosted: Boolean) =
         studyService.updateHasPosted(uid, studyId, hasPosted)

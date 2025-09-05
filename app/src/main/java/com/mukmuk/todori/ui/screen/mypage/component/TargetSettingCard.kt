@@ -61,7 +61,6 @@ fun TargetSettingCard(
 ) {
     val currentHours = currentMinutes / 60f
     val maxHours = maxMinutes / 60f
-    val stepHours = stepMinutes / 60f
 
     var textFieldValue by remember(currentHours) {
         mutableStateOf(if (currentHours % 1 == 0f) currentHours.toInt().toString() else String.format("%.1f", currentHours))
@@ -84,7 +83,6 @@ fun TargetSettingCard(
         Column(
             modifier = Modifier.padding(Dimens.Large)
         ) {
-            // 헤더
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -163,7 +161,6 @@ fun TargetSettingCard(
                     onValueChange(steppedMinutes)
                 },
                 valueRange = 0f..maxHours,
-                steps = ((maxHours / stepHours).toInt() - 1).coerceAtLeast(0),
                 activeColor = iconColor,
                 inactiveColor = iconColor.copy(alpha = 0.2f),
                 modifier = Modifier.fillMaxWidth()

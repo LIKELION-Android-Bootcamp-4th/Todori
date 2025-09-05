@@ -170,6 +170,5 @@ fun DayTab(
         }
     }
 
-    // 스낵바 호스트
     SnackbarHost(hostState = snackbarHostState)
 }

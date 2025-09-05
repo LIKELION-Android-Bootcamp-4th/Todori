@@ -8,7 +8,6 @@ import com.google.firebase.auth.auth
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.study.StudyTodo
-import com.mukmuk.todori.data.remote.study.TodoProgress
 import com.mukmuk.todori.data.repository.StudyRepository
 import com.mukmuk.todori.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,7 +62,7 @@ class StudyDetailViewModel @Inject constructor(
         }
     }
 
-    fun toggleTodoProgress(studyId: String, studyTodoId: String, uid: String, checked: Boolean) {
+    fun toggleTodoProgress(studyTodoId: String, uid: String, checked: Boolean) {
         val updatedProgresses = _state.value.progresses.map {
             if (it.studyTodoId == studyTodoId && it.uid == uid) it.copy(done = checked)
             else it
@@ -72,7 +71,7 @@ class StudyDetailViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                studyRepository.toggleTodoProgressDone(studyId, studyTodoId, uid, checked)
+                studyRepository.toggleTodoProgressDone(studyTodoId, uid, checked)
             } catch (e: Exception) {
                 val rolledBack = _state.value.progresses.map {
                     if (it.studyTodoId == studyTodoId && it.uid == uid) it.copy(done = !checked)
@@ -164,7 +163,7 @@ class StudyDetailViewModel @Inject constructor(
 
     fun leaveStudy(studyId: String, uid: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isDeleting = true) // 진행중 UI
+            _state.value = _state.value.copy(isDeleting = true)
             try {
                 studyRepository.removeMemberFromStudy(studyId, uid)
                 _state.value = _state.value.copy(isDeleting = false)

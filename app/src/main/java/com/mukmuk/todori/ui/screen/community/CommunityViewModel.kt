@@ -3,10 +3,6 @@ package com.mukmuk.todori.ui.screen.community
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.mukmuk.todori.data.remote.community.StudyPost
-import com.mukmuk.todori.data.remote.community.StudyPostComment
-import com.mukmuk.todori.data.remote.study.StudyMember
-import com.mukmuk.todori.data.repository.AuthRepository
 import com.mukmuk.todori.data.repository.CommunityRepository
 import com.mukmuk.todori.data.repository.StudyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

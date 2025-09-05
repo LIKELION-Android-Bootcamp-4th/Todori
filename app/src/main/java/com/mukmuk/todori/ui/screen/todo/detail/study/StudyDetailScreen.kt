@@ -132,11 +132,9 @@ fun StudyDetailScreen(
             val totalCount = todos.size
             val progress = if (totalCount > 0) completedCount / totalCount.toFloat() else 0f
 
-            // 전체 멤버별 Map<uid, Map<todoId, TodoProgress>>
             val memberProgressMap = progresses.groupBy { it.uid }
                 .mapValues { it.value.associateBy { p -> p.studyTodoId } }
 
-            // 삭제 다이얼로그
             if (showDeleteDialog) {
                 AlertDialog(
                     containerColor = White,
@@ -239,7 +237,6 @@ fun StudyDetailScreen(
                         },
                         onToggleChecked = { todoId, checked ->
                             viewModel.toggleTodoProgress(
-                                studyId = study.studyId,
                                 studyTodoId = todoId,
                                 uid = uid,
                                 checked = checked

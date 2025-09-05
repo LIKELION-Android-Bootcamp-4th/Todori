@@ -12,6 +12,8 @@ import androidx.work.workDataOf
 import com.google.firebase.auth.FirebaseAuth
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.kakao.sdk.common.KakaoSdk
 import com.mukmuk.todori.widget.UpdateWidgetWorker
 import com.mukmuk.todori.widget.todos.TodoWorker
@@ -28,6 +30,7 @@ class TodoriApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
         super.onCreate()
         WorkManager.initialize(this, workManagerConfiguration)
@@ -51,6 +54,7 @@ class TodoriApplication : Application(), Configuration.Provider {
                 .build()
         }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun scheduleResetWorker() {
         val now = Calendar.getInstance()
         val midnight = Calendar.getInstance().apply {
@@ -75,7 +79,6 @@ class TodoriApplication : Application(), Configuration.Provider {
         Log.d("WorkScheduler", "Calculated initial delay for worker: $initialDelay ms")
 
         val constraints = Constraints.Builder()
-            // .setRequiresDeviceIdle(true)
             .setRequiresBatteryNotLow(true)
             .build()
         val timeDiff = midnight.timeInMillis - now.timeInMillis
@@ -99,7 +102,6 @@ class TodoriApplication : Application(), Configuration.Provider {
 
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
-            val data = workDataOf("uid" to uid)
             val midnightTodoResetRequest =
                 PeriodicWorkRequestBuilder<TodoWorker>(
                     1, TimeUnit.DAYS

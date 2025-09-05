@@ -1,7 +1,6 @@
 package com.mukmuk.todori.data.service
 
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
@@ -14,7 +13,6 @@ import kotlinx.coroutines.tasks.await
 class TodoCategoryService(
     private val firestore: FirebaseFirestore
 ) {
-    // 유저별 카테고리 컬렉션 경로
     private fun userCategoriesRef(uid: String): CollectionReference =
         firestore.collection("users").document(uid).collection("todoCategories")
 
@@ -23,9 +21,8 @@ class TodoCategoryService(
         return snapshot.toObject(User::class.java)
     }
 
-    // 카테고리 생성
     suspend fun createCategory(uid: String, category: TodoCategory): String {
-        val ref = userCategoriesRef(uid).document() // auto-ID 문서
+        val ref = userCategoriesRef(uid).document()
         val autoId = ref.id
         val categoryWithId = category.copy(categoryId = autoId)
         ref.set(categoryWithId, SetOptions.merge()).await()
@@ -41,7 +38,6 @@ class TodoCategoryService(
             .await()
 
         if (snapshot.documents.isNotEmpty()) {
-            // 이미 있으면 기존 문서 id 반환
             return snapshot.documents.first().id
         }
 
@@ -79,7 +75,6 @@ class TodoCategoryService(
         return snapshot.documents.firstOrNull()?.toObject(TodoCategory::class.java)
     }
 
-    // 카테고리 목록 조회
     suspend fun getCategories(uid: String): List<TodoCategory> {
         val snapshot: QuerySnapshot = userCategoriesRef(uid).get().await()
         return snapshot.documents.mapNotNull { it.toObject(TodoCategory::class.java) }
@@ -94,14 +89,12 @@ class TodoCategoryService(
 
         val sendCategory = snapshot.toObject(SendCategory::class.java) ?: return null
 
-        // users 업데이트
         if (!sendCategory.users.contains(uid)) {
             ref.document(sendCategoryId)
                 .update("users", FieldValue.arrayUnion(uid))
                 .await()
         }
 
-        // 원본 카테고리 조회
         return getCategoryByData(sendCategory.categoryId)
     }
 
@@ -143,7 +136,6 @@ class TodoCategoryService(
         }
     }
 
-    // 카테고리 수정
     suspend fun updateCategory(uid: String, category: TodoCategory) {
         userCategoriesRef(uid)
             .document(category.categoryId)
@@ -152,7 +144,6 @@ class TodoCategoryService(
     }
 
 
-    // 카테고리 삭제
     suspend fun deleteCategory(uid: String, categoryId: String) {
         userCategoriesRef(uid).document(categoryId).delete().await()
         val todoCategoryRef = firestore.collection("sendTodoCategories")

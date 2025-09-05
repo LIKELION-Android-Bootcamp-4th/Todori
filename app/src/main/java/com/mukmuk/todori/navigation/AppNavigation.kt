@@ -2,7 +2,6 @@ package com.mukmuk.todori.navigation
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -234,7 +233,6 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             SendTodoDetailScreen(
                 categoryId = categoryId,
                 date = date,
-                navController = navController,
                 onBack = { navController.popBackStack() }
             )
         }

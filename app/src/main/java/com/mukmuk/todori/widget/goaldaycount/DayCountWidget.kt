@@ -2,16 +2,13 @@ package com.mukmuk.todori.widget.goaldaycount
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.glance.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionRunCallback
@@ -20,6 +17,7 @@ import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
+import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
@@ -28,7 +26,6 @@ import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import com.google.gson.Gson
-import com.mukmuk.todori.MainActivity
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.remote.goal.Goal
 import com.mukmuk.todori.ui.theme.WidgetTextStyle
@@ -44,7 +41,6 @@ class DayCountWidget : GlanceAppWidget() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        Log.d("D-DayWidget", "provideGlance 호출됨. 위젯 ID: $id")
         provideContent {
             GoalDayCountWidgetContent()
         }

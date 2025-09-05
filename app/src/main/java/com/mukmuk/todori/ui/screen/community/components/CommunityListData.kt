@@ -17,8 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Timestamp
-import com.mukmuk.todori.data.remote.study.Study
-import com.mukmuk.todori.data.remote.study.MyStudy
 import com.mukmuk.todori.ui.screen.todo.component.StudyMetaInfoRow
 import com.mukmuk.todori.ui.theme.AppTextStyle
 import com.mukmuk.todori.ui.theme.DarkGray
@@ -34,8 +32,7 @@ fun CommunityListData(
     createdAt: Timestamp?,
     memberCount: Int?,
     activeDays: List<String>,
-    onClick: () -> Unit,
-    isSelected: Boolean = false
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier

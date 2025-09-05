@@ -7,21 +7,21 @@ import androidx.compose.runtime.Composable
 
 
 private val LightColorScheme = lightColorScheme(
-    primary = UserPrimary,               // 주 컬러 (ex. 버튼, 강조 색상)
-    onPrimary = White,                   // primary 위에 올 글자색
-    primaryContainer = UserHalf,         // 버튼 배경 등
+    primary = UserPrimary,
+    onPrimary = White,
+    primaryContainer = UserHalf,
     onPrimaryContainer = Black,
 
-    secondary = GoalPrimary,            // 보조 색상
+    secondary = GoalPrimary,
     onSecondary = Black,
 
-    tertiary = GroupPrimary,            // 서브 보조 색상
+    tertiary = GroupPrimary,
     onTertiary = White,
 
-    background = Background,            // 기본 배경색
+    background = Background,
     onBackground = Black,
 
-    surface = White,                    // 카드, 시트 등 표면 색
+    surface = White,
     onSurface = Black,
     error = Red,
     onError = White

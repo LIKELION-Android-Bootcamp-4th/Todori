@@ -26,9 +26,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.mukmuk.todori.ui.mypage.component.ProfileSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageAccountSection
 import com.mukmuk.todori.ui.screen.mypage.component.MyPageMenuSection
+import com.mukmuk.todori.ui.screen.mypage.component.ProfileSection
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.White

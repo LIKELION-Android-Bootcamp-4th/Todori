@@ -5,8 +5,8 @@ import android.content.Intent
 import androidx.annotation.RequiresApi
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
-import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.state.updateAppWidgetState
 import com.mukmuk.todori.widget.WidgetEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 
@@ -24,7 +24,6 @@ class TimerAction : ActionCallback {
 
         val newRunning = parameters[TimerWidget.TOGGLE_KEY] ?: false
 
-        // GlanceId를 문자열로 변환해 서비스에 전달
         val serviceIntent = Intent(context, TimerService::class.java).apply {
             putExtra(TimerService.EXTRA_GLANCE_ID_STRING, glanceId.toString())
         }
@@ -37,7 +36,6 @@ class TimerAction : ActionCallback {
 
         repository.saveRunningState(newRunning)
 
-        // 위젯 상태 업데이트
         updateAppWidgetState(context, glanceId) { prefs ->
             prefs[TimerWidget.RUNNING_STATE_PREF_KEY] = newRunning
         }

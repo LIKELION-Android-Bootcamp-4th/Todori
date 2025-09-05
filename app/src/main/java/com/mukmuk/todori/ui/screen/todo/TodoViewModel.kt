@@ -3,10 +3,8 @@ package com.mukmuk.todori.ui.screen.todo
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.Timestamp
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.data.remote.todo.TodoCategory
 import com.mukmuk.todori.data.repository.DailyRecordRepository

@@ -1,8 +1,6 @@
 package com.mukmuk.todori.ui.screen.community
 
 import com.mukmuk.todori.data.remote.community.StudyPost
-import com.mukmuk.todori.data.remote.community.StudyPostComment
-import com.mukmuk.todori.data.remote.study.StudyMember
 
 data class CommunityState (
     val postList: List<StudyPost> = emptyList(),

@@ -1,6 +1,5 @@
 package com.mukmuk.todori.data.service
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,7 +21,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(remoteMessage)
 
         val title = remoteMessage.data["title"] ?: remoteMessage.notification?.title ?: ""
-        val body  = remoteMessage.data["body"]  ?: remoteMessage.notification?.body  ?: ""
+        val body = remoteMessage.data["body"] ?: remoteMessage.notification?.body ?: ""
         val deeplink = remoteMessage.data["deeplink"]
 
         NotificationHelper.show(
@@ -35,17 +34,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d("FCM", "onNewToken: $token")
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        ioScope.launch { runCatching { saveTokenToFirestore(uid, token) } }
+        ioScope.launch { runCatching { saveTokenToFirestore(token) } }
     }
 
     companion object {
         fun ensureTokenSync() {
-            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
             FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    runCatching { saveTokenStatic(uid, token) }
+                    runCatching { saveTokenStatic(token) }
                 }
             }
         }
@@ -61,12 +57,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 runCatching { deleteTokenFromFirestore(uid, token) }
             }
 
-            // 기기 로컬 토큰 삭제 → 다음 실행 시 새 토큰 발급
             runCatching { fm.deleteToken().await() }
         }
 
 
-        private suspend fun saveTokenStatic(uid: String, token: String) {
+        private suspend fun saveTokenStatic(token: String) {
             val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
             val db = FirebaseFirestore.getInstance()
             val doc = mapOf(
@@ -88,7 +83,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private suspend fun saveTokenToFirestore(uid: String, token: String) {
+    private suspend fun saveTokenToFirestore(token: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
         val doc = mapOf(

@@ -11,12 +11,10 @@ data class StudyTargetsState(
     val showConsistencyCheck: Boolean = false
 ) {
     companion object {
-        //MAX 시간
-        const val MAX_DAILY_MINUTES = 12 * 60 // 12시간
-        const val MAX_WEEKLY_MINUTES = 50 * 60 // 50시간
-        const val MAX_MONTHLY_MINUTES = 200 * 60 // 200시간
+        const val MAX_DAILY_MINUTES = 12 * 60
+        const val MAX_WEEKLY_MINUTES = 50 * 60
+        const val MAX_MONTHLY_MINUTES = 200 * 60
 
-        //STEP
         const val DAILY_STEP = 30
         const val WEEKLY_STEP = 60
         const val MONTHLY_STEP = 60

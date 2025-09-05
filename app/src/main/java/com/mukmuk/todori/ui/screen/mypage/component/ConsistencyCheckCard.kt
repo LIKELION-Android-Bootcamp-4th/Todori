@@ -138,16 +138,14 @@ fun SimpleConsistencyCheckCard(
                 Column(
                     modifier = Modifier.padding(top = Dimens.Medium)
                 ) {
-                    // 일일 목표 표시
                     if (dailyMinutes > 0) {
                         ConsistencyItem(
                             text = "일일 목표 × 30일",
                             hours = dailyTo30Days,
-                            isConsistent = true // 기준이 되므로 항상 true
+                            isConsistent = true
                         )
                     }
 
-                    // 주간 목표 표시
                     if (weeklyMinutes > 0) {
                         ConsistencyItem(
                             text = "주간 목표 × 4주",
@@ -156,7 +154,6 @@ fun SimpleConsistencyCheckCard(
                         )
                     }
 
-                    // 월간 목표 표시
                     if (monthlyMinutes > 0) {
                         ConsistencyItem(
                             text = "월간 목표",

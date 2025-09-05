@@ -5,28 +5,21 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,10 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.mukmuk.todori.ui.component.ProgressWithText
@@ -55,7 +46,6 @@ import com.mukmuk.todori.ui.theme.Black
 import com.mukmuk.todori.ui.theme.ButtonPrimary
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Red
-import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -64,27 +54,22 @@ import com.mukmuk.todori.ui.theme.White
 fun SendTodoDetailScreen(
     categoryId: String,
     date: String,
-    navController: NavHostController,
     onBack: () -> Unit
 ) {
     val viewModel: TodoDetailViewModel = hiltViewModel()
-//    val uid = "testuser"
     val uid = Firebase.auth.currentUser?.uid.toString()
 
     val state by viewModel.state.collectAsState()
 
 
-    val focusManager = LocalFocusManager.current
 
     var showDialog by remember { mutableStateOf(false) }
-    val category = state.category
     val categoryTitle = state.category?.name.orEmpty()
     val categorySubTitle = state.category?.description.orEmpty()
     val todos = state.todos
     val total = todos.size
     val progress = todos.count { it.completed }
 
-    var newTodoText by remember { mutableStateOf("") }
     var context = LocalContext.current
     if (state.categoryDeleted) {
         LaunchedEffect(Unit) {
@@ -94,7 +79,7 @@ fun SendTodoDetailScreen(
     }
 
     LaunchedEffect(categoryId, date) {
-        viewModel.loadSendTodoDetail(uid, categoryId, date)
+        viewModel.loadSendTodoDetail(categoryId, date)
     }
 
     if (showDialog) {

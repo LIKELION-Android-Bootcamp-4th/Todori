@@ -1,5 +1,7 @@
 package com.mukmuk.todori.ui.screen.mypage
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mukmuk.todori.data.remote.quest.DailyUserQuest
@@ -16,6 +18,7 @@ data class QuestUiState(
     val error: String? = null
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class QuestViewModel @Inject constructor(
     private val questRepository: QuestRepository
@@ -24,17 +27,16 @@ class QuestViewModel @Inject constructor(
     private val _ui = MutableStateFlow(QuestUiState())
     val ui: StateFlow<QuestUiState> = _ui
 
+
     fun loadDailyQuests(uid: String) {
         viewModelScope.launch {
             _ui.value = _ui.value.copy(isLoading = true, error = null)
 
-            // 1) 캐시 먼저
             val cached = questRepository.getCachedDailyQuests(uid)
             if (cached.isNotEmpty()) {
                 _ui.value = _ui.value.copy(isLoading = false, quests = cached)
             }
 
-            // 2) 서버로 최신화 (퀘스트만 반영)
             val res = questRepository.refreshFromServer(uid)
             res.onSuccess { r ->
                 val list = r.assigned.map {

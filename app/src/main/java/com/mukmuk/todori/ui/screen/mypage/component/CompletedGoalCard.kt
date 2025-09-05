@@ -30,7 +30,6 @@ import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 
-
 @Composable
 fun CompletedGoalCard(
     goal: Goal

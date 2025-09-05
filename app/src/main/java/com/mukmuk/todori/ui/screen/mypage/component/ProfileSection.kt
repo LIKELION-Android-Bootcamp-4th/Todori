@@ -1,4 +1,4 @@
-package com.mukmuk.todori.ui.mypage.component
+package com.mukmuk.todori.ui.screen.mypage.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

@@ -12,7 +12,7 @@ sealed class BottomNavItem(val route: String, val label: String, val icon: Image
     object Todo : BottomNavItem("todo", "TODO", Icons.Outlined.Description)
     object Stats : BottomNavItem("stats", "통계", Icons.Outlined.BarChart)
     object Home : BottomNavItem("home", "홈", Icons.Outlined.Alarm)
-    object Study : BottomNavItem("study", "스터디", Icons.Outlined.PeopleOutline)
+    object Study : BottomNavItem("study", "커뮤니티", Icons.Outlined.PeopleOutline)
     object MyPage : BottomNavItem("mypage", "마이페이지", Icons.Outlined.Person)
 
     companion object {

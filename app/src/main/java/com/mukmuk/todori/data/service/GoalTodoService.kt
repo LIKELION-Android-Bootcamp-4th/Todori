@@ -11,7 +11,6 @@ class GoalTodoService(
     private fun userGoalTodosRef(uid: String) =
         firestore.collection("users").document(uid).collection("goalTodos")
 
-    // 세부 할 일 생성
     suspend fun createGoalTodo(uid: String, goalTodo: GoalTodo): GoalTodo {
         val ref = userGoalTodosRef(uid).document()
         val autoId = ref.id
@@ -30,7 +29,6 @@ class GoalTodoService(
     }
 
 
-    // 할 일 완료/수정/삭제
     suspend fun updateGoalTodo(uid: String, goalTodo: GoalTodo) {
         userGoalTodosRef(uid).document(goalTodo.goalTodoId)
             .set(goalTodo, SetOptions.merge()).await()

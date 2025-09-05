@@ -80,7 +80,6 @@ import com.mukmuk.todori.ui.theme.DarkGray
 import com.mukmuk.todori.ui.theme.Dimens
 import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.GroupSecondary
-import com.mukmuk.todori.ui.theme.UserHalf
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
 import com.mukmuk.todori.util.getLevelInfo

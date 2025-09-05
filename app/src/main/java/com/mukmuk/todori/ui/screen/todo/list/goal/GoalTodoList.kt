@@ -40,11 +40,9 @@ fun GoalTodoList(selectedDate: LocalDate, navController: NavHostController) {
     val viewModel: GoalTodoListViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-//    val uid = "testuser"
 
     val uid = Firebase.auth.currentUser?.uid.toString()
 
-    // 최초 한 번만 데이터 로드
     LaunchedEffect(uid) {
         viewModel.loadGoalsWithTodos(uid)
     }

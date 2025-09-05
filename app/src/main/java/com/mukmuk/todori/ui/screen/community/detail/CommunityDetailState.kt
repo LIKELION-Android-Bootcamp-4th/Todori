@@ -1,7 +1,6 @@
 package com.mukmuk.todori.ui.screen.community.detail
 
 import com.mukmuk.todori.ui.screen.community.CommentUiModel
-import com.mukmuk.todori.data.remote.community.StudyPost
 import com.mukmuk.todori.data.remote.study.Study
 import com.mukmuk.todori.data.remote.study.StudyMember
 import com.mukmuk.todori.data.remote.user.User

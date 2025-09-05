@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionRunCallback
@@ -28,7 +27,6 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.mukmuk.todori.MainActivity
 import com.mukmuk.todori.R
 import com.mukmuk.todori.data.remote.todo.Todo
 import com.mukmuk.todori.ui.theme.WidgetTextStyle

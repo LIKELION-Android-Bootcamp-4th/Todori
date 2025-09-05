@@ -33,11 +33,8 @@ import com.mukmuk.todori.ui.theme.Gray
 import com.mukmuk.todori.ui.theme.Red
 import com.mukmuk.todori.ui.theme.UserPrimary
 import com.mukmuk.todori.ui.theme.White
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
-import kotlinx.datetime.todayIn
 import java.time.temporal.ChronoUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -64,7 +61,6 @@ fun GoalMetaInfoRow(goal: Goal, selectedDate: LocalDate) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 기간
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -78,7 +74,6 @@ fun GoalMetaInfoRow(goal: Goal, selectedDate: LocalDate) {
 
         Spacer(modifier = Modifier.width(Dimens.Tiny))
 
-        // D-Day
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(6.dp))
@@ -93,7 +88,6 @@ fun GoalMetaInfoRow(goal: Goal, selectedDate: LocalDate) {
 
         Spacer(modifier = Modifier.width(Dimens.Tiny))
 
-        // 상태
         Icon(Icons.Default.Adjust, contentDescription = null, tint = statusColor)
         Text(statusText, style = AppTextStyle.BodySmall, modifier = Modifier.padding(Dimens.Nano))
     }
