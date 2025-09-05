@@ -1,7 +1,6 @@
 package com.mukmuk.todori.ui.screen.stats.tab.week
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -53,7 +52,6 @@ class WeekViewModel @Inject constructor(
             }
             updateInsights()
         } catch (e: Exception) {
-            Log.d("WeekViewModel", "주간 투두 불러오기 실패 : ${e.message}")
         }
     }
 
@@ -78,7 +76,6 @@ class WeekViewModel @Inject constructor(
             }
             updateInsights()
         } catch (e: Exception) {
-            Log.d("WeekViewModel", "주간 공부기록 불러오기 실패 : ${e.message}")
         }
     }
 
@@ -90,7 +87,6 @@ class WeekViewModel @Inject constructor(
             }
             updateInsights()
         } catch (e: Exception) {
-            Log.d("WeekViewModel", "스터디 목표 불러오기 실패 : ${e.message}")
         }
     }
 
